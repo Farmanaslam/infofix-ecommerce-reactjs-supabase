@@ -1,10 +1,13 @@
 
-{/*import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 export const generateProductDescription = async (productName: string, category: string, features: string[]) => {
   try {
+    if (!ai) return "AI feature temporarily unavailable.";
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Generate a high-converting, professional e-commerce product description for a product named "${productName}" in the "${category}" category. Key features to highlight: ${features.join(', ')}. Keep it under 150 words.`,
@@ -21,6 +24,7 @@ export const generateProductDescription = async (productName: string, category: 
 
 export const getInventoryAdvice = async (stockLevel: number, salesTrend: string) => {
   try {
+    if (!ai) return "AI feature temporarily unavailable.";
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Act as a retail inventory consultant. A product has ${stockLevel} items left in stock. The recent sales trend is: ${salesTrend}. Provide a one-sentence recommendation (e.g., Restock soon, Clear inventory, Steady).`,
@@ -41,4 +45,4 @@ export const generateCustomerResponse = async (orderId: string, status: string, 
   } catch (error) {
     return "We are looking into your order status and will get back to you shortly.";
   }
-};/* */}
+};
