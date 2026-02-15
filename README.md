@@ -20,6 +20,6 @@ View your app in AI Studio: https://ai.studio/apps/drive/1btffPaFS9aniDuRwUc4Zzf
 3. Run the app:
    `npm run dev`
 =======
-# infofix-ecommerce-recaatjs-supabase
+# infofix-ecommerce-reactjs-supabase
 A full-stack eCommerce web application for Infofix Computers built with Next.js and Supabase.
 >>>>>>> ec4663447c3a9ae0da1de0b5240d152e75e640f9
