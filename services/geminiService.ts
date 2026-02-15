@@ -1,16 +1,19 @@
-
 import { GoogleGenAI } from "@google/genai";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
-export const generateProductDescription = async (productName: string, category: string, features: string[]) => {
+export const generateProductDescription = async (
+  productName: string,
+  category: string,
+  features: string[],
+) => {
   try {
     if (!ai) return "AI feature temporarily unavailable.";
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Generate a high-converting, professional e-commerce product description for a product named "${productName}" in the "${category}" category. Key features to highlight: ${features.join(', ')}. Keep it under 150 words.`,
+      contents: `Generate a high-converting, professional e-commerce product description for a product named "${productName}" in the "${category}" category. Key features to highlight: ${features.join(", ")}. Keep it under 150 words.`,
       config: {
         temperature: 0.7,
       },
@@ -22,7 +25,10 @@ export const generateProductDescription = async (productName: string, category: 
   }
 };
 
-export const getInventoryAdvice = async (stockLevel: number, salesTrend: string) => {
+export const getInventoryAdvice = async (
+  stockLevel: number,
+  salesTrend: string,
+) => {
   try {
     if (!ai) return "AI feature temporarily unavailable.";
     const response = await ai.models.generateContent({
@@ -35,7 +41,11 @@ export const getInventoryAdvice = async (stockLevel: number, salesTrend: string)
   }
 };
 
-export const generateCustomerResponse = async (orderId: string, status: string, issue: string) => {
+export const generateCustomerResponse = async (
+  orderId: string,
+  status: string,
+  issue: string,
+) => {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
