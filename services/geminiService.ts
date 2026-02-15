@@ -1,5 +1,5 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
+{/*import { GoogleGenAI, Type } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 
@@ -41,4 +41,4 @@ export const generateCustomerResponse = async (orderId: string, status: string, 
   } catch (error) {
     return "We are looking into your order status and will get back to you shortly.";
   }
-};
+};/* */}
