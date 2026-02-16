@@ -2,6 +2,10 @@ import { GoogleGenAI } from "@google/genai";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
+if (!apiKey) {
+  console.warn("Gemini API key missing. Check .env.local file.");
+}
+
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 export const generateProductDescription = async (
@@ -47,6 +51,7 @@ export const generateCustomerResponse = async (
   issue: string,
 ) => {
   try {
+    if (!ai) return "AI feature temporarily unavailable.";
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Write a polite customer support response for order ${orderId} which is currently ${status}. The customer is asking about: ${issue}. Be empathetic and helpful.`,
