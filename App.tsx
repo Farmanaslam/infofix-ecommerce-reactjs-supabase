@@ -20,6 +20,7 @@ import { Profile } from "./pages/Profile";
 import { MyOrders } from "./pages/MyOrders";
 import { Policy } from "./pages/Policy";
 import { Checkout } from "./pages/Checkout";
+import { CareersPage } from "./pages/CareersPage";
 const Main: React.FC = () => {
   const { currentUser, setCurrentUser, currentPage, adminPage } = useStore();
   useEffect(() => {
@@ -67,6 +68,7 @@ const Main: React.FC = () => {
         {currentPage === "orders" && <MyOrders />}
         {currentPage === "policy" && <Policy />}
         {currentPage === "checkout" && <Checkout />}
+        {currentPage === "careers" && <CareersPage />}
       </CustomerLayout>
     );
   }

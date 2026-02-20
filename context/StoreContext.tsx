@@ -29,7 +29,8 @@ export type CustomerPage =
   | "cart"
   | "profile"
   | "orders"
-  | "policy";
+  | "policy"
+  | "careers";
 export type AdminPage =
   | "Dashboard"
   | "Inventory"

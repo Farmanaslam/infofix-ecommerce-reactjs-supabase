@@ -36,6 +36,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   const { cart, switchRole, currentUser, logout, currentPage, setCurrentPage } =
     useStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   useEffect(() => {
     window.scrollTo({
       top: 0,
@@ -49,6 +50,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     { label: "Services", id: "services" },
     { label: "Branches", id: "branches" },
     { label: "Updates", id: "updates" },
+    { label: "Careers", id: "careers" },
     { label: "Contact", id: "contact" },
   ];
 
@@ -222,7 +224,10 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 </button>
               </li>
               <li>
-                <button className="hover:text-white transition-colors">
+                <button
+                  onClick={() => setCurrentPage("careers")}
+                  className="hover:text-white transition-colors"
+                >
                   Careers
                 </button>
               </li>
@@ -422,14 +427,126 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
       </footer>
 
       {/* MESSAGE US FLOATING BUTTON */}
-      <button className="fixed bottom-6 right-6 z-[60] bg-[#25D366] text-white px-6 py-3 rounded-full flex items-center gap-3 shadow-2xl hover:scale-105 transition-transform group animate-bounce-subtle">
+      <button
+        onClick={() => setIsMessageModalOpen(true)}
+        className="fixed bottom-6 right-6 z-[60] bg-[#25D366] text-white px-6 py-3 rounded-full flex items-center gap-3 shadow-2xl hover:scale-105 transition-transform group animate-bounce-subtle"
+      >
         <div className="relative">
           <MessageSquare className="w-6 h-6 fill-white text-[#25D366]" />
           <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-[#25D366]"></span>
         </div>
         <span className="font-bold text-sm tracking-tight">Message Us</span>
       </button>
+      {isMessageModalOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          {/* Modal Wrapper */}
+          <div className="bg-white w-full max-w-lg h-[90vh] rounded-3xl shadow-2xl flex flex-col animate-fade-in">
+            {/* Header */}
+            <div className="p-6 border-b border-gray-100 relative">
+              <button
+                onClick={() => setIsMessageModalOpen(false)}
+                className="absolute top-5 right-5 text-gray-400 hover:text-red-500 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
 
+              <h2 className="text-2xl font-black bg-gradient-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
+                Contact Infofix Support
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                We usually reply within 24 hours.
+              </p>
+            </div>
+
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <form
+                action="https://formsubmit.co/infofixcomputers1@gmail.com"
+                method="POST"
+                className="space-y-4"
+              >
+                <input type="hidden" name="_captcha" value="false" />
+                <input
+                  type="hidden"
+                  name="_subject"
+                  value="New Query from Infofix Website"
+                />
+
+                <div>
+                  <label className="text-xs font-bold text-gray-600">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    placeholder="Enter your name"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-600">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    placeholder="Enter your email"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-600">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    placeholder="Optional"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-600">
+                    Subject
+                  </label>
+                  <input
+                    type="text"
+                    name="subject"
+                    required
+                    className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    placeholder="Order / Product / Complaint / Other"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-600">
+                    Your Message
+                  </label>
+                  <textarea
+                    name="message"
+                    required
+                    rows={4}
+                    className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm resize-none"
+                    placeholder="Write your query here..."
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                >
+                  Send Message
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -440,6 +557,13 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
         .animate-bounce-subtle {
           animation: bounce-subtle 3s ease-in-out infinite;
         }
+          @keyframes fade-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
       `,
         }}
       />
