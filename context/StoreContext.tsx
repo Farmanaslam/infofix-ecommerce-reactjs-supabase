@@ -25,7 +25,11 @@ export type CustomerPage =
   | "branches"
   | "updates"
   | "login"
-  | "signup";
+  | "signup"
+  | "cart"
+  | "profile"
+  | "orders"
+  | "policy";
 export type AdminPage =
   | "Dashboard"
   | "Inventory"

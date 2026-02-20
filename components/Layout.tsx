@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useStore, CustomerPage, AdminPage } from "../context/StoreContext";
 import {
   LayoutDashboard,
@@ -36,7 +36,12 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   const { cart, switchRole, currentUser, logout, currentPage, setCurrentPage } =
     useStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [currentPage]);
   const navLinks: { label: string; id: CustomerPage }[] = [
     { label: "Home", id: "home" },
     { label: "About Us", id: "about" },
@@ -75,7 +80,10 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-all">
+            <button
+              onClick={() => setCurrentPage("cart")}
+              className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-all"
+            >
               <ShoppingCart className="w-6 h-6" />
               {cart.length > 0 && (
                 <span className="absolute top-0 right-0 bg-indigo-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-2 ring-white">
@@ -88,13 +96,13 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               <div className="hidden md:flex gap-3">
                 <button
                   onClick={() => setCurrentPage("login")}
-                  className="text-sm font-semibold text-gray-700 hover:text-indigo-600"
+                  className="text-sm font-semibold text-gray-700 hover:text-indigo-600 cursor-pointer"
                 >
                   Login
                 </button>
                 <button
                   onClick={() => setCurrentPage("signup")}
-                  className="text-sm font-bold px-4 py-2 bg-indigo-600 text-white rounded-xl"
+                  className="text-sm font-bold px-4 py-2 bg-indigo-600 text-white rounded-xl cursor-pointer"
                 >
                   Sign Up
                 </button>
@@ -103,12 +111,38 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
 
             {currentUser && currentUser.role === "CUSTOMER" && (
               <div className="hidden md:flex gap-3">
-                <button className="text-sm font-semibold text-gray-700">
-                  My Account
-                </button>
+                <div className="relative group">
+                  <button className="text-sm font-semibold text-gray-700 hover:text-indigo-600 transition-colors cursor-pointer">
+                    My Account
+                  </button>
+
+                  <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl shadow-indigo-100 border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden">
+                    <button
+                      onClick={() => setCurrentPage("orders")}
+                      className="w-full text-left px-5 py-3 text-sm font-semibold text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors cursor-pointer"
+                    >
+                      My Orders
+                    </button>
+
+                    <button
+                      onClick={() => setCurrentPage("profile")}
+                      className="w-full text-left px-5 py-3 text-sm font-semibold text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors cursor-pointer border-t border-gray-100"
+                    >
+                      Profile
+                    </button>
+                  </div>
+                </div>
                 <button
-                  onClick={logout}
-                  className="text-sm font-bold text-red-500"
+                  onClick={() => {
+                    const confirmLogout = window.confirm(
+                      "Are you sure you want to log out?",
+                    );
+                    if (confirmLogout) {
+                      logout();
+                      setCurrentPage("home");
+                    }
+                  }}
+                  className="text-sm font-bold text-red-500 cursor-pointer"
                 >
                   Logout
                 </button>
@@ -118,7 +152,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <div className="hidden md:flex gap-3">
               <button
                 onClick={() => switchRole("MANAGER")}
-                className="text-xs font-bold px-4 py-2 bg-gray-900 text-white rounded-xl"
+                className="text-xs font-bold px-4 py-2 bg-gray-900 text-white rounded-xl cursor-pointer"
               >
                 Staff Portal
               </button>
@@ -251,12 +285,18 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <div className="w-6 h-[1px] bg-gray-500 mb-4"></div>
             <ul className="space-y-2 text-xs text-gray-400">
               <li>
-                <button className="hover:text-white transition-colors">
+                <button
+                  onClick={() => setCurrentPage("policy")}
+                  className="hover:text-white transition-colors"
+                >
                   Return Policy
                 </button>
               </li>
               <li>
-                <button className="hover:text-white transition-colors">
+                <button
+                  onClick={() => setCurrentPage("policy")}
+                  className="hover:text-white transition-colors"
+                >
                   Terms of Use
                 </button>
               </li>
@@ -411,7 +451,6 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { currentUser, switchRole, adminPage, setAdminPage } = useStore();
-
   const navItems: { name: AdminPage; icon: any; role: string[] }[] = [
     { name: "Dashboard", icon: LayoutDashboard, role: ["MANAGER"] },
     { name: "Inventory", icon: Package, role: ["MANAGER", "INVENTORY"] },
@@ -426,8 +465,8 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <div className="min-h-screen flex bg-gray-50">
-      <aside className="w-72 bg-white border-r flex flex-col h-screen sticky top-0 shadow-sm">
-        <div className="p-8 border-b">
+      <aside className="w-72 bg-white border-r border-gray-200 flex flex-col min-h-screen sticky top-0 shadow-sm">
+        <div className="p-8 border-b  border-gray-200">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
               <Store className="w-6 h-6" />
@@ -437,7 +476,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
             </span>
           </div>
 
-          <div className="p-4 bg-gray-50 rounded-2xl flex items-center gap-3 border border-gray-100">
+          <div className="p-4 bg-gray-50 rounded-2xl flex items-center gap-3 border border-gray-200">
             <img
               src={currentUser.avatar}
               alt={currentUser.name}
@@ -473,7 +512,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
           ))}
         </nav>
 
-        <div className="p-6 border-t space-y-3">
+        <div className="p-6 border-t  border-gray-200 space-y-3">
           <button
             onClick={() => switchRole("CUSTOMER")}
             className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-all shadow-sm"
@@ -481,7 +520,17 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
             <Store className="w-5 h-5" />
             Store View
           </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl transition-all">
+          <button
+            onClick={() => {
+              const confirmLogout = window.confirm(
+                "Are you sure you want to sign out?",
+              );
+              if (confirmLogout) {
+                switchRole("CUSTOMER");
+              }
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl transition-all"
+          >
             <LogOut className="w-5 h-5" />
             Sign Out
           </button>
@@ -489,7 +538,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
       </aside>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-20 bg-white border-b flex items-center justify-between px-10">
+        <header className="h-20 bg-white border-b  border-gray-200 flex items-center justify-between px-10">
           <div className="flex items-center gap-3 text-sm font-medium text-gray-400">
             <span className="text-gray-900">Control Center</span>
             <ChevronRight className="w-4 h-4" />

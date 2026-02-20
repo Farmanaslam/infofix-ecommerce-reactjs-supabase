@@ -15,6 +15,11 @@ import { Login } from "./pages/Login";
 import { Signup } from "./pages/Signup";
 import { generateCustomerResponse } from "./services/geminiService";
 import { supabase } from "./lib/supabaseClient";
+import { Cart } from "./pages/Cart";
+import { Profile } from "./pages/Profile";
+import { MyOrders } from "./pages/MyOrders";
+import { Policy } from "./pages/Policy";
+import { Checkout } from "./pages/Checkout";
 const Main: React.FC = () => {
   const { currentUser, setCurrentUser, currentPage, adminPage } = useStore();
   useEffect(() => {
@@ -57,6 +62,11 @@ const Main: React.FC = () => {
         {currentPage === "updates" && <Updates />}
         {currentPage === "login" && <Login />}
         {currentPage === "signup" && <Signup />}
+        {currentPage === "cart" && <Cart />}
+        {currentPage === "profile" && <Profile />}
+        {currentPage === "orders" && <MyOrders />}
+        {currentPage === "policy" && <Policy />}
+        {currentPage === "checkout" && <Checkout />}
       </CustomerLayout>
     );
   }
