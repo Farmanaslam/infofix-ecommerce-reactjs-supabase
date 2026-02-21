@@ -87,8 +87,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     });
   };
 
-  const removeFromCart = (productId: string) => {
-    setCart((prev) => prev.filter((item) => item.id !== productId));
+  const removeFromCart = (id: number) => {
+    setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
   const clearCart = () => setCart([]);
@@ -143,6 +143,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       else setAdminPage("Dashboard");
     }
   };
+  const updateQuantity = (id: number, quantity: number) => {
+    setCart((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
+    );
+  };
+
   return (
     <StoreContext.Provider
       value={{
@@ -170,6 +176,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         updateBranch,
         deleteBranch,
         logout,
+        updateQuantity,
       }}
     >
       {children}

@@ -43,23 +43,25 @@ export const Branches: React.FC = () => {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 w-full text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-full text-white text-[10px] font-black uppercase tracking-widest backdrop-blur-md animate-fade-in-up">
-            <MapIcon className="w-3 h-3 text-indigo-400" /> Regional Experience
-            Centers
+            <MapIcon className="w-3 h-3 text-indigo-400" /> Infofix Store
+            Network
           </div>
           <h1
             className="text-5xl md:text-7xl font-black text-white tracking-tighter animate-fade-in-up"
             style={{ animationDelay: "0.1s" }}
           >
-            Visit <span className="text-indigo-400">Our Space.</span>
+            Visit <span className="text-indigo-400">Store Locations</span>
           </h1>
           <p
             className="text-gray-300 text-lg max-w-2xl mx-auto font-medium animate-fade-in-up"
             style={{ animationDelay: "0.2s" }}
           >
-            Experience our flagship computing solutions in person at any of our
-            high-tech hubs across West Bengal.
+            Visit Infofix Computers at any of our branches for product
+            purchases, repairs, upgrades, and expert technical support.
           </p>
-
+          <p className="text-indigo-300 text-sm font-semibold tracking-wide">
+            Trusted service. Genuine products. Local presence.
+          </p>
           {/* Floating Search Bar */}
           <div
             className="max-w-xl mx-auto relative group pt-8 animate-fade-in-up"
@@ -87,6 +89,18 @@ export const Branches: React.FC = () => {
 
       {/* Main Grid */}
       <div className="max-w-7xl mx-auto px-4 pt-6 relative z-20">
+        {/* Store Overview Section */}
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <h2 className="text-3xl font-black text-gray-900 mb-4">
+            Find an Infofix Computers Store Near You
+          </h2>
+          <p className="text-gray-600 font-medium leading-relaxed">
+            Infofix Computers operates multiple physical branches across West
+            Bengal, offering walk-in support, hands-on product experience, and
+            fast, reliable service. All our stores follow the same quality
+            standards and customer-first approach.
+          </p>
+        </div>
         {filteredBranches.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             {filteredBranches.map((branch, i) => (
@@ -203,11 +217,11 @@ export const Branches: React.FC = () => {
               <MapPin className="w-12 h-12" />
             </div>
             <h2 className="text-4xl font-black text-gray-900 tracking-tight mb-4">
-              No locations found.
+              No Infofix store found.
             </h2>
             <p className="text-gray-500 font-medium max-w-sm mx-auto mb-10">
-              We couldn't find any branches matching your search. Try searching
-              by city name like "Durgapur" or "Asansol".
+              We couldn’t find any Infofix branch matching your search. Try
+              searching by city name like "Durgapur" or "Asansol".
             </p>
             <button
               onClick={() => setSearchTerm("")}
@@ -225,22 +239,22 @@ export const Branches: React.FC = () => {
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-600/20 to-transparent"></div>
           <div className="relative z-10 space-y-8 max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-indigo-400 text-[10px] font-black uppercase tracking-widest backdrop-blur-md">
-              <Sparkles className="w-3 h-3" /> National Expansion
+              <Sparkles className="w-3 h-3" /> Store Assistance
             </div>
             <h2 className="text-4xl md:text-7xl font-black tracking-tighter leading-none">
-              Always Nearby{" "}
-              <span className="text-indigo-400">Wherever You Go.</span>
+              Need Help Finding a{" "}
+              <span className="text-indigo-400">Nearest Store?</span>
             </h2>
             <p className="text-gray-400 text-lg md:text-xl font-medium opacity-80 leading-relaxed">
-              We're rapidly expanding our footprint to bring cutting-edge
-              computing and premium service to every corner of India.
+              Looking for product availability, service support, or directions?
+              Our team is ready to guide you to the nearest Infofix branch.
             </p>
             <div className="pt-6">
               <button
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 className="bg-white text-[#172337] px-12 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-50 transition-all shadow-2xl"
               >
-                Find Nearest Center
+                Find Nearest Store
               </button>
             </div>
           </div>

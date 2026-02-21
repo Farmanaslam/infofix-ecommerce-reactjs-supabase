@@ -11,7 +11,7 @@ export const Policy: React.FC = () => {
           </h1>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
             Clear, transparent policies designed to ensure a safe and smooth
-            shopping experience at InfoFix Computers.
+            shopping experience at Infofix Computers.
           </p>
         </div>
 
