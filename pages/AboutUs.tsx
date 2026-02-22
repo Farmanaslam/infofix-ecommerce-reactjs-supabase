@@ -1,10 +1,12 @@
+import { useStore } from "@/context/StoreContext";
 import React from "react";
 
 export const AboutUs: React.FC = () => {
+  const { setIsMessageModalOpen } = useStore();
   return (
     <div className="pb-24">
       {/* HERO SECTION */}
-      <div className="h-[500px] bg-indigo-900 relative flex items-center justify-center text-center">
+      <div className="h-125 bg-indigo-900 relative flex items-center justify-center text-center">
         <img
           src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=2070"
           className="absolute inset-0 w-full h-full object-cover opacity-30"
@@ -148,7 +150,10 @@ export const AboutUs: React.FC = () => {
             and our team will respond shortly.
           </p>
 
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition">
+          <button
+            onClick={() => setIsMessageModalOpen(true)}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition cursor-pointer"
+          >
             Send Message
           </button>
 

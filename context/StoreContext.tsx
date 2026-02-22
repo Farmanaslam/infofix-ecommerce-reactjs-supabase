@@ -72,6 +72,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const [branches, setBranches] = useState<Branch[]>(INITIAL_BRANCHES);
   const [currentPage, setCurrentPage] = useState<CustomerPage>("home");
   const [adminPage, setAdminPage] = useState<AdminPage>("Dashboard");
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
 
   const addToCart = (product: Product) => {
     setCart((prev) => {
@@ -177,6 +178,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         deleteBranch,
         logout,
         updateQuantity,
+        isMessageModalOpen,
+        setIsMessageModalOpen,
       }}
     >
       {children}

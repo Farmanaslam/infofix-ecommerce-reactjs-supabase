@@ -36,7 +36,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   const { cart, switchRole, currentUser, logout, currentPage, setCurrentPage } =
     useStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  const { isMessageModalOpen, setIsMessageModalOpen } = useStore();
   useEffect(() => {
     window.scrollTo({
       top: 0,
@@ -61,7 +61,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
           <div className="flex items-center gap-8">
             <button
               onClick={() => setCurrentPage("home")}
-              className="text-2xl font-black bg-gradient-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+              className="text-2xl font-black bg-linear-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
             >
               Infofix
             </button>
@@ -197,7 +197,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <h4 className="text-sm font-bold uppercase tracking-wider text-gray-300">
               About
             </h4>
-            <div className="w-6 h-[1px] bg-gray-500 mb-4"></div>
+            <div className="w-6 h-px bg-gray-500 mb-4"></div>
             <ul className="space-y-2 text-xs text-gray-400">
               <li>
                 <button
@@ -253,7 +253,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <h4 className="text-sm font-bold uppercase tracking-wider text-gray-300">
               Help
             </h4>
-            <div className="w-6 h-[1px] bg-gray-500 mb-4"></div>
+            <div className="w-6 h-px bg-gray-500 mb-4"></div>
             <ul className="space-y-2 text-xs text-gray-400">
               <li>
                 <button className="hover:text-white transition-colors">
@@ -287,7 +287,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <h4 className="text-sm font-bold uppercase tracking-wider text-gray-300">
               Policy
             </h4>
-            <div className="w-6 h-[1px] bg-gray-500 mb-4"></div>
+            <div className="w-6 h-px bg-gray-500 mb-4"></div>
             <ul className="space-y-2 text-xs text-gray-400">
               <li>
                 <button
@@ -321,7 +321,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <h4 className="text-sm font-bold uppercase tracking-wider text-gray-300">
               Social
             </h4>
-            <div className="w-6 h-[1px] bg-gray-500 mb-4"></div>
+            <div className="w-6 h-px bg-gray-500 mb-4"></div>
             <ul className="space-y-2 text-xs text-gray-400">
               <li className="flex items-center gap-2">
                 <Facebook className="w-3 h-3" />{" "}
@@ -359,7 +359,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <h4 className="text-sm font-bold uppercase tracking-wider text-gray-300">
               Mail Us:
             </h4>
-            <div className="w-6 h-[1px] bg-gray-500 mb-4"></div>
+            <div className="w-6 h-px bg-gray-500 mb-4"></div>
             <p className="text-xs text-gray-400 break-all">
               infofixcomputers1@gmail.com
             </p>
@@ -368,7 +368,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <h4 className="text-sm font-bold uppercase tracking-wider text-gray-300">
               Office Address
             </h4>
-            <div className="w-6 h-[1px] bg-gray-500 mb-4"></div>
+            <div className="w-6 h-px bg-gray-500 mb-4"></div>
             <div className="text-[11px] text-gray-400 leading-relaxed space-y-4">
               <p>
                 Address: Ananda Gopal Mukherjee Sarani Rd, near BINA GAS,
@@ -429,16 +429,17 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
       {/* MESSAGE US FLOATING BUTTON */}
       <button
         onClick={() => setIsMessageModalOpen(true)}
-        className="fixed bottom-6 right-6 z-[60] bg-[#25D366] text-white px-6 py-3 rounded-full flex items-center gap-3 shadow-2xl hover:scale-105 transition-transform group animate-bounce-subtle"
+        className="fixed bottom-6 right-6 z-60 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full flex items-center gap-3 shadow-2xl hover:scale-105 transition-all duration-300 group animate-bounce-subtle"
       >
         <div className="relative">
-          <MessageSquare className="w-6 h-6 fill-white text-[#25D366]" />
-          <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-[#25D366]"></span>
+          <MessageSquare className="w-6 h-6 text-white" />
+          <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
         </div>
+
         <span className="font-bold text-sm tracking-tight">Message Us</span>
       </button>
       {isMessageModalOpen && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-70 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           {/* Modal Wrapper */}
           <div className="bg-white w-full max-w-lg h-[90vh] rounded-3xl shadow-2xl flex flex-col animate-fade-in">
             {/* Header */}
@@ -450,7 +451,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 <X className="w-5 h-5" />
               </button>
 
-              <h2 className="text-2xl font-black bg-gradient-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
+              <h2 className="text-2xl font-black bg-linear-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
                 Contact Infofix Support
               </h2>
               <p className="text-sm text-gray-500 mt-1">

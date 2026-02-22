@@ -2,89 +2,143 @@ import React from "react";
 
 export const Policy: React.FC = () => {
   return (
-    <div className="bg-white min-h-screen py-16 px-4">
+    <div className="bg-gray-50/40 min-h-screen py-16 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-14">
-          <h1 className="text-4xl font-extrabold text-gray-900 mb-4">
+          <h1 className="text-4xl font-black text-gray-900 mb-4">
             Our Policies
           </h1>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Clear, transparent policies designed to ensure a safe and smooth
+            Transparent policies designed to ensure trust, clarity, and a smooth
             shopping experience at Infofix Computers.
+          </p>
+          <p className="text-sm text-gray-400 mt-2">
+            Last Updated: February 2026
           </p>
         </div>
 
-        {/* Grid Layout Like Your Product Cards */}
+        {/* Intro Section */}
+        <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100 border border-gray-100 p-8 mb-12">
+          <h2 className="text-2xl font-bold text-indigo-600 mb-4">
+            Customer Commitment
+          </h2>
+          <p className="text-gray-600 leading-relaxed">
+            At Infofix Computers, customer satisfaction and transparency are our
+            top priorities. These policies explain how we handle shipping,
+            payments, returns, warranties, and data privacy to ensure a secure
+            and reliable shopping experience.
+          </p>
+        </div>
+
+        {/* Policy Grid */}
         <div className="grid md:grid-cols-2 gap-8">
           <PolicyCard
-            title="Shipping & Delivery"
+            title="🚚 Shipping & Delivery"
             content={[
               "Orders processed within 24–48 business hours.",
               "Delivery timelines depend on location & availability.",
               "Free delivery on selected products.",
-              "Service available across supported regions.",
+              "Delays may occur during festivals or peak seasons.",
+              "Service support available across serviceable regions.",
             ]}
           />
 
           <PolicyCard
-            title="Return & Replacement"
+            title="🔄 Return & Replacement"
             content={[
               "Accepted for manufacturing defects or wrong items.",
-              "Request within 48 hours of delivery.",
-              "Original packaging required.",
-              "No return for physical misuse.",
+              "Request must be raised within 48 hours of delivery.",
+              "Original packaging & accessories required.",
+              "Transit damage must be reported immediately.",
+              "No return for misuse or post-delivery damage.",
             ]}
           />
 
           <PolicyCard
-            title="Refund Policy"
+            title="💰 Refund Policy"
             content={[
-              "Processed after inspection approval.",
-              "5–7 business days refund timeline.",
+              "Refund initiated after quality inspection approval.",
+              "Processed within 5–7 business days.",
               "Credited to original payment method.",
-              "COD refunds via bank transfer.",
+              "COD refunds processed via bank transfer.",
+              "No refund for change of mind after delivery.",
             ]}
           />
 
           <PolicyCard
-            title="Warranty Policy"
+            title="🛠 Warranty Policy"
             content={[
               "Warranty varies by product & brand.",
-              "Refurbished items may have limited warranty.",
-              "Excludes physical & liquid damage.",
-              "Authorized support provided.",
+              "Refurbished products may have limited warranty.",
+              "Excludes physical, liquid, or unauthorized repairs.",
+              "Support via authorized service centers or in-house team.",
             ]}
           />
 
           <PolicyCard
-            title="Payment Methods"
+            title="💳 Payment Policy"
             content={[
-              "UPI (GPay, PhonePe, Paytm)",
-              "Debit / Credit Cards",
-              "Net Banking",
-              "Cash on Delivery (where available)",
+              "UPI (Google Pay, PhonePe, Paytm).",
+              "Debit / Credit Cards.",
+              "Net Banking.",
+              "Cash on Delivery (where available).",
+              "All payments processed through secure gateways.",
+              "We do not store card details.",
             ]}
           />
 
           <PolicyCard
-            title="Privacy & Terms"
+            title="🔐 Privacy & Data Protection"
             content={[
-              "We collect only essential information.",
-              "Customer data is never sold.",
-              "Secure encrypted transactions.",
-              "Using our website means acceptance of policies.",
+              "We collect only essential customer information.",
+              "Name, Email, Phone & Shipping Address.",
+              "Data is never sold or shared without consent.",
+              "Encrypted and secure transaction systems used.",
+              "Customers may request data updates anytime.",
+            ]}
+          />
+
+          <PolicyCard
+            title="❌ Order Cancellation"
+            content={[
+              "Orders can be cancelled before dispatch.",
+              "Shipped orders cannot be cancelled.",
+              "Refunds processed as per Refund Policy.",
+            ]}
+          />
+
+          <PolicyCard
+            title="📄 Terms & Conditions"
+            content={[
+              "By placing an order, you agree to all policies.",
+              "Prices & availability may change without notice.",
+              "We reserve the right to update policies anytime.",
             ]}
           />
         </div>
 
-        {/* Contact Section Styled Like Your CTA Sections */}
-        <div className="mt-16 bg-indigo-50 border border-indigo-100 rounded-2xl p-10 text-center">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">Need Help?</h3>
-          <p className="text-gray-600 mb-2">
-            Email: infofixcomputers1@gmail.com
-          </p>
-          <p className="text-gray-600">Phone: +91 8293295257</p>
+        {/* Trust Section */}
+        <div className="mt-16 bg-indigo-600 text-white rounded-3xl p-10 text-center shadow-xl">
+          <h3 className="text-2xl font-bold mb-6">
+            Why Shop With Infofix Computers?
+          </h3>
+
+          <div className="grid md:grid-cols-4 gap-6 text-sm font-medium">
+            <p>✔ Transparent Policies</p>
+            <p>✔ Secure Transactions</p>
+            <p>✔ Genuine Verified Products</p>
+            <p>✔ Reliable Customer Support</p>
+          </div>
+        </div>
+
+        {/* Support Section */}
+        <div className="mt-12 bg-white border border-indigo-100 rounded-2xl p-8 text-center shadow-sm">
+          <h3 className="text-xl font-bold text-gray-900 mb-4">
+            Need Help or Clarification?
+          </h3>
+          <p className="text-gray-600 mb-2">📧 infofixcomputers1@gmail.com</p>
+          <p className="text-gray-600">📞 +91 8293295257</p>
         </div>
       </div>
     </div>
@@ -98,9 +152,9 @@ const PolicyCard = ({
   title: string;
   content: string[];
 }) => (
-  <div className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm hover:shadow-md transition duration-300">
+  <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300">
     <h2 className="text-xl font-bold text-indigo-600 mb-4">{title}</h2>
-    <ul className="space-y-2 text-gray-600 text-sm">
+    <ul className="space-y-2 text-gray-600 text-sm leading-relaxed">
       {content.map((item, index) => (
         <li key={index}>• {item}</li>
       ))}
