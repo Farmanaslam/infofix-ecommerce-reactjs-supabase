@@ -63,7 +63,7 @@ export const Login: React.FC = () => {
             computing solutions.
           </p>
 
-          <div className="bg-indigo-50 p-8 rounded-[32px]">
+          <div className="bg-indigo-50 p-8 rounded-4xl">
             <p className="text-sm font-semibold text-indigo-900">
               Secure authentication powered by modern encryption standards.
             </p>

@@ -31,7 +31,7 @@ export const Checkout: React.FC = () => {
         {/* LEFT SIDE - MAIN CHECKOUT */}
         <div className="lg:col-span-2 space-y-10">
           {/* SHIPPING SECTION */}
-          <div className="bg-white border border-gray-100 p-10 rounded-[32px] shadow-xl shadow-gray-100">
+          <div className="bg-white border border-gray-100 p-10 rounded-4xl shadow-xl shadow-gray-100">
             <h2 className="text-2xl font-black text-gray-900 mb-6">
               Shipping Address
             </h2>
@@ -64,7 +64,7 @@ export const Checkout: React.FC = () => {
           </div>
 
           {/* PAYMENT SECTION */}
-          <div className="bg-white border border-gray-100 p-10 rounded-[32px] shadow-xl shadow-gray-100">
+          <div className="bg-white border border-gray-100 p-10 rounded-4xl shadow-xl shadow-gray-100">
             <h2 className="text-2xl font-black text-gray-900 mb-6">
               Choose Payment Method
             </h2>
@@ -113,7 +113,7 @@ export const Checkout: React.FC = () => {
         </div>
 
         {/* RIGHT SIDE - ORDER SUMMARY */}
-        <div className="bg-white border border-gray-100 p-10 rounded-[32px] shadow-xl shadow-gray-100 h-fit sticky top-10">
+        <div className="bg-white border border-gray-100 p-10 rounded-4xl shadow-xl shadow-gray-100 h-fit sticky top-10">
           <h2 className="text-2xl font-black text-gray-900 mb-8">
             Order Summary
           </h2>
