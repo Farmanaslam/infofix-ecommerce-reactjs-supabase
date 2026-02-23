@@ -240,8 +240,8 @@ export const Inventory: React.FC = () => {
 
       {/* PRODUCT FORM MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden animate-fade-in-up">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white w-full max-w-2xl rounded-4xl shadow-2xl overflow-hidden animate-fade-in-up">
             <div className="p-8 border-b flex items-center justify-between bg-gray-50">
               <div>
                 <h3 className="text-2xl font-black text-gray-900">
