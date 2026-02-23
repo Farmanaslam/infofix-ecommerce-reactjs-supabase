@@ -191,7 +191,7 @@ export const Dashboard: React.FC = () => {
                       .join("")}
                   </div>
                   <div>
-                    <p className="text-sm font-bold truncate max-w-[120px]">
+                    <p className="text-sm font-bold truncate max-w-30">
                       {order.customerName}
                     </p>
                     <p className="text-[10px] text-gray-400 font-mono">

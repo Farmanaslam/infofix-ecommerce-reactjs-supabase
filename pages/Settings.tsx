@@ -152,7 +152,7 @@ export const Settings: React.FC = () => {
         <div className="lg:col-span-3 space-y-8">
           {activeTab === "General" && (
             <div className="space-y-6">
-              <div className="bg-white p-8 rounded-[32px] border border-gray-200 shadow-sm space-y-8">
+              <div className="bg-white p-8 rounded-4xl border border-gray-200 shadow-sm space-y-8">
                 <div className="flex items-center gap-4 pb-6 border-b">
                   <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
                     <Store className="w-6 h-6" />
@@ -226,7 +226,7 @@ export const Settings: React.FC = () => {
 
           {activeTab === "Branches" && (
             <div className="space-y-6">
-              <div className="bg-white p-8 rounded-[32px] border border-gray-200 shadow-sm flex items-center justify-between">
+              <div className="bg-white p-8 rounded-4xl border border-gray-200 shadow-sm flex items-center justify-between">
                 <div>
                   <h3 className="text-xl font-bold">Regional Branch Network</h3>
                   <p className="text-sm text-gray-400">
@@ -245,7 +245,7 @@ export const Settings: React.FC = () => {
                 {branches.map((branch) => (
                   <div
                     key={branch.id}
-                    className="bg-white p-6 rounded-[24px] border border-gray-200 shadow-sm flex items-center justify-between group hover:border-indigo-200 transition-all"
+                    className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-between group hover:border-indigo-200 transition-all"
                   >
                     <div className="flex items-center gap-6">
                       <img
@@ -321,7 +321,7 @@ export const Settings: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white p-8 rounded-[32px] border border-gray-200 shadow-sm">
+                <div className="bg-white p-8 rounded-4xl border border-gray-200 shadow-sm">
                   <h4 className="font-bold text-lg mb-2">Auto-Descriptions</h4>
                   <p className="text-sm text-gray-500 mb-6">
                     Automatically generate high-converting copy for new
@@ -331,7 +331,7 @@ export const Settings: React.FC = () => {
                     <ToggleRight className="w-8 h-8" /> Active
                   </button>
                 </div>
-                <div className="bg-white p-8 rounded-[32px] border border-gray-200 shadow-sm">
+                <div className="bg-white p-8 rounded-4xl border border-gray-200 shadow-sm">
                   <h4 className="font-bold text-lg mb-2">Smart Insights</h4>
                   <p className="text-sm text-gray-500 mb-6">
                     Receive daily AI recommendations on restocks and sales
@@ -346,7 +346,7 @@ export const Settings: React.FC = () => {
           )}
 
           {activeTab === "Staff" && (
-            <div className="bg-white rounded-[32px] border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-4xl border border-gray-200 shadow-sm overflow-hidden">
               <div className="p-8 border-b flex items-center justify-between">
                 <div>
                   <h3 className="text-xl font-bold">Administrative Staff</h3>
@@ -405,7 +405,7 @@ export const Settings: React.FC = () => {
 
           {activeTab === "Security" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white p-8 rounded-[32px] border border-gray-200 shadow-sm space-y-6">
+              <div className="bg-white p-8 rounded-4xl border border-gray-200 shadow-sm space-y-6">
                 <div className="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center">
                   <Shield className="w-6 h-6" />
                 </div>
@@ -419,7 +419,7 @@ export const Settings: React.FC = () => {
                   </button>
                 </div>
               </div>
-              <div className="bg-white p-8 rounded-[32px] border border-gray-200 shadow-sm space-y-6">
+              <div className="bg-white p-8 rounded-4xl border border-gray-200 shadow-sm space-y-6">
                 <div className="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center">
                   <Database className="w-6 h-6" />
                 </div>
@@ -440,8 +440,8 @@ export const Settings: React.FC = () => {
 
       {/* BRANCH MODAL */}
       {isBranchModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden animate-fade-in-up">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white w-full max-w-2xl rounded-4xl shadow-2xl overflow-hidden animate-fade-in-up">
             <div className="p-8 border-b flex items-center justify-between bg-gray-50">
               <div>
                 <h3 className="text-2xl font-black text-gray-900">

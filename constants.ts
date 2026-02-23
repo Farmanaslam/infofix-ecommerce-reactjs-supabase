@@ -1,11 +1,11 @@
 import { Product, User, Order, Branch } from "./types";
 
 export const CATEGORIES = [
-  "Electronics",
-  "Fashion",
-  "Home",
-  "Beauty",
-  "Sports",
+  "Laptops",
+  "Desktops",
+  "PC Components",
+  "Accessories",
+  "CCTV Cameras",
 ];
 
 export const INITIAL_PRODUCTS: Product[] = [
@@ -20,6 +20,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     image: "https://picsum.photos/seed/nebula/600/600",
     rating: 4.8,
     reviews: 128,
+    condition: "New",
+    retailPrice: 249.99,
   },
   {
     id: "2",
@@ -32,6 +34,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     image: "https://picsum.photos/seed/watch/600/600",
     rating: 4.5,
     reviews: 89,
+    condition: "Refurbished",
+    retailPrice: 249.99,
   },
   {
     id: "3",
@@ -44,6 +48,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     image: "https://picsum.photos/seed/bag/600/600",
     rating: 4.7,
     reviews: 215,
+    condition: "New",
+    retailPrice: 200.99,
   },
   {
     id: "4",
@@ -56,6 +62,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     image: "https://picsum.photos/seed/coffee/600/600",
     rating: 4.9,
     reviews: 56,
+    condition: "New",
+    retailPrice: 749.99,
   },
   {
     id: "5",
@@ -68,6 +76,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     image: "https://picsum.photos/seed/brush/600/600",
     rating: 4.4,
     reviews: 142,
+    condition: "New",
+    retailPrice: 149.99,
   },
 ];
 

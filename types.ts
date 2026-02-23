@@ -1,5 +1,4 @@
-
-export type Role = 'MANAGER' | 'INVENTORY' | 'SUPPORT' | 'CUSTOMER';
+export type Role = "MANAGER" | "INVENTORY" | "SUPPORT" | "CUSTOMER";
 
 export interface User {
   id: string;
@@ -18,6 +17,8 @@ export interface Product {
   image: string;
   rating: number;
   reviews: number;
+  condition?: string;
+  retailPrice?: number;
 }
 
 export interface Branch {
@@ -39,7 +40,7 @@ export interface Order {
   customerName: string;
   items: { productId: string; quantity: number; price: number }[];
   total: number;
-  status: 'pending' | 'shipped' | 'delivered' | 'cancelled';
+  status: "pending" | "shipped" | "delivered" | "cancelled";
   createdAt: string;
 }
 

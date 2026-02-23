@@ -76,7 +76,7 @@ export const Home: React.FC = () => {
           className="absolute inset-0 w-full h-full object-cover opacity-40"
           alt="Laptop Showroom"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-900/60 via-gray-900/80 to-gray-900"></div>
+        <div className="absolute inset-0 bg-linear-to-b from-gray-900/60 via-gray-900/80 to-gray-900"></div>
 
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto space-y-8">
           <h1 className="text-5xl md:text-7xl font-black text-white leading-tight tracking-tight">
@@ -309,7 +309,7 @@ export const Home: React.FC = () => {
             <img
               src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=2070"
               alt="Refurbished Laptops"
-              className="w-full h-[420px] object-cover group-hover:scale-105 transition-transform duration-700"
+              className="w-full h-105 object-cover group-hover:scale-105 transition-transform duration-700"
             />
           </div>
         </div>
@@ -327,7 +327,7 @@ export const Home: React.FC = () => {
         </div>
 
         <div
-          className="relative max-w-6xl mx-auto h-[340px] flex items-center justify-center cursor-grab active:cursor-grabbing"
+          className="relative max-w-6xl mx-auto h-85 flex items-center justify-center cursor-grab active:cursor-grabbing"
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           onMouseLeave={() => setIsDragging(false)}
@@ -359,7 +359,7 @@ export const Home: React.FC = () => {
             }
           `}
               >
-                <div className="w-[320px] md:w-[520px] bg-white rounded-[36px] p-10 shadow-xl shadow-gray-200/60 border border-gray-100">
+                <div className="w-[320px] md:w-130 bg-white rounded-[36px] p-10 shadow-xl shadow-gray-200/60 border border-gray-100">
                   <div className="flex gap-1 mb-6">
                     {[...Array(5)].map((_, i) => (
                       <Star

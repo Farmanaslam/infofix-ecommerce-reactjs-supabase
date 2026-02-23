@@ -172,6 +172,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="lg:hidden bg-white border-b py-4 px-4 space-y-2">
+            {/* NAV LINKS */}
             {navLinks.map((link) => (
               <button
                 key={link.id}
@@ -179,11 +180,97 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                   setCurrentPage(link.id);
                   setIsMenuOpen(false);
                 }}
-                className={`w-full text-left px-4 py-3 rounded-xl font-medium ${currentPage === link.id ? "bg-indigo-50 text-indigo-600" : "text-gray-600"}`}
+                className={`w-full text-left px-4 py-3 rounded-xl font-medium ${
+                  currentPage === link.id
+                    ? "bg-indigo-50 text-indigo-600"
+                    : "text-gray-600"
+                }`}
               >
                 {link.label}
               </button>
             ))}
+
+            {/* Divider */}
+            <div className="border-t my-3"></div>
+
+            {/* AUTH SECTION */}
+            {!currentUser && (
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    setCurrentPage("login");
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 rounded-xl font-semibold text-gray-700 hover:bg-gray-100"
+                >
+                  Login
+                </button>
+
+                <button
+                  onClick={() => {
+                    setCurrentPage("signup");
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-3 rounded-xl font-bold bg-indigo-600 text-white"
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
+
+            {/* CUSTOMER ACCOUNT */}
+            {currentUser && currentUser.role === "CUSTOMER" && (
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    setCurrentPage("orders");
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 rounded-xl font-medium text-gray-700 hover:bg-gray-100"
+                >
+                  My Orders
+                </button>
+
+                <button
+                  onClick={() => {
+                    setCurrentPage("profile");
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 rounded-xl font-medium text-gray-700 hover:bg-gray-100"
+                >
+                  My Profile
+                </button>
+
+                <button
+                  onClick={() => {
+                    const confirmLogout = window.confirm(
+                      "Are you sure you want to log out?",
+                    );
+                    if (confirmLogout) {
+                      logout();
+                      setCurrentPage("home");
+                    }
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 rounded-xl font-semibold text-red-500 hover:bg-red-50"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+
+            {/* STAFF PORTAL */}
+            <div className="border-t my-3"></div>
+
+            <button
+              onClick={() => {
+                switchRole("MANAGER");
+                setIsMenuOpen(false);
+              }}
+              className="w-full px-4 py-3 rounded-xl font-bold bg-gray-900 text-white"
+            >
+              Staff Portal
+            </button>
           </div>
         )}
       </header>
@@ -576,6 +663,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { currentUser, switchRole, adminPage, setAdminPage } = useStore();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navItems: { name: AdminPage; icon: any; role: string[] }[] = [
     { name: "Dashboard", icon: LayoutDashboard, role: ["MANAGER"] },
     { name: "Inventory", icon: Package, role: ["MANAGER", "INVENTORY"] },
@@ -589,8 +677,12 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
   );
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      <aside className="w-72 bg-white border-r border-gray-200 flex flex-col min-h-screen sticky top-0 shadow-sm">
+    <div className="min-h-screen bg-gray-50 flex relative overflow-hidden">
+      <aside
+        className={`fixed lg:static top-0 left-0 h-full z-50 w-72 bg-white border-r border-gray-200 flex flex-col shadow-sm transition-transform duration-300 ease-in-out
+  ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+  lg:translate-x-0`}
+      >
         <div className="p-8 border-b  border-gray-200">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
@@ -622,7 +714,10 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
           {visibleNav.map((item) => (
             <button
               key={item.name}
-              onClick={() => setAdminPage(item.name)}
+              onClick={() => {
+                setAdminPage(item.name);
+                setIsSidebarOpen(false);
+              }}
               className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl transition-all group ${
                 adminPage === item.name
                   ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100"
@@ -661,22 +756,43 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
           </button>
         </div>
       </aside>
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-20 bg-white border-b  border-gray-200 flex items-center justify-between px-10">
+        <header className="h-16 lg:h-20 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-10">
+          {" "}
           <div className="flex items-center gap-3 text-sm font-medium text-gray-400">
+            <button
+              className="lg:hidden p-2 text-gray-600"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu className="w-6 h-6" />
+            </button>
             <span className="text-gray-900">Control Center</span>
             <ChevronRight className="w-4 h-4" />
             <span className="capitalize">{adminPage}</span>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 lg:gap-6">
             <button className="relative p-2 text-gray-400 hover:text-indigo-600 transition-colors">
-              <Bell className="w-6 h-6" />
+              <Bell className="w-5 h-5 lg:w-6 lg:h-6" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
             </button>
-            <div className="h-10 w-px bg-gray-200"></div>
-            <div className="flex items-center gap-3">
-              <div className="text-right">
+
+            <div className="hidden lg:block h-10 w-px bg-gray-200"></div>
+
+            <div className="flex items-center gap-2 lg:gap-3">
+              <img
+                src={currentUser.avatar}
+                alt=""
+                className="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-indigo-100"
+              />
+
+              <div className="hidden sm:block text-right">
                 <p className="text-sm font-bold text-gray-900">
                   {currentUser.name}
                 </p>
@@ -684,16 +800,11 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
                   Active
                 </p>
               </div>
-              <img
-                src={currentUser.avatar}
-                alt=""
-                className="w-10 h-10 rounded-full border-2 border-indigo-100"
-              />
             </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-10 bg-gray-50/50">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-10 bg-gray-50/50">
           {children}
         </main>
       </div>

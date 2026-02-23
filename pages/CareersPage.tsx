@@ -26,7 +26,7 @@ export const CareersPage = () => {
       <div className="max-w-5xl mx-auto">
         {/* HERO */}
         <div className="text-center mb-20">
-          <h1 className="text-5xl font-black bg-gradient-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
+          <h1 className="text-5xl font-black bg-linear-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
             Careers at Infofix Computers
           </h1>
           <p className="text-gray-500 mt-6 text-lg max-w-2xl mx-auto">
@@ -158,7 +158,7 @@ export const CareersPage = () => {
 
       {/* APPLY MODAL */}
       {selectedJob && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl p-8 relative">
             <button
               onClick={() => setSelectedJob(null)}

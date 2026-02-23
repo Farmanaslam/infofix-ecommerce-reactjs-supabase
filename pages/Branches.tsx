@@ -31,14 +31,14 @@ export const Branches: React.FC = () => {
   return (
     <div className="pb-32 bg-white selection:bg-indigo-100 selection:text-indigo-900">
       {/* Immersive Header Section */}
-      <section className="relative h-[400px] flex items-center justify-center overflow-hidden bg-gray-900">
+      <section className="relative h-100 flex items-center justify-center overflow-hidden bg-gray-900">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2069"
             className="w-full h-full object-cover opacity-30 scale-105"
             alt="Background"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-900/50 to-white"></div>
+          <div className="absolute inset-0 bg-linear-to-b from-transparent via-gray-900/50 to-white"></div>
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 w-full text-center space-y-6">
@@ -119,7 +119,7 @@ export const Branches: React.FC = () => {
                     alt={branch.title}
                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent"></div>
 
                   {/* Floating Labels */}
                   <div className="absolute top-6 left-6 right-6 flex justify-between items-start">
@@ -236,7 +236,7 @@ export const Branches: React.FC = () => {
       {/* Premium CTA Footer */}
       <section className="mt-40 max-w-7xl mx-auto px-4">
         <div className="relative bg-[#172337] rounded-[56px] p-16 md:p-32 overflow-hidden text-center text-white">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-600/20 to-transparent"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-linear-to-br from-indigo-600/20 to-transparent"></div>
           <div className="relative z-10 space-y-8 max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-indigo-400 text-[10px] font-black uppercase tracking-widest backdrop-blur-md">
               <Sparkles className="w-3 h-3" /> Store Assistance
@@ -260,8 +260,8 @@ export const Branches: React.FC = () => {
           </div>
 
           {/* Abstract Decorations */}
-          <div className="absolute top-[-100px] left-[-100px] w-[400px] h-[400px] bg-indigo-600/10 rounded-full blur-[120px]"></div>
-          <div className="absolute bottom-[-100px] right-[-100px] w-[300px] h-[300px] bg-blue-600/10 rounded-full blur-[100px]"></div>
+          <div className="absolute -top-25 -left-25 w-100 h-100 bg-indigo-600/10 rounded-full blur-[120px]"></div>
+          <div className="absolute -bottom-25 -right-25 w-75 h-75 bg-blue-600/10 rounded-full blur-[100px]"></div>
         </div>
       </section>
     </div>
