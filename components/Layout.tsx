@@ -43,6 +43,17 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
       behavior: "smooth",
     });
   }, [currentPage]);
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isMenuOpen]);
   const navLinks: { label: string; id: CustomerPage }[] = [
     { label: "Home", id: "home" },
     { label: "About Us", id: "about" },
@@ -171,7 +182,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden bg-white border-b py-4 px-4 space-y-2">
+          <div className="fixed top-20 left-0 w-full h-[calc(100vh-80px)] bg-white z-50 overflow-y-auto px-4 py-6 space-y-2 lg:hidden animate-slide-in">
             {/* NAV LINKS */}
             {navLinks.map((link) => (
               <button
@@ -652,6 +663,14 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
 .animate-fade-in {
   animation: fade-in 0.2s ease-out;
 }
+  @keyframes slide-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
       `,
         }}
       />
@@ -677,11 +696,16 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 flex relative overflow-hidden">
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
       <aside
-        className={`fixed lg:static top-0 left-0 h-full z-50 w-72 bg-white border-r border-gray-200 flex flex-col shadow-sm transition-transform duration-300 ease-in-out
-  ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-  lg:translate-x-0`}
+        className={`
+    fixed inset-y-0 left-0 z-50 w-72
+    bg-white border-r border-gray-200
+    flex flex-col
+    transition-transform duration-300 ease-in-out
+    ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+    lg:translate-x-0
+  `}
       >
         <div className="p-8 border-b  border-gray-200">
           <div className="flex items-center gap-3 mb-8">
@@ -710,7 +734,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
           </div>
         </div>
 
-        <nav className="flex-1 p-6 space-y-2">
+        <nav className="flex-1 p-6 space-y-2 overflow-hidden">
           {visibleNav.map((item) => (
             <button
               key={item.name}
@@ -763,7 +787,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
         />
       )}
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col lg:ml-72 overflow-hidden">
         <header className="h-16 lg:h-20 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-10">
           {" "}
           <div className="flex items-center gap-3 text-sm font-medium text-gray-400">
