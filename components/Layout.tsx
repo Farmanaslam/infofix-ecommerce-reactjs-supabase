@@ -29,7 +29,7 @@ import {
   Download,
   Phone,
 } from "lucide-react";
-
+import logo from "../public/logo.jpg";
 export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -111,7 +111,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             className="cursor-pointer flex items-center min-w-55"
           >
             <img
-              src="../public/logo.jpg"
+              src="/logo.jpg"
               alt="Infofix Computers"
               className="h-14 object-contain"
             />
