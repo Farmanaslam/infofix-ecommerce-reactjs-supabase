@@ -67,112 +67,110 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <div className="min-h-screen flex flex-col relative">
-      <header className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <button
-              onClick={() => setCurrentPage("home")}
-              className="text-2xl font-black bg-linear-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
-            >
-              Infofix
-            </button>
-            <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold text-gray-500">
-              {navLinks.map((link) => (
-                <button
-                  key={link.id}
-                  onClick={() => setCurrentPage(link.id)}
-                  className={`hover:text-indigo-600 transition-colors relative py-2 ${currentPage === link.id ? "text-indigo-600" : ""}`}
-                >
-                  {link.label}
-                  {currentPage === link.id && (
-                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 rounded-full" />
-                  )}
-                </button>
-              ))}
-            </nav>
+      <header className="w-full bg-white sticky top-0 z-50 border-b border-gray-200">
+        {/* 🔵 TOP SOCIAL BAR (Same height as MD) */}
+        <div className="hidden md:flex h-9 items-center justify-between px-6 lg:px-16 bg-indigo-700 text-white text-xs">
+          {/* Social Icons Left */}
+          <div className="flex items-center gap-4">
+            <a href="#" className="hover:scale-110 transition">
+              <Facebook className="w-4 h-4" />
+            </a>
+            <a href="#" className="hover:scale-110 transition">
+              <Instagram className="w-4 h-4" />
+            </a>
+            <a href="#" className="hover:scale-110 transition">
+              <Youtube className="w-4 h-4" />
+            </a>
+            <a href="#" className="hover:scale-110 transition">
+              <MessageSquare className="w-4 h-4" />
+            </a>
           </div>
 
-          <div className="flex items-center gap-4">
+          {/* Right Links */}
+          <div className="flex items-center gap-6 font-medium">
             <button
-              onClick={() => setCurrentPage("cart")}
-              className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-all"
+              onClick={() => setCurrentPage("contact")}
+              className="hover:underline"
             >
-              <ShoppingCart className="w-6 h-6" />
+              Contact Us
+            </button>
+            <button
+              onClick={() => setCurrentPage("careers")}
+              className="hover:underline"
+            >
+              Careers
+            </button>
+          </div>
+        </div>
+
+        {/* 🔵 MAIN HEADER ROW */}
+        <div className="h-23.75 flex items-center justify-between px-6 lg:px-20 bg-white">
+          {/* LOGO */}
+          <div
+            onClick={() => setCurrentPage("home")}
+            className="cursor-pointer flex items-center min-w-55"
+          >
+            <img
+              src="../public/logo.jpg"
+              alt="Infofix Computers"
+              className="h-14 object-contain"
+            />
+          </div>
+
+          {/* SEARCH BAR CENTER */}
+          <div className="hidden lg:flex flex-1 max-w-3xl mx-10">
+            <div className="flex w-full border border-gray-300 rounded overflow-hidden shadow-sm">
+              <input
+                type="text"
+                placeholder="Search for products..."
+                className="flex-1 px-5 py-3 outline-none text-sm"
+              />
+              <button className="px-6 bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition">
+                <Search className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* RIGHT SECTION */}
+          <div className="flex items-center gap-8">
+            {/* Contact Info */}
+            <div className="hidden xl:flex flex-col text-xs leading-tight">
+              <span className="font-semibold text-gray-700">
+                Call Us: <span className="text-indigo-600">8293295257</span>
+              </span>
+              <span className="text-gray-500">infofixcomputers1@gmail.com</span>
+            </div>
+
+            {/* Account */}
+            {!currentUser ? (
+              <button
+                onClick={() => setCurrentPage("login")}
+                className="text-sm font-semibold hover:text-indigo-600"
+              >
+                Login / Register
+              </button>
+            ) : (
+              <button
+                onClick={() => setCurrentPage("profile")}
+                className="text-sm font-semibold hover:text-indigo-600"
+              >
+                My Account
+              </button>
+            )}
+
+            {/* Cart */}
+            <button onClick={() => setCurrentPage("cart")} className="relative">
+              <ShoppingCart className="w-7 h-7 text-gray-700" />
               {cart.length > 0 && (
-                <span className="absolute top-0 right-0 bg-indigo-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-2 ring-white">
+                <span className="absolute -top-2 -right-2 bg-indigo-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
                   {cart.reduce((acc, item) => acc + item.quantity, 0)}
                 </span>
               )}
             </button>
 
-            {!currentUser && (
-              <div className="hidden md:flex gap-3">
-                <button
-                  onClick={() => setCurrentPage("login")}
-                  className="text-sm font-semibold text-gray-700 hover:text-indigo-600 cursor-pointer"
-                >
-                  Login
-                </button>
-                <button
-                  onClick={() => setCurrentPage("signup")}
-                  className="text-sm font-bold px-4 py-2 bg-indigo-600 text-white rounded-xl cursor-pointer"
-                >
-                  Sign Up
-                </button>
-              </div>
-            )}
-
-            {currentUser && currentUser.role === "CUSTOMER" && (
-              <div className="hidden md:flex gap-3">
-                <div className="relative group">
-                  <button className="text-sm font-semibold text-gray-700 hover:text-indigo-600 transition-colors cursor-pointer">
-                    My Account
-                  </button>
-
-                  <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl shadow-indigo-100 border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden">
-                    <button
-                      onClick={() => setCurrentPage("orders")}
-                      className="w-full text-left px-5 py-3 text-sm font-semibold text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors cursor-pointer"
-                    >
-                      My Orders
-                    </button>
-
-                    <button
-                      onClick={() => setCurrentPage("profile")}
-                      className="w-full text-left px-5 py-3 text-sm font-semibold text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors cursor-pointer border-t border-gray-100"
-                    >
-                      Profile
-                    </button>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    const confirmLogout = window.confirm(
-                      "Are you sure you want to log out?",
-                    );
-                    if (confirmLogout) {
-                      logout();
-                      setCurrentPage("home");
-                    }
-                  }}
-                  className="text-sm font-bold text-red-500 cursor-pointer"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-
-            <div className="hidden md:flex gap-3">
-              <button
-                onClick={() => switchRole("MANAGER")}
-                className="text-xs font-bold px-4 py-2 bg-gray-900 text-white rounded-xl cursor-pointer"
-              >
-                Staff Portal
-              </button>
-            </div>
-
+            {/* Mobile Menu */}
             <button
-              className="lg:hidden p-2 text-gray-600"
+              className="lg:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X /> : <Menu />}
@@ -180,110 +178,32 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="fixed top-20 left-0 w-full h-[calc(100vh-80px)] bg-white z-50 overflow-y-auto px-4 py-6 space-y-2 lg:hidden animate-slide-in">
-            {/* NAV LINKS */}
+        {/* 🔵 NAVIGATION ROW (Exact MD Structure) */}
+        <div className="hidden lg:flex h-12 items-center border-t border-gray-200">
+          {/* Categories Button */}
+          <button
+            onClick={() => setCurrentPage("shop")}
+            className="h-full px-8 bg-indigo-600 text-white font-semibold flex items-center gap-2"
+          >
+            <Menu className="w-4 h-4" />
+            CATEGORIES
+          </button>
+
+          {/* Nav Links */}
+          <div className="flex items-center gap-10 px-10 text-sm font-semibold text-gray-700">
             {navLinks.map((link) => (
               <button
                 key={link.id}
-                onClick={() => {
-                  setCurrentPage(link.id);
-                  setIsMenuOpen(false);
-                }}
-                className={`w-full text-left px-4 py-3 rounded-xl font-medium ${
-                  currentPage === link.id
-                    ? "bg-indigo-50 text-indigo-600"
-                    : "text-gray-600"
+                onClick={() => setCurrentPage(link.id)}
+                className={`hover:text-indigo-600 transition ${
+                  currentPage === link.id ? "text-indigo-600" : ""
                 }`}
               >
                 {link.label}
               </button>
             ))}
-
-            {/* Divider */}
-            <div className="border-t my-3"></div>
-
-            {/* AUTH SECTION */}
-            {!currentUser && (
-              <div className="space-y-2">
-                <button
-                  onClick={() => {
-                    setCurrentPage("login");
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-3 rounded-xl font-semibold text-gray-700 hover:bg-gray-100"
-                >
-                  Login
-                </button>
-
-                <button
-                  onClick={() => {
-                    setCurrentPage("signup");
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full px-4 py-3 rounded-xl font-bold bg-indigo-600 text-white"
-                >
-                  Sign Up
-                </button>
-              </div>
-            )}
-
-            {/* CUSTOMER ACCOUNT */}
-            {currentUser && currentUser.role === "CUSTOMER" && (
-              <div className="space-y-2">
-                <button
-                  onClick={() => {
-                    setCurrentPage("orders");
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-3 rounded-xl font-medium text-gray-700 hover:bg-gray-100"
-                >
-                  My Orders
-                </button>
-
-                <button
-                  onClick={() => {
-                    setCurrentPage("profile");
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-3 rounded-xl font-medium text-gray-700 hover:bg-gray-100"
-                >
-                  My Profile
-                </button>
-
-                <button
-                  onClick={() => {
-                    const confirmLogout = window.confirm(
-                      "Are you sure you want to log out?",
-                    );
-                    if (confirmLogout) {
-                      logout();
-                      setCurrentPage("home");
-                    }
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-3 rounded-xl font-semibold text-red-500 hover:bg-red-50"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-
-            {/* STAFF PORTAL */}
-            <div className="border-t my-3"></div>
-
-            <button
-              onClick={() => {
-                switchRole("MANAGER");
-                setIsMenuOpen(false);
-              }}
-              className="w-full px-4 py-3 rounded-xl font-bold bg-gray-900 text-white"
-            >
-              Staff Portal
-            </button>
           </div>
-        )}
+        </div>
       </header>
 
       <main className="flex-1 bg-white">{children}</main>

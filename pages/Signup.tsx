@@ -68,6 +68,7 @@ export const Signup = () => {
       state: formData.state,
       pincode: formData.pincode,
       country: formData.country,
+      role: "CUSTOMER",
     });
 
     if (profileError) {
