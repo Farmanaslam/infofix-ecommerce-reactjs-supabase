@@ -73,7 +73,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const [currentPage, setCurrentPage] = useState<CustomerPage>("home");
   const [adminPage, setAdminPage] = useState<AdminPage>("Dashboard");
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
-
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
+    null,
+  );
   const addToCart = (product: Product) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
@@ -180,6 +183,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         updateQuantity,
         isMessageModalOpen,
         setIsMessageModalOpen,
+        selectedCategory,
+        setSelectedCategory,
+        selectedSubcategory,
+        setSelectedSubcategory,
       }}
     >
       {children}

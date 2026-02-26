@@ -30,6 +30,7 @@ import {
   Phone,
 } from "lucide-react";
 import logo from "../public/logo.jpg";
+import { CATEGORIES, SUBCATEGORIES } from "../constants";
 export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -37,6 +38,13 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     useStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isMessageModalOpen, setIsMessageModalOpen } = useStore();
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  const [mobileTab, setMobileTab] = useState<"menu" | "categories">("menu");
+  const [expandedMobileCategory, setExpandedMobileCategory] = useState<
+    string | null
+  >(null);
   useEffect(() => {
     window.scrollTo({
       top: 0,
@@ -68,53 +76,149 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   return (
     <div className="min-h-screen flex flex-col relative">
       <header className="w-full bg-white sticky top-0 z-50 border-b border-gray-200">
-        {/* 🔵 TOP SOCIAL BAR (Same height as MD) */}
-        <div className="hidden md:flex h-9 items-center justify-between px-6 lg:px-16 bg-indigo-700 text-white text-xs">
-          {/* Social Icons Left */}
-          <div className="flex items-center gap-4">
-            <a href="#" className="hover:scale-110 transition">
-              <Facebook className="w-4 h-4" />
-            </a>
-            <a href="#" className="hover:scale-110 transition">
-              <Instagram className="w-4 h-4" />
-            </a>
-            <a href="#" className="hover:scale-110 transition">
-              <Youtube className="w-4 h-4" />
-            </a>
-            <a href="#" className="hover:scale-110 transition">
-              <MessageSquare className="w-4 h-4" />
-            </a>
-          </div>
+        {/* ================= TOP HEADER ================= */}
+        <div className="w-full bg-white border-b border-gray-200">
+          <div className="px-6 lg:px-20">
+            <div className="flex items-center justify-between h-10">
+              {/* ================= LEFT SIDE (SOCIAL) ================= */}
+              <div className="hidden md:flex items-center h-full">
+                {/* Left Divider */}
+                <div className="h-full w-px bg-gray-300"></div>
 
-          {/* Right Links */}
-          <div className="flex items-center gap-6 font-medium">
-            <button
-              onClick={() => setCurrentPage("contact")}
-              className="hover:underline"
-            >
-              Contact Us
-            </button>
-            <button
-              onClick={() => setCurrentPage("careers")}
-              className="hover:underline"
-            >
-              Careers
-            </button>
+                <div className="flex items-center gap-5 px-4 h-full">
+                  <a
+                    href="https://www.facebook.com/mdcomputers.in/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="bi bi-facebook text-blue-600 text-sm hover:opacity-70"></span>
+                  </a>
+
+                  <a
+                    href="https://www.instagram.com/mdcomputers.in/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="bi bi-instagram text-pink-500 text-sm hover:opacity-70"></span>
+                  </a>
+
+                  <a
+                    href="https://www.youtube.com/@mdcomputersstudio2960"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="bi bi-youtube text-red-600 text-sm hover:opacity-70"></span>
+                  </a>
+
+                  <a
+                    href="https://api.whatsapp.com/send?phone=913340550550&text=hi"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="bi bi-whatsapp text-green-600 text-sm hover:opacity-70"></span>
+                  </a>
+                </div>
+
+                {/* Right Divider */}
+                <div className="h-full w-px bg-gray-300"></div>
+              </div>
+
+              {/* ================= RIGHT SIDE (LINKS) ================= */}
+              <div className="hidden md:flex items-center h-full text-sm text-gray-700">
+                {/* Left Divider */}
+                <div className="h-full w-px bg-gray-300"></div>
+
+                <button
+                  onClick={() => setCurrentPage("contact")}
+                  className="px-4 h-full flex items-center hover:text-indigo-600"
+                >
+                  Contact Us
+                </button>
+
+                {/* Divider Between Links */}
+                <div className="h-full w-px bg-gray-300"></div>
+
+                <button
+                  onClick={() => setCurrentPage("careers")}
+                  className="px-4 h-full flex items-center hover:text-indigo-600"
+                >
+                  Careers
+                </button>
+
+                {/* Right Divider */}
+                <div className="h-full w-px bg-gray-300"></div>
+              </div>
+
+              {/* ================= MOBILE VIEW ================= */}
+              <div className="flex md:hidden items-center justify-between w-full text-sm text-gray-700">
+                {/* Left icons small */}
+                <div className="flex items-center gap-4">
+                  <a
+                    href="https://www.facebook.com/mdcomputers.in/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="bi bi-facebook text-blue-600 text-sm"></span>
+                  </a>
+
+                  <a
+                    href="https://www.instagram.com/mdcomputers.in/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="bi bi-instagram text-pink-500 text-sm"></span>
+                  </a>
+
+                  <a
+                    href="https://www.youtube.com/@mdcomputersstudio2960"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="bi bi-youtube text-red-600 text-sm"></span>
+                  </a>
+
+                  <a
+                    href="https://api.whatsapp.com/send?phone=913340550550&text=hi"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="bi bi-whatsapp text-green-600 text-sm"></span>
+                  </a>
+                </div>
+                {/* Right links minimal */}
+                <div className="flex items-center gap-3">
+                  <button onClick={() => setCurrentPage("contact")}>
+                    Contact
+                  </button>
+
+                  <span className="text-gray-400">|</span>
+
+                  <button onClick={() => setCurrentPage("careers")}>
+                    Careers
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* 🔵 MAIN HEADER ROW */}
-        <div className="h-23.75 flex items-center justify-between px-6 lg:px-20 bg-white">
+        <div className="h-24 flex items-center justify-between px-6 lg:px-20 bg-white">
           {/* LOGO */}
           <div
             onClick={() => setCurrentPage("home")}
-            className="cursor-pointer flex items-center min-w-55"
+            className="cursor-pointer flex items-center gap-3"
           >
             <img
-              src="/logo.jpg"
-              alt="Infofix Computers"
-              className="h-14 object-contain"
+              src={logo}
+              alt="Infofix"
+              className="h-24 w-28 object-contain"
             />
+
+            <span className="text-2xl font-black tracking-tight">
+              <span className="text-indigo-600">Info</span>
+              <span className="text-gray-900">fix</span>
+            </span>
           </div>
 
           {/* SEARCH BAR CENTER */}
@@ -140,24 +244,65 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               </span>
               <span className="text-gray-500">infofixcomputers1@gmail.com</span>
             </div>
+            {/* Account - Desktop Only */}
+            <div
+              className="hidden lg:block relative"
+              onMouseEnter={() => setIsAccountOpen(true)}
+              onMouseLeave={() => setIsAccountOpen(false)}
+            >
+              {!currentUser ? (
+                <button
+                  onClick={() => setCurrentPage("login")}
+                  className="text-sm font-semibold hover:text-indigo-600"
+                >
+                  Login / Register
+                </button>
+              ) : (
+                <>
+                  <button className="text-sm font-semibold hover:text-indigo-600">
+                    My Account
+                  </button>
 
-            {/* Account */}
-            {!currentUser ? (
-              <button
-                onClick={() => setCurrentPage("login")}
-                className="text-sm font-semibold hover:text-indigo-600"
-              >
-                Login / Register
-              </button>
-            ) : (
-              <button
-                onClick={() => setCurrentPage("profile")}
-                className="text-sm font-semibold hover:text-indigo-600"
-              >
-                My Account
-              </button>
-            )}
+                  {/* Dropdown */}
+                  <div
+                    className={`absolute right-0 mt-3 w-48 bg-white border border-gray-200 rounded-xl shadow-xl transition-all duration-200 ${
+                      isAccountOpen
+                        ? "opacity-100 visible translate-y-0"
+                        : "opacity-0 invisible -translate-y-2"
+                    }`}
+                  >
+                    <button
+                      onClick={() => {
+                        setCurrentPage("profile");
+                        setIsAccountOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-gray-100 rounded-t-xl"
+                    >
+                      Profile
+                    </button>
 
+                    <button
+                      onClick={() => {
+                        setCurrentPage("orders");
+                        setIsAccountOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-gray-100 rounded-b-xl"
+                    >
+                      My Orders
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+            {/* Staff Portal - Desktop */}
+            <div className="hidden md:flex">
+              <button
+                onClick={() => switchRole("MANAGER")}
+                className="text-xs font-bold px-4 py-2 bg-gray-900 text-white rounded-xl hover:opacity-90 transition"
+              >
+                Staff Portal
+              </button>
+            </div>
             {/* Cart */}
             <button onClick={() => setCurrentPage("cart")} className="relative">
               <ShoppingCart className="w-7 h-7 text-gray-700" />
@@ -178,30 +323,305 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
           </div>
         </div>
 
-        {/* 🔵 NAVIGATION ROW (Exact MD Structure) */}
-        <div className="hidden lg:flex h-12 items-center border-t border-gray-200">
-          {/* Categories Button */}
-          <button
-            onClick={() => setCurrentPage("shop")}
-            className="h-full px-8 bg-indigo-600 text-white font-semibold flex items-center gap-2"
-          >
-            <Menu className="w-4 h-4" />
-            CATEGORIES
-          </button>
+        {/* 🔵 MOBILE SEARCH BAR */}
+        <div className="lg:hidden px-4 py-3 bg-white border-t border-gray-100">
+          <div className="flex w-full border border-gray-300 rounded-xl overflow-hidden shadow-sm">
+            <input
+              type="text"
+              placeholder="Search for products..."
+              className="flex-1 px-4 py-2.5 outline-none text-sm"
+            />
+            <button className="px-4 bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition">
+              <Search className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
-          {/* Nav Links */}
-          <div className="flex items-center gap-10 px-10 text-sm font-semibold text-gray-700">
-            {navLinks.map((link) => (
+        {/* 🔵 NAVIGATION ROW */}
+        <div className="hidden lg:block border-t border-gray-200 bg-white">
+          <div className="flex h-12 items-center px-6 lg:px-20">
+            {/* Categories Button */}
+            <div
+              className="relative h-full"
+              onMouseEnter={() => setIsCategoryOpen(true)}
+              onMouseLeave={() => {
+                setIsCategoryOpen(false);
+                setHoveredCategory(null);
+              }}
+              onMouseMove={() => setIsCategoryOpen(true)}
+            >
+              <button className="h-full px-8 bg-indigo-600 text-white font-semibold flex items-center gap-2 rounded-l">
+                <Menu className="w-4 h-4" />
+                CATEGORIES
+              </button>
+
+              {isCategoryOpen && (
+                <div className="absolute top-full left-0 z-50 flex shadow-2xl border border-gray-200 rounded-b-xl overflow-hidden max-h-[70vh]">
+                  {/* Category List */}
+                  <ul className="bg-white w-56 overflow-y-auto">
+                    {CATEGORIES.map((cat) => (
+                      <li
+                        key={cat}
+                        onMouseEnter={() => setHoveredCategory(cat)}
+                        onClick={() => {
+                          setCurrentPage("shop");
+                          setIsCategoryOpen(false);
+                        }}
+                        className={`flex items-center justify-between px-5 py-3 text-sm font-medium cursor-pointer transition-colors ${
+                          hoveredCategory === cat
+                            ? "bg-indigo-50 text-indigo-600"
+                            : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                        }`}
+                      >
+                        {cat}
+                        {SUBCATEGORIES[cat] && (
+                          <ChevronRight className="w-4 h-4 opacity-50" />
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* Subcategories Panel */}
+                  {hoveredCategory && SUBCATEGORIES[hoveredCategory] && (
+                    <div className="bg-gray-50 border-l border-gray-200 w-60 p-4 overflow-y-auto">
+                      {SUBCATEGORIES[hoveredCategory].groups.map((group) => (
+                        <div key={group.label} className="mb-4">
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-2">
+                            {group.label}
+                          </p>
+                          <ul className="space-y-1">
+                            {group.items.map((sub) => (
+                              <li
+                                key={sub}
+                                onClick={() => {
+                                  setCurrentPage("shop");
+                                  setIsCategoryOpen(false);
+                                }}
+                                className="text-sm text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-1.5 rounded-lg cursor-pointer transition-colors"
+                              >
+                                {sub}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Nav Links */}
+            <div className="flex items-center gap-10 px-10 text-sm font-semibold text-gray-700">
+              {navLinks.map((link) => (
+                <button
+                  key={link.id}
+                  onClick={() => setCurrentPage(link.id)}
+                  className={`hover:text-indigo-600 transition ${
+                    currentPage === link.id ? "text-indigo-600" : ""
+                  }`}
+                >
+                  {link.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        {/* =====  MOBILE MENU ===== */}
+        <div
+          className={`fixed inset-0 z-50 lg:hidden transition-all duration-300 ${
+            isMenuOpen ? "visible" : "invisible"
+          }`}
+        >
+          {/* Overlay */}
+          <div
+            className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${
+              isMenuOpen ? "opacity-100" : "opacity-0"
+            }`}
+            onClick={() => setIsMenuOpen(false)}
+          />
+
+          {/* Drawer */}
+          <div
+            className={`absolute top-0 right-0 h-full w-80 max-w-[85%] bg-white shadow-2xl transform transition-transform duration-300 ${
+              isMenuOpen ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
+            {/* Top Section */}
+            <div className="h-20 flex items-center justify-between px-6 border-b border-gray-100">
+              <span className="text-2xl font-black tracking-tight">
+                <span className="text-indigo-600">Info</span>
+                <span className="text-gray-900">fix</span>
+              </span>
+
               <button
-                key={link.id}
-                onClick={() => setCurrentPage(link.id)}
-                className={`hover:text-indigo-600 transition ${
-                  currentPage === link.id ? "text-indigo-600" : ""
+                onClick={() => setIsMenuOpen(false)}
+                className="p-2 rounded-full hover:bg-gray-100 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex border-b border-gray-200">
+              <button
+                onClick={() => setMobileTab("menu")}
+                className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${
+                  mobileTab === "menu"
+                    ? "border-indigo-600 text-indigo-600"
+                    : "border-transparent text-gray-500"
                 }`}
               >
-                {link.label}
+                Menu
               </button>
-            ))}
+              <button
+                onClick={() => setMobileTab("categories")}
+                className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${
+                  mobileTab === "categories"
+                    ? "border-indigo-600 text-indigo-600"
+                    : "border-transparent text-gray-500"
+                }`}
+              >
+                Categories
+              </button>
+            </div>
+
+            {/* Scrollable Content */}
+            <div className="h-[calc(100%-80px-49px)] overflow-y-auto px-6 py-6 space-y-4">
+              {mobileTab === "menu" ? (
+                <>
+                  <div className="space-y-1">
+                    {navLinks.map((link) => (
+                      <button
+                        key={link.id}
+                        onClick={() => {
+                          setCurrentPage(link.id);
+                          setIsMenuOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 rounded-xl text-base font-semibold transition ${
+                          currentPage === link.id
+                            ? "bg-indigo-50 text-indigo-600"
+                            : "text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        {link.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="pt-6 border-t"></div>
+
+                  {!currentUser ? (
+                    <>
+                      <button
+                        onClick={() => {
+                          setCurrentPage("login");
+                          setIsMenuOpen(false);
+                        }}
+                        className="w-full py-3 rounded-lg border font-semibold"
+                      >
+                        Login
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCurrentPage("signup");
+                          setIsMenuOpen(false);
+                        }}
+                        className="w-full py-3 rounded-lg bg-indigo-600 text-white font-bold"
+                      >
+                        Sign Up
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => {
+                          setCurrentPage("profile");
+                          setIsMenuOpen(false);
+                        }}
+                        className="w-full py-3 rounded-lg border font-semibold"
+                      >
+                        My Account
+                      </button>
+                      <button
+                        onClick={() => {
+                          logout();
+                          setIsMenuOpen(false);
+                        }}
+                        className="w-full py-3 rounded-lg bg-red-50 text-red-600 font-bold"
+                      >
+                        Logout
+                      </button>
+                    </>
+                  )}
+
+                  <div className="pt-6 border-t"></div>
+
+                  <button
+                    onClick={() => {
+                      switchRole("MANAGER");
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full py-3 rounded-lg bg-gray-900 text-white font-bold"
+                  >
+                    Staff Portal
+                  </button>
+                </>
+              ) : (
+                <div className="space-y-2">
+                  {CATEGORIES.map((cat) => (
+                    <div
+                      key={cat}
+                      className="rounded-xl border border-gray-100 overflow-hidden"
+                    >
+                      <button
+                        onClick={() =>
+                          setExpandedMobileCategory(
+                            expandedMobileCategory === cat ? null : cat,
+                          )
+                        }
+                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                      >
+                        {cat}
+                        {SUBCATEGORIES[cat] && (
+                          <ChevronRight
+                            className={`w-4 h-4 transition-transform duration-200 ${
+                              expandedMobileCategory === cat ? "rotate-90" : ""
+                            }`}
+                          />
+                        )}
+                      </button>
+
+                      {expandedMobileCategory === cat && SUBCATEGORIES[cat] && (
+                        <div className="bg-gray-50 border-t border-gray-100 px-4 py-3 space-y-3">
+                          {SUBCATEGORIES[cat].groups.map((group) => (
+                            <div key={group.label}>
+                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1.5">
+                                {group.label}
+                              </p>
+                              <div className="space-y-1">
+                                {group.items.map((sub) => (
+                                  <button
+                                    key={sub}
+                                    onClick={() => {
+                                      setCurrentPage("shop");
+                                      setIsMenuOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-1.5 text-sm text-gray-600 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors"
+                                  >
+                                    {sub}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -712,7 +1132,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
           {" "}
           <div className="flex items-center gap-3 text-sm font-medium text-gray-400">
             <button
-              className="lg:hidden p-2 text-gray-600"
+              className="lg:hidden p-2 "
               onClick={() => setIsSidebarOpen(true)}
             >
               <Menu className="w-6 h-6" />
