@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import {
   Product,
   Order,
@@ -58,6 +64,8 @@ interface StoreContextType extends AppState {
   updateBranch: (branch: Branch) => void;
   deleteBranch: (branchId: string) => void;
   logout: () => void;
+  viewMode: "STORE" | "ADMIN";
+  setViewMode: (mode: "STORE" | "ADMIN") => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -77,6 +85,21 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
     null,
   );
+  const [viewMode, setViewMode] = useState<"STORE" | "ADMIN">("STORE");
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === "SIGNED_OUT") {
+          setCurrentUser(null);
+        }
+      },
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
   const addToCart = (product: Product) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
@@ -126,26 +149,24 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   };
   const logout = async () => {
     await supabase.auth.signOut();
+
     setCurrentUser(null);
     setCurrentPage("home");
+    setAdminPage("Dashboard");
+
+    window.location.href = "/";
   };
 
   const switchRole = (role: Role) => {
-    if (role === "CUSTOMER") {
-      setCurrentUser({
-        id: "cust-demo",
-        name: "Guest Customer",
-        role: "CUSTOMER",
-        avatar: "https://i.pravatar.cc/150?u=guest",
-      });
-      setCurrentPage("home");
-    } else {
-      const op = OPERATORS.find((o) => o.role === role) || OPERATORS[0];
-      setCurrentUser(op);
-      // Set default page based on role
-      if (role === "INVENTORY") setAdminPage("Inventory");
-      else setAdminPage("Dashboard");
-    }
+    if (!currentUser) return;
+
+    setCurrentUser({
+      ...currentUser,
+      role,
+    });
+
+    if (role === "INVENTORY") setAdminPage("Inventory");
+    else setAdminPage("Dashboard");
   };
   const updateQuantity = (id: number, quantity: number) => {
     setCart((prev) =>
@@ -187,6 +208,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         setSelectedCategory,
         selectedSubcategory,
         setSelectedSubcategory,
+        viewMode,
+        setViewMode,
       }}
     >
       {children}

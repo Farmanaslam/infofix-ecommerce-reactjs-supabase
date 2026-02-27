@@ -22,7 +22,8 @@ import { Policy } from "./pages/Policy";
 import { Checkout } from "./pages/Checkout";
 import { CareersPage } from "./pages/CareersPage";
 const Main: React.FC = () => {
-  const { currentUser, setCurrentUser, currentPage, adminPage } = useStore();
+  const { currentUser, setCurrentUser, currentPage, adminPage, viewMode } =
+    useStore();
   useEffect(() => {
     const restoreSession = async () => {
       const { data } = await supabase.auth.getSession();
@@ -30,6 +31,26 @@ const Main: React.FC = () => {
       if (data.session?.user) {
         const user = data.session.user;
 
+        // 🔹 Check if staff
+        const { data: staff } = await supabase
+          .from("staffs")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        if (staff) {
+          setCurrentUser({
+            id: user.id,
+            name: staff.full_name,
+            email: staff.email,
+            role: staff.role, // ADMIN / MANAGER
+            avatar: "",
+          });
+
+          return;
+        }
+
+        // 🔹 Otherwise check customer
         const { data: profile } = await supabase
           .from("customers")
           .select("*")
@@ -42,7 +63,7 @@ const Main: React.FC = () => {
             name: profile.full_name,
             email: profile.email,
             role: "CUSTOMER",
-            avatar: `https://i.pravatar.cc/150?u=${user.id}`,
+            avatar: "",
           });
         }
       }
@@ -51,7 +72,7 @@ const Main: React.FC = () => {
     restoreSession();
   }, []);
 
-  if (!currentUser || currentUser.role === "CUSTOMER") {
+  if (!currentUser || currentUser.role === "CUSTOMER" || viewMode === "STORE") {
     return (
       <CustomerLayout>
         {currentPage === "home" && <Home />}

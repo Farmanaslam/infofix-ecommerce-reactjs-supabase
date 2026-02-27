@@ -4,7 +4,7 @@ import { useStore } from "../context/StoreContext";
 import { supabase } from "@/lib/supabaseClient";
 
 export const Login: React.FC = () => {
-  const { setCurrentUser, setCurrentPage } = useStore();
+  const { setCurrentUser, setCurrentPage, setViewMode } = useStore();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,27 +26,49 @@ export const Login: React.FC = () => {
     const user = data.user;
     if (!user) return;
 
-    // Fetch customer profile
-    const { data: profile } = await supabase
+    // 🔹 1️⃣ Try CUSTOMER table first
+    const { data: customerProfile } = await supabase
       .from("customers")
       .select("*")
       .eq("id", user.id)
       .single();
 
-    if (!profile) {
-      alert("Profile not found");
+    if (customerProfile) {
+      setCurrentUser({
+        id: user.id,
+        name: customerProfile.full_name,
+        email: customerProfile.email,
+        role: "CUSTOMER",
+        avatar: `https://i.pravatar.cc/150?u=${user.id}`,
+      });
+
+      setCurrentPage("home");
       return;
     }
 
-    setCurrentUser({
-      id: user.id,
-      name: profile.full_name,
-      email: profile.email,
-      role: "CUSTOMER",
-      avatar: `https://i.pravatar.cc/150?u=${user.id}`,
-    });
+    // 🔹 2️⃣ If not customer, check STAFF table
+    const { data: staffProfile } = await supabase
+      .from("staffs")
+      .select("*")
+      .eq("id", user.id)
+      .single();
 
-    setCurrentPage("home");
+    if (staffProfile) {
+      setCurrentUser({
+        id: user.id,
+        name: staffProfile.full_name,
+        email: staffProfile.email,
+        role: staffProfile.role, // MANAGER or INVENTORY
+        avatar: staffProfile.avatar_url,
+      });
+
+      setViewMode("STORE");
+      setCurrentPage("home");
+      return;
+    }
+
+    // 🔥 3️⃣ If neither found
+    alert("Profile not found in system");
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useStore } from "../context/StoreContext";
 import {
   Settings as SettingsIcon,
@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { OPERATORS } from "../constants";
 import { Branch } from "../types";
+import { supabase } from "@/lib/supabaseClient";
 
 export const Settings: React.FC = () => {
   const { currentUser, branches, addBranch, updateBranch, deleteBranch } =
@@ -50,7 +51,16 @@ export const Settings: React.FC = () => {
       "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=2070",
     details: "",
   });
-
+  const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
+  const [staffForm, setStaffForm] = useState({
+    full_name: "",
+    email: "",
+    password: "",
+    phone: "",
+    role: "MANAGER",
+    avatar_url:
+      "https://avatars.design/wp-content/uploads/2022/09/5business-team-employee-personal-avatar.png",
+  });
   const handleSave = () => {
     setIsSaving(true);
     setTimeout(() => setIsSaving(false), 1500);
@@ -90,7 +100,63 @@ export const Settings: React.FC = () => {
     }
     setIsBranchModalOpen(false);
   };
+  const handleCreateStaff = async (e: React.FormEvent) => {
+    e.preventDefault();
 
+    // 1️⃣ Create Auth User
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: staffForm.email,
+      password: staffForm.password,
+    });
+
+    if (authError) {
+      alert(authError.message);
+      return;
+    }
+
+    const user = authData.user;
+
+    if (!user) {
+      alert("User creation failed");
+      return;
+    }
+
+    // 2️⃣ Insert into staffs table with SAME auth user id
+    const { error: dbError } = await supabase.from("staffs").insert([
+      {
+        id: user.id,
+        full_name: staffForm.full_name,
+        email: staffForm.email,
+        phone: staffForm.phone,
+        role: staffForm.role,
+        avatar_url: staffForm.avatar_url,
+      },
+    ]);
+
+    if (dbError) {
+      alert(dbError.message);
+      return;
+    }
+
+    alert("Staff Created Successfully");
+
+    setIsStaffModalOpen(false);
+    fetchStaffs();
+  };
+  const [staffs, setStaffs] = useState<any[]>([]);
+
+  const fetchStaffs = async () => {
+    const { data, error } = await supabase
+      .from("staffs")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (!error) setStaffs(data);
+  };
+
+  useEffect(() => {
+    fetchStaffs();
+  }, []);
   const menuItems = [
     { id: "General", icon: Store, label: "Store Profile" },
     { id: "Branches", icon: MapPin, label: "Our Branches" },
@@ -354,25 +420,30 @@ export const Settings: React.FC = () => {
                     Manage portal access for your team members.
                   </p>
                 </div>
-                <button className="text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">
+                <button
+                  onClick={() => setIsStaffModalOpen(true)}
+                  className="text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest"
+                >
                   Invite Member
                 </button>
               </div>
               <div className="divide-y divide-gray-200">
-                {OPERATORS.map((op) => (
+                {staffs.map((op) => (
                   <div
                     key={op.id}
                     className="p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center gap-4">
                       <img
-                        src={op.avatar}
-                        className="w-12 h-12 rounded-2xl object-cover border-2 shadow-sm"
+                        src={op.avatar_url}
+                        className="w-12 h-12 rounded-2xl object-cover  shadow-sm"
                       />
                       <div>
-                        <p className="font-bold text-gray-900">{op.name}</p>
+                        <p className="font-bold text-gray-900">
+                          {op.full_name}
+                        </p>
                         <p className="text-xs text-gray-400">
-                          Member since 2024
+                          Member since 2026
                         </p>
                       </div>
                     </div>
@@ -656,6 +727,80 @@ export const Settings: React.FC = () => {
                   className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-indigo-100"
                 >
                   {editingBranch ? "Update Location" : "Confirm Branch"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isStaffModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white p-8 rounded-3xl w-full max-w-md">
+            <h3 className="text-xl font-bold mb-6">Invite Staff Member</h3>
+
+            <form onSubmit={handleCreateStaff} className="space-y-4">
+              <input
+                required
+                type="text"
+                placeholder="Full Name"
+                className="w-full bg-gray-50 px-4 py-3 rounded-xl"
+                onChange={(e) =>
+                  setStaffForm({ ...staffForm, full_name: e.target.value })
+                }
+              />
+
+              <input
+                required
+                type="email"
+                placeholder="Email"
+                className="w-full bg-gray-50 px-4 py-3 rounded-xl"
+                onChange={(e) =>
+                  setStaffForm({ ...staffForm, email: e.target.value })
+                }
+              />
+              <input
+                required
+                type="password"
+                placeholder="Temporary Password"
+                className="w-full bg-gray-50 px-4 py-3 rounded-xl"
+                onChange={(e) =>
+                  setStaffForm({ ...staffForm, password: e.target.value })
+                }
+              />
+              <input
+                type="tel"
+                placeholder="Phone"
+                className="w-full bg-gray-50 px-4 py-3 rounded-xl"
+                onChange={(e) =>
+                  setStaffForm({ ...staffForm, phone: e.target.value })
+                }
+              />
+
+              <select
+                className="w-full bg-gray-50 px-4 py-3 rounded-xl"
+                onChange={(e) =>
+                  setStaffForm({ ...staffForm, role: e.target.value })
+                }
+              >
+                <option value="MANAGER">Manager</option>
+                <option value="INVENTORY">Inventory</option>
+              </select>
+
+              <div className="flex gap-4 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsStaffModalOpen(false)}
+                  className="flex-1 bg-gray-100 py-3 rounded-xl"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="flex-1 bg-indigo-600 text-white py-3 rounded-xl"
+                >
+                  Create Staff
                 </button>
               </div>
             </form>

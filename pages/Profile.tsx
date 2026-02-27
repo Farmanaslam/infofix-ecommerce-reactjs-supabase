@@ -13,7 +13,7 @@ import {
 import { useStore } from "../context/StoreContext";
 
 export const Profile: React.FC = () => {
-  const { setCurrentPage } = useStore();
+  const { setCurrentPage, logout } = useStore();
 
   return (
     <div className="min-h-screen bg-gray-50/50 py-16">
@@ -159,7 +159,19 @@ export const Profile: React.FC = () => {
 
             <div className="flex items-center gap-4">
               <LogOut className="w-5 h-5 text-red-500" />
-              <button className="font-semibold text-red-600 hover:text-red-500 transition cursor-pointer">
+              <button
+                onClick={() => {
+                  const confirmLogout = window.confirm(
+                    "Are you sure you want to logout from all devices?",
+                  );
+
+                  if (confirmLogout) {
+                    logout();
+                    setCurrentPage("home");
+                  }
+                }}
+                className="font-semibold text-red-600 hover:text-red-500 transition cursor-pointer"
+              >
                 Logout from All Devices
               </button>
             </div>

@@ -34,8 +34,15 @@ import { CATEGORIES, SUBCATEGORIES } from "../constants";
 export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { cart, switchRole, currentUser, logout, currentPage, setCurrentPage } =
-    useStore();
+  const {
+    cart,
+    switchRole,
+    currentUser,
+    logout,
+    currentPage,
+    setCurrentPage,
+    setViewMode,
+  } = useStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isMessageModalOpen, setIsMessageModalOpen } = useStore();
   const [isAccountOpen, setIsAccountOpen] = useState(false);
@@ -251,12 +258,23 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               onMouseLeave={() => setIsAccountOpen(false)}
             >
               {!currentUser ? (
-                <button
-                  onClick={() => setCurrentPage("login")}
-                  className="text-sm font-semibold hover:text-indigo-600"
-                >
-                  Login / Register
-                </button>
+                <div className="flex items-center gap-1 text-sm font-semibold">
+                  <button
+                    onClick={() => setCurrentPage("login")}
+                    className="hover:text-indigo-600 transition"
+                  >
+                    Login
+                  </button>
+
+                  <span className="text-gray-300">/</span>
+
+                  <button
+                    onClick={() => setCurrentPage("signup")}
+                    className="hover:text-indigo-600 transition"
+                  >
+                    Register
+                  </button>
+                </div>
               ) : (
                 <>
                   <button className="text-sm font-semibold hover:text-indigo-600">
@@ -294,14 +312,25 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 </>
               )}
             </div>
-            {/* Staff Portal - Desktop */}
+
+            {/* Staff Portal / Logout - Desktop */}
             <div className="hidden md:flex">
-              <button
-                onClick={() => switchRole("MANAGER")}
-                className="text-xs font-bold px-4 py-2 bg-gray-900 text-white rounded-xl hover:opacity-90 transition"
-              >
-                Staff Portal
-              </button>
+              {currentUser?.role === "MANAGER" ||
+              currentUser?.role === "INVENTORY" ? (
+                <button
+                  onClick={() => setViewMode("ADMIN")}
+                  className="text-xs font-bold px-4 py-2 bg-gray-900 text-white rounded-xl hover:opacity-90 transition"
+                >
+                  Staff Portal
+                </button>
+              ) : currentUser ? (
+                <button
+                  onClick={() => logout()}
+                  className="text-xs font-bold px-4 py-2 bg-red-500 text-white rounded-xl hover:opacity-90 transition"
+                >
+                  Logout
+                </button>
+              ) : null}
             </div>
             {/* Cart */}
             <button onClick={() => setCurrentPage("cart")} className="relative">
@@ -413,17 +442,69 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
 
             {/* Nav Links */}
             <div className="flex items-center gap-10 px-10 text-sm font-semibold text-gray-700">
-              {navLinks.map((link) => (
-                <button
-                  key={link.id}
-                  onClick={() => setCurrentPage(link.id)}
-                  className={`hover:text-indigo-600 transition ${
-                    currentPage === link.id ? "text-indigo-600" : ""
-                  }`}
-                >
-                  {link.label}
-                </button>
-              ))}
+              {navLinks.map((link) =>
+                link.id === "shop" ? (
+                  <div
+                    key={link.id}
+                    className="relative h-12 flex items-center group"
+                  >
+                    <button
+                      onClick={() => setCurrentPage("shop")}
+                      className={`hover:text-indigo-600 transition flex items-center gap-1 ${
+                        currentPage === "shop" ? "text-indigo-600" : ""
+                      }`}
+                    >
+                      Shop{" "}
+                      <ChevronRight className="w-3 h-3 rotate-90 group-hover:rotate-270 transition-transform duration-200" />
+                    </button>
+
+                    {/* Mega Menu */}
+                    <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 absolute top-full left-0 z-50 bg-white border border-gray-200 shadow-2xl rounded-b-xl w-200 max-h-[70vh] overflow-y-auto p-6">
+                      <div className="grid grid-cols-4 gap-6">
+                        {CATEGORIES.map((cat) => (
+                          <div key={cat}>
+                            <button
+                              onClick={() => {
+                                setCurrentPage("shop");
+                              }}
+                              className="text-xs font-black text-gray-900 uppercase tracking-wider mb-2 hover:text-indigo-600 transition-colors text-left w-full"
+                            >
+                              {cat}
+                            </button>
+                            {SUBCATEGORIES[cat] && (
+                              <ul className="space-y-1">
+                                {SUBCATEGORIES[cat].groups
+                                  .flatMap((g) => g.items)
+                                  .slice(0, 5)
+                                  .map((sub) => (
+                                    <li key={sub}>
+                                      <button
+                                        onClick={() => setCurrentPage("shop")}
+                                        className="text-xs text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-2 py-1 rounded transition-colors text-left w-full"
+                                      >
+                                        {sub}
+                                      </button>
+                                    </li>
+                                  ))}
+                              </ul>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    key={link.id}
+                    onClick={() => setCurrentPage(link.id)}
+                    className={`hover:text-indigo-600 transition ${
+                      currentPage === link.id ? "text-indigo-600" : ""
+                    }`}
+                  >
+                    {link.label}
+                  </button>
+                ),
+              )}
             </div>
           </div>
         </div>
@@ -557,15 +638,18 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
 
                   <div className="pt-6 border-t"></div>
 
-                  <button
-                    onClick={() => {
-                      switchRole("MANAGER");
-                      setIsMenuOpen(false);
-                    }}
-                    className="w-full py-3 rounded-lg bg-gray-900 text-white font-bold"
-                  >
-                    Staff Portal
-                  </button>
+                  {(currentUser?.role === "MANAGER" ||
+                    currentUser?.role === "INVENTORY") && (
+                    <button
+                      onClick={() => {
+                        setViewMode("ADMIN");
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full py-3 rounded-lg bg-gray-900 text-white font-bold"
+                    >
+                      Staff Portal
+                    </button>
+                  )}
                 </>
               ) : (
                 <div className="space-y-2">
@@ -1021,7 +1105,15 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
 export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { currentUser, switchRole, adminPage, setAdminPage } = useStore();
+  const {
+    currentUser,
+    switchRole,
+    adminPage,
+    setAdminPage,
+    logout,
+    setViewMode,
+    setCurrentPage,
+  } = useStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navItems: { name: AdminPage; icon: any; role: string[] }[] = [
     { name: "Dashboard", icon: LayoutDashboard, role: ["MANAGER"] },
@@ -1098,7 +1190,10 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
 
         <div className="p-6 border-t  border-gray-200 space-y-3">
           <button
-            onClick={() => switchRole("CUSTOMER")}
+            onClick={() => {
+              setViewMode("STORE");
+              setCurrentPage("home");
+            }}
             className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-all shadow-sm"
           >
             <Store className="w-5 h-5" />
@@ -1110,7 +1205,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
                 "Are you sure you want to sign out?",
               );
               if (confirmLogout) {
-                switchRole("CUSTOMER");
+                logout();
               }
             }}
             className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl transition-all"
