@@ -178,28 +178,26 @@ export const Store: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4">
         {/* Filters Header */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-12 border-b border-gray-100 pb-8">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide w-full md:w-auto">
-            <button
-              onClick={() => setSelectedCategory("All")}
-              className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                selectedCategory === "All"
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200"
-                  : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-              }`}
-            >
-              All Drops
-            </button>
-            {CATEGORIES.map((cat) => (
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+            {[
+              "All",
+              "Laptop",
+              "Graphics Card",
+              "Processor",
+              "RAM",
+              "Monitor",
+              "Peripherals",
+            ].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0 ${
                   selectedCategory === cat
                     ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200"
                     : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                 }`}
               >
-                {cat}
+                {cat === "All" ? "All Drops" : cat}
               </button>
             ))}
           </div>
@@ -412,7 +410,14 @@ export const Store: React.FC = () => {
                   <option value="rating">Top Rated</option>
                 </select>
               </div>
-
+              {/* CATEGORY */}
+              <FilterSection
+                title="Category"
+                options={CATEGORIES}
+                selected={selectedCategory === "All" ? [] : [selectedCategory]}
+                single
+                onChange={(value) => setSelectedCategory(value)}
+              />
               {/* CONDITION */}
               <FilterSection
                 title="Condition"

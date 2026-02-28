@@ -222,7 +222,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               className="h-24 w-28 object-contain"
             />
 
-            <span className="text-2xl font-black tracking-tight">
+            <span className="text-2xl font-black tracking-tight cursor-pointer">
               <span className="text-indigo-600">Info</span>
               <span className="text-gray-900">fix</span>
             </span>
@@ -261,7 +261,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 <div className="flex items-center gap-1 text-sm font-semibold">
                   <button
                     onClick={() => setCurrentPage("login")}
-                    className="hover:text-indigo-600 transition"
+                    className="cursor-pointer hover:text-indigo-600 transition"
                   >
                     Login
                   </button>
@@ -270,14 +270,14 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
 
                   <button
                     onClick={() => setCurrentPage("signup")}
-                    className="hover:text-indigo-600 transition"
+                    className="cursor-pointer hover:text-indigo-600 transition"
                   >
                     Register
                   </button>
                 </div>
               ) : (
                 <>
-                  <button className="text-sm font-semibold hover:text-indigo-600">
+                  <button className="text-sm font-semibold hover:text-indigo-600 cursor-pointer">
                     My Account
                   </button>
 
@@ -319,21 +319,24 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               currentUser?.role === "INVENTORY" ? (
                 <button
                   onClick={() => setViewMode("ADMIN")}
-                  className="text-xs font-bold px-4 py-2 bg-gray-900 text-white rounded-xl hover:opacity-90 transition"
+                  className="cursor-pointer text-xs font-bold px-4 py-2 bg-gray-900 text-white rounded-xl hover:opacity-90 transition"
                 >
                   Staff Portal
                 </button>
               ) : currentUser ? (
                 <button
                   onClick={() => logout()}
-                  className="text-xs font-bold px-4 py-2 bg-red-500 text-white rounded-xl hover:opacity-90 transition"
+                  className=" cursor-pointer text-xs font-bold px-4 py-2 bg-red-500 text-white rounded-xl hover:opacity-90 transition"
                 >
                   Logout
                 </button>
               ) : null}
             </div>
             {/* Cart */}
-            <button onClick={() => setCurrentPage("cart")} className="relative">
+            <button
+              onClick={() => setCurrentPage("cart")}
+              className="relative cursor-pointer"
+            >
               <ShoppingCart className="w-7 h-7 text-gray-700" />
               {cart.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-indigo-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
@@ -446,7 +449,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 link.id === "shop" ? (
                   <div
                     key={link.id}
-                    className="relative h-12 flex items-center group"
+                    className="relative h-12 flex items-center group "
                   >
                     <button
                       onClick={() => setCurrentPage("shop")}
@@ -497,7 +500,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                   <button
                     key={link.id}
                     onClick={() => setCurrentPage(link.id)}
-                    className={`hover:text-indigo-600 transition ${
+                    className={`hover:text-indigo-600 transition cursor-pointer ${
                       currentPage === link.id ? "text-indigo-600" : ""
                     }`}
                   >

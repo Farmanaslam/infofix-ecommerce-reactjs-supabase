@@ -252,7 +252,7 @@ export const Branches: React.FC = () => {
             <div className="pt-6">
               <button
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                className="bg-white text-[#172337] px-12 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-50 transition-all shadow-2xl"
+                className="bg-white text-[#172337] cursor-pointer px-12 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-50 transition-all shadow-2xl"
               >
                 Find Nearest Store
               </button>

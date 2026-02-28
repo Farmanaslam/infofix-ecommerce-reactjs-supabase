@@ -64,7 +64,7 @@ export const CareersPage = () => {
 
                     <button
                       onClick={() => setSelectedJob(job)}
-                      className="px-6 py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                      className="px-6 py-3 rounded-xl bg-indigo-600 text-white cursor-pointer font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
                     >
                       Apply Now
                     </button>
@@ -147,7 +147,7 @@ export const CareersPage = () => {
             <div className="md:col-span-2">
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                className="w-full py-3 rounded-xl bg-indigo-600 cursor-pointer text-white font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
               >
                 Submit Application
               </button>

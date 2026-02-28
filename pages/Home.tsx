@@ -433,7 +433,7 @@ export const Home: React.FC = () => {
 
         <button
           onClick={() => setCurrentPage("services")}
-          className="mt-12 bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-bold"
+          className="mt-12 bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-bold cursor-pointer"
         >
           View All Services
         </button>
@@ -456,7 +456,7 @@ export const Home: React.FC = () => {
           </button>
           <button
             onClick={() => setCurrentPage("contact")}
-            className="border border-white px-8 py-3 rounded-xl font-bold"
+            className="border border-white px-8 py-3 rounded-xl font-bold cursor-pointer"
           >
             Visit Our Store
           </button>
