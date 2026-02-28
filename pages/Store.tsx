@@ -175,10 +175,10 @@ export const Store: React.FC = () => {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4 mt-8 md:mt-0">
         {/* Filters Header */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-12 border-b border-gray-100 pb-8">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide w-full md:w-auto pb-1">
             {[
               "All",
               "Laptop",
@@ -191,7 +191,7 @@ export const Store: React.FC = () => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0 ${
+                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0 touch-pan-x ${
                   selectedCategory === cat
                     ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200"
                     : "bg-gray-100 text-gray-500 hover:bg-gray-200"

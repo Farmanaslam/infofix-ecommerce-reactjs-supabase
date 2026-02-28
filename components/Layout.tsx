@@ -325,7 +325,15 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 </button>
               ) : currentUser ? (
                 <button
-                  onClick={() => logout()}
+                  onClick={() => {
+                    const confirmLogout = window.confirm(
+                      "Are you sure you want to log out?",
+                    );
+
+                    if (confirmLogout) {
+                      logout();
+                    }
+                  }}
                   className=" cursor-pointer text-xs font-bold px-4 py-2 bg-red-500 text-white rounded-xl hover:opacity-90 transition"
                 >
                   Logout

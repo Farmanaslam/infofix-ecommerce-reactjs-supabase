@@ -331,6 +331,23 @@ export const Home: React.FC = () => {
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           onMouseLeave={() => setIsDragging(false)}
+          onTouchStart={(e) => {
+            setIsDragging(true);
+            setStartX(e.touches[0].clientX);
+          }}
+          onTouchEnd={(e) => {
+            if (!isDragging) return;
+            const diff = e.changedTouches[0].clientX - startX;
+            if (diff > 50)
+              setCurrentReview((prev) =>
+                prev === 0 ? reviews.length - 1 : prev - 1,
+              );
+            else if (diff < -50)
+              setCurrentReview((prev) =>
+                prev === reviews.length - 1 ? 0 : prev + 1,
+              );
+            setIsDragging(false);
+          }}
         >
           {reviews.map((review, index) => {
             const position =
