@@ -16,47 +16,54 @@ import {
   X,
 } from "lucide-react";
 import { CATEGORIES, INITIAL_PRODUCTS } from "../constants";
-import { createClient } from "@supabase/supabase-js";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SUPABASE CLIENT — gracefully no-ops if env vars are missing
-// .env: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
-// ─────────────────────────────────────────────────────────────────────────────
-const SB_URL = (import.meta as any).env?.VITE_SUPABASE_URL ?? "";
-const SB_KEY = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY ?? "";
-const IS_SB = !!(
-  SB_URL &&
-  SB_KEY &&
-  SB_URL.startsWith("https://") &&
-  !SB_URL.includes("placeholder")
-);
-const supabase = IS_SB ? createClient(SB_URL, SB_KEY) : null;
-
-// ─────────────────────────────────────────────────────────────────────────────
-// TYPES
-// ─────────────────────────────────────────────────────────────────────────────
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  image: string;
-  price: number;
-  retailPrice?: number;
-  discountPercent: number;
-  stock: number;
-  condition: "New" | "Refurbished";
-  category: string;
-  subcategory?: string;
-  brand?: string;
-  specs: string[];
-  rating: number;
-  reviews: number;
-  likesCount: number;
-  tags: string[];
-}
+import { Product } from "../types";
+import { supabase } from "@/lib/supabaseClient";
 
 const PER_PAGE = 12;
+const IS_SB = !!supabase;
 
+// ─── Search aliases: typing these words also matches related category terms ───
+const SEARCH_ALIASES: Record<string, string[]> = {
+  processor: [
+    "processor",
+    "processors",
+    "cpu",
+    "intel",
+    "amd",
+    "ryzen",
+    "core i",
+  ],
+  cpu: ["processor", "cpu", "core"],
+  peripherals: [
+    "peripherals",
+    "peripheral",
+    "keyboard",
+    "mouse",
+    "headset",
+    "webcam",
+    "speaker",
+  ],
+  peripheral: ["peripherals", "peripheral"],
+  cctv: ["cctv", "camera", "surveillance", "security camera", "dvr", "nvr"],
+  camera: ["cctv", "camera", "surveillance"],
+  ram: ["ram", "memory", "ddr", "dimm", "sodimm"],
+  memory: ["ram", "memory", "ddr"],
+  gpu: ["gpu", "graphics card", "graphics", "nvidia", "radeon", "rtx", "gtx"],
+  graphics: ["graphics card", "gpu", "nvidia", "radeon"],
+  laptop: ["laptop", "notebook", "ultrabook"],
+  monitor: ["monitor", "display", "screen", "led"],
+  ssd: ["ssd", "solid state", "nvme", "storage"],
+};
+
+function expandTerms(terms: string[]): string[] {
+  const expanded = new Set<string>();
+  for (const term of terms) {
+    expanded.add(term);
+    const aliases = SEARCH_ALIASES[term];
+    if (aliases) aliases.forEach((a) => expanded.add(a));
+  }
+  return [...expanded];
+}
 // ─────────────────────────────────────────────────────────────────────────────
 // MAPPERS
 // ─────────────────────────────────────────────────────────────────────────────
@@ -672,13 +679,51 @@ export const Store: React.FC = () => {
           }
           if (selectedCondition !== "All")
             q = q.eq("condition", selectedCondition);
-          if (selectedBrands.length) q = q.in("brand", selectedBrands);
-          if (searchQuery.trim())
-            q = q.or(
-              `name.ilike.%${searchQuery.trim()}%,description.ilike.%${searchQuery.trim()}%`,
-            );
+          if (selectedBrands.length) {
+            const brandFilters = selectedBrands
+              .map((b) => `brand.ilike.${b}`)
+              .join(",");
+            q = q.or(brandFilters);
+          }
+          if (searchQuery.trim()) {
+            const terms = searchQuery
+              .trim()
+              .toLowerCase()
+              .split(/\s+/)
+              .filter(Boolean);
+            for (const term of terms) {
+              const aliases = expandTerms([term]);
+              const conditions = aliases
+                .flatMap((alias) => [
+                  `name.ilike.%${alias}%`,
+                  `description.ilike.%${alias}%`,
+                  `brand.ilike.%${alias}%`,
+                ])
+                .join(",");
+              q = q.or(conditions);
+            }
+          }
           if (minPrice) q = q.gte("discounted_price", Number(minPrice));
           if (maxPrice) q = q.lte("discounted_price", Number(maxPrice));
+
+          if (selectedProcessors.length) {
+            const f = selectedProcessors
+              .map((p) => `specs->>'processor'.ilike.%${p}%`)
+              .join(",");
+            q = q.or(f);
+          }
+          if (selectedRam.length) {
+            const f = selectedRam
+              .map((r) => `specs->>'ram'.ilike.%${r}%`)
+              .join(",");
+            q = q.or(f);
+          }
+          if (selectedStorage.length) {
+            const f = selectedStorage
+              .map((s) => `specs->>'storage'.ilike.%${s}%`)
+              .join(",");
+            q = q.or(f);
+          }
 
           // Sort
           switch (sortOption) {
@@ -724,12 +769,26 @@ export const Store: React.FC = () => {
         if (selectedCondition !== "All")
           result = result.filter((p) => p.condition === selectedCondition);
         if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase();
-          result = result.filter(
-            (p) =>
-              p.name.toLowerCase().includes(q) ||
-              p.description.toLowerCase().includes(q),
-          );
+          const terms = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+          const expandedTerms = expandTerms(terms);
+          result = result.filter((p) => {
+            const haystack = [
+              p.name,
+              p.description,
+              p.brand,
+              p.category,
+              p.subcategory ?? "",
+              ...(p.specs ?? []),
+              ...(p.tags ?? []),
+            ]
+              .join(" ")
+              .toLowerCase();
+            // Each original term must match via itself OR any of its aliases
+            return terms.every((term) => {
+              const aliases = expandTerms([term]);
+              return aliases.some((alias) => haystack.includes(alias));
+            });
+          });
         }
         if (selectedBrands.length)
           result = result.filter(
@@ -760,7 +819,6 @@ export const Store: React.FC = () => {
       }
 
       // Phase 2: hide skeletons → stagger-reveal real cards
-      // Intentional 420ms pause so skeleton is visible and transition feels smooth
       await new Promise((r) => setTimeout(r, 420));
       setLoading(false);
       // rAF ensures DOM has painted before triggering opacity/transform
@@ -768,7 +826,6 @@ export const Store: React.FC = () => {
         requestAnimationFrame(() => setRevealed(true)),
       );
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       selectedCategory,
@@ -938,6 +995,7 @@ export const Store: React.FC = () => {
                 "Processor",
                 "RAM",
                 "Monitor",
+                "CCTV",
                 "Peripherals",
               ].map((cat) => (
                 <button

@@ -1203,6 +1203,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
           <button
             onClick={() => {
               setViewMode("STORE");
+              localStorage.setItem("currentPage", "home");
               setCurrentPage("home");
             }}
             className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-all shadow-sm"

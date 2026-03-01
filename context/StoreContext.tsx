@@ -78,14 +78,21 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [branches, setBranches] = useState<Branch[]>(INITIAL_BRANCHES);
-  const [currentPage, setCurrentPage] = useState<CustomerPage>("home");
-  const [adminPage, setAdminPage] = useState<AdminPage>("Dashboard");
+  const [currentPage, setCurrentPageState] = useState<CustomerPage>(
+    (localStorage.getItem("currentPage") as CustomerPage) || "home",
+  );
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
     null,
   );
-  const [viewMode, setViewMode] = useState<"STORE" | "ADMIN">("STORE");
+  const [viewMode, setViewModeState] = useState<"STORE" | "ADMIN">(
+    (localStorage.getItem("viewMode") as "STORE" | "ADMIN") || "STORE",
+  );
+
+  const [adminPage, setAdminPageState] = useState<AdminPage>(
+    (localStorage.getItem("adminPage") as AdminPage) || "Dashboard",
+  );
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -147,6 +154,20 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const deleteBranch = (branchId: string) => {
     setBranches((prev) => prev.filter((b) => b.id !== branchId));
   };
+  const setViewMode = (mode: "STORE" | "ADMIN") => {
+    localStorage.setItem("viewMode", mode);
+    setViewModeState(mode);
+  };
+
+  const setAdminPage = (page: AdminPage) => {
+    localStorage.setItem("adminPage", page);
+    setAdminPageState(page);
+  };
+
+  const setCurrentPage = (page: CustomerPage) => {
+    localStorage.setItem("currentPage", page);
+    setCurrentPageState(page);
+  };
   const logout = async () => {
     await supabase.auth.signOut();
 
@@ -184,8 +205,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         branches,
         currentPage,
         adminPage,
-        setCurrentPage,
         setAdminPage,
+        setCurrentPage,
         setProducts,
         setOrders,
         setCurrentUser,

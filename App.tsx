@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { StoreProvider, useStore } from "./context/StoreContext";
 import { CustomerLayout, AdminLayout } from "./components/Layout";
 import { Dashboard } from "./pages/Dashboard";
@@ -22,55 +22,81 @@ import { Policy } from "./pages/Policy";
 import { Checkout } from "./pages/Checkout";
 import { CareersPage } from "./pages/CareersPage";
 const Main: React.FC = () => {
-  const { currentUser, setCurrentUser, currentPage, adminPage, viewMode } =
-    useStore();
+  const {
+    currentUser,
+    setCurrentUser,
+    currentPage,
+    adminPage,
+    viewMode,
+    setViewMode,
+    setAdminPage,
+  } = useStore();
+  const [authReady, setAuthReady] = useState(false);
   useEffect(() => {
     const restoreSession = async () => {
-      const { data } = await supabase.auth.getSession();
+      try {
+        const { data } = await supabase.auth.getSession();
 
-      if (data.session?.user) {
-        const user = data.session.user;
+        if (data.session?.user) {
+          const user = data.session.user;
 
-        // 🔹 Check if staff
-        const { data: staff } = await supabase
-          .from("staffs")
-          .select("*")
-          .eq("id", user.id)
-          .single();
+          // 🔹 Check if staff
+          const { data: staff } = await supabase
+            .from("staffs")
+            .select("*")
+            .eq("id", user.id)
+            .single();
 
-        if (staff) {
-          setCurrentUser({
-            id: user.id,
-            name: staff.full_name,
-            email: staff.email,
-            role: staff.role, // ADMIN / MANAGER
-            avatar: "",
-          });
+          if (staff) {
+            setCurrentUser({
+              id: user.id,
+              name: staff.full_name,
+              email: staff.email,
+              role: staff.role,
+              avatar: "",
+            });
+            if (!localStorage.getItem("adminPage")) {
+              setAdminPage("Dashboard");
+            }
+            return;
+          }
 
-          return;
+          // 🔹 Otherwise check customer
+          const { data: profile } = await supabase
+            .from("customers")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+
+          if (profile) {
+            setCurrentUser({
+              id: user.id,
+              name: profile.full_name,
+              email: profile.email,
+              role: "CUSTOMER",
+              avatar: "",
+            });
+          }
         }
-
-        // 🔹 Otherwise check customer
-        const { data: profile } = await supabase
-          .from("customers")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-
-        if (profile) {
-          setCurrentUser({
-            id: user.id,
-            name: profile.full_name,
-            email: profile.email,
-            role: "CUSTOMER",
-            avatar: "",
-          });
-        }
+      } finally {
+        setAuthReady(true); // ← ALWAYS runs, even for staff, even on error
       }
     };
-
     restoreSession();
   }, []);
+
+  if (!authReady) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">
+            Loading…
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentUser || currentUser.role === "CUSTOMER" || viewMode === "STORE") {
     return (

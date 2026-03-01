@@ -14,6 +14,7 @@ export const CATEGORIES = [
   "Peripherals",
   "Laptop",
   "Mini PC",
+  "CCTV",
 ];
 
 export const SUBCATEGORIES: Record<
@@ -269,6 +270,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviews: 128,
     condition: "New",
     retailPrice: 249.99,
+    discountPercent: 0,
+    specs: [],
+    likesCount: 0,
+    tags: [],
   },
   {
     id: "2",
@@ -283,6 +288,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviews: 89,
     condition: "Refurbished",
     retailPrice: 249.99,
+    discountPercent: 0,
+    specs: [],
+    likesCount: 0,
+    tags: [],
   },
   {
     id: "3",
@@ -297,6 +306,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviews: 215,
     condition: "New",
     retailPrice: 200.99,
+    discountPercent: 0,
+    specs: [],
+    likesCount: 0,
+    tags: [],
   },
   {
     id: "4",
@@ -311,6 +324,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviews: 56,
     condition: "New",
     retailPrice: 749.99,
+    discountPercent: 0,
+    specs: [],
+    likesCount: 0,
+    tags: [],
   },
   {
     id: "5",
@@ -325,6 +342,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviews: 142,
     condition: "New",
     retailPrice: 149.99,
+    discountPercent: 0,
+    specs: [],
+    likesCount: 0,
+    tags: [],
   },
 ];
 
