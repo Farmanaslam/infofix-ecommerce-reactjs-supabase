@@ -42,12 +42,17 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     currentPage,
     setCurrentPage,
     setViewMode,
+    setHeaderSearchQuery,
+    headerSearchQuery,
+    setSelectedCategory,
+    setSelectedSubcategory,
   } = useStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isMessageModalOpen, setIsMessageModalOpen } = useStore();
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  const [localSearch, setLocalSearch] = useState("");
   const [mobileTab, setMobileTab] = useState<"menu" | "categories">("menu");
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<
     string | null
@@ -79,6 +84,11 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     { label: "Careers", id: "careers" },
     { label: "Contact", id: "contact" },
   ];
+  const handleSearch = () => {
+    if (!localSearch.trim()) return;
+    setHeaderSearchQuery(localSearch.trim());
+    setCurrentPage("shop");
+  };
 
   return (
     <div className="min-h-screen flex flex-col relative">
@@ -234,9 +244,15 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               <input
                 type="text"
                 placeholder="Search for products..."
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 className="flex-1 px-5 py-3 outline-none text-sm"
               />
-              <button className="px-6 bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition">
+              <button
+                onClick={handleSearch}
+                className="px-6 bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition"
+              >
                 <Search className="w-5 h-5" />
               </button>
             </div>
@@ -369,9 +385,15 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <input
               type="text"
               placeholder="Search for products..."
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               className="flex-1 px-4 py-2.5 outline-none text-sm"
             />
-            <button className="px-4 bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition">
+            <button
+              onClick={handleSearch}
+              className="px-4 bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition"
+            >
               <Search className="w-4 h-4" />
             </button>
           </div>
@@ -404,6 +426,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                         key={cat}
                         onMouseEnter={() => setHoveredCategory(cat)}
                         onClick={() => {
+                          setSelectedCategory(cat);
+                          setSelectedSubcategory(null);
                           setCurrentPage("shop");
                           setIsCategoryOpen(false);
                         }}
@@ -434,6 +458,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                               <li
                                 key={sub}
                                 onClick={() => {
+                                  setSelectedCategory(hoveredCategory);
+                                  setSelectedSubcategory(sub);
                                   setCurrentPage("shop");
                                   setIsCategoryOpen(false);
                                 }}
@@ -476,6 +502,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                           <div key={cat}>
                             <button
                               onClick={() => {
+                                setSelectedCategory(cat);
+                                setSelectedSubcategory(null);
                                 setCurrentPage("shop");
                               }}
                               className="text-xs font-black text-gray-900 uppercase tracking-wider mb-2 hover:text-indigo-600 transition-colors text-left w-full"
@@ -490,7 +518,11 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                                   .map((sub) => (
                                     <li key={sub}>
                                       <button
-                                        onClick={() => setCurrentPage("shop")}
+                                        onClick={() => {
+                                          setSelectedCategory(cat);
+                                          setSelectedSubcategory(sub);
+                                          setCurrentPage("shop");
+                                        }}
                                         className="text-xs text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-2 py-1 rounded transition-colors text-left w-full"
                                       >
                                         {sub}
@@ -699,6 +731,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                                   <button
                                     key={sub}
                                     onClick={() => {
+                                      setSelectedCategory(cat);
+                                      setSelectedSubcategory(sub);
                                       setCurrentPage("shop");
                                       setIsMenuOpen(false);
                                     }}

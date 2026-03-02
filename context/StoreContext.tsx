@@ -66,6 +66,8 @@ interface StoreContextType extends AppState {
   logout: () => void;
   viewMode: "STORE" | "ADMIN";
   setViewMode: (mode: "STORE" | "ADMIN") => void;
+  headerSearchQuery: string;
+  setHeaderSearchQuery: (q: string) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -93,6 +95,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const [adminPage, setAdminPageState] = useState<AdminPage>(
     (localStorage.getItem("adminPage") as AdminPage) || "Dashboard",
   );
+  const [headerSearchQuery, setHeaderSearchQuery] = useState("");
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -231,6 +234,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         setSelectedSubcategory,
         viewMode,
         setViewMode,
+        headerSearchQuery,
+        setHeaderSearchQuery,
       }}
     >
       {children}

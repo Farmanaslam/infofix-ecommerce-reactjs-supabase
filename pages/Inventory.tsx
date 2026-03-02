@@ -187,10 +187,11 @@ export const Inventory: React.FC = () => {
 
   // ── Derived ──
   const filteredSubcats = subcategories.filter(
-    (s) => !form.category_id || s.category_id === Number(form.category_id),
+    (s) =>
+      !form.category_id || String(s.category_id) === String(form.category_id),
   );
   const priceFilteredSubcats = subcategories.filter(
-    (s) => !priceCatId || s.category_id === Number(priceCatId),
+    (s) => !priceCatId || String(s.category_id) === String(priceCatId),
   );
   const totalPages = Math.ceil(totalCount / PER_PAGE);
 
@@ -1623,9 +1624,7 @@ export const Inventory: React.FC = () => {
                               subcategory_id: e.target.value,
                             }))
                           }
-                          disabled={
-                            !form.category_id || filteredSubcats.length === 0
-                          }
+                          disabled={!form.category_id}
                           className="input disabled:opacity-40"
                         >
                           <option value="">None</option>

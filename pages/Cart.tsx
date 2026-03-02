@@ -41,7 +41,7 @@ export const Cart: React.FC = () => {
           </p>
 
           <button
-            onClick={() => setCurrentPage("products")}
+            onClick={() => setCurrentPage("shop")}
             className="bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700 transition"
           >
             Continue Shopping
