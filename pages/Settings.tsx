@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useStore } from "../context/StoreContext";
 import {
   Settings as SettingsIcon,
@@ -26,7 +26,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { OPERATORS } from "../constants";
-import { Branch } from "../types";
+import { Branch, User as Staff } from "../types";
 import { supabase } from "@/lib/supabaseClient";
 
 export const Settings: React.FC = () => {
@@ -61,6 +61,17 @@ export const Settings: React.FC = () => {
     avatar_url:
       "https://avatars.design/wp-content/uploads/2022/09/5business-team-employee-personal-avatar.png",
   });
+  // Kebab menu state
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+
+  // Edit Modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState<Staff | null>(null);
+
+  // Delete Confirmation state
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<Staff | null>(null);
+
   const handleSave = () => {
     setIsSaving(true);
     setTimeout(() => setIsSaving(false), 1500);
@@ -164,7 +175,59 @@ export const Settings: React.FC = () => {
     { id: "Staff", icon: User, label: "Staff Management" },
     { id: "Security", icon: Shield, label: "Security & Access" },
   ];
+  const openEditModal = (member: Staff) => {
+    setEditingMember(member);
+    setIsEditModalOpen(true);
+    setMenuOpenId(null);
+  };
 
+  const openDeleteConfirm = (member: Staff) => {
+    setMemberToDelete(member);
+    setIsDeleteOpen(true);
+    setMenuOpenId(null);
+  };
+
+  const handleUpdateMember = async (updated: any) => {
+    const { error } = await supabase
+      .from("staffs")
+      .update({
+        full_name: updated.full_name,
+        role: updated.role,
+        phone: updated.phone,
+        avatar_url: updated.avatar_url,
+      })
+      .eq("id", updated.id);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    // Update UI instantly
+    setStaffs((prev) =>
+      prev.map((m) => (m.id === updated.id ? { ...m, ...updated } : m)),
+    );
+
+    setIsEditModalOpen(false);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (!memberToDelete) return;
+
+    const { error } = await supabase
+      .from("staffs")
+      .delete()
+      .eq("id", memberToDelete.id);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    setStaffs((prev) => prev.filter((m) => m.id !== memberToDelete.id));
+
+    setIsDeleteOpen(false);
+  };
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -464,9 +527,43 @@ export const Settings: React.FC = () => {
                           Logged In
                         </p>
                       </div>
-                      <button className="p-2 text-gray-300 hover:text-gray-900 transition-colors">
-                        <MoreVertical className="w-5 h-5" />
-                      </button>
+                      <div className="relative">
+                        <button
+                          onClick={() =>
+                            setMenuOpenId(menuOpenId === op.id ? null : op.id)
+                          }
+                          className="p-2 text-gray-400 hover:text-gray-900"
+                          aria-haspopup="true"
+                          aria-expanded={menuOpenId === op.id}
+                        >
+                          <MoreVertical className="w-5 h-5" />
+                        </button>
+
+                        {menuOpenId === op.id && (
+                          <div className="absolute right-0 mt-2 w-40 bg-white border rounded-xl shadow-lg z-50">
+                            <button
+                              onClick={() => openEditModal(op)}
+                              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                            >
+                              Edit Member
+                            </button>
+
+                            <button
+                              onClick={() =>
+                                openDeleteConfirm({
+                                  id: op.id,
+                                  name: op.full_name,
+                                  role: op.role,
+                                  avatar: op.avatar_url,
+                                })
+                              }
+                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                            >
+                              Delete Member
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -807,6 +904,150 @@ export const Settings: React.FC = () => {
           </div>
         </div>
       )}
+      {/* EDIT MEMBER MODAL */}
+      {isEditModalOpen && editingMember && (
+        <EditMemberModal
+          member={editingMember}
+          onClose={() => setIsEditModalOpen(false)}
+          onSave={handleUpdateMember}
+        />
+      )}
+      {/* DELETE CONFIRMATION */}
+      {isDeleteOpen && memberToDelete && (
+        <ConfirmDialog
+          message="Are you sure you want to delete?"
+          onCancel={() => setIsDeleteOpen(false)}
+          onConfirm={handleDeleteConfirmed}
+        />
+      )}
+    </div>
+  );
+};
+type EditMemberModalProps = {
+  member: any;
+  onClose: () => void;
+  onSave: (member: Staff) => void;
+};
+
+const EditMemberModal: React.FC<EditMemberModalProps> = ({
+  member,
+  onClose,
+  onSave,
+}) => {
+  const [form, setForm] = useState({
+    id: member.id,
+    full_name: member.full_name,
+    role: member.role,
+    phone: member.phone || "",
+    avatar_url: member.avatar_url || "",
+  });
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(form);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-2xl w-full max-w-md">
+        <h3 className="text-lg font-bold mb-4">Edit Member</h3>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            ref={inputRef}
+            value={form.full_name}
+            onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+            className="w-full px-4 py-2 bg-gray-100 rounded-xl"
+            placeholder="Full Name"
+          />
+
+          <input
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            className="w-full px-4 py-2 bg-gray-100 rounded-xl"
+            placeholder="Phone"
+          />
+
+          <input
+            value={form.avatar_url}
+            onChange={(e) => setForm({ ...form, avatar_url: e.target.value })}
+            className="w-full px-4 py-2 bg-gray-100 rounded-xl"
+            placeholder="Avatar URL"
+          />
+
+          <select
+            value={form.role}
+            onChange={(e) => setForm({ ...form, role: e.target.value })}
+            className="w-full px-4 py-2 bg-gray-100 rounded-xl"
+          >
+            <option value="MANAGER">Manager</option>
+            <option value="INVENTORY">Inventory</option>
+          </select>
+          <div className="flex gap-4 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 bg-gray-200 py-2 rounded-xl"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              className="flex-1 bg-indigo-600 text-white py-2 rounded-xl"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+type ConfirmDialogProps = {
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+};
+
+const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
+  message,
+  onConfirm,
+  onCancel,
+}) => {
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    cancelRef.current?.focus();
+  }, []);
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-2xl w-full max-w-sm">
+        <p className="mb-6 text-gray-700">{message}</p>
+
+        <div className="flex gap-4">
+          <button
+            ref={cancelRef}
+            onClick={onCancel}
+            className="flex-1 bg-gray-200 py-2 rounded-xl"
+          >
+            Cancel
+          </button>
+
+          <button
+            onClick={onConfirm}
+            className="flex-1 bg-red-600 text-white py-2 rounded-xl"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

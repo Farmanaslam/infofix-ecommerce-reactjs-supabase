@@ -21,6 +21,7 @@ import { MyOrders } from "./pages/MyOrders";
 import { Policy } from "./pages/Policy";
 import { Checkout } from "./pages/Checkout";
 import { CareersPage } from "./pages/CareersPage";
+import { ContentManager } from "./pages/ContentManager";
 const Main: React.FC = () => {
   const {
     currentUser,
@@ -125,6 +126,7 @@ const Main: React.FC = () => {
       {adminPage === "Dashboard" && <Dashboard />}
       {adminPage === "Inventory" && <Inventory />}
       {adminPage === "Settings" && <Settings />}
+      {adminPage === "Content" && <ContentManager />}
       {adminPage === "Orders" && (
         <div className="flex flex-col items-center justify-center h-[60vh] text-center">
           <div className="p-12 bg-white rounded-[40px] border shadow-2xl shadow-gray-200 max-w-lg">

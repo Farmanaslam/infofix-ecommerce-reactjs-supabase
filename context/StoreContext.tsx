@@ -42,7 +42,8 @@ export type AdminPage =
   | "Inventory"
   | "Orders"
   | "Customers"
-  | "Settings";
+  | "Settings"
+  | "Content";
 
 interface StoreContextType extends AppState {
   currentPage: CustomerPage;
@@ -68,6 +69,8 @@ interface StoreContextType extends AppState {
   setViewMode: (mode: "STORE" | "ADMIN") => void;
   headerSearchQuery: string;
   setHeaderSearchQuery: (q: string) => void;
+  loading: boolean;
+  setLoading: (value: boolean) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -96,6 +99,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     (localStorage.getItem("adminPage") as AdminPage) || "Dashboard",
   );
   const [headerSearchQuery, setHeaderSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -236,8 +240,20 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         setViewMode,
         headerSearchQuery,
         setHeaderSearchQuery,
+        loading,
+        setLoading,
       }}
     >
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-white z-9999">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">
+              Loading…
+            </p>
+          </div>
+        </div>
+      )}
       {children}
     </StoreContext.Provider>
   );

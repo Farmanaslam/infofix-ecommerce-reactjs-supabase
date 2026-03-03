@@ -127,3 +127,45 @@ export interface DBProductFormState {
   specs: { key: string; value: string }[];
   tag_ids: number[];
 }
+export interface UpdatePost {
+  id: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  author: string;
+  image_url: string;
+  published_date: string;
+  is_featured: boolean;
+}
+export type UpdateForm = Omit<UpdatePost, "id" | "published_date">;
+export interface Customer {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  pincode: string;
+  country: string;
+  created_at: string;
+}
+
+export interface AddressForm {
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  pincode: string;
+  country: string;
+}
+
+export const emptyAddressForm: AddressForm = {
+  address1: "",
+  address2: "",
+  city: "",
+  state: "",
+  pincode: "",
+  country: "",
+};

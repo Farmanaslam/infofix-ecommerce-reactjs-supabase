@@ -1166,6 +1166,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
     { name: "Orders", icon: ShoppingCart, role: ["MANAGER", "SUPPORT"] },
     { name: "Customers", icon: Users, role: ["MANAGER", "SUPPORT"] },
     { name: "Settings", icon: Settings, role: ["MANAGER"] },
+    { name: "Content", icon: MessageSquare, role: ["MANAGER", "INVENTORY"] },
   ];
 
   const visibleNav = navItems.filter((item) =>
