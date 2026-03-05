@@ -13,38 +13,14 @@ import {
   Save,
   X,
   Loader2,
+  CheckCircle,
+  Truck,
+  Clock,
+  XCircle,
 } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { supabase } from "../lib/supabaseClient";
-
-interface Customer {
-  id: string;
-  full_name: string;
-  email: string;
-  phone: string;
-  address1: string;
-  address2: string;
-  city: string;
-  state: string;
-  pincode: string;
-  country: string;
-  created_at: string;
-}
-
-interface AddressForm {
-  address1: string;
-  address2: string;
-  city: string;
-  state: string;
-  pincode: string;
-  country: string;
-}
-
-interface ProfileForm {
-  full_name: string;
-  email: string;
-  phone: string;
-}
+import { Customer, ProfileForm, AddressForm, RecentOrder } from "../types";
 
 const emptyAddressForm: AddressForm = {
   address1: "",
@@ -55,6 +31,42 @@ const emptyAddressForm: AddressForm = {
   country: "",
 };
 
+const StatusBadge = ({ status }: { status: string }) => {
+  const map: Record<string, { icon: React.ReactNode; className: string }> = {
+    Delivered: {
+      icon: <CheckCircle className="w-3.5 h-3.5" />,
+      className: "text-green-600 bg-green-50 border-green-200",
+    },
+    Shipped: {
+      icon: <Truck className="w-3.5 h-3.5" />,
+      className: "text-blue-600 bg-blue-50 border-blue-200",
+    },
+    "Out for Delivery": {
+      icon: <Truck className="w-3.5 h-3.5" />,
+      className: "text-indigo-600 bg-indigo-50 border-indigo-200",
+    },
+    Processing: {
+      icon: <Clock className="w-3.5 h-3.5" />,
+      className: "text-yellow-600 bg-yellow-50 border-yellow-200",
+    },
+    Cancelled: {
+      icon: <XCircle className="w-3.5 h-3.5" />,
+      className: "text-red-600 bg-red-50 border-red-200",
+    },
+  };
+  const cfg = map[status] ?? {
+    icon: <Package className="w-3.5 h-3.5" />,
+    className: "text-gray-600 bg-gray-50 border-gray-200",
+  };
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${cfg.className}`}
+    >
+      {cfg.icon} {status}
+    </span>
+  );
+};
+
 export const Profile: React.FC = () => {
   const { setCurrentPage, logout, setLoading, loading } = useStore();
 
@@ -63,6 +75,7 @@ export const Profile: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
 
   // Profile editing
   const [editingProfile, setEditingProfile] = useState(false);
@@ -79,9 +92,9 @@ export const Profile: React.FC = () => {
   const [addressForm, setAddressForm] = useState<AddressForm>(emptyAddressForm);
   const [addingNew, setAddingNew] = useState(false);
 
-  // Fetch customer on mount
+  // Fetch customer + recent orders on mount
   useEffect(() => {
-    const fetchCustomer = async () => {
+    const fetchData = async () => {
       setLoading(true);
       setProfileError(null);
 
@@ -107,10 +120,21 @@ export const Profile: React.FC = () => {
       } else {
         setCustomer(data as Customer);
       }
+
+      // Fetch recent orders (last 3)
+      const { data: ordersData } = await supabase
+        .from("orders")
+        .select("id, order_number, status, total_amount, created_at, items")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      if (ordersData) setRecentOrders(ordersData as RecentOrder[]);
+
       setLoading(false);
     };
 
-    fetchCustomer();
+    fetchData();
   }, []);
 
   const showSuccess = (msg: string) => {
@@ -141,7 +165,6 @@ export const Profile: React.FC = () => {
     if (!customer) return;
     setSaving(true);
     setError(null);
-
     const { data, error: updateError } = await supabase
       .from("customers")
       .update({
@@ -153,10 +176,8 @@ export const Profile: React.FC = () => {
       .eq("id", customer.id)
       .select()
       .maybeSingle();
-
-    if (updateError) {
-      setError("Failed to save profile.");
-    } else if (data) {
+    if (updateError) setError("Failed to save profile.");
+    else if (data) {
       setCustomer(data as Customer);
       setEditingProfile(false);
       showSuccess("Profile updated successfully!");
@@ -203,7 +224,6 @@ export const Profile: React.FC = () => {
     if (!customer) return;
     setSaving(true);
     setError(null);
-
     const updatePayload =
       editingAddress === "address1"
         ? {
@@ -218,21 +238,17 @@ export const Profile: React.FC = () => {
             address2: addressForm.address2,
             updated_at: new Date().toISOString(),
           };
-
     const { data, error: updateError } = await supabase
       .from("customers")
       .update(updatePayload)
       .eq("id", customer.id)
       .select()
       .maybeSingle();
-
-    if (updateError) {
-      setError("Failed to save address.");
-    } else if (data) {
+    if (updateError) setError("Failed to save address.");
+    else if (data) {
       setCustomer(data as Customer);
       showSuccess(addingNew ? "New address added!" : "Address updated!");
     }
-
     setSaving(false);
     setEditingAddress(null);
     setAddingNew(false);
@@ -242,20 +258,15 @@ export const Profile: React.FC = () => {
     if (!customer) return;
     const confirmed = window.confirm("Remove this address?");
     if (!confirmed) return;
-
     setSaving(true);
-    setError(null);
-
     const { data, error: updateError } = await supabase
       .from("customers")
       .update({ address2: "", updated_at: new Date().toISOString() })
       .eq("id", customer.id)
       .select()
       .maybeSingle();
-
-    if (updateError) {
-      setError("Failed to remove address.");
-    } else if (data) {
+    if (updateError) setError("Failed to remove address.");
+    else if (data) {
       setCustomer(data as Customer);
       showSuccess("Address removed.");
     }
@@ -269,8 +280,6 @@ export const Profile: React.FC = () => {
 
   const hasAddress2 = Boolean(customer?.address2?.trim());
 
-  // Use the global store loader — return null while loading so the
-  // StoreProvider overlay is the only thing shown.
   if (loading) return null;
 
   if (profileError || !customer) {
@@ -287,7 +296,6 @@ export const Profile: React.FC = () => {
     month: "long",
     year: "numeric",
   });
-
   const inputCls =
     "w-full px-4 py-3 rounded-xl border border-indigo-200 bg-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-800";
   const inputCls2 =
@@ -299,7 +307,7 @@ export const Profile: React.FC = () => {
         {/* PAGE HEADER */}
         <div className="mb-12">
           <h1 className="text-5xl font-black tracking-tight">
-            <span className="bg-gradient-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
+            <span className="bg-linear-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
               My Account
             </span>
           </h1>
@@ -359,7 +367,6 @@ export const Profile: React.FC = () => {
                     />
                   </div>
                 </div>
-
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
                     Email Address
@@ -380,7 +387,6 @@ export const Profile: React.FC = () => {
                     />
                   </div>
                 </div>
-
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
                     Phone Number
@@ -400,7 +406,6 @@ export const Profile: React.FC = () => {
                     />
                   </div>
                 </div>
-
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
                     Member Since
@@ -410,7 +415,6 @@ export const Profile: React.FC = () => {
                   </div>
                 </div>
               </div>
-
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={handleSaveProfile}
@@ -421,7 +425,7 @@ export const Profile: React.FC = () => {
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <Save className="w-4 h-4" />
-                  )}
+                  )}{" "}
                   Save Changes
                 </button>
                 <button
@@ -693,12 +697,10 @@ export const Profile: React.FC = () => {
             <button
               onClick={handleAddNew}
               disabled={hasAddress2}
-              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold transition
-                ${hasAddress2 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-indigo-600 text-white hover:bg-indigo-500 cursor-pointer"}`}
+              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold transition ${hasAddress2 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-indigo-600 text-white hover:bg-indigo-500 cursor-pointer"}`}
               title={hasAddress2 ? "Maximum of 2 addresses allowed" : ""}
             >
-              <Plus className="w-4 h-4" />
-              Add New Address
+              <Plus className="w-4 h-4" /> Add New Address{" "}
               {hasAddress2 && (
                 <span className="text-xs ml-1">(limit reached)</span>
               )}
@@ -717,21 +719,73 @@ export const Profile: React.FC = () => {
               View All
             </button>
           </div>
-          <div className="flex flex-col items-center justify-center py-14 rounded-2xl bg-gray-50 border border-dashed border-gray-200">
-            <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center mb-4">
-              <Package className="w-8 h-8 text-indigo-400" />
+
+          {recentOrders.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-14 rounded-2xl bg-gray-50 border border-dashed border-gray-200">
+              <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center mb-4">
+                <Package className="w-8 h-8 text-indigo-400" />
+              </div>
+              <p className="text-gray-800 font-bold text-lg">No orders yet</p>
+              <p className="text-gray-400 text-sm mt-1 mb-6">
+                Your order history will appear here once you make a purchase.
+              </p>
+              <button
+                onClick={() => setCurrentPage("shop")}
+                className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-semibold hover:bg-indigo-500 transition cursor-pointer"
+              >
+                Start Shopping
+              </button>
             </div>
-            <p className="text-gray-800 font-bold text-lg">No orders yet</p>
-            <p className="text-gray-400 text-sm mt-1 mb-6">
-              Your order history will appear here once you make a purchase.
-            </p>
-            <button
-              onClick={() => setCurrentPage("shop")}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-semibold hover:bg-indigo-500 transition cursor-pointer"
-            >
-              Start Shopping
-            </button>
-          </div>
+          ) : (
+            <div className="space-y-4">
+              {recentOrders.map((order) => (
+                <div
+                  key={order.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-gray-50 rounded-2xl border border-gray-100 hover:border-indigo-200 transition"
+                >
+                  <div className="flex items-center gap-4">
+                    {/* First item image */}
+                    {order.items?.[0]?.image ? (
+                      <img
+                        src={order.items[0].image}
+                        alt={order.items[0].name}
+                        className="w-12 h-12 rounded-xl object-cover border border-gray-200 shrink-0"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
+                        <Package className="w-5 h-5 text-indigo-400" />
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-bold text-gray-900 text-sm">
+                        Order #{order.order_number}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {order.items.length} item
+                        {order.items.length > 1 ? "s" : ""} ·{" "}
+                        {new Date(order.created_at).toLocaleDateString(
+                          "en-IN",
+                          { day: "numeric", month: "short", year: "numeric" },
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <StatusBadge status={order.status} />
+                    <p className="font-black text-indigo-600 text-sm whitespace-nowrap">
+                      ₹{order.total_amount.toLocaleString()}
+                    </p>
+                    <button
+                      onClick={() => setCurrentPage("orders")}
+                      className="text-xs text-indigo-600 font-bold hover:underline shrink-0"
+                    >
+                      Details →
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ── ACCOUNT SECURITY ─────────────────────────────────────────────── */}

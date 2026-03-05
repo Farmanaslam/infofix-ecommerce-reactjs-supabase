@@ -1,22 +1,182 @@
-import React from "react";
-import { ShieldCheck, CreditCard, Truck } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ShieldCheck, CheckCircle, MapPin, Plus } from "lucide-react";
 import { useStore } from "../context/StoreContext";
+import { supabase } from "../lib/supabaseClient";
+import { Address } from "../types";
+
+type PaymentMethod = "UPI" | "Card" | "NetBanking" | "COD";
+
+const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; desc: string }[] = [
+  {
+    id: "UPI",
+    label: "UPI Payment",
+    desc: "Google Pay, PhonePe, Paytm or any UPI app.",
+  },
+  {
+    id: "Card",
+    label: "Debit / Credit Card",
+    desc: "Visa, MasterCard, RuPay supported.",
+  },
+  {
+    id: "NetBanking",
+    label: "Net Banking",
+    desc: "Choose your bank and complete payment securely.",
+  },
+  {
+    id: "COD",
+    label: "Cash on Delivery (COD)",
+    desc: "Availability depends on product and delivery location.",
+  },
+];
 
 export const Checkout: React.FC = () => {
-  const { cart } = useStore();
+  const { cart, currentUser, setCurrentPage, clearCart } = useStore();
+
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(
+    null,
+  );
+  const [savedAddress, setSavedAddress] = useState<Address | null>(null);
+  const [addressConfirmed, setAddressConfirmed] = useState(false);
+  const [placing, setPlacing] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false);
+  const [orderNumber, setOrderNumber] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  // ── Load address from customers profile ──────────────────────────────────
+  useEffect(() => {
+    const loadAddress = async () => {
+      if (!currentUser?.id) return;
+      const { data } = await supabase
+        .from("customers")
+        .select("address1, address2, city, state, pincode, phone")
+        .eq("id", currentUser.id)
+        .single();
+      if (data?.address1) {
+        setSavedAddress({
+          address_line: [data.address1, data.address2]
+            .filter(Boolean)
+            .join(", "),
+          city: data.city ?? "",
+          state: data.state ?? "",
+          pincode: data.pincode ?? "",
+          phone: data.phone ?? "",
+        });
+      }
+    };
+    loadAddress();
+  }, [currentUser?.id]);
 
   const subtotal = cart.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0,
   );
-
-  const delivery = 0;
   const tax = 0;
-  const total = subtotal + delivery + tax;
+  const delivery = 0;
+  const total = subtotal + tax + delivery;
 
+  const isDigital = selectedPayment && selectedPayment !== "COD";
+  const canPlaceOrder = selectedPayment && addressConfirmed && cart.length > 0;
+
+  // ── Place order ───────────────────────────────────────────────────────────
+  const handlePlaceOrder = async () => {
+    if (!canPlaceOrder || !currentUser || !savedAddress) return;
+    setPlacing(true);
+    setError(null);
+
+    try {
+      const orderItems = cart.map((item) => ({
+        product_id: String(item.id),
+        name: item.name,
+        image: item.image ?? "",
+        price: item.price,
+        quantity: item.quantity,
+      }));
+
+      const { data, error: insertError } = await supabase
+        .from("orders")
+        .insert({
+          user_id: currentUser.id,
+          customer_name: currentUser.name,
+          customer_email: currentUser.email,
+          customer_phone: savedAddress.phone ?? "",
+          address_line: savedAddress.address_line,
+          city: savedAddress.city,
+          state: savedAddress.state,
+          pincode: savedAddress.pincode,
+          items: orderItems,
+          subtotal,
+          tax,
+          delivery_charge: delivery,
+          total_amount: total,
+          payment_method:
+            selectedPayment === "COD" ? "Cash on Delivery" : selectedPayment,
+          payment_status: selectedPayment === "COD" ? "Pending" : "Paid",
+          status: "Processing",
+        })
+        .select("order_number")
+        .single();
+
+      if (insertError) throw insertError;
+
+      // Clear cart from Supabase + context
+      await clearCart();
+
+      setOrderNumber(data?.order_number ?? "");
+      setOrderPlaced(true);
+    } catch (err: any) {
+      setError("Failed to place order. Please try again.");
+      console.error(err);
+    } finally {
+      setPlacing(false);
+    }
+  };
+
+  // ── Order success screen ──────────────────────────────────────────────────
+  if (orderPlaced) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-32 text-center">
+        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8">
+          <CheckCircle className="w-12 h-12 text-green-500" />
+        </div>
+        <h1 className="text-4xl font-black text-gray-900 mb-4">
+          Order Placed!
+        </h1>
+        <p className="text-gray-500 text-lg mb-3">
+          Thank you,{" "}
+          <span className="font-bold text-gray-800">{currentUser?.name}</span>!
+        </p>
+        {orderNumber && (
+          <p className="text-indigo-600 font-black text-xl mb-2">
+            Order #{orderNumber}
+          </p>
+        )}
+        <p className="text-gray-500 mb-10">
+          {selectedPayment === "COD"
+            ? "Pay when your order arrives. We'll update you on delivery."
+            : "Your payment is being processed. You'll receive a confirmation shortly."}
+        </p>
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <button
+            onClick={() => setCurrentPage("orders")}
+            className="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition"
+          >
+            Track My Order
+          </button>
+          <button
+            onClick={() => setCurrentPage("shop")}
+            className="border border-gray-200 px-8 py-3 rounded-2xl font-bold hover:bg-gray-50 transition"
+          >
+            Continue Shopping
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Main checkout ─────────────────────────────────────────────────────────
   return (
     <div className="max-w-7xl mx-auto px-4 py-20">
-      {/* HEADER */}
+      {/* Header */}
       <div className="mb-14">
         <h1 className="text-5xl font-black text-gray-900 tracking-tight">
           Secure <span className="text-indigo-600">Checkout</span>
@@ -28,82 +188,135 @@ export const Checkout: React.FC = () => {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-12">
-        {/* LEFT SIDE - MAIN CHECKOUT */}
+        {/* LEFT */}
         <div className="lg:col-span-2 space-y-10">
-          {/* SHIPPING SECTION */}
+          {/* SHIPPING ADDRESS */}
           <div className="bg-white border border-gray-100 p-10 rounded-4xl shadow-xl shadow-gray-100">
-            <h2 className="text-2xl font-black text-gray-900 mb-6">
+            <h2 className="text-2xl font-black text-gray-900 mb-2">
               Shipping Address
             </h2>
-
             <p className="text-gray-500 font-medium mb-6">
               Select a delivery address where you want your order delivered.
             </p>
 
-            <div className="border border-indigo-200 bg-indigo-50 p-6 rounded-2xl space-y-2">
-              <p className="font-bold text-gray-900">
-                Ananda Gopal Mukherjee Sarani Rd,
-              </p>
-              <p className="text-gray-600">Near BINA GAS, Benachity,</p>
-              <p className="text-gray-600">Durgapur, West Bengal – 713213</p>
-              <p className="text-gray-600 font-semibold">📞 8293295257</p>
+            {savedAddress ? (
+              <div
+                className={`border-2 p-6 rounded-2xl space-y-1 transition-all ${
+                  addressConfirmed
+                    ? "border-indigo-500 bg-indigo-50"
+                    : "border-gray-200 bg-white"
+                }`}
+              >
+                <p className="font-bold text-gray-900 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-indigo-500" />
+                  {savedAddress.address_line}
+                </p>
+                <p className="text-gray-600 pl-6">
+                  {savedAddress.city}, {savedAddress.state} —{" "}
+                  {savedAddress.pincode}
+                </p>
+                {savedAddress.phone && (
+                  <p className="text-gray-600 pl-6 font-semibold">
+                    📞 {savedAddress.phone}
+                  </p>
+                )}
 
-              <div className="flex gap-4 pt-4">
-                <button className="bg-indigo-600 text-white px-6 py-2 rounded-xl font-semibold hover:bg-indigo-700 transition">
-                  Use This Address
-                </button>
-                <button className="text-indigo-600 font-bold hover:underline">
-                  Edit Address
+                <div className="flex gap-4 pt-4">
+                  <button
+                    onClick={() => setAddressConfirmed(true)}
+                    disabled={addressConfirmed}
+                    className={`px-6 py-2 rounded-xl font-semibold transition ${
+                      addressConfirmed
+                        ? "bg-indigo-100 text-indigo-400 cursor-not-allowed"
+                        : "bg-indigo-600 text-white hover:bg-indigo-700"
+                    }`}
+                  >
+                    {addressConfirmed
+                      ? "✓ Address Confirmed"
+                      : "Use This Address"}
+                  </button>
+
+                  {!addressConfirmed && (
+                    <button
+                      onClick={() => setCurrentPage("profile")}
+                      className="text-indigo-600 font-bold hover:underline"
+                    >
+                      Edit Address
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center text-gray-500">
+                <p className="font-semibold mb-1">No saved address found</p>
+                <p className="text-sm mb-4">
+                  Add your delivery address in your profile first.
+                </p>
+                <button
+                  onClick={() => setCurrentPage("profile")}
+                  className="bg-indigo-600 text-white px-6 py-2 rounded-xl font-semibold hover:bg-indigo-700 transition inline-flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" /> Add Address in Profile
                 </button>
               </div>
-            </div>
+            )}
 
-            <button className="mt-6 text-indigo-600 font-bold hover:underline">
-              ➕ Add New Address
-            </button>
+            {addressConfirmed && (
+              <button
+                onClick={() => setCurrentPage("profile")}
+                className="mt-4 text-sm text-indigo-600 font-bold hover:underline flex items-center gap-1"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add / Change Address in Profile
+              </button>
+            )}
           </div>
 
-          {/* PAYMENT SECTION */}
+          {/* PAYMENT METHOD */}
           <div className="bg-white border border-gray-100 p-10 rounded-4xl shadow-xl shadow-gray-100">
             <h2 className="text-2xl font-black text-gray-900 mb-6">
               Choose Payment Method
             </h2>
 
-            <div className="space-y-5">
-              <div className="border border-gray-200 rounded-2xl p-6 hover:border-indigo-400 transition cursor-pointer">
-                <p className="font-bold text-gray-900">UPI Payment</p>
-                <p className="text-sm text-gray-500">
-                  Pay securely using Google Pay, PhonePe, Paytm or any UPI app.
-                </p>
-              </div>
-
-              <div className="border border-gray-200 rounded-2xl p-6 hover:border-indigo-400 transition cursor-pointer">
-                <p className="font-bold text-gray-900">Debit / Credit Card</p>
-                <p className="text-sm text-gray-500">
-                  Visa, MasterCard, RuPay supported.
-                </p>
-              </div>
-
-              <div className="border border-gray-200 rounded-2xl p-6 hover:border-indigo-400 transition cursor-pointer">
-                <p className="font-bold text-gray-900">Net Banking</p>
-                <p className="text-sm text-gray-500">
-                  Choose your bank and complete payment securely.
-                </p>
-              </div>
-
-              <div className="border border-gray-200 rounded-2xl p-6 hover:border-indigo-400 transition cursor-pointer">
-                <p className="font-bold text-gray-900">
-                  Cash on Delivery (COD)
-                </p>
-                <p className="text-sm text-gray-500">
-                  Availability depends on product and delivery location.
-                </p>
-              </div>
+            <div className="space-y-4">
+              {PAYMENT_OPTIONS.map((opt) => {
+                const isSelected = selectedPayment === opt.id;
+                return (
+                  <div
+                    key={opt.id}
+                    onClick={() => setSelectedPayment(opt.id)}
+                    className={`border-2 rounded-2xl p-6 cursor-pointer transition-all ${
+                      isSelected
+                        ? "border-indigo-500 bg-indigo-50"
+                        : "border-gray-200 hover:border-indigo-300 bg-white"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-bold text-gray-900">{opt.label}</p>
+                        <p className="text-sm text-gray-500 mt-0.5">
+                          {opt.desc}
+                        </p>
+                      </div>
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ml-4 transition-all ${
+                          isSelected
+                            ? "border-indigo-600 bg-indigo-600"
+                            : "border-gray-300"
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="w-2 h-2 rounded-full bg-white" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Security */}
+            {/* Security note */}
             <div className="mt-8 bg-indigo-50 p-6 rounded-2xl flex gap-4 items-start">
-              <ShieldCheck className="text-indigo-600" />
+              <ShieldCheck className="text-indigo-600 shrink-0" />
               <p className="text-sm text-indigo-900 font-semibold">
                 Payments are fully encrypted and processed through trusted
                 certified gateways. No card details are stored.
@@ -112,20 +325,33 @@ export const Checkout: React.FC = () => {
           </div>
         </div>
 
-        {/* RIGHT SIDE - ORDER SUMMARY */}
+        {/* RIGHT - ORDER SUMMARY */}
         <div className="bg-white border border-gray-100 p-10 rounded-4xl shadow-xl shadow-gray-100 h-fit sticky top-10">
           <h2 className="text-2xl font-black text-gray-900 mb-8">
             Order Summary
           </h2>
 
-          <div className="space-y-6">
+          <div className="space-y-5">
             {cart.map((item) => (
               <div key={item.id} className="flex justify-between text-sm">
-                <div>
-                  <p className="font-semibold text-gray-900">{item.name}</p>
-                  <p className="text-gray-500">Qty: {item.quantity}</p>
+                <div className="flex items-center gap-3">
+                  {item.image && (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-10 h-10 rounded-xl object-cover border border-gray-100"
+                    />
+                  )}
+                  <div>
+                    <p className="font-semibold text-gray-900 leading-tight">
+                      {item.name}
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      Qty: {item.quantity}
+                    </p>
+                  </div>
                 </div>
-                <p className="font-bold text-indigo-600">
+                <p className="font-bold text-indigo-600 shrink-0 ml-2">
                   ₹{(item.price * item.quantity).toLocaleString()}
                 </p>
               </div>
@@ -137,15 +363,25 @@ export const Checkout: React.FC = () => {
               <span>Subtotal</span>
               <span>₹{subtotal.toLocaleString()}</span>
             </div>
-
             <div className="flex justify-between">
               <span>GST / Taxes</span>
               <span>₹{tax}</span>
             </div>
-
             <div className="flex justify-between">
               <span>Delivery</span>
               <span className="text-green-600 font-semibold">Free</span>
+            </div>
+            <div className="flex justify-between text-xs text-green-600 font-semibold pt-1">
+              <span>🚚 Estimated Delivery</span>
+              <span>
+                {(() => {
+                  const d1 = new Date();
+                  d1.setDate(d1.getDate() + 5);
+                  const d2 = new Date();
+                  d2.setDate(d2.getDate() + 7);
+                  return `${d1.toLocaleDateString("en-IN", { day: "numeric", month: "short" })} – ${d2.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`;
+                })()}
+              </span>
             </div>
           </div>
 
@@ -154,8 +390,40 @@ export const Checkout: React.FC = () => {
             <span className="text-indigo-600">₹{total.toLocaleString()}</span>
           </div>
 
-          <button className="w-full mt-8 bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-bold text-lg transition shadow-xl shadow-indigo-200 active:scale-[0.98]">
-            Place Order & Pay
+          {/* Validation hints */}
+          {!addressConfirmed && (
+            <p className="mt-4 text-xs text-amber-600 font-semibold bg-amber-50 px-4 py-2 rounded-xl">
+              ⚠ Please confirm your delivery address above.
+            </p>
+          )}
+          {!selectedPayment && (
+            <p className="mt-2 text-xs text-amber-600 font-semibold bg-amber-50 px-4 py-2 rounded-xl">
+              ⚠ Please select a payment method.
+            </p>
+          )}
+
+          {error && (
+            <p className="mt-3 text-xs text-red-600 font-semibold bg-red-50 px-4 py-2 rounded-xl">
+              {error}
+            </p>
+          )}
+
+          <button
+            onClick={handlePlaceOrder}
+            disabled={!canPlaceOrder || placing}
+            className={`w-full mt-6 py-4 rounded-2xl font-bold text-lg transition shadow-xl active:scale-[0.98] ${
+              canPlaceOrder && !placing
+                ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200"
+                : "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none"
+            }`}
+          >
+            {placing
+              ? "Placing Order…"
+              : isDigital
+                ? "Place Order & Pay"
+                : selectedPayment === "COD"
+                  ? "Place Order"
+                  : "Place Order"}
           </button>
 
           <p className="text-xs text-gray-500 text-center mt-4 font-medium">

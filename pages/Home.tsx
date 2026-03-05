@@ -12,11 +12,27 @@ import {
   Eye,
   ShoppingBag,
 } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 
 export const Home: React.FC = () => {
-  const { setCurrentPage, setSelectedCategory, products, addToCart } =
-    useStore();
-  const featured = products.slice(0, 3);
+  const { setCurrentPage, setSelectedCategory, addToCart } = useStore();
+  const [featured, setFeatured] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchDeals = async () => {
+      const { data } = await supabase
+        .from("products")
+        .select(
+          "id, name, image_url, discounted_price, retail_price, discount_percent, category_id, categories(name)",
+        )
+        .eq("is_active", true)
+        .gt("discount_percent", 0)
+        .order("discount_percent", { ascending: false })
+        .limit(3);
+      if (data) setFeatured(data);
+    };
+    fetchDeals();
+  }, []);
   const reviews = [
     {
       text: "Great place to buy refurbished laptops. Excellent condition and honest pricing.",
@@ -67,6 +83,11 @@ export const Home: React.FC = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  const handleViewDeal = (product: any) => {
+    setSelectedCategory(product.category);
+    setCurrentPage("shop");
+  };
   return (
     <div className="flex flex-col">
       {/* ================= HERO SECTION ================= */}
@@ -208,30 +229,50 @@ export const Home: React.FC = () => {
           {featured.map((product) => (
             <div
               key={product.id}
+              onClick={() =>
+                handleViewDeal({ category: product.categories?.name })
+              }
               className="group relative cursor-pointer bg-white rounded-[40px] shadow-xl shadow-gray-200/60 border border-gray-100 overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-indigo-500/20"
             >
               {/* IMAGE */}
               <div className="relative h-72 overflow-hidden">
                 <img
-                  src={product.image}
+                  src={product.image_url}
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
-
-                {/* Glass Overlay */}
-                <div className="absolute inset-0 bg-indigo-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center gap-4">
-                  <button
-                    onClick={() => setCurrentPage("shop")}
-                    className="w-12 h-12 glass rounded-full flex items-center justify-center text-gray-900 hover:bg-white transition-all transform scale-0 group-hover:scale-100 duration-300"
-                  >
-                    <Eye className="w-5 h-5" />
-                  </button>
-                </div>
-
+                {/* Discount badge */}
+                {product.discount_percent > 0 && (
+                  <span className="absolute top-4 left-4 bg-red-500 text-white text-xs font-black px-3 py-1 rounded-xl">
+                    {Math.round(product.discount_percent)}% OFF
+                  </span>
+                )}
                 {/* Add To Cart Slide Button */}
-                <div className="absolute inset-x-6 bottom-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                <div className="hidden md:block absolute inset-x-6 bottom-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                  {" "}
                   <button
-                    onClick={() => addToCart(product)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart({
+                        id: String(product.id),
+                        name: product.name,
+                        image: product.image_url ?? "",
+                        price: Number(
+                          product.discounted_price ?? product.retail_price ?? 0,
+                        ),
+                        category: product.categories?.name ?? "",
+                        description: "",
+                        stock: 99,
+                        condition: "New",
+                        brand: "",
+                        specs: [],
+                        rating: 0,
+                        reviews: 0,
+                        likesCount: 0,
+                        tags: [],
+                        discountPercent: Number(product.discount_percent ?? 0),
+                      } as any);
+                    }}
                     className="w-full bg-gray-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-2xl hover:bg-indigo-600 transition-colors"
                   >
                     <ShoppingBag className="w-4 h-4" /> Add to Cart
@@ -240,18 +281,53 @@ export const Home: React.FC = () => {
               </div>
 
               {/* DETAILS */}
-              <div className="p-8 space-y-3 transition-all duration-500 group-hover:translate-x-1">
+              {/* DETAILS */}
+              <div className="p-8 space-y-2 transition-all duration-500 group-hover:translate-x-1">
                 <p className="text-xs font-black text-indigo-600 uppercase tracking-widest">
-                  {product.category}
+                  {product.categories?.name}
                 </p>
-
                 <h4 className="text-xl font-black text-gray-900 tracking-tight group-hover:text-indigo-600 transition-colors">
                   {product.name}
                 </h4>
+                <div className="flex items-baseline gap-3">
+                  <p className="text-lg font-black text-gray-900">
+                    ₹{Number(product.discounted_price).toLocaleString()}
+                  </p>
+                  {product.retail_price && (
+                    <p className="text-sm text-gray-400 line-through font-medium">
+                      ₹{Number(product.retail_price).toLocaleString()}
+                    </p>
+                  )}
+                </div>
 
-                <p className="text-lg font-black text-gray-900">
-                  ₹{product.price}
-                </p>
+                {/* Add to Cart — mobile only, always visible */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart({
+                      id: String(product.id),
+                      name: product.name,
+                      image: product.image_url ?? "",
+                      price: Number(
+                        product.discounted_price ?? product.retail_price ?? 0,
+                      ),
+                      category: product.categories?.name ?? "",
+                      description: "",
+                      stock: 99,
+                      condition: "New",
+                      brand: "",
+                      specs: [],
+                      rating: 0,
+                      reviews: 0,
+                      likesCount: 0,
+                      tags: [],
+                      discountPercent: Number(product.discount_percent ?? 0),
+                    } as any);
+                  }}
+                  className="md:hidden mt-2 w-full bg-gray-900 text-white py-3.5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-indigo-600 transition-colors"
+                >
+                  <ShoppingBag className="w-4 h-4" /> Add to Cart
+                </button>
               </div>
             </div>
           ))}

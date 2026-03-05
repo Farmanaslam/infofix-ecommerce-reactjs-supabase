@@ -147,15 +147,16 @@ export const ProductCard: React.FC<ProductProps> = ({
         {!isOut && (
           <div
             className="absolute inset-x-3 bottom-3 z-20
-                          translate-y-full group-hover:translate-y-0
-                          transition-transform duration-400 ease-out"
+                  hidden md:block
+                  translate-y-full group-hover:translate-y-0
+                  transition-transform duration-400 ease-out"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => onAddToCart(product)}
               className="w-full bg-gray-900 hover:bg-indigo-600 text-white
-                         py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em]
-                         flex items-center justify-center gap-2 shadow-2xl transition-colors duration-200"
+                 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em]
+                 flex items-center justify-center gap-2 shadow-2xl transition-colors duration-200"
             >
               <ShoppingBag className="w-3.5 h-3.5" />
               Add to Cart
@@ -284,21 +285,39 @@ export const ProductCard: React.FC<ProductProps> = ({
           </div>
         </div>
 
-        {/* ── Buy Now button (always visible) ── */}
+        {/* ── Mobile: Add to Cart + Buy Now both always visible ── */}
         {!isOut && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onBuyNow(product);
-            }}
-            className="mt-3 w-full flex items-center justify-center gap-2
-                       bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98]
-                       text-white py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-[0.18em]
-                       shadow-lg shadow-indigo-200/70 transition-all duration-200 group/btn"
-          >
-            Buy Now
-            <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-0.5" />
-          </button>
+          <div className="mt-3 flex flex-col gap-2">
+            {/* Add to Cart — mobile only */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToCart(product);
+              }}
+              className="md:hidden w-full flex items-center justify-center gap-2
+                 bg-gray-900 hover:bg-gray-800 active:scale-[0.98]
+                 text-white py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em]
+                 shadow-md transition-all duration-200"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              Add to Cart
+            </button>
+
+            {/* Buy Now — always visible */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onBuyNow(product);
+              }}
+              className="w-full flex items-center justify-center gap-2
+                 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98]
+                 text-white py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-[0.18em]
+                 shadow-lg shadow-indigo-200/70 transition-all duration-200 group/btn"
+            >
+              Buy Now
+              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-0.5" />
+            </button>
+          </div>
         )}
         {isOut && (
           <button

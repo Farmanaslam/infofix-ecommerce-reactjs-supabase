@@ -479,6 +479,31 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
             </div>
 
             {/* Trust badges */}
+            {/* Delivery estimate banner */}
+            {!isOut && (
+              <div
+                className="pd-fade flex items-center gap-3 bg-green-50 border border-green-100 rounded-2xl px-4 py-3"
+                style={{ animationDelay: "360ms" }}
+              >
+                <Truck className="w-5 h-5 text-green-600 shrink-0" />
+                <div>
+                  <p className="text-xs font-black text-green-700 uppercase tracking-wide">
+                    Free Delivery · Est.{" "}
+                    {(() => {
+                      const d1 = new Date();
+                      const d2 = new Date();
+                      d1.setDate(d1.getDate() + 5);
+                      d2.setDate(d2.getDate() + 7);
+                      return `${d1.toLocaleDateString("en-IN", { day: "numeric", month: "short" })} – ${d2.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`;
+                    })()}
+                  </p>
+                  <p className="text-[11px] text-green-600 font-medium mt-0.5">
+                    Order today for fastest delivery
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div
               className="grid grid-cols-2 gap-3 pt-2 pd-fade border-t border-gray-100"
               style={{ animationDelay: "380ms" }}

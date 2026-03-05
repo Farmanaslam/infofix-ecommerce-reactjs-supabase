@@ -40,16 +40,6 @@ export interface Branch {
   details: string;
 }
 
-export interface Order {
-  id: string;
-  customerId: string;
-  customerName: string;
-  items: { productId: string; quantity: number; price: number }[];
-  total: number;
-  status: "pending" | "shipped" | "delivered" | "cancelled";
-  createdAt: string;
-}
-
 export interface CartItem extends Product {
   quantity: number;
 }
@@ -169,3 +159,68 @@ export const emptyAddressForm: AddressForm = {
   pincode: "",
   country: "",
 };
+export interface CartItem {
+  id: string;
+  product_id: string;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+  quantity: number;
+}
+
+export interface OrderItem {
+  product_id: string;
+  name: string;
+  image: string;
+  price: number;
+  quantity: number;
+}
+
+export interface Order {
+  id: string;
+  user_id?: string;
+  order_number: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  address_line: string;
+  city: string;
+  state: string;
+  pincode: string;
+  items: OrderItem[];
+  subtotal: number;
+  tax: number;
+  delivery_charge: number;
+  total_amount: number;
+  payment_method: string;
+  payment_status: string;
+  status: string;
+  tracking_id: string | null;
+  courier_name: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface Address {
+  address_line: string;
+  city: string;
+  state: string;
+  pincode: string;
+  phone: string;
+}
+
+export interface ProfileForm {
+  full_name: string;
+  email: string;
+  phone: string;
+}
+
+export interface RecentOrder {
+  id: string;
+  order_number: string;
+  status: string;
+  total_amount: number;
+  created_at: string;
+  items: { name: string; quantity: number; image?: string }[];
+}
