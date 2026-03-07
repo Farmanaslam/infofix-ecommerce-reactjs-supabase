@@ -10,7 +10,6 @@ import {
   Menu,
   Search,
   Bell,
-  User as UserIcon,
   Store,
   ChevronRight,
   X,
@@ -19,36 +18,42 @@ import {
   Youtube,
   Instagram,
   Linkedin,
-  Mail,
   Briefcase,
   Star,
   Gift,
   HelpCircle,
   MessageSquare,
-  CreditCard,
   Download,
-  Phone,
+  Zap,
 } from "lucide-react";
 import logo from "../public/logo.jpg";
 import { CATEGORIES, SUBCATEGORIES } from "../constants";
+
+/* ─────────────────────────────────────────────────────────
+   Tailwind v4 notes used here:
+   • bg-linear-to-r / bg-linear-to-br  (replaces bg-gradient-to-*)
+   • No arbitrary shadow-[...] — use inline style where needed
+   • @starting-style transitions handled via CSS in <style>
+   • All other utilities are standard v4-compatible
+───────────────────────────────────────────────────────── */
+
 export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const {
     cart,
-    switchRole,
     currentUser,
     logout,
     currentPage,
     setCurrentPage,
     setViewMode,
     setHeaderSearchQuery,
-    headerSearchQuery,
     setSelectedCategory,
     setSelectedSubcategory,
   } = useStore();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const { isMessageModalOpen, setIsMessageModalOpen } = useStore();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
@@ -57,23 +62,25 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<
     string | null
   >(null);
-  useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  }, [currentPage]);
-  useEffect(() => {
-    if (isMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+  const [scrolled, setScrolled] = useState(false);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
+
+  useEffect(() => {
+    document.body.style.overflow = isMenuOpen ? "hidden" : "";
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "";
     };
   }, [isMenuOpen]);
+
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 6);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
   const navLinks: { label: string; id: CustomerPage }[] = [
     { label: "Home", id: "home" },
     { label: "About Us", id: "about" },
@@ -84,243 +91,243 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     { label: "Careers", id: "careers" },
     { label: "Contact", id: "contact" },
   ];
+
   const handleSearch = () => {
     if (!localSearch.trim()) return;
     setHeaderSearchQuery(localSearch.trim());
     setCurrentPage("shop");
   };
 
+  const cartCount = cart.reduce((a, i) => a + i.quantity, 0);
+  const userInitials = currentUser?.name
+    ?.split(" ")
+    .map((w: string) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
     <div className="min-h-screen flex flex-col relative">
-      <header className="w-full bg-white sticky top-0 z-50 border-b border-gray-200">
-        {/* ================= TOP HEADER ================= */}
-        <div className="w-full bg-white border-b border-gray-200">
-          <div className="px-6 lg:px-20">
-            <div className="flex items-center justify-between h-10">
-              {/* ================= LEFT SIDE (SOCIAL) ================= */}
-              <div className="hidden md:flex items-center h-full">
-                {/* Left Divider */}
-                <div className="h-full w-px bg-gray-300"></div>
+      {/* ═══════════════════════════════════════════
+          HEADER
+      ═══════════════════════════════════════════ */}
+      <header
+        className="w-full sticky top-0 z-50 bg-white transition-all duration-300"
+        style={{
+          boxShadow: scrolled
+            ? "0 4px 32px -4px rgba(15,23,42,0.14), 0 1px 0 0 #e2e8f0"
+            : "0 1px 0 0 #e2e8f0",
+        }}
+      >
+        {/* ── PROMO STRIP ───────────────────────── */}
+        <div className="relative overflow-hidden bg-linear-to-r from-slate-900 via-indigo-950 to-slate-900 h-9 flex items-center justify-center px-4 gap-3">
+          {/* subtle shimmer line */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-px h-full bg-linear-to-b from-transparent via-indigo-400/20 to-transparent" />
+          </div>
+          <Zap className="w-3 h-3 text-amber-400 shrink-0" />
+          <p className="text-[11px] font-semibold tracking-widest text-slate-300 uppercase truncate">
+            Free delivery above ₹999 &nbsp;·&nbsp; Open 7 days &nbsp;·&nbsp; EMI
+            available
+          </p>
+          <Zap className="w-3 h-3 text-amber-400 shrink-0" />
+        </div>
 
-                <div className="flex items-center gap-5 px-4 h-full">
-                  <a
-                    href="https://www.facebook.com/mdcomputers.in/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <span className="bi bi-facebook text-blue-600 text-sm hover:opacity-70"></span>
-                  </a>
-
-                  <a
-                    href="https://www.instagram.com/mdcomputers.in/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <span className="bi bi-instagram text-pink-500 text-sm hover:opacity-70"></span>
-                  </a>
-
-                  <a
-                    href="https://www.youtube.com/@mdcomputersstudio2960"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <span className="bi bi-youtube text-red-600 text-sm hover:opacity-70"></span>
-                  </a>
-
-                  <a
-                    href="https://api.whatsapp.com/send?phone=913340550550&text=hi"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <span className="bi bi-whatsapp text-green-600 text-sm hover:opacity-70"></span>
-                  </a>
-                </div>
-
-                {/* Right Divider */}
-                <div className="h-full w-px bg-gray-300"></div>
-              </div>
-
-              {/* ================= RIGHT SIDE (LINKS) ================= */}
-              <div className="hidden md:flex items-center h-full text-sm text-gray-700">
-                {/* Left Divider */}
-                <div className="h-full w-px bg-gray-300"></div>
-
-                <button
-                  onClick={() => setCurrentPage("contact")}
-                  className="px-4 h-full flex items-center hover:text-indigo-600"
+        {/* ── UTILITY BAR (desktop only) ────────── */}
+        <div className="hidden lg:block border-b border-slate-100 bg-slate-50/70">
+          <div className="px-20 h-9 flex items-center justify-between">
+            {/* social */}
+            <div className="flex items-center gap-3.5">
+              {[
+                {
+                  href: "https://www.facebook.com/mdcomputers.in/",
+                  icon: "bi-facebook",
+                  color: "text-blue-600",
+                },
+                {
+                  href: "https://www.instagram.com/mdcomputers.in/",
+                  icon: "bi-instagram",
+                  color: "text-pink-500",
+                },
+                {
+                  href: "https://www.youtube.com/@mdcomputersstudio2960",
+                  icon: "bi-youtube",
+                  color: "text-red-500",
+                },
+                {
+                  href: "https://api.whatsapp.com/send?phone=913340550550&text=hi",
+                  icon: "bi-whatsapp",
+                  color: "text-emerald-500",
+                },
+              ].map(({ href, icon, color }) => (
+                <a
+                  key={icon}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`${color} opacity-70 hover:opacity-100 transition-opacity duration-150`}
                 >
-                  Contact Us
-                </button>
-
-                {/* Divider Between Links */}
-                <div className="h-full w-px bg-gray-300"></div>
-
+                  <span className={`bi ${icon} text-xs`} />
+                </a>
+              ))}
+              <span className="h-3.5 w-px bg-slate-200 mx-1" />
+              <span className="text-[10px] font-medium text-slate-400 tracking-wide">
+                Follow us
+              </span>
+            </div>
+            {/* links */}
+            <div className="flex items-center text-[11px] font-semibold text-slate-500 divide-x divide-slate-200">
+              {[
+                { id: "contact", label: "Contact" },
+                { id: "about", label: "About" },
+                { id: "careers", label: "Careers" },
+              ].map(({ id, label }) => (
                 <button
-                  onClick={() => setCurrentPage("careers")}
-                  className="px-4 h-full flex items-center hover:text-indigo-600"
+                  key={id}
+                  onClick={() => setCurrentPage(id as CustomerPage)}
+                  className="px-3 hover:text-indigo-600 transition-colors duration-150"
                 >
-                  Careers
+                  {label}
                 </button>
-
-                {/* Right Divider */}
-                <div className="h-full w-px bg-gray-300"></div>
-              </div>
-
-              {/* ================= MOBILE VIEW ================= */}
-              <div className="flex md:hidden items-center justify-between w-full text-sm text-gray-700">
-                {/* Left icons small */}
-                <div className="flex items-center gap-4">
-                  <a
-                    href="https://www.facebook.com/mdcomputers.in/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <span className="bi bi-facebook text-blue-600 text-sm"></span>
-                  </a>
-
-                  <a
-                    href="https://www.instagram.com/mdcomputers.in/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <span className="bi bi-instagram text-pink-500 text-sm"></span>
-                  </a>
-
-                  <a
-                    href="https://www.youtube.com/@mdcomputersstudio2960"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <span className="bi bi-youtube text-red-600 text-sm"></span>
-                  </a>
-
-                  <a
-                    href="https://api.whatsapp.com/send?phone=913340550550&text=hi"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <span className="bi bi-whatsapp text-green-600 text-sm"></span>
-                  </a>
-                </div>
-                {/* Right links minimal */}
-                <div className="flex items-center gap-3">
-                  <button onClick={() => setCurrentPage("contact")}>
-                    Contact
-                  </button>
-
-                  <span className="text-gray-400">|</span>
-
-                  <button onClick={() => setCurrentPage("careers")}>
-                    Careers
-                  </button>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* 🔵 MAIN HEADER ROW */}
-        <div className="h-24 flex items-center justify-between px-6 lg:px-20 bg-white">
-          {/* LOGO */}
-          <div
-            onClick={() => setCurrentPage("home")}
-            className="cursor-pointer flex items-center gap-3"
+        {/* ── MAIN ROW ──────────────────────────── */}
+        <div className="h-16 lg:h-20 flex items-center px-4 lg:px-20 bg-white gap-3 lg:gap-8 relative">
+          {/* Hamburger (mobile) */}
+          <button
+            onClick={() => setIsMenuOpen(true)}
+            aria-label="Open menu"
+            className="lg:hidden shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-150"
           >
-            <img
-              src={logo}
-              alt="Infofix"
-              className="h-24 w-28 object-contain"
-            />
+            <Menu className="w-5 h-5" />
+          </button>
 
-            <span className="text-2xl font-black tracking-tight cursor-pointer">
-              <span className="text-indigo-600">Info</span>
-              <span className="text-gray-900">fix</span>
-            </span>
-          </div>
+          {/* ── LOGO ── */}
+          <button
+            onClick={() => setCurrentPage("home")}
+            className="flex items-center gap-2.5 shrink-0 absolute left-1/2 -translate-x-1/2 lg:relative lg:left-0 lg:translate-x-0 group"
+          >
+            <div className="relative">
+              <img
+                src={logo}
+                alt="Infofix"
+                className="h-10 w-11 lg:h-12 lg:w-14 object-contain"
+              />
+              {/* glow on hover */}
+              <div className="absolute inset-0 rounded-xl bg-indigo-400/0 group-hover:bg-indigo-400/10 transition-colors duration-200" />
+            </div>
+            <div className="flex flex-col leading-none">
+              <span className="text-[1.45rem] lg:text-[1.65rem] font-black tracking-tight">
+                <span className="text-indigo-600">Info</span>
+                <span className="text-slate-900">fix</span>
+              </span>
+              <span className="text-[8.5px] font-bold tracking-[0.2em] text-slate-400 uppercase hidden lg:block">
+                Computers
+              </span>
+            </div>
+          </button>
 
-          {/* SEARCH BAR CENTER */}
-          <div className="hidden lg:flex flex-1 max-w-3xl mx-10">
-            <div className="flex w-full border border-gray-300 rounded overflow-hidden shadow-sm">
+          {/* ── SEARCH (desktop) ── */}
+          <div className="hidden lg:flex flex-1 max-w-2xl mx-auto">
+            {/* pill container with focus glow via CSS below */}
+            <div className="search-pill flex w-full bg-slate-50 border border-slate-200 rounded-full overflow-hidden transition-all duration-200 hover:border-indigo-300">
               <input
                 type="text"
-                placeholder="Search for products..."
+                placeholder="Search laptops, desktops, components…"
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                className="flex-1 px-5 py-3 outline-none text-sm"
+                className="flex-1 px-5 py-2.5 bg-transparent outline-none text-sm text-slate-700 placeholder-slate-400"
               />
               <button
                 onClick={handleSearch}
-                className="px-6 bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition"
+                className="m-1 px-5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-full flex items-center gap-1.5 text-xs font-bold transition-colors duration-150"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-3.5 h-3.5" />
+                <span className="hidden xl:inline">Search</span>
               </button>
             </div>
           </div>
 
-          {/* RIGHT SECTION */}
-          <div className="flex items-center gap-8">
-            {/* Contact Info */}
-            <div className="hidden xl:flex flex-col text-xs leading-tight">
-              <span className="font-semibold text-gray-700">
-                Call Us: <span className="text-indigo-600">8293295257</span>
+          {/* ── RIGHT ACTIONS ── */}
+          <div className="flex items-center gap-1.5 lg:gap-3 ml-auto lg:ml-0">
+            {/* Phone info (xl+) */}
+            <div className="hidden xl:flex flex-col text-xs leading-tight pr-4 mr-1 border-r border-slate-100">
+              <span className="font-bold text-slate-700">
+                📞 <span className="text-indigo-600">8293295257</span>
               </span>
-              <span className="text-gray-500">infofixcomputers1@gmail.com</span>
+              <span className="text-slate-400 text-[10px]">
+                infofixcomputers1@gmail.com
+              </span>
             </div>
-            {/* Account - Desktop Only */}
+
+            {/* Account / Auth — desktop */}
             <div
               className="hidden lg:block relative"
               onMouseEnter={() => setIsAccountOpen(true)}
               onMouseLeave={() => setIsAccountOpen(false)}
             >
               {!currentUser ? (
-                <div className="flex items-center gap-1 text-sm font-semibold">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => setCurrentPage("login")}
-                    className="cursor-pointer hover:text-indigo-600 transition"
+                    className="px-3.5 py-1.5 text-sm font-semibold text-slate-600 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 transition-all duration-150"
                   >
                     Login
                   </button>
-
-                  <span className="text-gray-300">/</span>
-
                   <button
                     onClick={() => setCurrentPage("signup")}
-                    className="cursor-pointer hover:text-indigo-600 transition"
+                    className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-full text-sm font-bold transition-all duration-150"
+                    style={{ boxShadow: "0 4px 12px rgba(99,102,241,0.35)" }}
                   >
                     Register
                   </button>
                 </div>
               ) : (
                 <>
-                  <button className="text-sm font-semibold hover:text-indigo-600 cursor-pointer">
-                    My Account
+                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/60 transition-all duration-150 text-sm font-semibold text-slate-700">
+                    <div className="w-6 h-6 rounded-full bg-linear-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center text-[10px] font-black">
+                      {userInitials}
+                    </div>
+                    <span>My Account</span>
+                    <ChevronRight
+                      className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isAccountOpen ? "rotate-90" : ""}`}
+                    />
                   </button>
 
-                  {/* Dropdown */}
+                  {/* dropdown */}
                   <div
-                    className={`absolute right-0 mt-3 w-48 bg-white border border-gray-200 rounded-xl shadow-xl transition-all duration-200 ${
-                      isAccountOpen
-                        ? "opacity-100 visible translate-y-0"
-                        : "opacity-0 invisible -translate-y-2"
-                    }`}
+                    className={`absolute right-0 top-full mt-2.5 w-52 bg-white border border-slate-100 rounded-2xl overflow-hidden transition-all duration-200 ${isAccountOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"}`}
+                    style={{ boxShadow: "0 12px 40px rgba(15,23,42,0.12)" }}
                   >
+                    {/* user info header */}
+                    <div className="px-4 py-3 bg-slate-50 border-b border-slate-100">
+                      <p className="text-xs font-black text-slate-700 truncate">
+                        {currentUser.name}
+                      </p>
+                      <p className="text-[10px] text-slate-400 truncate">
+                        {currentUser.email}
+                      </p>
+                    </div>
                     <button
                       onClick={() => {
                         setCurrentPage("profile");
                         setIsAccountOpen(false);
                       }}
-                      className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-gray-100 rounded-t-xl"
+                      className="w-full text-left px-4 py-2.5 text-sm font-medium hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150"
                     >
-                      Profile
+                      My Profile
                     </button>
-
+                    <div className="h-px bg-slate-100 mx-3" />
                     <button
                       onClick={() => {
                         setCurrentPage("orders");
                         setIsAccountOpen(false);
                       }}
-                      className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-gray-100 rounded-b-xl"
+                      className="w-full text-left px-4 py-2.5 text-sm font-medium hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150"
                     >
                       My Orders
                     </button>
@@ -329,98 +336,95 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               )}
             </div>
 
-            {/* Staff Portal / Logout - Desktop */}
+            {/* Staff / Logout */}
             <div className="hidden md:flex">
               {currentUser?.role === "MANAGER" ||
               currentUser?.role === "INVENTORY" ? (
                 <button
                   onClick={() => setViewMode("ADMIN")}
-                  className="cursor-pointer text-xs font-bold px-4 py-2 bg-gray-900 text-white rounded-xl hover:opacity-90 transition"
+                  className="text-xs font-bold px-4 py-2 bg-slate-900 hover:bg-slate-700 text-white rounded-full transition-all duration-150"
                 >
                   Staff Portal
                 </button>
               ) : currentUser ? (
                 <button
                   onClick={() => {
-                    const confirmLogout = window.confirm(
-                      "Are you sure you want to log out?",
-                    );
-
-                    if (confirmLogout) {
-                      logout();
-                    }
+                    if (window.confirm("Log out?")) logout();
                   }}
-                  className=" cursor-pointer text-xs font-bold px-4 py-2 bg-red-500 text-white rounded-xl hover:opacity-90 transition"
+                  className="text-xs font-bold px-4 py-2 text-rose-500 border border-rose-100 bg-rose-50 hover:bg-rose-500 hover:text-white rounded-full transition-all duration-150"
                 >
                   Logout
                 </button>
               ) : null}
             </div>
+
             {/* Cart */}
             <button
               onClick={() => setCurrentPage("cart")}
-              className="relative cursor-pointer"
+              className="relative w-10 h-10 flex items-center justify-center rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-150 group"
             >
-              <ShoppingCart className="w-7 h-7 text-gray-700" />
-              {cart.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-indigo-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-                  {cart.reduce((acc, item) => acc + item.quantity, 0)}
+              <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-150" />
+              {cartCount > 0 && (
+                <span
+                  className="absolute -top-0.5 -right-0.5 bg-indigo-600 text-white text-[9px] min-w-4.5 h-4.5 flex items-center justify-center rounded-full font-black border-2 border-white"
+                  style={{ boxShadow: "0 2px 6px rgba(99,102,241,0.5)" }}
+                >
+                  {cartCount > 99 ? "99+" : cartCount}
                 </span>
               )}
             </button>
-
-            {/* Mobile Menu */}
-            <button
-              className="lg:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X /> : <Menu />}
-            </button>
           </div>
         </div>
 
-        {/* 🔵 MOBILE SEARCH BAR */}
-        <div className="lg:hidden px-4 py-3 bg-white border-t border-gray-100">
-          <div className="flex w-full border border-gray-300 rounded-xl overflow-hidden shadow-sm">
+        {/* ── MOBILE SEARCH ─────────────────────── */}
+        <div className="lg:hidden px-4 pb-3 pt-0.5 bg-white border-b border-slate-100">
+          <div className="search-pill flex w-full bg-slate-50 border border-slate-200 rounded-full overflow-hidden transition-all duration-200">
             <input
               type="text"
-              placeholder="Search for products..."
+              placeholder="Search products…"
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="flex-1 px-4 py-2.5 outline-none text-sm"
+              className="flex-1 px-5 py-2 bg-transparent outline-none text-sm placeholder-slate-400 text-slate-700"
             />
             <button
               onClick={handleSearch}
-              className="px-4 bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition"
+              className="m-1 px-4 bg-indigo-600 text-white rounded-full flex items-center justify-center"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
-        {/* 🔵 NAVIGATION ROW */}
-        <div className="hidden lg:block border-t border-gray-200 bg-white">
-          <div className="flex h-12 items-center px-6 lg:px-20">
-            {/* Categories Button */}
+        {/* ── NAV ROW (desktop) ─────────────────── */}
+        <div className="hidden lg:block border-t border-slate-100 bg-white">
+          <div className="flex h-11 items-center px-20">
+            {/* ── CATEGORIES mega-button ── */}
             <div
-              className="relative h-full"
+              className="relative h-full shrink-0"
               onMouseEnter={() => setIsCategoryOpen(true)}
               onMouseLeave={() => {
                 setIsCategoryOpen(false);
                 setHoveredCategory(null);
               }}
-              onMouseMove={() => setIsCategoryOpen(true)}
             >
-              <button className="h-full px-8 bg-indigo-600 text-white font-semibold flex items-center gap-2 rounded-l">
-                <Menu className="w-4 h-4" />
-                CATEGORIES
+              <button
+                className="h-full px-6 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold flex items-center gap-2 transition-colors duration-150 rounded-b-xl"
+                style={{ boxShadow: "0 6px 20px rgba(99,102,241,0.3)" }}
+              >
+                <Menu className="w-3.5 h-3.5" />
+                ALL CATEGORIES
+                <ChevronRight
+                  className={`w-3 h-3 transition-transform duration-200 ${isCategoryOpen ? "rotate-90" : "rotate-0"}`}
+                />
               </button>
 
               {isCategoryOpen && (
-                <div className="absolute top-full left-0 z-50 flex shadow-2xl border border-gray-200 rounded-b-xl overflow-hidden max-h-[70vh]">
-                  {/* Category List */}
-                  <ul className="bg-white w-56 overflow-y-auto">
+                <div
+                  className="absolute top-full left-0 z-50 flex border border-slate-100 rounded-b-2xl overflow-hidden max-h-[72vh]"
+                  style={{ boxShadow: "0 20px 60px rgba(15,23,42,0.16)" }}
+                >
+                  <ul className="bg-white w-56 overflow-y-auto py-2">
                     {CATEGORIES.map((cat) => (
                       <li
                         key={cat}
@@ -431,29 +435,23 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                           setCurrentPage("shop");
                           setIsCategoryOpen(false);
                         }}
-                        className={`flex items-center justify-between px-5 py-3 text-sm font-medium cursor-pointer transition-colors ${
-                          hoveredCategory === cat
-                            ? "bg-indigo-50 text-indigo-600"
-                            : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
-                        }`}
+                        className={`flex items-center justify-between px-5 py-2.5 text-sm font-medium cursor-pointer transition-all duration-150 ${hoveredCategory === cat ? "bg-indigo-50 text-indigo-600 pl-6" : "text-slate-700 hover:bg-indigo-50/60 hover:text-indigo-600 hover:pl-6"}`}
                       >
                         {cat}
                         {SUBCATEGORIES[cat] && (
-                          <ChevronRight className="w-4 h-4 opacity-50" />
+                          <ChevronRight className="w-3 h-3 opacity-40" />
                         )}
                       </li>
                     ))}
                   </ul>
-
-                  {/* Subcategories Panel */}
                   {hoveredCategory && SUBCATEGORIES[hoveredCategory] && (
-                    <div className="bg-gray-50 border-l border-gray-200 w-60 p-4 overflow-y-auto">
+                    <div className="bg-slate-50/80 border-l border-slate-100 w-64 p-4 overflow-y-auto">
                       {SUBCATEGORIES[hoveredCategory].groups.map((group) => (
                         <div key={group.label} className="mb-4">
-                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-2">
+                          <p className="text-[9.5px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">
                             {group.label}
                           </p>
-                          <ul className="space-y-1">
+                          <ul className="space-y-0.5">
                             {group.items.map((sub) => (
                               <li
                                 key={sub}
@@ -463,7 +461,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                                   setCurrentPage("shop");
                                   setIsCategoryOpen(false);
                                 }}
-                                className="text-sm text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-1.5 rounded-lg cursor-pointer transition-colors"
+                                className="text-sm text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-150"
                               >
                                 {sub}
                               </li>
@@ -477,27 +475,30 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               )}
             </div>
 
-            {/* Nav Links */}
-            <div className="flex items-center gap-10 px-10 text-sm font-semibold text-gray-700">
+            {/* ── NAV LINKS ── */}
+            <nav className="flex items-center h-full px-5 text-sm font-semibold text-slate-600 gap-0.5">
               {navLinks.map((link) =>
                 link.id === "shop" ? (
                   <div
                     key={link.id}
-                    className="relative h-12 flex items-center group "
+                    className="relative h-full flex items-center group"
                   >
                     <button
                       onClick={() => setCurrentPage("shop")}
-                      className={`hover:text-indigo-600 transition flex items-center gap-1 ${
-                        currentPage === "shop" ? "text-indigo-600" : ""
-                      }`}
+                      className={`relative px-3.5 h-full flex items-center gap-1 transition-colors duration-150 ${currentPage === "shop" ? "text-indigo-600" : "hover:text-indigo-600"}`}
                     >
-                      Shop{" "}
-                      <ChevronRight className="w-3 h-3 rotate-90 group-hover:rotate-270 transition-transform duration-200" />
+                      {currentPage === "shop" && (
+                        <span className="absolute bottom-0 inset-x-2 h-0.5 bg-linear-to-r from-indigo-500 to-violet-500 rounded-full" />
+                      )}
+                      Shop
+                      <ChevronRight className="w-3 h-3 rotate-90 group-hover:rotate-270 transition-transform duration-200 opacity-60" />
                     </button>
-
-                    {/* Mega Menu */}
-                    <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 absolute top-full left-0 z-50 bg-white border border-gray-200 shadow-2xl rounded-b-xl w-200 max-h-[70vh] overflow-y-auto p-6">
-                      <div className="grid grid-cols-4 gap-6">
+                    {/* shop mega dropdown */}
+                    <div
+                      className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 absolute top-full left-0 z-50 bg-white border border-slate-100 rounded-b-2xl w-140 max-h-[72vh] overflow-y-auto p-6"
+                      style={{ boxShadow: "0 20px 60px rgba(15,23,42,0.14)" }}
+                    >
+                      <div className="grid grid-cols-3 gap-6">
                         {CATEGORIES.map((cat) => (
                           <div key={cat}>
                             <button
@@ -506,15 +507,15 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                                 setSelectedSubcategory(null);
                                 setCurrentPage("shop");
                               }}
-                              className="text-xs font-black text-gray-900 uppercase tracking-wider mb-2 hover:text-indigo-600 transition-colors text-left w-full"
+                              className="text-[10px] font-black text-slate-800 uppercase tracking-wider mb-2.5 hover:text-indigo-600 transition-colors duration-150 text-left w-full"
                             >
                               {cat}
                             </button>
                             {SUBCATEGORIES[cat] && (
-                              <ul className="space-y-1">
+                              <ul className="space-y-0.5">
                                 {SUBCATEGORIES[cat].groups
                                   .flatMap((g) => g.items)
-                                  .slice(0, 5)
+                                  .slice(0, 4)
                                   .map((sub) => (
                                     <li key={sub}>
                                       <button
@@ -523,7 +524,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                                           setSelectedSubcategory(sub);
                                           setCurrentPage("shop");
                                         }}
-                                        className="text-xs text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-2 py-1 rounded transition-colors text-left w-full"
+                                        className="text-xs text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 px-2 py-1 rounded-lg transition-all duration-150 text-left w-full"
                                       >
                                         {sub}
                                       </button>
@@ -540,109 +541,111 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                   <button
                     key={link.id}
                     onClick={() => setCurrentPage(link.id)}
-                    className={`hover:text-indigo-600 transition cursor-pointer ${
-                      currentPage === link.id ? "text-indigo-600" : ""
-                    }`}
+                    className={`relative px-3.5 h-full flex items-center transition-colors duration-150 ${currentPage === link.id ? "text-indigo-600" : "hover:text-indigo-600"}`}
                   >
+                    {currentPage === link.id && (
+                      <span className="absolute bottom-0 inset-x-2 h-0.5 bg-linear-to-r from-indigo-500 to-violet-500 rounded-full" />
+                    )}
                     {link.label}
                   </button>
                 ),
               )}
+            </nav>
+
+            {/* store open badge */}
+            <div className="ml-auto flex items-center gap-2 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Store Open
             </div>
           </div>
         </div>
-        {/* =====  MOBILE MENU ===== */}
+
+        {/* ── MOBILE DRAWER ─────────────────────── */}
         <div
-          className={`fixed inset-0 z-50 lg:hidden transition-all duration-300 ${
-            isMenuOpen ? "visible" : "invisible"
-          }`}
+          className={`fixed inset-0 z-60 lg:hidden transition-all duration-300 ${isMenuOpen ? "visible" : "invisible"}`}
         >
-          {/* Overlay */}
+          {/* backdrop */}
           <div
-            className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${
-              isMenuOpen ? "opacity-100" : "opacity-0"
-            }`}
+            className={`absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 ${isMenuOpen ? "opacity-100" : "opacity-0"}`}
             onClick={() => setIsMenuOpen(false)}
           />
 
-          {/* Drawer */}
+          {/* panel */}
           <div
-            className={`absolute top-0 right-0 h-full w-80 max-w-[85%] bg-white shadow-2xl transform transition-transform duration-300 ${
-              isMenuOpen ? "translate-x-0" : "translate-x-full"
-            }`}
+            className={`absolute top-0 right-0 h-full w-[320px] max-w-[88vw] bg-white flex flex-col transform transition-transform duration-300 ${isMenuOpen ? "translate-x-0" : "translate-x-full"}`}
+            style={{ boxShadow: "-8px 0 40px rgba(15,23,42,0.2)" }}
           >
-            {/* Top Section */}
-            <div className="h-20 flex items-center justify-between px-6 border-b border-gray-100">
-              <span className="text-2xl font-black tracking-tight">
-                <span className="text-indigo-600">Info</span>
-                <span className="text-gray-900">fix</span>
-              </span>
-
+            {/* head */}
+            <div className="h-20 flex items-center justify-between px-5 bg-white border-b border-slate-100 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <img
+                  src={logo}
+                  alt="Infofix"
+                  className="h-12 w-13 object-contain"
+                />
+                <div className="flex flex-col leading-none">
+                  <span className="text-[1.35rem] font-black tracking-tight">
+                    <span className="text-indigo-600">Info</span>
+                    <span className="text-slate-900">fix</span>
+                  </span>
+                  <span className="text-[8px] font-bold tracking-[0.2em] text-slate-400 uppercase">
+                    Computers
+                  </span>
+                </div>
+              </div>
               <button
                 onClick={() => setIsMenuOpen(false)}
-                className="p-2 rounded-full hover:bg-gray-100 transition"
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors duration-150"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Tabs */}
-            <div className="flex border-b border-gray-200">
-              <button
-                onClick={() => setMobileTab("menu")}
-                className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${
-                  mobileTab === "menu"
-                    ? "border-indigo-600 text-indigo-600"
-                    : "border-transparent text-gray-500"
-                }`}
-              >
-                Menu
-              </button>
-              <button
-                onClick={() => setMobileTab("categories")}
-                className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${
-                  mobileTab === "categories"
-                    ? "border-indigo-600 text-indigo-600"
-                    : "border-transparent text-gray-500"
-                }`}
-              >
-                Categories
-              </button>
+            {/* tabs */}
+            <div className="flex border-b border-slate-100 shrink-0">
+              {(["menu", "categories"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setMobileTab(tab)}
+                  className={`flex-1 py-3 text-sm font-bold capitalize border-b-2 transition-colors duration-150 ${mobileTab === tab ? "border-indigo-600 text-indigo-600" : "border-transparent text-slate-400 hover:text-slate-600"}`}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
 
-            {/* Scrollable Content */}
-            <div className="h-[calc(100%-80px-49px)] overflow-y-auto px-6 py-6 space-y-4">
+            {/* scrollable content */}
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5">
               {mobileTab === "menu" ? (
                 <>
-                  <div className="space-y-1">
-                    {navLinks.map((link) => (
-                      <button
-                        key={link.id}
-                        onClick={() => {
-                          setCurrentPage(link.id);
-                          setIsMenuOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-3 rounded-xl text-base font-semibold transition ${
-                          currentPage === link.id
-                            ? "bg-indigo-50 text-indigo-600"
-                            : "text-gray-700 hover:bg-gray-100"
-                        }`}
-                      >
-                        {link.label}
-                      </button>
-                    ))}
-                  </div>
+                  {navLinks.map((link) => (
+                    <button
+                      key={link.id}
+                      onClick={() => {
+                        setCurrentPage(link.id);
+                        setIsMenuOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${currentPage === link.id ? "bg-indigo-600 text-white" : "text-slate-700 hover:bg-slate-50"}`}
+                      style={
+                        currentPage === link.id
+                          ? { boxShadow: "0 4px 12px rgba(99,102,241,0.35)" }
+                          : {}
+                      }
+                    >
+                      {link.label}
+                    </button>
+                  ))}
 
-                  <div className="pt-6 border-t"></div>
+                  <div className="h-px bg-slate-100 my-2" />
 
                   {!currentUser ? (
-                    <>
+                    <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => {
                           setCurrentPage("login");
                           setIsMenuOpen(false);
                         }}
-                        className="w-full py-3 rounded-lg border font-semibold"
+                        className="py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors duration-150"
                       >
                         Login
                       </button>
@@ -651,19 +654,30 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                           setCurrentPage("signup");
                           setIsMenuOpen(false);
                         }}
-                        className="w-full py-3 rounded-lg bg-indigo-600 text-white font-bold"
+                        className="py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold"
+                        style={{
+                          boxShadow: "0 4px 12px rgba(99,102,241,0.35)",
+                        }}
                       >
                         Sign Up
                       </button>
-                    </>
+                    </div>
                   ) : (
-                    <>
+                    <div className="space-y-2">
+                      <div className="px-4 py-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <p className="text-xs font-black text-slate-700">
+                          {currentUser.name}
+                        </p>
+                        <p className="text-[10px] text-slate-400">
+                          {currentUser.email}
+                        </p>
+                      </div>
                       <button
                         onClick={() => {
                           setCurrentPage("profile");
                           setIsMenuOpen(false);
                         }}
-                        className="w-full py-3 rounded-lg border font-semibold"
+                        className="w-full py-2.5 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 transition-colors duration-150"
                       >
                         My Account
                       </button>
@@ -672,14 +686,12 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                           logout();
                           setIsMenuOpen(false);
                         }}
-                        className="w-full py-3 rounded-lg bg-red-50 text-red-600 font-bold"
+                        className="w-full py-2.5 rounded-xl bg-rose-50 text-rose-500 text-sm font-bold border border-rose-100"
                       >
                         Logout
                       </button>
-                    </>
+                    </div>
                   )}
-
-                  <div className="pt-6 border-t"></div>
 
                   {(currentUser?.role === "MANAGER" ||
                     currentUser?.role === "INVENTORY") && (
@@ -688,18 +700,56 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                         setViewMode("ADMIN");
                         setIsMenuOpen(false);
                       }}
-                      className="w-full py-3 rounded-lg bg-gray-900 text-white font-bold"
+                      className="w-full py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold mt-1"
                     >
                       Staff Portal
                     </button>
                   )}
+
+                  {/* mobile socials */}
+                  <div className="h-px bg-slate-100 my-2" />
+                  <div className="flex items-center gap-4 px-1 py-1">
+                    {[
+                      {
+                        href: "https://www.facebook.com/mdcomputers.in/",
+                        icon: "bi-facebook",
+                        color: "text-blue-600",
+                      },
+                      {
+                        href: "https://www.instagram.com/mdcomputers.in/",
+                        icon: "bi-instagram",
+                        color: "text-pink-500",
+                      },
+                      {
+                        href: "https://www.youtube.com/@mdcomputersstudio2960",
+                        icon: "bi-youtube",
+                        color: "text-red-500",
+                      },
+                      {
+                        href: "https://api.whatsapp.com/send?phone=913340550550&text=hi",
+                        icon: "bi-whatsapp",
+                        color: "text-emerald-500",
+                      },
+                    ].map(({ href, icon, color }) => (
+                      <a
+                        key={icon}
+                        href={href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={`${color} opacity-75 hover:opacity-100 transition-opacity duration-150`}
+                      >
+                        <span className={`bi ${icon} text-base`} />
+                      </a>
+                    ))}
+                  </div>
                 </>
               ) : (
-                <div className="space-y-2">
+                /* categories tab */
+                <div className="space-y-1.5">
                   {CATEGORIES.map((cat) => (
                     <div
                       key={cat}
-                      className="rounded-xl border border-gray-100 overflow-hidden"
+                      className="rounded-xl border border-slate-100 overflow-hidden"
                     >
                       <button
                         onClick={() =>
@@ -707,26 +757,23 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                             expandedMobileCategory === cat ? null : cat,
                           )
                         }
-                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-indigo-50/60 hover:text-indigo-600 transition-colors duration-150"
                       >
                         {cat}
                         {SUBCATEGORIES[cat] && (
                           <ChevronRight
-                            className={`w-4 h-4 transition-transform duration-200 ${
-                              expandedMobileCategory === cat ? "rotate-90" : ""
-                            }`}
+                            className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${expandedMobileCategory === cat ? "rotate-90" : ""}`}
                           />
                         )}
                       </button>
-
                       {expandedMobileCategory === cat && SUBCATEGORIES[cat] && (
-                        <div className="bg-gray-50 border-t border-gray-100 px-4 py-3 space-y-3">
+                        <div className="bg-slate-50 border-t border-slate-100 px-4 py-3 space-y-3">
                           {SUBCATEGORIES[cat].groups.map((group) => (
                             <div key={group.label}>
-                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1.5">
+                              <p className="text-[9.5px] font-black text-slate-400 uppercase tracking-[0.15em] mb-1.5">
                                 {group.label}
                               </p>
-                              <div className="space-y-1">
+                              <div className="space-y-0.5">
                                 {group.items.map((sub) => (
                                   <button
                                     key={sub}
@@ -736,7 +783,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                                       setCurrentPage("shop");
                                       setIsMenuOpen(false);
                                     }}
-                                    className="w-full text-left px-3 py-1.5 text-sm text-gray-600 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors"
+                                    className="w-full text-left px-3 py-1.5 text-sm text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-150"
                                   >
                                     {sub}
                                   </button>
@@ -755,111 +802,97 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
         </div>
       </header>
 
+      {/* ═══════════════════════════════════════════
+          MAIN CONTENT
+      ═══════════════════════════════════════════ */}
       <main className="flex-1 bg-white">{children}</main>
 
-      {/* FOOTER */}
-      <footer className="bg-[#172337] text-white pt-16 pb-4">
+      {/* ═══════════════════════════════════════════
+          FOOTER
+      ═══════════════════════════════════════════ */}
+      <footer className="bg-[#0f172a] text-white pt-16 pb-4">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 mb-16">
+          {[
+            {
+              title: "About",
+              items: [
+                { label: "Contact Us", page: "contact" },
+                { label: "About Us", page: "about" },
+                { label: "Services", page: "services" },
+                { label: "Careers", page: "careers" },
+                { label: "Our Branches", page: "branches" },
+                { label: "Our Blog", page: "updates" },
+              ],
+            },
+          ].map(({ title, items }) => (
+            <div key={title} className="space-y-4">
+              <h4 className="text-xs font-black uppercase tracking-[0.15em] text-slate-400">
+                {title}
+              </h4>
+              <div className="w-5 h-px bg-slate-600" />
+              <ul className="space-y-2">
+                {items.map(({ label, page }) => (
+                  <li key={label}>
+                    <button
+                      onClick={() => setCurrentPage(page as CustomerPage)}
+                      className="text-xs text-slate-500 hover:text-white transition-colors duration-150 cursor-pointer"
+                    >
+                      {label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+
           <div className="space-y-4">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-gray-300">
-              About
-            </h4>
-            <div className="w-6 h-px bg-gray-500 mb-4"></div>
-            <ul className="space-y-2 text-xs text-gray-400">
-              <li>
-                <button
-                  onClick={() => setCurrentPage("contact")}
-                  className="hover:text-white transition-colors"
-                >
-                  Contact Us
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setCurrentPage("about")}
-                  className="hover:text-white transition-colors"
-                >
-                  About Us
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setCurrentPage("services")}
-                  className="hover:text-white transition-colors"
-                >
-                  Services
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setCurrentPage("careers")}
-                  className="hover:text-white transition-colors"
-                >
-                  Careers
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setCurrentPage("branches")}
-                  className="hover:text-white transition-colors"
-                >
-                  Our Branches
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setCurrentPage("updates")}
-                  className="hover:text-white transition-colors"
-                >
-                  Our Blog
-                </button>
-              </li>
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-gray-300">
+            <h4 className="text-xs font-black uppercase tracking-[0.15em] text-slate-400">
               Help
             </h4>
-            <div className="w-6 h-px bg-gray-500 mb-4"></div>
-            <ul className="space-y-2 text-xs text-gray-400">
+            <div className="w-5 h-px bg-slate-600" />
+            <ul className="space-y-2 text-xs text-slate-500">
               <li>
-                <button className="hover:text-white transition-colors">
+                <button className="hover:text-white transition-colors duration-150">
                   Payments
                 </button>
               </li>
               <li>
-                <button className="hover:text-white transition-colors">
-                  Cancellation & Returns
+                <button
+                  onClick={() => setCurrentPage("policy")}
+                  className="hover:text-white transition-colors duration-150"
+                >
+                  Returns
                 </button>
               </li>
               <li>
-                <button className="hover:text-white transition-colors">
+                <button className="hover:text-white transition-colors duration-150">
                   FAQ
                 </button>
               </li>
               <li>
-                <button className="hover:text-white transition-colors">
-                  Raise Your Query
+                <button className="hover:text-white transition-colors duration-150">
+                  Raise Query
                 </button>
               </li>
-              <li className="flex items-center gap-1">
-                <Download className="w-3 h-3 text-orange-500" />
-                <button className="hover:text-white transition-colors">
-                  Download Apk
+              <li className="flex items-center gap-1.5">
+                <Download className="w-3 h-3 text-orange-400" />
+                <button className="hover:text-white transition-colors duration-150">
+                  Download App
                 </button>
               </li>
             </ul>
           </div>
+
           <div className="space-y-4">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-gray-300">
+            <h4 className="text-xs font-black uppercase tracking-[0.15em] text-slate-400">
               Policy
             </h4>
-            <div className="w-6 h-px bg-gray-500 mb-4"></div>
-            <ul className="space-y-2 text-xs text-gray-400">
+            <div className="w-5 h-px bg-slate-600" />
+            <ul className="space-y-2 text-xs text-slate-500">
               <li>
                 <button
                   onClick={() => setCurrentPage("policy")}
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white transition-colors duration-150"
                 >
                   Return Policy
                 </button>
@@ -867,125 +900,124 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               <li>
                 <button
                   onClick={() => setCurrentPage("policy")}
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white transition-colors duration-150"
                 >
                   Terms of Use
                 </button>
               </li>
               <li>
-                <button className="hover:text-white transition-colors">
-                  Privacy & Security
+                <button className="hover:text-white transition-colors duration-150">
+                  Privacy
                 </button>
               </li>
               <li>
-                <button className="hover:text-white transition-colors">
+                <button className="hover:text-white transition-colors duration-150">
                   Shipping
                 </button>
               </li>
             </ul>
           </div>
+
           <div className="space-y-4">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-gray-300">
+            <h4 className="text-xs font-black uppercase tracking-[0.15em] text-slate-400">
               Social
             </h4>
-            <div className="w-6 h-px bg-gray-500 mb-4"></div>
-            <ul className="space-y-2 text-xs text-gray-400">
+            <div className="w-5 h-px bg-slate-600" />
+            <ul className="space-y-2 text-xs text-slate-500">
               <li className="flex items-center gap-2">
-                <Facebook className="w-3 h-3" />{" "}
-                <button className="hover:text-white transition-colors">
+                <Facebook className="w-3 h-3" />
+                <button className="hover:text-white transition-colors duration-150">
                   Facebook
                 </button>
               </li>
               <li className="flex items-center gap-2">
-                <Twitter className="w-3 h-3" />{" "}
-                <button className="hover:text-white transition-colors">
+                <Twitter className="w-3 h-3" />
+                <button className="hover:text-white transition-colors duration-150">
                   Twitter
                 </button>
               </li>
               <li className="flex items-center gap-2">
-                <Youtube className="w-3 h-3" />{" "}
-                <button className="hover:text-white transition-colors">
+                <Youtube className="w-3 h-3" />
+                <button className="hover:text-white transition-colors duration-150">
                   YouTube
                 </button>
               </li>
               <li className="flex items-center gap-2">
-                <Instagram className="w-3 h-3" />{" "}
-                <button className="hover:text-white transition-colors">
+                <Instagram className="w-3 h-3" />
+                <button className="hover:text-white transition-colors duration-150">
                   Instagram
                 </button>
               </li>
               <li className="flex items-center gap-2">
-                <Linkedin className="w-3 h-3" />{" "}
-                <button className="hover:text-white transition-colors">
-                  Linkedin
+                <Linkedin className="w-3 h-3" />
+                <button className="hover:text-white transition-colors duration-150">
+                  LinkedIn
                 </button>
               </li>
             </ul>
           </div>
-          <div className="space-y-4 lg:col-span-1">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-gray-300">
-              Mail Us:
+
+          <div className="space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-[0.15em] text-slate-400">
+              Mail Us
             </h4>
-            <div className="w-6 h-px bg-gray-500 mb-4"></div>
-            <p className="text-xs text-gray-400 break-all">
+            <div className="w-5 h-px bg-slate-600" />
+            <p className="text-xs text-slate-500 break-all">
               infofixcomputers1@gmail.com
             </p>
           </div>
-          <div className="space-y-4 lg:col-span-1">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-gray-300">
-              Office Address
+
+          <div className="space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-[0.15em] text-slate-400">
+              Address
             </h4>
-            <div className="w-6 h-px bg-gray-500 mb-4"></div>
-            <div className="text-[11px] text-gray-400 leading-relaxed space-y-4">
-              <p>
-                Address: Ananda Gopal Mukherjee Sarani Rd, near BINA GAS,
-                Kamalpur Plot, Benacity, Durgapur, West Bengal 713213
-              </p>
-              <p className="flex items-center gap-2">Call Us- 8293295257</p>
-            </div>
+            <div className="w-5 h-px bg-slate-600" />
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Ananda Gopal Mukherjee Sarani Rd, Durgapur, WB 713213
+            </p>
+            <p className="text-xs text-slate-500">📞 8293295257</p>
           </div>
         </div>
-        <div className="border-t border-gray-700/50 pt-8 pb-4">
+
+        <div className="border-t border-slate-800 pt-8 pb-4">
           <div className="max-w-7xl mx-auto px-4 flex flex-col lg:flex-row items-center justify-between gap-6">
-            <div className="flex flex-wrap items-center justify-center gap-6 text-[11px] font-bold text-gray-300">
-              <div className="flex items-center gap-2 hover:text-white cursor-pointer">
-                <Briefcase className="w-4 h-4 text-yellow-500" />
-                <span>Became A seller</span>
+            <div className="flex flex-wrap items-center justify-center gap-6 text-[11px] font-bold text-slate-400">
+              <div className="flex items-center gap-2 hover:text-white transition-colors duration-150">
+                <Briefcase className="w-4 h-4 text-amber-400" />
+                <span>Become A Seller</span>
               </div>
-              <div className="flex items-center gap-2 hover:text-white cursor-pointer">
-                <Star className="w-4 h-4 text-yellow-500" />
+              <div className="flex items-center gap-2 hover:text-white transition-colors duration-150">
+                <Star className="w-4 h-4 text-amber-400" />
                 <span>Advertise</span>
               </div>
-              <div className="flex items-center gap-2 hover:text-white cursor-pointer">
-                <Gift className="w-4 h-4 text-yellow-500" />
+              <div className="flex items-center gap-2 hover:text-white transition-colors duration-150">
+                <Gift className="w-4 h-4 text-amber-400" />
                 <span>Gift Cards</span>
               </div>
-              <div className="flex items-center gap-2 hover:text-white cursor-pointer">
-                <HelpCircle className="w-4 h-4 text-yellow-500" />
+              <div className="flex items-center gap-2 hover:text-white transition-colors duration-150">
+                <HelpCircle className="w-4 h-4 text-amber-400" />
                 <span>Help Center</span>
               </div>
             </div>
-            <div className="text-[11px] text-gray-400 font-medium">
+            <div className="text-[11px] text-slate-500 font-medium">
               © {new Date().getFullYear()} Infofix Computers
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
               {[
                 "VISA",
                 "MASTERCARD",
                 "MAESTRO",
                 "AMEX",
-                "DINERS",
-                "DISCOVER",
                 "RUPAY",
                 "NETBANKING",
                 "COD",
                 "EMI",
-              ].map((method) => (
+              ].map((m) => (
                 <div
-                  key={method}
-                  className="h-6 px-2 bg-white/5 border border-white/10 rounded flex items-center justify-center text-[8px] font-black text-gray-400 grayscale hover:grayscale-0 transition-all cursor-default"
+                  key={m}
+                  className="h-6 px-2 bg-slate-800 border border-slate-700 rounded flex items-center justify-center text-[8px] font-black text-slate-500 hover:text-slate-300 hover:border-slate-500 transition-all duration-150 cursor-default"
                 >
-                  {method}
+                  {m}
                 </div>
               ))}
             </div>
@@ -993,40 +1025,43 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
         </div>
       </footer>
 
-      {/* MESSAGE US FLOATING BUTTON */}
+      {/* MESSAGE US FAB */}
       <button
         onClick={() => setIsMessageModalOpen(true)}
-        className="fixed bottom-6 right-6 z-60 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full flex items-center gap-3 shadow-2xl hover:scale-105 transition-all duration-300 group animate-bounce-subtle"
+        className="fixed bottom-6 right-6 z-60 text-white px-5 py-3 rounded-full flex items-center gap-2.5 transition-all duration-300 hover:scale-105 active:scale-95 animate-fab-pulse"
+        style={{
+          background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+          boxShadow: "0 8px 30px rgba(99,102,241,0.5)",
+        }}
       >
         <div className="relative">
-          <MessageSquare className="w-6 h-6 text-white" />
-          <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
+          <MessageSquare className="w-5 h-5 text-white" />
+          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white animate-pulse" />
         </div>
-
         <span className="font-bold text-sm tracking-tight">Message Us</span>
       </button>
+
+      {/* MESSAGE MODAL */}
       {isMessageModalOpen && (
-        <div className="fixed inset-0 z-70 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          {/* Modal Wrapper */}
-          <div className="bg-white w-full max-w-lg h-[90vh] rounded-3xl shadow-2xl flex flex-col animate-fade-in">
-            {/* Header */}
-            <div className="p-6 border-b border-gray-100 relative">
+        <div className="fixed inset-0 z-70 flex items-center justify-center bg-slate-900/70 backdrop-blur-md p-4">
+          <div
+            className="bg-white w-full max-w-lg h-[88vh] rounded-3xl flex flex-col animate-modal-in"
+            style={{ boxShadow: "0 24px 80px rgba(15,23,42,0.4)" }}
+          >
+            <div className="p-6 border-b border-slate-100 relative">
               <button
                 onClick={() => setIsMessageModalOpen(false)}
-                className="absolute top-5 right-5 text-gray-400 hover:text-red-500 transition-colors"
+                className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-rose-100 text-slate-400 hover:text-rose-500 transition-all duration-150"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
-
-              <h2 className="text-2xl font-black bg-linear-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
+              <h2 className="text-xl font-black text-slate-900">
                 Contact Infofix Support
               </h2>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-slate-400 mt-1">
                 We usually reply within 24 hours.
               </p>
             </div>
-
-            {/* Scrollable Body */}
             <div className="flex-1 overflow-y-auto p-6">
               <form
                 action="https://formsubmit.co/infofixcomputers1@gmail.com"
@@ -1039,74 +1074,68 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                   name="_subject"
                   value="New Query from Infofix Website"
                 />
-
+                {[
+                  {
+                    label: "Full Name",
+                    name: "name",
+                    type: "text",
+                    placeholder: "Your name",
+                    required: true,
+                  },
+                  {
+                    label: "Email",
+                    name: "email",
+                    type: "email",
+                    placeholder: "your@email.com",
+                    required: true,
+                  },
+                  {
+                    label: "Phone",
+                    name: "phone",
+                    type: "tel",
+                    placeholder: "Optional",
+                    required: false,
+                  },
+                  {
+                    label: "Subject",
+                    name: "subject",
+                    type: "text",
+                    placeholder: "Order / Product / Complaint / Other",
+                    required: true,
+                  },
+                ].map(({ label, name, type, placeholder, required }) => (
+                  <div key={name}>
+                    <label className="text-xs font-bold text-slate-600 mb-1 block">
+                      {label}
+                    </label>
+                    <input
+                      type={type}
+                      name={name}
+                      required={required}
+                      placeholder={placeholder}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-sm transition-all duration-150"
+                    />
+                  </div>
+                ))}
                 <div>
-                  <label className="text-xs font-bold text-gray-600">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    required
-                    className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                    placeholder="Enter your name"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-gray-600">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    required
-                    className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                    placeholder="Enter your email"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-gray-600">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                    placeholder="Optional"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-gray-600">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    name="subject"
-                    required
-                    className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                    placeholder="Order / Product / Complaint / Other"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-gray-600">
-                    Your Message
+                  <label className="text-xs font-bold text-slate-600 mb-1 block">
+                    Message
                   </label>
                   <textarea
                     name="message"
                     required
                     rows={4}
-                    className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm resize-none"
-                    placeholder="Write your query here..."
+                    placeholder="Write your query here…"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-sm resize-none transition-all duration-150"
                   />
                 </div>
-
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                  className="w-full py-3 rounded-xl text-white font-bold transition-all duration-150 hover:opacity-90 active:scale-[0.98]"
+                  style={{
+                    background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                    boxShadow: "0 4px 16px rgba(99,102,241,0.35)",
+                  }}
                 >
                   Send Message
                 </button>
@@ -1115,44 +1144,44 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
           </div>
         </div>
       )}
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-        @keyframes bounce-subtle {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
-        }
-        .animate-bounce-subtle {
-          animation: bounce-subtle 3s ease-in-out infinite;
-        }
-          @keyframes fade-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-.animate-fade-in {
-  animation: fade-in 0.2s ease-out;
-}
-  @keyframes slide-in {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
-}
 
-.animate-slide-in {
-  animation: slide-in 0.3s ease-out;
-}
-      `,
-        }}
-      />
+      <style>{`
+        /* Search pill focus glow — Tailwind v4 compatible */
+        .search-pill:focus-within {
+          border-color: #6366f1;
+          box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+        }
+
+        /* FAB pulse */
+        @keyframes fab-pulse {
+          0%, 100% { box-shadow: 0 8px 30px rgba(99,102,241,0.5); }
+          50%       { box-shadow: 0 8px 40px rgba(139,92,246,0.7); }
+        }
+        .animate-fab-pulse { animation: fab-pulse 3s ease-in-out infinite; }
+
+        /* Modal entrance */
+        @keyframes modal-in {
+          from { opacity: 0; transform: scale(0.94) translateY(12px); }
+          to   { opacity: 1; transform: scale(1)    translateY(0);    }
+        }
+        .animate-modal-in { animation: modal-in 0.22s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+        /* Slide-in for mobile drawer (utility) */
+        @keyframes slide-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .animate-slide-in   { animation: slide-in 0.3s ease-out; }
+      `}</style>
     </div>
   );
 };
 
+/* ═══════════════════════════════════════════════════════════
+   ADMIN LAYOUT — unchanged
+═══════════════════════════════════════════════════════════ */
 export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const {
     currentUser,
-    switchRole,
     adminPage,
     setAdminPage,
     logout,
@@ -1160,6 +1189,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
     setCurrentPage,
   } = useStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const navItems: { name: AdminPage; icon: any; role: string[] }[] = [
     { name: "Dashboard", icon: LayoutDashboard, role: ["MANAGER"] },
     { name: "Inventory", icon: Package, role: ["MANAGER", "INVENTORY"] },
@@ -1169,40 +1199,33 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
     { name: "Content", icon: MessageSquare, role: ["MANAGER", "INVENTORY"] },
   ];
 
-  const visibleNav = navItems.filter((item) =>
-    item.role.includes(currentUser.role),
-  );
+  const visibleNav = navItems.filter((i) => i.role.includes(currentUser.role));
 
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden">
+    <div className="h-screen bg-slate-50 flex overflow-hidden">
       <aside
-        className={`
-    fixed inset-y-0 left-0 z-50 w-72
-    bg-white border-r border-gray-200
-    flex flex-col
-    transition-transform duration-300 ease-in-out
-    ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-    lg:translate-x-0
-  `}
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
       >
-        <div className="p-8 border-b  border-gray-200">
+        <div className="p-8 border-b border-slate-200">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
+            <div
+              className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white"
+              style={{ boxShadow: "0 4px 12px rgba(99,102,241,0.4)" }}
+            >
               <Store className="w-6 h-6" />
             </div>
-            <span className="font-black text-xl tracking-tight">
+            <span className="font-black text-xl tracking-tight text-slate-900">
               NexusAdmin
             </span>
           </div>
-
-          <div className="p-4 bg-gray-50 rounded-2xl flex items-center gap-3 border border-gray-200">
+          <div className="p-4 bg-slate-50 rounded-2xl flex items-center gap-3 border border-slate-200">
             <img
               src={currentUser.avatar}
               alt={currentUser.name}
-              className="w-10 h-10 rounded-xl shadow-sm"
+              className="w-10 h-10 rounded-xl"
             />
             <div className="overflow-hidden">
-              <p className="text-xs font-bold text-gray-900 truncate">
+              <p className="text-xs font-bold text-slate-900 truncate">
                 {currentUser.name}
               </p>
               <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-widest">
@@ -1211,8 +1234,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
             </div>
           </div>
         </div>
-
-        <nav className="flex-1 p-6 space-y-2 overflow-hidden">
+        <nav className="flex-1 p-6 space-y-1.5 overflow-hidden">
           {visibleNav.map((item) => (
             <button
               key={item.name}
@@ -1220,48 +1242,42 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
                 setAdminPage(item.name);
                 setIsSidebarOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl transition-all group ${
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-150 group ${adminPage === item.name ? "bg-indigo-600 text-white" : "text-slate-500 hover:bg-indigo-50 hover:text-indigo-600"}`}
+              style={
                 adminPage === item.name
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100"
-                  : "text-gray-500 hover:bg-indigo-50 hover:text-indigo-600"
-              }`}
+                  ? { boxShadow: "0 4px 12px rgba(99,102,241,0.35)" }
+                  : {}
+              }
             >
               <item.icon
-                className={`w-5 h-5 transition-transform ${adminPage === item.name ? "" : "group-hover:scale-110"}`}
+                className={`w-5 h-5 ${adminPage !== item.name ? "group-hover:scale-110 transition-transform duration-150" : ""}`}
               />
               {item.name}
             </button>
           ))}
         </nav>
-
-        <div className="p-6 border-t  border-gray-200 space-y-3">
+        <div className="p-6 border-t border-slate-200 space-y-2">
           <button
             onClick={() => {
               setViewMode("STORE");
               localStorage.setItem("currentPage", "home");
               setCurrentPage("home");
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-all shadow-sm"
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-colors duration-150"
           >
-            <Store className="w-5 h-5" />
-            Store View
+            <Store className="w-5 h-5" /> Store View
           </button>
           <button
             onClick={() => {
-              const confirmLogout = window.confirm(
-                "Are you sure you want to sign out?",
-              );
-              if (confirmLogout) {
-                logout();
-              }
+              if (window.confirm("Sign out?")) logout();
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl transition-all"
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-rose-500 hover:bg-rose-50 rounded-xl transition-colors duration-150"
           >
-            <LogOut className="w-5 h-5" />
-            Sign Out
+            <LogOut className="w-5 h-5" /> Sign Out
           </button>
         </div>
       </aside>
+
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/40 z-40 lg:hidden"
@@ -1270,47 +1286,42 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
       )}
 
       <div className="flex-1 flex flex-col lg:ml-72 overflow-hidden">
-        <header className="h-16 lg:h-20 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-10">
-          {" "}
-          <div className="flex items-center gap-3 text-sm font-medium text-gray-400">
+        <header className="h-16 lg:h-20 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-10">
+          <div className="flex items-center gap-3 text-sm font-medium text-slate-400">
             <button
-              className="lg:hidden p-2 "
+              className="lg:hidden p-2"
               onClick={() => setIsSidebarOpen(true)}
             >
               <Menu className="w-6 h-6" />
             </button>
-            <span className="text-gray-900">Control Center</span>
+            <span className="text-slate-900 font-semibold">Control Center</span>
             <ChevronRight className="w-4 h-4" />
             <span className="capitalize">{adminPage}</span>
           </div>
           <div className="flex items-center gap-3 lg:gap-6">
-            <button className="relative p-2 text-gray-400 hover:text-indigo-600 transition-colors">
+            <button className="relative p-2 text-slate-400 hover:text-indigo-600 transition-colors duration-150">
               <Bell className="w-5 h-5 lg:w-6 lg:h-6" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white" />
             </button>
-
-            <div className="hidden lg:block h-10 w-px bg-gray-200"></div>
-
+            <div className="hidden lg:block h-10 w-px bg-slate-200" />
             <div className="flex items-center gap-2 lg:gap-3">
               <img
                 src={currentUser.avatar}
                 alt=""
                 className="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-indigo-100"
               />
-
               <div className="hidden sm:block text-right">
-                <p className="text-sm font-bold text-gray-900">
+                <p className="text-sm font-bold text-slate-900">
                   {currentUser.name}
                 </p>
-                <p className="text-[10px] text-green-500 font-bold uppercase">
+                <p className="text-[10px] text-emerald-500 font-bold uppercase">
                   Active
                 </p>
               </div>
             </div>
           </div>
         </header>
-
-        <main className="flex-1 overflow-y-auto p-4 lg:p-10 bg-gray-50/50">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-10 bg-slate-50/60">
           {children}
         </main>
       </div>

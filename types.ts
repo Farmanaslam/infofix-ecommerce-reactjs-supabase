@@ -224,3 +224,12 @@ export interface RecentOrder {
   created_at: string;
   items: { name: string; quantity: number; image?: string }[];
 }
+export interface Job {
+  id: string;
+  title: string;
+  type: string;
+  location: string;
+  description: string;
+  is_active: boolean;
+  created_at: string;
+}

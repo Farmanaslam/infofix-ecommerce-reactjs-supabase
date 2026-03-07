@@ -123,6 +123,7 @@ export const Checkout: React.FC = () => {
 
       setOrderNumber(data?.order_number ?? "");
       setOrderPlaced(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err: any) {
       setError("Failed to place order. Please try again.");
       console.error(err);

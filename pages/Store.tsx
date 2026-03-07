@@ -165,7 +165,6 @@ const SkeletonCard = React.memo(({ idx }: { idx: number }) => (
           style={{ animationDelay: "0.27s" }}
         />
       </div>
-      {/* Buy Now skeleton */}
       <div
         className="h-12 w-full rounded-2xl bg-gray-100 skeleton-shimmer mt-1"
         style={{ animationDelay: "0.30s" }}
@@ -276,7 +275,7 @@ const FilterSection = ({
 }) => {
   const toggle = (value: string) => {
     if (single) {
-      onChange(value);
+      onChange(selected.includes(value) ? "" : value);
       return;
     }
     onChange(
@@ -321,11 +320,6 @@ export const Store: React.FC = () => {
   } = useStore();
 
   // ── Navigation state ──────────────────────────────────────────────────────
-  /**
-   * selectedProduct drives the "inner router":
-   *   null  → show the product grid
-   *   Product → show ProductDetails
-   */
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // ── data state ──
@@ -353,40 +347,29 @@ export const Store: React.FC = () => {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
+  const [heroSearch, setHeroSearch] = useState("");
+
+  const bridgeApplied = useRef(false);
+  const initialSearchQuery = useRef(headerSearchQuery);
+  const initialCtxCategory = useRef(ctxCategory);
+  const initialCtxSubcategory = useRef(ctxSubcategory);
+  const pendingBridge = useRef(!!(ctxCategory || headerSearchQuery?.trim()));
   const gridRef = useRef<HTMLDivElement>(null);
   const totalPages = Math.ceil(totalCount / PER_PAGE);
-  // Unified bridge: runs once on mount to consume any pending context values
-  useEffect(() => {
-    let didApply = false;
 
-    if (headerSearchQuery && headerSearchQuery.trim()) {
-      setSearchQuery(headerSearchQuery.trim());
+  // ── Bridge: header search query (from any page) ───────────────────────────
+  useEffect(() => {
+    // Consume any pending header search (whether from mount or live change)
+    const pending = headerSearchQuery?.trim();
+    if (pending) {
+      setSearchQuery(pending);
+      setHeroSearch(pending);
       setSelectedCategory("All");
       setSelectedSubcategory("");
-      setHeaderSearchQuery("");
-      didApply = true;
-    } else if (ctxCategory) {
-      setSelectedCategory(ctxCategory);
-      setSelectedSubcategory(ctxSubcategory || "");
-      setSearchQuery("");
-      ctxSetCategory(null);
-      ctxSetSubcategory(null);
-      didApply = true;
-    } else if (ctxSubcategory) {
-      setSelectedSubcategory(ctxSubcategory);
-      ctxSetSubcategory(null);
-      didApply = true;
-    }
-  }, []);
-
-  // Ongoing bridge: handle context changes while Store is already mounted
-  useEffect(() => {
-    if (headerSearchQuery && headerSearchQuery.trim()) {
-      setSearchQuery(headerSearchQuery.trim());
-      setSelectedCategory("All");
-      setSelectedSubcategory("");
+      setPage(1);
       setHeaderSearchQuery("");
     }
+    bridgeApplied.current = true;
   }, [headerSearchQuery]);
 
   useEffect(() => {
@@ -396,7 +379,10 @@ export const Store: React.FC = () => {
       ctxSetCategory(null);
       ctxSetSubcategory(null);
     }
+    bridgeApplied.current = true;
+    pendingBridge.current = false;
   }, [ctxCategory]);
+
   // ── Handlers ─────────────────────────────────────────────────────────────
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product);
@@ -407,7 +393,6 @@ export const Store: React.FC = () => {
     addToCart(product as any);
     setSelectedProduct(product);
     window.scrollTo({ top: 0, behavior: "smooth" });
-    // ProductDetails will handle navigating to cart on its own "Buy Now"
   };
 
   const handleAddToCart = (product: Product) => {
@@ -431,6 +416,13 @@ export const Store: React.FC = () => {
   const handleNavigateToCart = () => {
     setSelectedProduct(null);
     setCurrentPage("cart");
+  };
+
+  // ── Hero search bar submit ────────────────────────────────────────────────
+  const handleHeroSearch = () => {
+    const q = heroSearch.trim();
+    setSearchQuery(q);
+    setPage(1);
   };
 
   // ── FETCH ────────────────────────────────────────────────────────────────
@@ -463,7 +455,6 @@ export const Store: React.FC = () => {
             )
             .eq("is_active", true);
 
-          // Apply category filter first (always, when set)
           if (selectedCategory !== "All") {
             const { data: cats } = await supabase
               .from("categories")
@@ -473,7 +464,6 @@ export const Store: React.FC = () => {
             if (catIds.length) q = q.in("category_id", catIds);
           }
 
-          // Apply subcategory filter: try subcategory_id first, then fall back to brand/name match
           if (selectedSubcategory) {
             const { data: subs } = await supabase
               .from("subcategories")
@@ -481,7 +471,6 @@ export const Store: React.FC = () => {
               .ilike("name", `%${selectedSubcategory}%`);
             const subIds = (subs ?? []).map((s: any) => s.id);
 
-            // Check if any products actually use these subcategory IDs
             let subHasProducts = false;
             if (subIds.length) {
               const { count } = await supabase
@@ -493,10 +482,8 @@ export const Store: React.FC = () => {
             }
 
             if (subHasProducts) {
-              // Real subcategory match — filter by subcategory_id
               q = q.in("subcategory_id", subIds);
             } else {
-              // "Dell", "HP" etc are brand-style subcategory names — filter by brand/name instead
               q = q.or(
                 `brand.ilike.%${selectedSubcategory}%,name.ilike.%${selectedSubcategory}%`,
               );
@@ -631,7 +618,6 @@ export const Store: React.FC = () => {
         requestAnimationFrame(() => setRevealed(true)),
       );
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       selectedCategory,
       selectedSubcategory,
@@ -648,8 +634,11 @@ export const Store: React.FC = () => {
   );
 
   useEffect(() => {
+    if (headerSearchQuery && headerSearchQuery.trim()) return;
+    if (pendingBridge.current) return;
     load(page);
   }, [page, load]);
+
   useEffect(() => {
     setPage(1);
   }, [
@@ -665,6 +654,7 @@ export const Store: React.FC = () => {
     selectedRam,
     selectedStorage,
   ]);
+
   const handlePageChange = (newPage: number) => {
     setRevealed(false);
     setTimeout(() => {
@@ -735,7 +725,6 @@ export const Store: React.FC = () => {
             Backed by Infofix warranty.
           </p>
 
-          {/* Search */}
           <div
             className="max-w-2xl mx-auto relative group anim-fade-in-up"
             style={{ animationDelay: "0.24s" }}
@@ -746,19 +735,26 @@ export const Store: React.FC = () => {
               <input
                 type="text"
                 placeholder="Find your next upgrade..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={heroSearch}
+                onChange={(e) => setHeroSearch(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleHeroSearch()}
                 className="bg-transparent border-none outline-none flex-1 px-2 py-3 text-sm font-semibold text-gray-900 placeholder-gray-400"
               />
-              {searchQuery && (
+              {heroSearch && (
                 <button
-                  onClick={() => setSearchQuery("")}
+                  onClick={() => {
+                    setHeroSearch("");
+                    setSearchQuery("");
+                  }}
                   className="mr-2 w-7 h-7 flex items-center justify-center rounded-xl hover:bg-gray-100 text-gray-400"
                 >
                   <X className="w-4 h-4" />
                 </button>
               )}
-              <button className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shrink-0">
+              <button
+                onClick={handleHeroSearch}
+                className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shrink-0"
+              >
                 Search
               </button>
             </div>
@@ -810,6 +806,11 @@ export const Store: React.FC = () => {
                     {selectedCategory !== "All" && (
                       <span className="text-indigo-500 ml-1.5">
                         · {selectedCategory}
+                      </span>
+                    )}
+                    {searchQuery && (
+                      <span className="text-indigo-500 ml-1.5">
+                        · "{searchQuery}"
                       </span>
                     )}
                     {page > 1 && (
@@ -875,6 +876,7 @@ export const Store: React.FC = () => {
               onClick={() => {
                 setSelectedCategory("All");
                 setSearchQuery("");
+                setHeroSearch("");
                 setSelectedCondition("All");
                 setSortOption("latest");
                 setMinPrice("");
@@ -930,7 +932,7 @@ export const Store: React.FC = () => {
                 options={CATEGORIES}
                 selected={selectedCategory === "All" ? [] : [selectedCategory]}
                 single
-                onChange={(v) => setSelectedCategory(v)}
+                onChange={(v) => setSelectedCategory(v || "All")}
               />
               <FilterSection
                 title="Condition"
@@ -939,7 +941,7 @@ export const Store: React.FC = () => {
                   selectedCondition === "All" ? [] : [selectedCondition]
                 }
                 single
-                onChange={(v) => setSelectedCondition(v)}
+                onChange={(v) => setSelectedCondition(v || "All")}
               />
               <FilterSection
                 title="Brand"
@@ -1023,6 +1025,7 @@ export const Store: React.FC = () => {
                 onClick={() => {
                   setSelectedCategory("All");
                   setSearchQuery("");
+                  setHeroSearch("");
                   setSelectedCondition("All");
                   setSortOption("latest");
                   setMinPrice("");

@@ -1,6 +1,7 @@
 import React from "react";
 import { Mail, Phone, MapPin, Send, MessageCircle, Clock } from "lucide-react";
 import { useStore } from "../context/StoreContext";
+
 export const Contact: React.FC = () => {
   const { setCurrentPage } = useStore();
   return (
@@ -94,13 +95,37 @@ export const Contact: React.FC = () => {
         </div>
 
         <div className="bg-white border border-gray-100 p-12 rounded-[48px] shadow-2xl shadow-gray-200/50">
-          <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className="space-y-6"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const name = (
+                form.querySelector('[name="fullname"]') as HTMLInputElement
+              ).value;
+              const phone = (
+                form.querySelector('[name="phone"]') as HTMLInputElement
+              ).value;
+              const subject = (
+                form.querySelector('[name="subject"]') as HTMLSelectElement
+              ).value;
+              const message = (
+                form.querySelector('[name="message"]') as HTMLTextAreaElement
+              ).value;
+              const text = `Hi Infofix Computers! 👋\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Subject:* ${subject}\n*Message:* ${message}`;
+              window.open(
+                `https://wa.me/8670777086?text=${encodeURIComponent(text)}`,
+                "_blank",
+              );
+            }}
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-xs font-black text-gray-400 uppercase tracking-widest">
                   Full Name
                 </label>
                 <input
+                  name="fullname"
                   type="text"
                   placeholder="John Doe"
                   className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-indigo-600 font-medium transition-all"
@@ -111,6 +136,7 @@ export const Contact: React.FC = () => {
                   Phone Number
                 </label>
                 <input
+                  name="phone"
                   type="tel"
                   placeholder="+91 00000 00000"
                   className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-indigo-600 font-medium transition-all"
@@ -121,7 +147,10 @@ export const Contact: React.FC = () => {
               <label className="text-xs font-black text-gray-400 uppercase tracking-widest">
                 Subject
               </label>
-              <select className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-indigo-600 font-medium transition-all appearance-none cursor-pointer">
+              <select
+                name="subject"
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-indigo-600 font-medium transition-all appearance-none cursor-pointer"
+              >
                 <option>Order Inquiry</option>
                 <option>Repair Request</option>
                 <option>Product Question</option>
@@ -134,12 +163,16 @@ export const Contact: React.FC = () => {
                 Your Message
               </label>
               <textarea
+                name="message"
                 rows={4}
                 placeholder="How can we help you today?"
                 className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-indigo-600 font-medium resize-none transition-all"
               ></textarea>
             </div>
-            <button className="w-full bg-indigo-600 hover:bg-indigo-700 cursor-pointer text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-[0.98]">
+            <button
+              type="submit"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 cursor-pointer text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-[0.98]"
+            >
               Send Message <Send className="w-5 h-5" />
             </button>
           </form>
@@ -153,7 +186,7 @@ export const Contact: React.FC = () => {
             <p className="text-sm font-semibold text-indigo-900 leading-tight">
               Prefer instant messaging? <br />
               <a
-                href="https://wa.me/918927881606?text=Hi%20Infofix%20Computers"
+                href="https://wa.me/8670777086?text=Hi%20Infofix%20Computers"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-indigo-600 hover:underline"
@@ -228,7 +261,7 @@ export const Contact: React.FC = () => {
           </button>
 
           <a
-            href="https://wa.me/918927881606?text=Hi%20Infofix%20Computers,%20I%20need%20help"
+            href="https://wa.me/8670777086?text=Hi%20Infofix%20Computers,%20I%20need%20help"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-green-500 px-6 py-3 rounded-2xl font-bold cursor-pointer hover:bg-green-400 transition text-white text-center"
