@@ -339,7 +339,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             {/* Staff / Logout */}
             <div className="hidden md:flex">
               {currentUser?.role === "MANAGER" ||
-              currentUser?.role === "INVENTORY" ? (
+              currentUser?.role === "INVENTORY" ||
+              currentUser?.role === "ADMIN" ? (
                 <button
                   onClick={() => setViewMode("ADMIN")}
                   className="text-xs font-bold px-4 py-2 bg-slate-900 hover:bg-slate-700 text-white rounded-full transition-all duration-150"
@@ -1191,12 +1192,24 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const navItems: { name: AdminPage; icon: any; role: string[] }[] = [
-    { name: "Dashboard", icon: LayoutDashboard, role: ["MANAGER"] },
-    { name: "Inventory", icon: Package, role: ["MANAGER", "INVENTORY"] },
-    { name: "Orders", icon: ShoppingCart, role: ["MANAGER", "SUPPORT"] },
-    { name: "Customers", icon: Users, role: ["MANAGER", "SUPPORT"] },
-    { name: "Settings", icon: Settings, role: ["MANAGER"] },
-    { name: "Content", icon: MessageSquare, role: ["MANAGER", "INVENTORY"] },
+    { name: "Dashboard", icon: LayoutDashboard, role: ["MANAGER", "ADMIN"] },
+    {
+      name: "Inventory",
+      icon: Package,
+      role: ["MANAGER", "INVENTORY", "ADMIN"],
+    },
+    {
+      name: "Orders",
+      icon: ShoppingCart,
+      role: ["MANAGER", "SUPPORT", "ADMIN"],
+    },
+    { name: "Customers", icon: Users, role: ["MANAGER", "SUPPORT", "ADMIN"] },
+    { name: "Settings", icon: Settings, role: ["MANAGER", "ADMIN"] },
+    {
+      name: "Content",
+      icon: MessageSquare,
+      role: ["MANAGER", "INVENTORY", "ADMIN"],
+    },
   ];
 
   const visibleNav = navItems.filter((i) => i.role.includes(currentUser.role));

@@ -66,13 +66,18 @@ function expandTerms(terms: string[]): string[] {
 // ─── Mappers ───────────────────────────────────────────────────────────────────
 function fromSupabase(row: any): Product {
   const disc = row.discount_percent ?? 0;
+  const imageUrl =
+    row.image_url ??
+    "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=600&q=80";
   return {
     id: String(row.id),
     name: row.name ?? "",
     description: row.description ?? "",
-    image:
-      row.image_url ??
-      "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=600&q=80",
+    image: imageUrl,
+    images:
+      Array.isArray(row.images) && row.images.length > 0
+        ? row.images
+        : [imageUrl],
     price: Number(row.discounted_price ?? row.retail_price ?? 0),
     retailPrice: disc > 0 ? Number(row.retail_price) : undefined,
     discountPercent: disc,
@@ -114,6 +119,12 @@ function fromConstant(p: any): Product {
     reviews: p.reviews ?? 0,
     likesCount: p.likesCount ?? 0,
     tags: Array.isArray(p.tags) ? p.tags : [],
+    images:
+      Array.isArray(p.images) && p.images.length > 0
+        ? p.images
+        : p.image
+          ? [p.image]
+          : [],
   };
 }
 
@@ -444,7 +455,7 @@ export const Store: React.FC = () => {
           let q = supabase
             .from("products")
             .select(
-              `id, name, description, image_url,
+              `id, name, description, image_url, images,
                retail_price, discount_percent, discounted_price,
                stock_quantity, condition, brand, specs,
                rating_avg, rating_count, likes_count, created_at,

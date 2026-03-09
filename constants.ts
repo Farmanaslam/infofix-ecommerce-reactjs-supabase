@@ -274,6 +274,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     specs: [],
     likesCount: 0,
     tags: [],
+    images: [],
   },
   {
     id: "2",
@@ -292,6 +293,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     specs: [],
     likesCount: 0,
     tags: [],
+    images: [],
   },
   {
     id: "3",
@@ -310,6 +312,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     specs: [],
     likesCount: 0,
     tags: [],
+    images: [],
   },
   {
     id: "4",
@@ -328,6 +331,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     specs: [],
     likesCount: 0,
     tags: [],
+    images: [],
   },
   {
     id: "5",
@@ -346,6 +350,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     specs: [],
     likesCount: 0,
     tags: [],
+    images: [],
   },
 ];
 

@@ -4,6 +4,7 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  useRef,
 } from "react";
 import {
   Product,
@@ -21,6 +22,7 @@ import {
   INITIAL_BRANCHES,
 } from "../constants";
 import { supabase } from "@/lib/supabaseClient";
+import { ArrowRight, Check, X } from "lucide-react";
 
 export type CustomerPage =
   | "home"
@@ -75,6 +77,102 @@ interface StoreContextType extends AppState {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
+// ─── Global Cart Toast ────────────────────────────────────────────────────────
+const CartToast: React.FC<{
+  product: Product | null;
+  visible: boolean;
+  onGoToCart: () => void;
+  onDismiss: () => void;
+}> = ({ product, visible, onGoToCart, onDismiss }) => {
+  if (!product) return null;
+  return (
+    <>
+      <style>{`
+        @keyframes toastSlideUp {
+          from { transform: translate(-50%, 100px); opacity: 0; }
+          to   { transform: translate(-50%, 0);     opacity: 1; }
+        }
+        @keyframes toastSlideDown {
+          from { transform: translate(-50%, 0);     opacity: 1; }
+          to   { transform: translate(-50%, 100px); opacity: 0; }
+        }
+        @keyframes toastProgressBar {
+          from { width: 100%; }
+          to   { width: 0%; }
+        }
+        .cart-toast-enter {
+          animation: toastSlideUp 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .cart-toast-exit {
+          animation: toastSlideDown 0.32s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+        .cart-toast-bar {
+          animation: toastProgressBar 2.8s linear forwards;
+        }
+      `}</style>
+
+      <div
+        className={`fixed bottom-6 left-1/2 z-9999 w-[calc(100vw-2rem)] max-w-md
+  ${visible ? "cart-toast-enter pointer-events-auto" : "cart-toast-exit pointer-events-none"}`}
+        style={{ transform: "translateX(-50%)" }}
+      >
+        <div className="relative overflow-hidden bg-gray-900 rounded-3xl shadow-2xl shadow-black/50 border border-white/8">
+          {/* animated progress bar at bottom */}
+          <div
+            key={visible ? "bar-in" : "bar-out"}
+            className={`absolute bottom-0 left-0 h-0.75 rounded-full bg-linear-to-r from-indigo-500 via-violet-500 to-pink-500 ${visible ? "cart-toast-bar" : ""}`}
+          />
+
+          <div className="flex items-center gap-4 px-5 py-4">
+            {/* product thumbnail */}
+            <div className="relative shrink-0 w-12 h-12 rounded-2xl overflow-hidden bg-gray-800 border border-white/10">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+              {/* green check badge */}
+              <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-emerald-500 border-2 border-gray-900 flex items-center justify-center shadow">
+                <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+              </div>
+            </div>
+
+            {/* text */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-400 mb-0.5">
+                Added to Cart
+              </p>
+              <p className="text-sm font-bold text-white truncate leading-tight">
+                {product.name}
+              </p>
+              <p className="text-xs text-gray-400 font-semibold mt-0.5">
+                ₹{product.price.toLocaleString("en-IN")}
+              </p>
+            </div>
+
+            {/* CTA */}
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={onGoToCart}
+                className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-[11px] font-black uppercase tracking-widest px-4 py-2.5 rounded-xl transition-all duration-150 shadow-lg shadow-indigo-900/40"
+              >
+                View Cart
+                <ArrowRight className="w-3 h-3" />
+              </button>
+              <button
+                onClick={onDismiss}
+                className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/15 text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
 // ─── Helper: fetch cart rows from Supabase ────────────────────────────────────
 async function fetchCartFromSupabase(userId: string): Promise<CartItem[]> {
   const { data, error } = await supabase
@@ -83,17 +181,15 @@ async function fetchCartFromSupabase(userId: string): Promise<CartItem[]> {
     .eq("user_id", userId)
     .order("created_at", { ascending: true });
   if (error || !data) return [];
-  // Map Supabase row shape → CartItem shape used in context
   return data.map((row: any) => ({
-    id: row.product_id, // keep id = product_id so existing cart icon count works
+    id: row.product_id,
     product_id: row.product_id,
-    supabase_row_id: row.id, // store the UUID row id for updates/deletes
+    supabase_row_id: row.id,
     name: row.name,
     price: row.price,
     image: row.image,
     category: row.category,
     quantity: row.quantity,
-    // fill remaining CartItem fields with safe defaults
     description: "",
     stock: 0,
     condition: "New",
@@ -104,6 +200,7 @@ async function fetchCartFromSupabase(userId: string): Promise<CartItem[]> {
     discountPercent: 0,
     likesCount: 0,
     tags: [],
+    images: [],
   }));
 }
 
@@ -132,15 +229,28 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const [headerSearchQuery, setHeaderSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ── Toast state ───────────────────────────────────────────────────────────
+  const [toastProduct, setToastProduct] = useState<Product | null>(null);
+  const [toastVisible, setToastVisible] = useState(false);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showCartToast = (product: Product) => {
+    // Cancel any running timer so rapid adds reset the countdown
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToastProduct(product);
+    setToastVisible(true);
+    toastTimer.current = setTimeout(() => {
+      setToastVisible(false);
+    }, 2800);
+  };
+
   // ── Wrap setCurrentUser to also load/clear cart ───────────────────────────
   const setCurrentUser = async (user: User | null) => {
     setCurrentUserState(user);
     if (user?.id && user.role === "CUSTOMER") {
-      // Load persisted cart from Supabase whenever a customer logs in
       const items = await fetchCartFromSupabase(user.id);
       setCart(items);
     } else if (!user) {
-      // Clear cart on logout
       setCart([]);
     }
   };
@@ -158,9 +268,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     return () => listener.subscription.unsubscribe();
   }, []);
 
-  // ── addToCart: writes to Supabase + updates local state ───────────────────
+  // ── addToCart: writes to Supabase + updates local state + shows toast ─────
   const addToCart = async (product: Product) => {
-    // Always update local state immediately (optimistic — keeps cart icon count working)
+    // Optimistic local update
     setCart((prev) => {
       const existing = prev.find((item) => item.id === String(product.id));
       if (existing) {
@@ -181,11 +291,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       ];
     });
 
-    // If user is not logged in, stop here — local state only
+    // ← Show the toast for every addToCart call, from any page
+    showCartToast(product);
+
     if (!currentUser?.id) return;
 
     try {
-      // Check if row already exists in Supabase
       const { data: existing } = await supabase
         .from("cart_items")
         .select("id, quantity")
@@ -194,13 +305,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         .maybeSingle();
 
       if (existing) {
-        // Increment quantity
         await supabase
           .from("cart_items")
           .update({ quantity: existing.quantity + 1 })
           .eq("id", existing.id);
       } else {
-        // Insert new row
         await supabase.from("cart_items").insert({
           user_id: currentUser.id,
           product_id: String(product.id),
@@ -216,7 +325,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  // ── removeFromCart: deletes from Supabase + local state ───────────────────
+  // ── removeFromCart ────────────────────────────────────────────────────────
   const removeFromCart = async (productId: string) => {
     setCart((prev) => prev.filter((item) => item.id !== productId));
     if (!currentUser?.id) return;
@@ -227,14 +336,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       .eq("product_id", productId);
   };
 
-  // ── clearCart: clears Supabase + local state ──────────────────────────────
+  // ── clearCart ─────────────────────────────────────────────────────────────
   const clearCart = async () => {
     setCart([]);
     if (!currentUser?.id) return;
     await supabase.from("cart_items").delete().eq("user_id", currentUser.id);
   };
 
-  // ── updateQuantity: updates Supabase + local state ────────────────────────
+  // ── updateQuantity ────────────────────────────────────────────────────────
   const updateQuantity = async (id: string, quantity: number) => {
     setCart((prev) =>
       prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
@@ -358,6 +467,21 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
           </div>
         </div>
       )}
+
+      {/* ── Global Cart Toast — renders on top of everything, always ── */}
+      <CartToast
+        product={toastProduct}
+        visible={toastVisible}
+        onGoToCart={() => {
+          setToastVisible(false);
+          setCurrentPage("cart");
+        }}
+        onDismiss={() => {
+          if (toastTimer.current) clearTimeout(toastTimer.current);
+          setToastVisible(false);
+        }}
+      />
+
       {children}
     </StoreContext.Provider>
   );

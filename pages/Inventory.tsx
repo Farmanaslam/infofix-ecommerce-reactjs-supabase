@@ -55,6 +55,7 @@ const EMPTY_FORM: DBProductFormState = {
   category_id: "",
   subcategory_id: "",
   image_url: "",
+  image_urls: [] as string[],
   is_active: true,
   specs: [{ key: "", value: "" }],
   tag_ids: [],
@@ -172,6 +173,7 @@ export const Inventory: React.FC = () => {
   // ── Image upload ──
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -224,7 +226,7 @@ export const Inventory: React.FC = () => {
       try {
         let q = supabase.from("products").select(
           `
-        id, name, description, image_url, brand, model, specs,
+        id, name, description, image_url,images, brand, model, specs,
         retail_price, discounted_price, discount_percent,
         stock_quantity, condition, is_active,
         category_id, subcategory_id, created_at,
@@ -323,9 +325,17 @@ export const Inventory: React.FC = () => {
       toast("Image must be under 5MB", "error");
       return;
     }
+    if ((form.image_urls?.length ?? 0) >= 5) {
+      toast("Max 5 images allowed", "error");
+      return;
+    }
     setUploading(true);
     const reader = new FileReader();
-    reader.onload = (e) => setImagePreview(e.target?.result as string);
+    reader.onload = (e) => {
+      const src = e.target?.result as string;
+      setImagePreviews((prev) => [...prev, src]);
+      if (!imagePreview) setImagePreview(src);
+    };
     reader.readAsDataURL(file);
     try {
       const ext = file.name.split(".").pop() ?? "jpg";
@@ -337,15 +347,20 @@ export const Inventory: React.FC = () => {
       const {
         data: { publicUrl },
       } = supabase.storage.from("product-images").getPublicUrl(path);
-      setForm((f) => ({ ...f, image_url: publicUrl }));
+      setForm((f) => ({
+        ...f,
+        image_url: f.image_url || publicUrl,
+        image_urls: [...(f.image_urls ?? []), publicUrl],
+      }));
       toast("Image uploaded!");
     } catch {
       const localUrl = URL.createObjectURL(file);
-      setForm((f) => ({ ...f, image_url: localUrl }));
-      toast(
-        "Storage bucket 'product-images' not found. Image previewed locally. Create it in Supabase for permanent hosting.",
-        "info",
-      );
+      setForm((f) => ({
+        ...f,
+        image_url: f.image_url || localUrl,
+        image_urls: [...(f.image_urls ?? []), localUrl],
+      }));
+      toast("Storage bucket not found — image previewed locally.", "info");
     } finally {
       setUploading(false);
     }
@@ -358,6 +373,7 @@ export const Inventory: React.FC = () => {
     setEditingId(null);
     setForm(EMPTY_FORM);
     setImagePreview("");
+    setImagePreviews([]);
     setFormTab("basic");
     setModalOpen(true);
   };
@@ -370,6 +386,12 @@ export const Inventory: React.FC = () => {
           value: String(value),
         }))
       : [{ key: "", value: "" }];
+    const existingImages: string[] =
+      Array.isArray((p as any).images) && (p as any).images.length > 0
+        ? (p as any).images
+        : p.image_url
+          ? [p.image_url]
+          : [];
     setForm({
       name: p.name ?? "",
       description: p.description ?? "",
@@ -383,6 +405,7 @@ export const Inventory: React.FC = () => {
       category_id: String(p.category_id ?? ""),
       subcategory_id: p.subcategory_id ? String(p.subcategory_id) : "",
       image_url: p.image_url ?? "",
+      image_urls: existingImages,
       is_active: p.is_active ?? true,
       specs: specs.length ? specs : [{ key: "", value: "" }],
       tag_ids: (p.product_tags ?? [])
@@ -390,6 +413,16 @@ export const Inventory: React.FC = () => {
         .filter(Boolean),
     });
     setImagePreview(p.image_url ?? "");
+    setImagePreviews(existingImages);
+    setImagePreview(p.image_url ?? "");
+    setForm((f) => ({
+      ...f,
+      image_urls: Array.isArray((p as any).images)
+        ? (p as any).images
+        : p.image_url
+          ? [p.image_url]
+          : [],
+    }));
     setFormTab("basic");
     setModalOpen(true);
   };
@@ -445,6 +478,11 @@ export const Inventory: React.FC = () => {
           ? parseInt(form.subcategory_id)
           : null,
         image_url: form.image_url || null,
+        images: form.image_urls?.length
+          ? form.image_urls
+          : form.image_url
+            ? [form.image_url]
+            : [],
         is_active: form.is_active,
         specs: specsObj,
       };
@@ -1836,29 +1874,62 @@ export const Inventory: React.FC = () => {
 
                 {formTab === "media" && (
                   <div className="space-y-5">
-                    <div className="aspect-video rounded-2xl overflow-hidden bg-gray-100 border-2 border-dashed border-gray-200 flex items-center justify-center relative">
-                      {imagePreview || form.image_url ? (
-                        <img
-                          src={imagePreview || form.image_url}
-                          alt="Preview"
-                          className="w-full h-full object-contain"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src =
-                              "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=600&q=80";
-                          }}
-                        />
-                      ) : (
-                        <div className="text-center text-gray-300">
-                          <ImageIcon className="w-16 h-16 mx-auto mb-2" />
-                          <p className="text-sm font-medium">No image yet</p>
+                    {/* Multi-image preview grid */}
+                    <div className="grid grid-cols-5 gap-2">
+                      {(form.image_urls ?? []).map((url, idx) => (
+                        <div
+                          key={idx}
+                          className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 group"
+                        >
+                          <img
+                            src={url}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = (form.image_urls ?? []).filter(
+                                (_, i) => i !== idx,
+                              );
+                              setForm((f) => ({
+                                ...f,
+                                image_urls: updated,
+                                image_url: updated[0] ?? "",
+                              }));
+                              setImagePreviews(updated);
+                              setImagePreview(updated[0] ?? "");
+                            }}
+                            className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                          {idx === 0 && (
+                            <span className="absolute bottom-1 left-1 text-[9px] bg-indigo-600 text-white px-1.5 py-0.5 rounded font-black">
+                              MAIN
+                            </span>
+                          )}
                         </div>
-                      )}
-                      {uploading && (
-                        <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
-                          <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin" />
+                      ))}
+                      {(form.image_urls?.length ?? 0) < 5 && (
+                        <div
+                          className="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-indigo-400 transition-colors"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Plus className="w-6 h-6 text-gray-300" />
                         </div>
                       )}
                     </div>
+                    <p className="text-[10px] text-gray-400">
+                      {form.image_urls?.length ?? 0}/5 images · First image is
+                      the main display image
+                    </p>
+                    {uploading && (
+                      <div className="flex items-center gap-2 text-xs text-indigo-600 font-bold">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />{" "}
+                        Uploading...
+                      </div>
+                    )}
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -1905,13 +1976,28 @@ export const Inventory: React.FC = () => {
                     </div>
                     <input
                       type="url"
-                      value={form.image_url}
-                      onChange={(e) => {
-                        setForm((f) => ({ ...f, image_url: e.target.value }));
-                        setImagePreview(e.target.value);
-                      }}
-                      placeholder="https://... (paste any image URL)"
+                      placeholder="https://... paste URL then press Enter to add"
                       className="input"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          const val = (
+                            e.target as HTMLInputElement
+                          ).value.trim();
+                          if (!val) return;
+                          if ((form.image_urls?.length ?? 0) >= 5) {
+                            toast("Max 5 images allowed", "error");
+                            return;
+                          }
+                          setForm((f) => ({
+                            ...f,
+                            image_url: f.image_url || val,
+                            image_urls: [...(f.image_urls ?? []), val],
+                          }));
+                          setImagePreviews((prev) => [...prev, val]);
+                          (e.target as HTMLInputElement).value = "";
+                        }
+                      }}
                     />
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">
@@ -1923,8 +2009,16 @@ export const Inventory: React.FC = () => {
                             key={kw}
                             type="button"
                             onClick={() => {
-                              setForm((f) => ({ ...f, image_url: url }));
-                              setImagePreview(url);
+                              if ((form.image_urls?.length ?? 0) >= 5) {
+                                toast("Max 5 images allowed", "error");
+                                return;
+                              }
+                              setForm((f) => ({
+                                ...f,
+                                image_url: f.image_url || url,
+                                image_urls: [...(f.image_urls ?? []), url],
+                              }));
+                              setImagePreviews((prev) => [...prev, url]);
                             }}
                             className="px-3 py-1.5 bg-gray-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg text-xs font-bold transition-colors capitalize"
                           >

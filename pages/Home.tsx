@@ -118,7 +118,7 @@ export const Home: React.FC = () => {
               Shop Now <ArrowRight className="w-5 h-5" />
             </button>
             <button
-              onClick={() => setCurrentPage("contact")}
+              onClick={() => setCurrentPage("branches")}
               className="cursor-pointer bg-white/10 hover:bg-white/20 text-white border border-white/20 px-10 py-4 rounded-2xl font-bold backdrop-blur-md"
             >
               Visit Our Stores
@@ -280,7 +280,6 @@ export const Home: React.FC = () => {
                 </div>
               </div>
 
-              {/* DETAILS */}
               {/* DETAILS */}
               <div className="p-8 space-y-2 transition-all duration-500 group-hover:translate-x-1">
                 <p className="text-xs font-black text-indigo-600 uppercase tracking-widest">
@@ -548,7 +547,7 @@ export const Home: React.FC = () => {
             Contact Us
           </button>
           <button
-            onClick={() => setCurrentPage("contact")}
+            onClick={() => setCurrentPage("branches")}
             className="border border-white px-8 py-3 rounded-xl font-bold cursor-pointer"
           >
             Visit Our Store

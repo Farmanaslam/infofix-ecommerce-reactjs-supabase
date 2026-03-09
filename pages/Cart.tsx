@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Plus, Minus, Trash2, ShoppingCart } from "lucide-react";
 import { useStore } from "../context/StoreContext";
+import ProductDetails from "./ProductDetails";
 
 export const Cart: React.FC = () => {
   const {
@@ -12,6 +13,17 @@ export const Cart: React.FC = () => {
     removeFromCart,
   } = useStore();
 
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+
+  if (selectedProduct) {
+    return (
+      <ProductDetails
+        product={selectedProduct}
+        onBack={() => setSelectedProduct(null)}
+        onNavigateToCart={() => setSelectedProduct(null)}
+      />
+    );
+  }
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const relatedProducts = products
@@ -85,7 +97,8 @@ export const Cart: React.FC = () => {
             {cart.map((item) => (
               <div
                 key={item.id}
-                className="flex flex-col md:flex-row items-center gap-6 p-6 border border-indigo-100 rounded-2xl bg-white shadow-sm hover:shadow-md transition"
+                className="flex flex-col md:flex-row items-center gap-6 p-6 border border-indigo-100 rounded-2xl bg-white shadow-sm hover:shadow-md hover:border-indigo-300 transition cursor-pointer"
+                onClick={() => setSelectedProduct(item)}
               >
                 <img
                   src={item.image}
@@ -101,9 +114,10 @@ export const Cart: React.FC = () => {
                   </p>
                   <div className="flex items-center gap-3 mt-4">
                     <button
-                      onClick={() =>
-                        updateQuantity(String(item.id), item.quantity - 1)
-                      }
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateQuantity(String(item.id), item.quantity - 1);
+                      }}
                       disabled={item.quantity <= 1}
                       className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-indigo-50 disabled:opacity-40"
                     >
@@ -113,9 +127,10 @@ export const Cart: React.FC = () => {
                       {item.quantity}
                     </span>
                     <button
-                      onClick={() =>
-                        updateQuantity(String(item.id), item.quantity + 1)
-                      }
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateQuantity(String(item.id), item.quantity + 1);
+                      }}
                       className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-indigo-50"
                     >
                       <Plus size={16} />
@@ -127,7 +142,10 @@ export const Cart: React.FC = () => {
                     ₹{(item.price * item.quantity).toFixed(2)}
                   </p>
                   <button
-                    onClick={() => removeFromCart(String(item.id))}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeFromCart(String(item.id));
+                    }}
                     className="flex cursor-pointer items-center gap-1 text-red-500 text-sm hover:text-red-600"
                   >
                     <Trash2 size={16} /> Remove

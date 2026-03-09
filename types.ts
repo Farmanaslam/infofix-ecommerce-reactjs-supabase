@@ -1,4 +1,4 @@
-export type Role = "MANAGER" | "INVENTORY" | "SUPPORT" | "CUSTOMER";
+export type Role = "MANAGER" | "INVENTORY" | "ADMIN" | "CUSTOMER";
 
 export interface User {
   id: string;
@@ -12,6 +12,7 @@ export interface Product {
   name: string;
   description: string;
   image: string;
+  images: string[];
   price: number;
   retailPrice?: number;
   discountPercent: number;
@@ -113,6 +114,7 @@ export interface DBProductFormState {
   category_id: string;
   subcategory_id: string;
   image_url: string;
+   image_urls: string[]; 
   is_active: boolean;
   specs: { key: string; value: string }[];
   tag_ids: number[];

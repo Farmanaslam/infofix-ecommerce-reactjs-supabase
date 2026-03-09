@@ -57,7 +57,7 @@ export const Settings: React.FC = () => {
     email: "",
     password: "",
     phone: "",
-    role: "MANAGER",
+    role: "ADMIN",
     avatar_url:
       "https://avatars.design/wp-content/uploads/2022/09/5business-team-employee-personal-avatar.png",
   });
@@ -518,7 +518,9 @@ export const Settings: React.FC = () => {
                               ? "bg-purple-100 text-purple-600"
                               : op.role === "INVENTORY"
                                 ? "bg-orange-100 text-orange-600"
-                                : "bg-blue-100 text-blue-600"
+                                : op.role === "ADMIN"
+                                  ? "bg-red-100 text-red-600"
+                                  : "bg-blue-100 text-blue-600"
                           }`}
                         >
                           {op.role}
@@ -880,6 +882,7 @@ export const Settings: React.FC = () => {
                   setStaffForm({ ...staffForm, role: e.target.value })
                 }
               >
+                <option value="ADMIN">Admin</option>
                 <option value="MANAGER">Manager</option>
                 <option value="INVENTORY">Inventory</option>
               </select>
@@ -985,6 +988,7 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({
             onChange={(e) => setForm({ ...form, role: e.target.value })}
             className="w-full px-4 py-2 bg-gray-100 rounded-xl"
           >
+            <option value="ADMIN">Admin</option>
             <option value="MANAGER">Manager</option>
             <option value="INVENTORY">Inventory</option>
           </select>
