@@ -114,7 +114,7 @@ export interface DBProductFormState {
   category_id: string;
   subcategory_id: string;
   image_url: string;
-   image_urls: string[]; 
+  image_urls: string[];
   is_active: boolean;
   specs: { key: string; value: string }[];
   tag_ids: number[];
@@ -234,4 +234,16 @@ export interface Job {
   description: string;
   is_active: boolean;
   created_at: string;
+}
+export interface EditForm {
+  full_name: string;
+  email: string;
+  phone: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  pincode: string;
+  notes: string;
+  tags: string;
 }

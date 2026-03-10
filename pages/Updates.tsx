@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Calendar, User, ChevronRight, X } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import { UpdatePost } from "../types";
-
+import { UpdateCardSkeleton } from "./Skeleton";
 export const Updates: React.FC = () => {
   const [posts, setPosts] = useState<UpdatePost[]>([]);
   const [activeCategory, setActiveCategory] = useState("All");
@@ -86,48 +86,58 @@ export const Updates: React.FC = () => {
 
       {/* Posts */}
       <div className="grid grid-cols-1 gap-16">
-        {filteredPosts.map((post) => (
-          <div
-            key={post.id}
-            className="group grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
-          >
-            <div className="relative aspect-video overflow-hidden rounded-[40px] shadow-2xl">
-              <img
-                src={post.image_url}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                alt={post.title}
-              />
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex items-center gap-6 text-sm font-bold text-gray-400">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  {new Date(post.published_date).toDateString()}
-                </div>
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  {post.author}
-                </div>
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <UpdateCardSkeleton key={i} />
+          ))
+        ) : filteredPosts.length === 0 ? (
+          <p className="text-center text-gray-400 font-medium py-12">
+            No posts found in this category.
+          </p>
+        ) : (
+          filteredPosts.map((post) => (
+            <div
+              key={post.id}
+              className="group grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
+            >
+              <div className="relative aspect-video overflow-hidden rounded-[40px] shadow-2xl">
+                <img
+                  src={post.image_url}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  alt={post.title}
+                />
               </div>
 
-              <h2 className="text-4xl font-black text-gray-900">
-                {post.title}
-              </h2>
+              <div className="space-y-6">
+                <div className="flex items-center gap-6 text-sm font-bold text-gray-400">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    {new Date(post.published_date).toDateString()}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    {post.author}
+                  </div>
+                </div>
 
-              <p className="text-gray-500 text-lg font-medium">
-                {post.excerpt}
-              </p>
+                <h2 className="text-4xl font-black text-gray-900">
+                  {post.title}
+                </h2>
 
-              <button
-                onClick={() => setSelectedPost(post)}
-                className="text-indigo-600 font-bold flex items-center gap-2 hover:gap-4 transition-all"
-              >
-                Read More <ChevronRight className="w-5 h-5" />
-              </button>
+                <p className="text-gray-500 text-lg font-medium">
+                  {post.excerpt}
+                </p>
+
+                <button
+                  onClick={() => setSelectedPost(post)}
+                  className="text-indigo-600 font-bold flex items-center gap-2 hover:gap-4 transition-all"
+                >
+                  Read More <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* ARTICLE MODAL */}

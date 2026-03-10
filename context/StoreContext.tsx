@@ -45,7 +45,7 @@ export type AdminPage =
   | "Orders"
   | "Customers"
   | "Settings"
-  | "Content";
+  | "Blogs";
 
 interface StoreContextType extends AppState {
   currentPage: CustomerPage;

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, X, Star } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import { UpdateForm, UpdatePost } from "../types";
+import { ContentRowSkeleton } from "./Skeleton";
+
 const categories = [
   "Business & Student Laptops",
   "Refurbished vs New",
@@ -12,7 +14,7 @@ export const ContentManager: React.FC = () => {
   const [posts, setPosts] = useState<UpdatePost[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<UpdatePost | null>(null);
-
+  const [loading, setLoading] = useState(true);
   const emptyForm: UpdateForm = {
     title: "",
     excerpt: "",
@@ -25,12 +27,14 @@ export const ContentManager: React.FC = () => {
 
   // ================= FETCH =================
   const fetchPosts = async () => {
+    setLoading(true);
     const { data } = await supabase
       .from("updates")
       .select("*")
       .order("published_date", { ascending: false });
 
     if (data) setPosts(data);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -103,44 +107,59 @@ export const ContentManager: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {posts.map((post) => (
-              <tr
-                key={post.id}
-                className="border-t hover:bg-gray-50 transition"
-              >
-                <td className="p-4 font-semibold text-gray-900">
-                  {post.title}
-                </td>
-                <td className="p-4">{post.category}</td>
-                <td className="p-4">
-                  {new Date(post.published_date).toDateString()}
-                </td>
-                <td className="p-4">
-                  {post.is_featured && (
-                    <Star className="w-4 h-4 text-yellow-500" />
-                  )}
-                </td>
-                <td className="p-4 text-right flex justify-end gap-3">
-                  <button
-                    onClick={() => {
-                      setEditingPost(post);
-                      setFormData(post);
-                      setIsOpen(true);
-                    }}
-                    className="p-2 rounded-lg hover:bg-indigo-50 text-indigo-600"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-
-                  <button
-                    onClick={() => handleDelete(post.id)}
-                    className="p-2 rounded-lg hover:bg-red-50 text-red-500"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <ContentRowSkeleton key={i} />
+              ))
+            ) : posts.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="p-8 text-center text-gray-400 font-medium"
+                >
+                  No posts yet. Click "Add Update" to create one.
                 </td>
               </tr>
-            ))}
+            ) : (
+              posts.map((post) => (
+                <tr
+                  key={post.id}
+                  className="border-t hover:bg-gray-50 transition"
+                >
+                  <td className="p-4 font-semibold text-gray-900">
+                    {post.title}
+                  </td>
+                  <td className="p-4">{post.category}</td>
+                  <td className="p-4">
+                    {new Date(post.published_date).toDateString()}
+                  </td>
+                  <td className="p-4">
+                    {post.is_featured && (
+                      <Star className="w-4 h-4 text-yellow-500" />
+                    )}
+                  </td>
+                  <td className="p-4 text-right flex justify-end gap-3">
+                    <button
+                      onClick={() => {
+                        setEditingPost(post);
+                        setFormData(post);
+                        setIsOpen(true);
+                      }}
+                      className="p-2 rounded-lg hover:bg-indigo-50 text-indigo-600"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(post.id)}
+                      className="p-2 rounded-lg hover:bg-red-50 text-red-500"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

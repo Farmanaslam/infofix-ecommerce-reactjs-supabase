@@ -37,6 +37,7 @@ import {
   generateProductDescription,
   getInventoryAdvice,
 } from "../services/geminiService";
+import { InventoryRowSkeleton } from "./Skeleton";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CONDITIONS = ["New", "Refurbished", "Used"] as const;
@@ -1048,16 +1049,7 @@ export const Inventory: React.FC = () => {
             <tbody className="divide-y divide-gray-50">
               {loading ? (
                 Array.from({ length: 8 }).map((_, i) => (
-                  <tr key={i}>
-                    {Array.from({ length: 9 }).map((_, j) => (
-                      <td key={j} className="px-4 py-4">
-                        <div
-                          className="h-4 bg-gray-100 rounded-lg animate-pulse"
-                          style={{ width: j === 1 ? "160px" : "60px" }}
-                        />
-                      </td>
-                    ))}
-                  </tr>
+                  <InventoryRowSkeleton key={i} />
                 ))
               ) : products.length === 0 ? (
                 <tr>

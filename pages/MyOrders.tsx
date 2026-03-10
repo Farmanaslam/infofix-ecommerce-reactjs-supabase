@@ -14,6 +14,7 @@ import {
 import { useStore } from "../context/StoreContext";
 import { supabase } from "../lib/supabaseClient";
 import { Order, OrderItem } from "../types";
+import { OrderCardSkeleton } from "./Skeleton";
 
 const STATUS_FILTERS = [
   "All",
@@ -64,10 +65,11 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 // ─── Order Card ─────────────────────────────────────────────────────────────────
 
-const OrderCard: React.FC<{ order: Order; onRefresh: () => void }> = ({
-  order,
-  onRefresh,
-}) => {
+const OrderCard: React.FC<{
+  order: Order;
+  onRefresh: () => void;
+  onReorder: (item: OrderItem) => void;
+}> = ({ order, onRefresh, onReorder }) => {
   const [expanded, setExpanded] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [showTracking, setShowTracking] = useState(false);
@@ -122,11 +124,6 @@ const OrderCard: React.FC<{ order: Order; onRefresh: () => void }> = ({
                     d2.setDate(d2.getDate() + 5);
                     return `${d2.toLocaleDateString("en-IN", { day: "numeric", month: "short" })} – ${d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`;
                   })()}
-                </p>
-              )}
-              {order.status === "Delivered" && (
-                <p className="text-xs text-green-600 font-semibold mt-1">
-                  ✓ Delivered
                 </p>
               )}
             </div>
@@ -216,11 +213,13 @@ const OrderCard: React.FC<{ order: Order; onRefresh: () => void }> = ({
             )}
 
             {order.status === "Delivered" && (
-              <button className="px-5 py-2 bg-green-100 text-green-600 rounded-xl font-semibold hover:bg-green-200 transition text-sm flex items-center gap-1">
+              <button
+                onClick={() => onReorder(order.items[0])}
+                className="px-5 py-2 bg-green-100 text-green-600 rounded-xl font-semibold hover:bg-green-200 transition text-sm flex items-center gap-1"
+              >
                 <RefreshCw className="w-3.5 h-3.5" /> Reorder
               </button>
             )}
-
             {order.status === "Processing" && (
               <button
                 onClick={handleCancel}
@@ -427,23 +426,34 @@ const OrderCard: React.FC<{ order: Order; onRefresh: () => void }> = ({
 // ─── Main Component ─────────────────────────────────────────────────────────────
 
 export const MyOrders: React.FC = () => {
-  const { setCurrentPage, currentUser } = useStore();
+  const { setCurrentPage, currentUser, setHeaderSearchQuery } = useStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [loading, setLoading] = useState(true);
 
   const fetchOrders = useCallback(async () => {
     if (!currentUser?.id) return;
+    setLoading(true);
     const { data, error } = await supabase
       .from("orders")
       .select("*")
       .eq("user_id", currentUser.id)
       .order("created_at", { ascending: false });
     if (!error && data) setOrders(data as Order[]);
+    setLoading(false);
   }, [currentUser?.id]);
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
+
+  const handleReorder = useCallback(
+    (item: OrderItem) => {
+      setHeaderSearchQuery(item.name);
+      setCurrentPage("shop");
+    },
+    [setHeaderSearchQuery, setCurrentPage],
+  );
 
   // Real-time updates: if staff changes status, customer sees it live
   useEffect(() => {
@@ -539,7 +549,13 @@ export const MyOrders: React.FC = () => {
         </div>
 
         {/* Orders */}
-        {filteredOrders.length === 0 ? (
+        {loading ? (
+          <div className="space-y-8">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <OrderCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : filteredOrders.length === 0 ? (
           <div className="bg-white p-16 rounded-3xl text-center shadow-xl shadow-indigo-100">
             <Package className="w-16 h-16 text-indigo-200 mx-auto mb-4" />
             <h3 className="text-2xl font-black mb-4">
@@ -564,7 +580,12 @@ export const MyOrders: React.FC = () => {
         ) : (
           <div className="space-y-8">
             {filteredOrders.map((order) => (
-              <OrderCard key={order.id} order={order} onRefresh={fetchOrders} />
+              <OrderCard
+                key={order.id}
+                order={order}
+                onRefresh={fetchOrders}
+                onReorder={handleReorder}
+              />
             ))}
           </div>
         )}

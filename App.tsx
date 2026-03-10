@@ -22,6 +22,8 @@ import { Policy } from "./pages/Policy";
 import { Checkout } from "./pages/Checkout";
 import { CareersPage } from "./pages/CareersPage";
 import { ContentManager } from "./pages/ContentManager";
+import { Orders } from "./pages/Orders";
+import { Customers } from "./pages/Customers";
 const Main: React.FC = () => {
   const {
     currentUser,
@@ -80,7 +82,7 @@ const Main: React.FC = () => {
           }
         }
       } finally {
-        setAuthReady(true); // ← ALWAYS runs, even for staff, even on error
+        setAuthReady(true);
       }
     };
     restoreSession();
@@ -126,39 +128,9 @@ const Main: React.FC = () => {
       {adminPage === "Dashboard" && <Dashboard />}
       {adminPage === "Inventory" && <Inventory />}
       {adminPage === "Settings" && <Settings />}
-      {adminPage === "Content" && <ContentManager />}
-      {adminPage === "Orders" && (
-        <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-          <div className="p-12 bg-white rounded-[40px] border shadow-2xl shadow-gray-200 max-w-lg">
-            <h2 className="text-3xl font-black mb-4 uppercase tracking-tighter">
-              Order Processing
-            </h2>
-            <p className="text-gray-500 mb-8 font-medium">
-              The order management module is currently being optimized for bulk
-              processing. Please check back shortly.
-            </p>
-            <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
-              <div className="bg-indigo-600 h-full w-3/4 animate-pulse"></div>
-            </div>
-          </div>
-        </div>
-      )}
-      {adminPage === "Customers" && (
-        <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-          <div className="p-12 bg-white rounded-[40px] border shadow-2xl shadow-gray-200 max-w-lg">
-            <h2 className="text-3xl font-black mb-4 uppercase tracking-tighter">
-              Support Terminal
-            </h2>
-            <p className="text-gray-500 mb-8 font-medium">
-              The customer interface is undergoing a major AI architectural
-              upgrade. Expected uptime: 24h.
-            </p>
-            <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
-              <div className="bg-indigo-600 h-full w-2/3 animate-pulse"></div>
-            </div>
-          </div>
-        </div>
-      )}
+      {adminPage === "Blogs" && <ContentManager />}
+      {adminPage === "Orders" && <Orders />}
+      {adminPage === "Customers" && <Customers />}
     </AdminLayout>
   );
 };

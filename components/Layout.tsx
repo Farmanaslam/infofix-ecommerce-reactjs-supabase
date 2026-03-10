@@ -1204,12 +1204,12 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
       role: ["MANAGER", "SUPPORT", "ADMIN"],
     },
     { name: "Customers", icon: Users, role: ["MANAGER", "SUPPORT", "ADMIN"] },
-    { name: "Settings", icon: Settings, role: ["MANAGER", "ADMIN"] },
     {
-      name: "Content",
+      name: "Blogs",
       icon: MessageSquare,
       role: ["MANAGER", "INVENTORY", "ADMIN"],
     },
+    { name: "Settings", icon: Settings, role: ["MANAGER", "ADMIN"] },
   ];
 
   const visibleNav = navItems.filter((i) => i.role.includes(currentUser.role));
@@ -1232,11 +1232,22 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
             </span>
           </div>
           <div className="p-4 bg-slate-50 rounded-2xl flex items-center gap-3 border border-slate-200">
-            <img
-              src={currentUser.avatar}
-              alt={currentUser.name}
-              className="w-10 h-10 rounded-xl"
-            />
+            {currentUser.avatar ? (
+              <img
+                src={currentUser.avatar}
+                alt={currentUser.name}
+                className="w-10 h-10 rounded-xl"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs font-black">
+                {currentUser.name
+                  ?.split(" ")
+                  .map((w: string) => w[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2)}
+              </div>
+            )}
             <div className="overflow-hidden">
               <p className="text-xs font-bold text-slate-900 truncate">
                 {currentUser.name}
@@ -1318,11 +1329,22 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
             </button>
             <div className="hidden lg:block h-10 w-px bg-slate-200" />
             <div className="flex items-center gap-2 lg:gap-3">
-              <img
-                src={currentUser.avatar}
-                alt=""
-                className="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-indigo-100"
-              />
+              {currentUser.avatar ? (
+                <img
+                  src={currentUser.avatar}
+                  alt=""
+                  className="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-indigo-100"
+                />
+              ) : (
+                <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-indigo-100 bg-indigo-600 flex items-center justify-center text-white text-xs font-black">
+                  {currentUser.name
+                    ?.split(" ")
+                    .map((w: string) => w[0])
+                    .join("")
+                    .toUpperCase()
+                    .slice(0, 2)}
+                </div>
+              )}
               <div className="hidden sm:block text-right">
                 <p className="text-sm font-bold text-slate-900">
                   {currentUser.name}
