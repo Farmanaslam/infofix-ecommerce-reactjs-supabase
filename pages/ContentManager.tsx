@@ -96,72 +96,74 @@ export const ContentManager: React.FC = () => {
 
       {/* TABLE */}
       <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
-            <tr>
-              <th className="p-4 text-left">Title</th>
-              <th className="p-4 text-left">Category</th>
-              <th className="p-4 text-left">Date</th>
-              <th className="p-4 text-left">Featured</th>
-              <th className="p-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <ContentRowSkeleton key={i} />
-              ))
-            ) : posts.length === 0 ? (
+        <div className="overflow-x-auto w-full">
+          <table className="w-full min-w-160 text-sm">
+            <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
               <tr>
-                <td
-                  colSpan={5}
-                  className="p-8 text-center text-gray-400 font-medium"
-                >
-                  No posts yet. Click "Add Update" to create one.
-                </td>
+                <th className="p-4 text-left">Title</th>
+                <th className="p-4 text-left">Category</th>
+                <th className="p-4 text-left">Date</th>
+                <th className="p-4 text-left">Featured</th>
+                <th className="p-4 text-right">Actions</th>
               </tr>
-            ) : (
-              posts.map((post) => (
-                <tr
-                  key={post.id}
-                  className="border-t hover:bg-gray-50 transition"
-                >
-                  <td className="p-4 font-semibold text-gray-900">
-                    {post.title}
-                  </td>
-                  <td className="p-4">{post.category}</td>
-                  <td className="p-4">
-                    {new Date(post.published_date).toDateString()}
-                  </td>
-                  <td className="p-4">
-                    {post.is_featured && (
-                      <Star className="w-4 h-4 text-yellow-500" />
-                    )}
-                  </td>
-                  <td className="p-4 text-right flex justify-end gap-3">
-                    <button
-                      onClick={() => {
-                        setEditingPost(post);
-                        setFormData(post);
-                        setIsOpen(true);
-                      }}
-                      className="p-2 rounded-lg hover:bg-indigo-50 text-indigo-600"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-
-                    <button
-                      onClick={() => handleDelete(post.id)}
-                      className="p-2 rounded-lg hover:bg-red-50 text-red-500"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+            </thead>
+            <tbody>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <ContentRowSkeleton key={i} />
+                ))
+              ) : posts.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="p-8 text-center text-gray-400 font-medium"
+                  >
+                    No posts yet. Click "Add Update" to create one.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                posts.map((post) => (
+                  <tr
+                    key={post.id}
+                    className="border-t hover:bg-gray-50 transition"
+                  >
+                    <td className="p-4 font-semibold text-gray-900">
+                      {post.title}
+                    </td>
+                    <td className="p-4">{post.category}</td>
+                    <td className="p-4">
+                      {new Date(post.published_date).toDateString()}
+                    </td>
+                    <td className="p-4">
+                      {post.is_featured && (
+                        <Star className="w-4 h-4 text-yellow-500" />
+                      )}
+                    </td>
+                    <td className="p-4 text-right flex justify-end gap-3">
+                      <button
+                        onClick={() => {
+                          setEditingPost(post);
+                          setFormData(post);
+                          setIsOpen(true);
+                        }}
+                        className="p-2 rounded-lg hover:bg-indigo-50 text-indigo-600"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(post.id)}
+                        className="p-2 rounded-lg hover:bg-red-50 text-red-500"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* MODAL */}
