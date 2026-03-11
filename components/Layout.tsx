@@ -29,14 +29,6 @@ import {
 import logo from "../public/logo.jpg";
 import { CATEGORIES, SUBCATEGORIES } from "../constants";
 
-/* ─────────────────────────────────────────────────────────
-   Tailwind v4 notes used here:
-   • bg-linear-to-r / bg-linear-to-br  (replaces bg-gradient-to-*)
-   • No arbitrary shadow-[...] — use inline style where needed
-   • @starting-style transitions handled via CSS in <style>
-   • All other utilities are standard v4-compatible
-───────────────────────────────────────────────────────── */
-
 export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -1232,11 +1224,11 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
             </span>
           </div>
           <div className="p-4 bg-slate-50 rounded-2xl flex items-center gap-3 border border-slate-200">
-            {currentUser.avatar ? (
+            {(currentUser.avatar_url ?? currentUser.avatar) ? (
               <img
-                src={currentUser.avatar}
+                src={currentUser.avatar_url ?? currentUser.avatar}
                 alt={currentUser.name}
-                className="w-10 h-10 rounded-xl"
+                className="w-10 h-10 rounded-xl object-cover"
               />
             ) : (
               <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs font-black">
@@ -1329,11 +1321,11 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
             </button>
             <div className="hidden lg:block h-10 w-px bg-slate-200" />
             <div className="flex items-center gap-2 lg:gap-3">
-              {currentUser.avatar ? (
+              {(currentUser.avatar_url ?? currentUser.avatar) ? (
                 <img
-                  src={currentUser.avatar}
+                  src={currentUser.avatar_url ?? currentUser.avatar}
                   alt=""
-                  className="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-indigo-100"
+                  className="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-indigo-100 object-cover"
                 />
               ) : (
                 <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-indigo-100 bg-indigo-600 flex items-center justify-center text-white text-xs font-black">

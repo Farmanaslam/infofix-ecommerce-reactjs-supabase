@@ -5,6 +5,7 @@ import React, {
   ReactNode,
   useEffect,
   useRef,
+  useCallback,
 } from "react";
 import {
   Product,
@@ -15,12 +16,7 @@ import {
   Role,
   Branch,
 } from "../types";
-import {
-  INITIAL_PRODUCTS,
-  INITIAL_ORDERS,
-  OPERATORS,
-  INITIAL_BRANCHES,
-} from "../constants";
+import { INITIAL_PRODUCTS, OPERATORS, INITIAL_BRANCHES } from "../constants";
 import { supabase } from "@/lib/supabaseClient";
 import { ArrowRight, Check, X } from "lucide-react";
 
@@ -57,6 +53,7 @@ interface StoreContextType extends AppState {
   setCurrentUser: (user: User | null) => void;
   addToCart: (product: Product) => Promise<void>;
   removeFromCart: (productId: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   addProduct: (product: Product) => void;
   updateProduct: (product: Product) => void;
@@ -73,11 +70,19 @@ interface StoreContextType extends AppState {
   setHeaderSearchQuery: (q: string) => void;
   loading: boolean;
   setLoading: (value: boolean) => void;
+  totalRevenue: number;
+  activeCustomersCount: number;
+  isMessageModalOpen: boolean;
+  setIsMessageModalOpen: (open: boolean) => void;
+  selectedCategory: string | null;
+  setSelectedCategory: (cat: string | null) => void;
+  selectedSubcategory: string | null;
+  setSelectedSubcategory: (sub: string | null) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
-// ─── Global Cart Toast ────────────────────────────────────────────────────────
+// ─── Cart Toast ───────────────────────────────────────────────────────────────
 const CartToast: React.FC<{
   product: Product | null;
   visible: boolean;
@@ -96,48 +101,32 @@ const CartToast: React.FC<{
           from { transform: translate(-50%, 0);     opacity: 1; }
           to   { transform: translate(-50%, 100px); opacity: 0; }
         }
-        @keyframes toastProgressBar {
-          from { width: 100%; }
-          to   { width: 0%; }
-        }
-        .cart-toast-enter {
-          animation: toastSlideUp 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        .cart-toast-exit {
-          animation: toastSlideDown 0.32s cubic-bezier(0.4, 0, 1, 1) forwards;
-        }
-        .cart-toast-bar {
-          animation: toastProgressBar 2.8s linear forwards;
-        }
+        @keyframes toastProgressBar { from { width: 100%; } to { width: 0%; } }
+        .cart-toast-enter { animation: toastSlideUp 0.42s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+        .cart-toast-exit  { animation: toastSlideDown 0.32s cubic-bezier(0.4,0,1,1) forwards; }
+        .cart-toast-bar   { animation: toastProgressBar 2.8s linear forwards; }
       `}</style>
-
       <div
         className={`fixed bottom-6 left-1/2 z-9999 w-[calc(100vw-2rem)] max-w-md
-  ${visible ? "cart-toast-enter pointer-events-auto" : "cart-toast-exit pointer-events-none"}`}
+          ${visible ? "cart-toast-enter pointer-events-auto" : "cart-toast-exit pointer-events-none"}`}
         style={{ transform: "translateX(-50%)" }}
       >
         <div className="relative overflow-hidden bg-gray-900 rounded-3xl shadow-2xl shadow-black/50 border border-white/8">
-          {/* animated progress bar at bottom */}
           <div
             key={visible ? "bar-in" : "bar-out"}
             className={`absolute bottom-0 left-0 h-0.75 rounded-full bg-linear-to-r from-indigo-500 via-violet-500 to-pink-500 ${visible ? "cart-toast-bar" : ""}`}
           />
-
           <div className="flex items-center gap-4 px-5 py-4">
-            {/* product thumbnail */}
             <div className="relative shrink-0 w-12 h-12 rounded-2xl overflow-hidden bg-gray-800 border border-white/10">
               <img
                 src={product.image}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
-              {/* green check badge */}
               <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-emerald-500 border-2 border-gray-900 flex items-center justify-center shadow">
                 <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
               </div>
             </div>
-
-            {/* text */}
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-400 mb-0.5">
                 Added to Cart
@@ -149,15 +138,12 @@ const CartToast: React.FC<{
                 ₹{product.price.toLocaleString("en-IN")}
               </p>
             </div>
-
-            {/* CTA */}
             <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={onGoToCart}
                 className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-[11px] font-black uppercase tracking-widest px-4 py-2.5 rounded-xl transition-all duration-150 shadow-lg shadow-indigo-900/40"
               >
-                View Cart
-                <ArrowRight className="w-3 h-3" />
+                View Cart <ArrowRight className="w-3 h-3" />
               </button>
               <button
                 onClick={onDismiss}
@@ -173,7 +159,7 @@ const CartToast: React.FC<{
   );
 };
 
-// ─── Helper: fetch cart rows from Supabase ────────────────────────────────────
+// ─── Helper: fetch cart from Supabase ─────────────────────────────────────────
 async function fetchCartFromSupabase(userId: string): Promise<CartItem[]> {
   const { data, error } = await supabase
     .from("cart_items")
@@ -208,7 +194,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
-  const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
+  // Start empty — populated from Supabase, not mock data
+  const [orders, setOrders] = useState<Order[]>([]);
   const [currentUser, setCurrentUserState] = useState<User | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [branches, setBranches] = useState<Branch[]>(INITIAL_BRANCHES);
@@ -228,24 +215,102 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   );
   const [headerSearchQuery, setHeaderSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [activeCustomersCount, setActiveCustomersCount] = useState(0);
 
-  // ── Toast state ───────────────────────────────────────────────────────────
   const [toastProduct, setToastProduct] = useState<Product | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showCartToast = (product: Product) => {
-    // Cancel any running timer so rapid adds reset the countdown
+  useEffect(() => {
+    // Explicit row type so TS does not infer GenericStringError on the result
+    type OrderRow = {
+      id: string;
+      order_number: string;
+      user_id: string;
+      customer_name: string;
+      customer_email: string;
+      customer_phone: string | null;
+      total_amount: string | number;
+      subtotal: string | number;
+      tax: string | number;
+      delivery_charge: string | number;
+      status: string;
+      payment_status: string | null;
+      payment_method: string | null;
+      tracking_id: string | null;
+      courier_name: string | null;
+      notes: string | null;
+      created_at: string;
+      updated_at: string;
+    };
+
+    const fetchDashboardData = async () => {
+      try {
+        const { data: ordersData, error: ordersError } = await supabase
+          .from("orders")
+          .select(
+            "id, order_number, user_id, customer_name, customer_email, customer_phone, " +
+              "total_amount, subtotal, tax, delivery_charge, status, payment_status, " +
+              "payment_method, tracking_id, courier_name, notes, created_at, updated_at",
+          )
+          .order("created_at", { ascending: false })
+          .returns<OrderRow[]>();
+
+        if (!ordersError && ordersData) {
+          setOrders(ordersData as unknown as Order[]);
+          const revenue = ordersData.reduce(
+            (sum, o) => sum + (parseFloat(String(o.total_amount)) || 0),
+            0,
+          );
+          setTotalRevenue(revenue);
+        }
+
+        const { count, error: countError } = await supabase
+          .from("customers")
+          .select("id", { count: "exact", head: true });
+        if (!countError && count !== null) setActiveCustomersCount(count);
+
+        // ← NEW: fetch avatar_url from staffs table for current session user
+        const { data: sessionData } = await supabase.auth.getSession();
+        const sessionUser = sessionData?.session?.user;
+        if (sessionUser) {
+          const { data: staffRow } = await supabase
+            .from("staffs")
+            .select("full_name, email, role, avatar_url")
+            .eq("id", sessionUser.id)
+            .maybeSingle();
+
+          if (staffRow) {
+            setCurrentUserState(
+              (prev) =>
+                ({
+                  ...(prev ?? {}),
+                  id: sessionUser.id,
+                  name: staffRow.full_name,
+                  email: staffRow.email,
+                  role: staffRow.role,
+                  avatar_url: staffRow.avatar_url,
+                }) as any,
+            );
+          }
+        }
+      } catch (err) {
+        console.error("[StoreContext] fetchDashboardData error:", err);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const showCartToast = useCallback((product: Product) => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
     setToastProduct(product);
     setToastVisible(true);
-    toastTimer.current = setTimeout(() => {
-      setToastVisible(false);
-    }, 2800);
-  };
+    toastTimer.current = setTimeout(() => setToastVisible(false), 2800);
+  }, []);
 
-  // ── Wrap setCurrentUser to also load/clear cart ───────────────────────────
-  const setCurrentUser = async (user: User | null) => {
+  const setCurrentUser = useCallback(async (user: User | null) => {
     setCurrentUserState(user);
     if (user?.id && user.role === "CUSTOMER") {
       const items = await fetchCartFromSupabase(user.id);
@@ -253,12 +318,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     } else if (!user) {
       setCart([]);
     }
-  };
+  }, []);
 
-  // ── On auth state change (handles page reload) ────────────────────────────
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event) => {
         if (event === "SIGNED_OUT") {
           setCurrentUserState(null);
           setCart([]);
@@ -268,152 +332,156 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     return () => listener.subscription.unsubscribe();
   }, []);
 
-  // ── addToCart: writes to Supabase + updates local state + shows toast ─────
-  const addToCart = async (product: Product) => {
-    // Optimistic local update
-    setCart((prev) => {
-      const existing = prev.find((item) => item.id === String(product.id));
-      if (existing) {
-        return prev.map((item) =>
-          item.id === String(product.id)
-            ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        );
-      }
-      return [
-        ...prev,
-        {
-          ...(product as any),
-          id: String(product.id),
-          product_id: String(product.id),
-          quantity: 1,
-        },
-      ];
-    });
-
-    // ← Show the toast for every addToCart call, from any page
-    showCartToast(product);
-
-    if (!currentUser?.id) return;
-
-    try {
-      const { data: existing } = await supabase
-        .from("cart_items")
-        .select("id, quantity")
-        .eq("user_id", currentUser.id)
-        .eq("product_id", String(product.id))
-        .maybeSingle();
-
-      if (existing) {
-        await supabase
+  const addToCart = useCallback(
+    async (product: Product) => {
+      setCart((prev) => {
+        const existing = prev.find((item) => item.id === String(product.id));
+        if (existing) {
+          return prev.map((item) =>
+            item.id === String(product.id)
+              ? { ...item, quantity: item.quantity + 1 }
+              : item,
+          );
+        }
+        return [
+          ...prev,
+          {
+            ...(product as any),
+            id: String(product.id),
+            product_id: String(product.id),
+            quantity: 1,
+          },
+        ];
+      });
+      showCartToast(product);
+      if (!currentUser?.id) return;
+      try {
+        const { data: existing } = await supabase
           .from("cart_items")
-          .update({ quantity: existing.quantity + 1 })
-          .eq("id", existing.id);
-      } else {
-        await supabase.from("cart_items").insert({
-          user_id: currentUser.id,
-          product_id: String(product.id),
-          name: product.name,
-          price: product.price,
-          image: product.image ?? "",
-          category: product.category ?? "",
-          quantity: 1,
-        });
+          .select("id, quantity")
+          .eq("user_id", currentUser.id)
+          .eq("product_id", String(product.id))
+          .maybeSingle();
+        if (existing) {
+          await supabase
+            .from("cart_items")
+            .update({ quantity: existing.quantity + 1 })
+            .eq("id", existing.id);
+        } else {
+          await supabase.from("cart_items").insert({
+            user_id: currentUser.id,
+            product_id: String(product.id),
+            name: product.name,
+            price: product.price,
+            image: product.image ?? "",
+            category: product.category ?? "",
+            quantity: 1,
+          });
+        }
+      } catch (err) {
+        console.error("[addToCart] Supabase error:", err);
       }
-    } catch (err) {
-      console.error("[addToCart] Supabase error:", err);
-    }
-  };
+    },
+    [currentUser?.id, showCartToast],
+  );
 
-  // ── removeFromCart ────────────────────────────────────────────────────────
-  const removeFromCart = async (productId: string) => {
-    setCart((prev) => prev.filter((item) => item.id !== productId));
-    if (!currentUser?.id) return;
-    await supabase
-      .from("cart_items")
-      .delete()
-      .eq("user_id", currentUser.id)
-      .eq("product_id", productId);
-  };
+  const removeFromCart = useCallback(
+    async (productId: string) => {
+      setCart((prev) => prev.filter((item) => item.id !== productId));
+      if (!currentUser?.id) return;
+      await supabase
+        .from("cart_items")
+        .delete()
+        .eq("user_id", currentUser.id)
+        .eq("product_id", productId);
+    },
+    [currentUser?.id],
+  );
 
-  // ── clearCart ─────────────────────────────────────────────────────────────
-  const clearCart = async () => {
+  const clearCart = useCallback(async () => {
     setCart([]);
     if (!currentUser?.id) return;
     await supabase.from("cart_items").delete().eq("user_id", currentUser.id);
-  };
+  }, [currentUser?.id]);
 
-  // ── updateQuantity ────────────────────────────────────────────────────────
-  const updateQuantity = async (id: string, quantity: number) => {
-    setCart((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
-    );
-    if (!currentUser?.id) return;
-    await supabase
-      .from("cart_items")
-      .update({ quantity })
-      .eq("user_id", currentUser.id)
-      .eq("product_id", id);
-  };
+  const updateQuantity = useCallback(
+    async (id: string, quantity: number) => {
+      setCart((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
+      );
+      if (!currentUser?.id) return;
+      await supabase
+        .from("cart_items")
+        .update({ quantity })
+        .eq("user_id", currentUser.id)
+        .eq("product_id", id);
+    },
+    [currentUser?.id],
+  );
 
-  const addProduct = (product: Product) => {
-    setProducts((prev) => [product, ...prev]);
-  };
+  const addProduct = useCallback(
+    (p: Product) => setProducts((prev) => [p, ...prev]),
+    [],
+  );
+  const updateProduct = useCallback(
+    (u: Product) =>
+      setProducts((prev) => prev.map((p) => (p.id === u.id ? u : p))),
+    [],
+  );
+  const deleteProduct = useCallback(
+    (id: string) => setProducts((prev) => prev.filter((p) => p.id !== id)),
+    [],
+  );
+  const addOrder = useCallback(
+    (o: Order) => setOrders((prev) => [o, ...prev]),
+    [],
+  );
+  const addBranch = useCallback(
+    (b: Branch) => setBranches((prev) => [b, ...prev]),
+    [],
+  );
+  const updateBranch = useCallback(
+    (u: Branch) =>
+      setBranches((prev) => prev.map((b) => (b.id === u.id ? u : b))),
+    [],
+  );
+  const deleteBranch = useCallback(
+    (id: string) => setBranches((prev) => prev.filter((b) => b.id !== id)),
+    [],
+  );
 
-  const updateProduct = (updated: Product) => {
-    setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-  };
-
-  const deleteProduct = (productId: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== productId));
-  };
-
-  const addOrder = (order: Order) => {
-    setOrders((prev) => [order, ...prev]);
-  };
-
-  const addBranch = (branch: Branch) => {
-    setBranches((prev) => [branch, ...prev]);
-  };
-
-  const updateBranch = (updated: Branch) => {
-    setBranches((prev) => prev.map((b) => (b.id === updated.id ? updated : b)));
-  };
-
-  const deleteBranch = (branchId: string) => {
-    setBranches((prev) => prev.filter((b) => b.id !== branchId));
-  };
-
-  const setViewMode = (mode: "STORE" | "ADMIN") => {
+  const setViewMode = useCallback((mode: "STORE" | "ADMIN") => {
     localStorage.setItem("viewMode", mode);
     setViewModeState(mode);
-  };
+  }, []);
 
-  const setAdminPage = (page: AdminPage) => {
+  const setAdminPage = useCallback((page: AdminPage) => {
     localStorage.setItem("adminPage", page);
     setAdminPageState(page);
-  };
+  }, []);
 
-  const setCurrentPage = (page: CustomerPage) => {
+  const setCurrentPage = useCallback((page: CustomerPage) => {
     localStorage.setItem("currentPage", page);
     setCurrentPageState(page);
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await supabase.auth.signOut();
     setCurrentUserState(null);
     setCart([]);
-    setCurrentPage("home");
-    setAdminPage("Dashboard");
+    setCurrentPageState("home");
+    setAdminPageState("Dashboard");
     window.location.href = "/";
-  };
+  }, []);
 
-  const switchRole = (role: Role) => {
-    if (!currentUser) return;
-    setCurrentUserState({ ...currentUser, role });
-    if (role === "INVENTORY") setAdminPage("Inventory");
-    else setAdminPage("Dashboard");
-  };
+  const switchRole = useCallback(
+    (role: Role) => {
+      if (!currentUser) return;
+      setCurrentUserState({ ...currentUser, role });
+      setAdminPageState(role === "INVENTORY" ? "Inventory" : "Dashboard");
+    },
+    [currentUser],
+  );
 
   return (
     <StoreContext.Provider
@@ -433,6 +501,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         addToCart,
         removeFromCart,
         clearCart,
+        updateQuantity,
         addProduct,
         updateProduct,
         deleteProduct,
@@ -442,19 +511,20 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         updateBranch,
         deleteBranch,
         logout,
-        updateQuantity,
-        isMessageModalOpen,
-        setIsMessageModalOpen,
-        selectedCategory,
-        setSelectedCategory,
-        selectedSubcategory,
-        setSelectedSubcategory,
         viewMode,
         setViewMode,
         headerSearchQuery,
         setHeaderSearchQuery,
         loading,
         setLoading,
+        totalRevenue,
+        activeCustomersCount,
+        isMessageModalOpen,
+        setIsMessageModalOpen,
+        selectedCategory,
+        setSelectedCategory,
+        selectedSubcategory,
+        setSelectedSubcategory,
       }}
     >
       {loading && (
@@ -467,8 +537,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
           </div>
         </div>
       )}
-
-      {/* ── Global Cart Toast — renders on top of everything, always ── */}
       <CartToast
         product={toastProduct}
         visible={toastVisible}
@@ -481,7 +549,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
           setToastVisible(false);
         }}
       />
-
       {children}
     </StoreContext.Provider>
   );
