@@ -1,20 +1,20 @@
 import { Product, User, Order, Branch } from "./types";
 
 export const CATEGORIES = [
-  "Custom Cooling",
-  "Processor",
-  "CPU Cooler",
-  "Motherboard",
-  "Graphics Card",
+  "Laptop",
   "RAM",
-  "Storage",
-  "SMPS",
+  "Processor",
+  "Graphics Card",
+  "Motherboard",
   "Cabinet",
   "Monitor",
+  "SMPS",
+  "Storage",
+  "CPU Cooler",
   "Peripherals",
-  "Laptop",
-  "Mini PC",
   "CCTV",
+  "Mini PC",
+  "Custom Cooling",
 ];
 
 export const SUBCATEGORIES: Record<

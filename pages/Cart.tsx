@@ -183,14 +183,20 @@ export const Cart: React.FC = () => {
             </p>
           </div>
 
-          {/* EMI */}
+          {/* BULK & CORPORATE DISCOUNTS */}
           <div className="mt-8 p-5 border rounded-xl bg-white">
             <h4 className="font-semibold text-indigo-700">
-              Easy EMI Available
+              🏢 Bulk & Corporate Discounts
             </h4>
             <p className="text-gray-600 text-sm mt-1">
-              EMI options will be shown during checkout based on your selected
-              payment method and tenure.
+              Ordering for your business or institution? We offer special
+              pricing on bulk orders for corporates, schools, and offices.{" "}
+              <button
+                onClick={() => setCurrentPage("contact")}
+                className="text-indigo-600 underline hover:text-indigo-800 font-medium"
+              >
+                Contact us to get a quote.
+              </button>
             </p>
           </div>
           <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">

@@ -6,26 +6,35 @@ import { Address } from "../types";
 
 type PaymentMethod = "UPI" | "Card" | "NetBanking" | "COD";
 
-const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; desc: string }[] = [
+// paymennt methods...
+const PAYMENT_OPTIONS: {
+  id: PaymentMethod;
+  label: string;
+  desc: string;
+  comingSoon?: boolean;
+}[] = [
   {
     id: "UPI",
     label: "UPI Payment",
     desc: "Google Pay, PhonePe, Paytm or any UPI app.",
+    comingSoon: true,
   },
   {
     id: "Card",
     label: "Debit / Credit Card",
     desc: "Visa, MasterCard, RuPay supported.",
+    comingSoon: true,
   },
   {
     id: "NetBanking",
     label: "Net Banking",
     desc: "Choose your bank and complete payment securely.",
+    comingSoon: true,
   },
   {
     id: "COD",
     label: "Cash on Delivery (COD)",
-    desc: "Availability depends on product and delivery location.",
+    desc: "Pay when your order arrives at your doorstep.",
   },
 ];
 
@@ -151,11 +160,24 @@ export const Checkout: React.FC = () => {
             Order #{orderNumber}
           </p>
         )}
-        <p className="text-gray-500 mb-10">
-          {selectedPayment === "COD"
-            ? "Pay when your order arrives. We'll update you on delivery."
-            : "Your payment is being processed. You'll receive a confirmation shortly."}
+        <p className="text-gray-500 mb-6">
+          Your order has been received and is now being reviewed by our team.
         </p>
+        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-6 py-5 text-left mb-10 space-y-2">
+          <p className="text-indigo-800 font-black text-sm">
+            📞 What happens next?
+          </p>
+          <p className="text-indigo-700 text-sm leading-relaxed">
+            Our team will reach out to you shortly to confirm your order and
+            collect a{" "}
+            <span className="font-bold">minimal advance shipping amount</span>{" "}
+            to secure your delivery slot.
+          </p>
+          <p className="text-indigo-600 text-sm font-semibold">
+            Please keep your phone reachable — we'll call or WhatsApp you within
+            24-48 hours.
+          </p>
+        </div>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <button
             onClick={() => setCurrentPage("orders")}
@@ -281,31 +303,46 @@ export const Checkout: React.FC = () => {
             <div className="space-y-4">
               {PAYMENT_OPTIONS.map((opt) => {
                 const isSelected = selectedPayment === opt.id;
+                const isDisabled = opt.comingSoon;
+
                 return (
                   <div
                     key={opt.id}
-                    onClick={() => setSelectedPayment(opt.id)}
-                    className={`border-2 rounded-2xl p-6 cursor-pointer transition-all ${
-                      isSelected
-                        ? "border-indigo-500 bg-indigo-50"
-                        : "border-gray-200 hover:border-indigo-300 bg-white"
+                    onClick={() => !isDisabled && setSelectedPayment(opt.id)}
+                    className={`border-2 rounded-2xl p-6 transition-all relative ${
+                      isDisabled
+                        ? "border-gray-100 bg-gray-50 cursor-not-allowed opacity-60"
+                        : isSelected
+                          ? "border-indigo-500 bg-indigo-50 cursor-pointer"
+                          : "border-gray-200 hover:border-indigo-300 bg-white cursor-pointer"
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-bold text-gray-900">{opt.label}</p>
-                        <p className="text-sm text-gray-500 mt-0.5">
+                        <div className="flex items-center gap-2">
+                          <p
+                            className={`font-bold ${isDisabled ? "text-gray-400" : "text-gray-900"}`}
+                          >
+                            {opt.label}
+                          </p>
+                          {isDisabled && (
+                            <span className="text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full border border-amber-200">
+                              Coming Soon
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-400 mt-0.5">
                           {opt.desc}
                         </p>
                       </div>
                       <div
                         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ml-4 transition-all ${
-                          isSelected
+                          isSelected && !isDisabled
                             ? "border-indigo-600 bg-indigo-600"
-                            : "border-gray-300"
+                            : "border-gray-200"
                         }`}
                       >
-                        {isSelected && (
+                        {isSelected && !isDisabled && (
                           <div className="w-2 h-2 rounded-full bg-white" />
                         )}
                       </div>

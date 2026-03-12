@@ -34,6 +34,7 @@ type OrderStatus =
   | "Cancelled";
 interface EditForm {
   status: OrderStatus;
+  payment_status: string;
   tracking_id: string;
   courier_name: string;
   notes: string;
@@ -221,6 +222,7 @@ export const Orders: React.FC = () => {
     setEditOrder(o);
     setEditForm({
       status: o.status,
+      payment_status: o.payment_status ?? "Pending",
       tracking_id: o.tracking_id ?? "",
       courier_name: o.courier_name ?? "",
       notes: o.notes ?? "",
@@ -254,6 +256,7 @@ export const Orders: React.FC = () => {
         .from("orders")
         .update({
           status: editForm.status,
+          payment_status: editForm.payment_status,
           tracking_id: editForm.tracking_id || null,
           courier_name: editForm.courier_name || null,
           notes: editForm.notes || null,
@@ -858,6 +861,60 @@ export const Orders: React.FC = () => {
                     );
                   })}
                 </div>
+              </div>
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">
+                  Payment Status
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    {
+                      id: "Pending",
+                      color: "text-amber-700",
+                      bg: "bg-amber-50",
+                      border: "border-amber-300",
+                      dot: "bg-amber-500",
+                    },
+                    {
+                      id: "Paid",
+                      color: "text-emerald-700",
+                      bg: "bg-emerald-50",
+                      border: "border-emerald-300",
+                      dot: "bg-emerald-500",
+                    },
+                    {
+                      id: "Failed",
+                      color: "text-red-600",
+                      bg: "bg-red-50",
+                      border: "border-red-300",
+                      dot: "bg-red-500",
+                    },
+                  ].map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() =>
+                        setEditForm((f) => ({ ...f, payment_status: opt.id }))
+                      }
+                      className={`py-2.5 px-3 rounded-xl text-xs font-black border transition-all flex items-center justify-center gap-1.5
+          ${
+            editForm.payment_status === opt.id
+              ? `${opt.bg} ${opt.color} ${opt.border} shadow-sm`
+              : "bg-gray-50 text-gray-500 border-gray-200 hover:border-gray-300"
+          }`}
+                    >
+                      <span className={`w-2 h-2 rounded-full ${opt.dot}`} />
+                      {opt.id}
+                    </button>
+                  ))}
+                </div>
+                {editForm.payment_status === "Paid" &&
+                  editOrder.payment_status !== "Paid" && (
+                    <p className="mt-2 text-[11px] text-emerald-700 font-semibold bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                      ✓ This will mark the COD payment as received and
+                      confirmed.
+                    </p>
+                  )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">

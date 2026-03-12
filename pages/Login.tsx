@@ -42,10 +42,21 @@ export const Login: React.FC = () => {
         avatar: `https://i.pravatar.cc/150?u=${user.id}`,
       });
 
+      await supabase.from("notifications").insert({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        type: "info",
+        title: "Customer Login",
+        message: `${customerProfile.full_name} (${customerProfile.email}) logged in.`,
+        user_id: user.id,
+        user_name: customerProfile.full_name,
+        user_role: "CUSTOMER",
+        read_by: [],
+        created_at: new Date().toISOString(),
+      });
+
       setCurrentPage("home");
       return;
     }
-
     // 🔹 2️⃣ If not customer, check STAFF table
     const { data: staffProfile } = await supabase
       .from("staffs")
@@ -58,8 +69,20 @@ export const Login: React.FC = () => {
         id: user.id,
         name: staffProfile.full_name,
         email: staffProfile.email,
-        role: staffProfile.role, // MANAGER or INVENTORY
+        role: staffProfile.role,
         avatar: staffProfile.avatar_url,
+      });
+
+      await supabase.from("notifications").insert({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        type: "info",
+        title: "Staff Login",
+        message: `${staffProfile.full_name} (${staffProfile.role}) signed into the portal.`,
+        user_id: user.id,
+        user_name: staffProfile.full_name,
+        user_role: staffProfile.role,
+        read_by: [],
+        created_at: new Date().toISOString(),
       });
 
       setViewMode("STORE");
@@ -67,7 +90,6 @@ export const Login: React.FC = () => {
       return;
     }
 
-    // 🔥 3️⃣ If neither found
     alert("Profile not found in system");
   };
 

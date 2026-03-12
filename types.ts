@@ -247,3 +247,14 @@ export interface EditForm {
   notes: string;
   tags: string;
 }
+export type AppNotification = {
+  id: string;
+  type: "info" | "success" | "warning" | "urgent";
+  title: string;
+  message: string;
+  user_id: string;
+  user_name: string;
+  user_role: string;
+  read_by: string[];
+  created_at: string;
+};

@@ -43,7 +43,6 @@ const Main: React.FC = () => {
         if (data.session?.user) {
           const user = data.session.user;
 
-          // 🔹 Check if staff
           const { data: staff } = await supabase
             .from("staffs")
             .select("*")
@@ -64,7 +63,6 @@ const Main: React.FC = () => {
             return;
           }
 
-          // 🔹 Otherwise check customer
           const { data: profile } = await supabase
             .from("customers")
             .select("*")

@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import logo from "../public/logo.jpg";
 import { CATEGORIES, SUBCATEGORIES } from "../constants";
+import { NotificationPanel } from "@/pages/NotificationPanel";
 
 export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -42,9 +43,9 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     setHeaderSearchQuery,
     setSelectedCategory,
     setSelectedSubcategory,
+    isMessageModalOpen,
+    setIsMessageModalOpen,
   } = useStore();
-
-  const { isMessageModalOpen, setIsMessageModalOpen } = useStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -119,8 +120,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
           </div>
           <Zap className="w-3 h-3 text-amber-400 shrink-0" />
           <p className="text-[11px] font-semibold tracking-widest text-slate-300 uppercase truncate">
-            Free delivery above ₹999 &nbsp;·&nbsp; Open 7 days &nbsp;·&nbsp; EMI
-            available
+            Free delivery above ₹999 &nbsp;·&nbsp; Open 7 days &nbsp;·&nbsp;
+            Expert Tech Support
           </p>
           <Zap className="w-3 h-3 text-amber-400 shrink-0" />
         </div>
@@ -132,22 +133,22 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <div className="flex items-center gap-3.5">
               {[
                 {
-                  href: "https://www.facebook.com/mdcomputers.in/",
+                  href: "https://www.facebook.com/profile.php?id=61559131500584",
                   icon: "bi-facebook",
                   color: "text-blue-600",
                 },
                 {
-                  href: "https://www.instagram.com/mdcomputers.in/",
+                  href: "https://www.instagram.com/infofixcomputers11?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
                   icon: "bi-instagram",
                   color: "text-pink-500",
                 },
                 {
-                  href: "https://www.youtube.com/@mdcomputersstudio2960",
+                  href: "https://www.youtube.com/@infofixcomputers",
                   icon: "bi-youtube",
                   color: "text-red-500",
                 },
                 {
-                  href: "https://api.whatsapp.com/send?phone=913340550550&text=hi",
+                  href: "https://api.whatsapp.com/send?phone=8293295257&text=hi",
                   icon: "bi-whatsapp",
                   color: "text-emerald-500",
                 },
@@ -704,22 +705,22 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                   <div className="flex items-center gap-4 px-1 py-1">
                     {[
                       {
-                        href: "https://www.facebook.com/mdcomputers.in/",
+                        href: "https://www.facebook.com/profile.php?id=61559131500584",
                         icon: "bi-facebook",
                         color: "text-blue-600",
                       },
                       {
-                        href: "https://www.instagram.com/mdcomputers.in/",
+                        href: "https://www.instagram.com/infofixcomputers11?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
                         icon: "bi-instagram",
                         color: "text-pink-500",
                       },
                       {
-                        href: "https://www.youtube.com/@mdcomputersstudio2960",
+                        href: "https://www.youtube.com/@infofixcomputers",
                         icon: "bi-youtube",
                         color: "text-red-500",
                       },
                       {
-                        href: "https://api.whatsapp.com/send?phone=913340550550&text=hi",
+                        href: "https://api.whatsapp.com/send?phone=8293295257&text=hi",
                         icon: "bi-whatsapp",
                         color: "text-emerald-500",
                       },
@@ -916,38 +917,54 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               Social
             </h4>
             <div className="w-5 h-px bg-slate-600" />
-            <ul className="space-y-2 text-xs text-slate-500">
-              <li className="flex items-center gap-2">
-                <Facebook className="w-3 h-3" />
-                <button className="hover:text-white transition-colors duration-150">
-                  Facebook
-                </button>
-              </li>
-              <li className="flex items-center gap-2">
-                <Twitter className="w-3 h-3" />
-                <button className="hover:text-white transition-colors duration-150">
-                  Twitter
-                </button>
-              </li>
-              <li className="flex items-center gap-2">
-                <Youtube className="w-3 h-3" />
-                <button className="hover:text-white transition-colors duration-150">
-                  YouTube
-                </button>
-              </li>
-              <li className="flex items-center gap-2">
-                <Instagram className="w-3 h-3" />
-                <button className="hover:text-white transition-colors duration-150">
-                  Instagram
-                </button>
-              </li>
-              <li className="flex items-center gap-2">
-                <Linkedin className="w-3 h-3" />
-                <button className="hover:text-white transition-colors duration-150">
-                  LinkedIn
-                </button>
-              </li>
-            </ul>
+            <>
+              <ul className="space-y-2 text-xs text-slate-500">
+                <li className="flex items-center gap-2">
+                  <Facebook className="w-3 h-3" />
+                  <a
+                    href="https://www.facebook.com/profile.php?id=61559131500584"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-white transition-colors duration-150"
+                  >
+                    Facebook
+                  </a>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Youtube className="w-3 h-3" />
+                  <a
+                    href="https://www.youtube.com/@infofixcomputers"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-white transition-colors duration-150"
+                  >
+                    YouTube
+                  </a>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Instagram className="w-3 h-3" />
+                  <a
+                    href="https://www.instagram.com/infofixcomputers11?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-white transition-colors duration-150"
+                  >
+                    Instagram
+                  </a>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Linkedin className="w-3 h-3" />
+                  <a
+                    href="https://www.linkedin.com/company/infofix-computers11/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-white transition-colors duration-150"
+                  >
+                    LinkedIn
+                  </a>
+                </li>
+              </ul>
+            </>
           </div>
 
           <div className="space-y-4">
@@ -996,23 +1013,25 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               © {new Date().getFullYear()} Infofix Computers
             </div>
             <div className="flex flex-wrap items-center justify-center gap-1.5">
-              {[
-                "VISA",
-                "MASTERCARD",
-                "MAESTRO",
-                "AMEX",
-                "RUPAY",
-                "NETBANKING",
-                "COD",
-                "EMI",
-              ].map((m) => (
-                <div
-                  key={m}
-                  className="h-6 px-2 bg-slate-800 border border-slate-700 rounded flex items-center justify-center text-[8px] font-black text-slate-500 hover:text-slate-300 hover:border-slate-500 transition-all duration-150 cursor-default"
-                >
-                  {m}
-                </div>
-              ))}
+              {
+                // ✅ Updated (EMI removed):
+                [
+                  "VISA",
+                  "MASTERCARD",
+                  "MAESTRO",
+                  "AMEX",
+                  "RUPAY",
+                  "NETBANKING",
+                  "COD",
+                ].map((m) => (
+                  <div
+                    key={m}
+                    className="h-6 px-2 bg-slate-800 border border-slate-700 rounded flex items-center justify-center text-[8px] font-black text-slate-500 hover:text-slate-300 hover:border-slate-500 transition-all duration-150 cursor-default"
+                  >
+                    {m}
+                  </div>
+                ))
+              }
             </div>
           </div>
         </div>
@@ -1180,9 +1199,20 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
     logout,
     setViewMode,
     setCurrentPage,
+    notifications,
+    pushNotification,
   } = useStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const unreadCount = notifications.filter((n) => {
+    if (!currentUser) return false;
+    if (n.read_by.includes(currentUser.id)) return false;
+    if (currentUser.role === "ADMIN") return true;
+    if (currentUser.role === "MANAGER")
+      return ["INVENTORY", "CUSTOMER"].includes(n.user_role);
+    if (currentUser.role === "INVENTORY") return n.user_id === currentUser.id;
+    return false;
+  }).length;
   const navItems: { name: AdminPage; icon: any; role: string[] }[] = [
     { name: "Dashboard", icon: LayoutDashboard, role: ["MANAGER", "ADMIN"] },
     {
@@ -1315,9 +1345,16 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
             <span className="capitalize">{adminPage}</span>
           </div>
           <div className="flex items-center gap-3 lg:gap-6">
-            <button className="relative p-2 text-slate-400 hover:text-indigo-600 transition-colors duration-150">
+            <button
+              onClick={() => setIsNotifOpen(true)}
+              className="relative p-2 text-slate-400 hover:text-indigo-600 transition-colors duration-150"
+            >
               <Bell className="w-5 h-5 lg:w-6 lg:h-6" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 min-w-4 h-4 px-1 bg-rose-500 text-white text-[8px] font-black flex items-center justify-center rounded-full ring-2 ring-white">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
             </button>
             <div className="hidden lg:block h-10 w-px bg-slate-200" />
             <div className="flex items-center gap-2 lg:gap-3">
@@ -1352,6 +1389,10 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
           {children}
         </main>
       </div>
+      <NotificationPanel
+        isOpen={isNotifOpen}
+        onClose={() => setIsNotifOpen(false)}
+      />
     </div>
   );
 };

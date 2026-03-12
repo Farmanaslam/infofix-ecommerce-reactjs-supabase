@@ -114,7 +114,7 @@ export const Contact: React.FC = () => {
               ).value;
               const text = `Hi Infofix Computers! 👋\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Subject:* ${subject}\n*Message:* ${message}`;
               window.open(
-                `https://wa.me/8670777086?text=${encodeURIComponent(text)}`,
+                `https://wa.me/8293295257?text=${encodeURIComponent(text)}`,
                 "_blank",
               );
             }}
@@ -261,7 +261,7 @@ export const Contact: React.FC = () => {
           </button>
 
           <a
-            href="https://wa.me/8670777086?text=Hi%20Infofix%20Computers,%20I%20need%20help"
+            href="https://wa.me/8293295257?text=Hi%20Infofix%20Computers,%20I%20need%20help"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-green-500 px-6 py-3 rounded-2xl font-bold cursor-pointer hover:bg-green-400 transition text-white text-center"

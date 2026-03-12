@@ -19,7 +19,7 @@ import {
 import { INITIAL_PRODUCTS, OPERATORS, INITIAL_BRANCHES } from "../constants";
 import { supabase } from "@/lib/supabaseClient";
 import { ArrowRight, Check, X } from "lucide-react";
-
+import { AppNotification } from "../types";
 export type CustomerPage =
   | "home"
   | "shop"
@@ -78,6 +78,12 @@ interface StoreContextType extends AppState {
   setSelectedCategory: (cat: string | null) => void;
   selectedSubcategory: string | null;
   setSelectedSubcategory: (sub: string | null) => void;
+  notifications: AppNotification[];
+  pushNotification: (
+    n: Omit<AppNotification, "id" | "created_at" | "read_by">,
+  ) => Promise<void>;
+  markAllNotificationsRead: () => void;
+  clearNotifications: () => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -221,7 +227,123 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const [toastProduct, setToastProduct] = useState<Product | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const currentUserRef = useRef<User | null>(null);
+  // Fetch notifications on mount
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (!error && data) setNotifications(data as AppNotification[]);
+    };
 
+    fetchNotifications();
+
+    // Unique channel name per mount to avoid stale duplicate channels
+    const channelName = `notifications-realtime-${Date.now()}`;
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications" },
+        (payload) => {
+          setNotifications((prev) =>
+            [payload.new as AppNotification, ...prev].slice(0, 50),
+          );
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "notifications" },
+        (payload) => {
+          const updated = payload.new as AppNotification;
+          setNotifications((prev) =>
+            prev.map((n) => {
+              if (n.id !== updated.id) return n;
+              const mergedReadBy = Array.from(
+                new Set([...(n.read_by ?? []), ...(updated.read_by ?? [])]),
+              );
+              return { ...updated, read_by: mergedReadBy };
+            }),
+          );
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "notifications" },
+        (payload) => {
+          setNotifications((prev) =>
+            prev.filter((n) => n.id !== (payload.old as AppNotification).id),
+          );
+        },
+      )
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          console.log("[Notifications] Realtime channel active");
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentUser?.id]);
+  const pushNotification = useCallback(
+    async (n: Omit<AppNotification, "id" | "created_at" | "read_by">) => {
+      const newNotif: AppNotification = {
+        ...n,
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        read_by: [],
+        created_at: new Date().toISOString(),
+      };
+      await supabase.from("notifications").insert(newNotif);
+    },
+    [],
+  );
+
+  const markAllNotificationsRead = useCallback(async () => {
+    const user = currentUserRef.current;
+    if (!user) return;
+
+    // Optimistically update local state immediately
+    setNotifications((prev) =>
+      prev.map((n) =>
+        n.read_by.includes(user.id)
+          ? n
+          : { ...n, read_by: [...n.read_by, user.id] },
+      ),
+    );
+
+    // Fetch ALL notifications, filter unread in JS (avoids broken jsonb filter)
+    const { data } = await supabase.from("notifications").select("id, read_by");
+
+    if (data && data.length > 0) {
+      const unread = data.filter(
+        (n: { id: string; read_by: string[] }) =>
+          !Array.isArray(n.read_by) || !n.read_by.includes(user.id),
+      );
+      if (unread.length > 0) {
+        await Promise.all(
+          unread.map((n: { id: string; read_by: string[] }) =>
+            supabase
+              .from("notifications")
+              .update({ read_by: [...(n.read_by ?? []), user.id] })
+              .eq("id", n.id),
+          ),
+        );
+      }
+    }
+  }, []);
+
+  const clearNotifications = useCallback(async () => {
+    setNotifications([]);
+    // Only ADMIN should truly delete; others just clear local view
+    if (currentUser?.role === "ADMIN") {
+      await supabase.from("notifications").delete().neq("id", "no-op");
+    }
+  }, [currentUser]);
   useEffect(() => {
     // Explicit row type so TS does not infer GenericStringError on the result
     type OrderRow = {
@@ -312,11 +434,21 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
 
   const setCurrentUser = useCallback(async (user: User | null) => {
     setCurrentUserState(user);
+    currentUserRef.current = user;
     if (user?.id && user.role === "CUSTOMER") {
       const items = await fetchCartFromSupabase(user.id);
       setCart(items);
     } else if (!user) {
       setCart([]);
+    }
+    // Re-fetch notifications so read_by state is fresh for this user
+    if (user) {
+      const { data } = await supabase
+        .from("notifications")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (data) setNotifications(data as AppNotification[]);
     }
   }, []);
 
@@ -466,13 +598,30 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   const logout = useCallback(async () => {
+    if (currentUser) {
+      await supabase.from("notifications").insert({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        type: "info",
+        title:
+          currentUser.role === "CUSTOMER" ? "Customer Logout" : "Staff Logout",
+        message:
+          currentUser.role === "CUSTOMER"
+            ? `${currentUser.name} (${currentUser.email}) logged out.`
+            : `${currentUser.name} (${currentUser.role}) signed out of the admin portal.`,
+        user_id: currentUser.id,
+        user_name: currentUser.name,
+        user_role: currentUser.role,
+        read_by: [],
+        created_at: new Date().toISOString(),
+      });
+    }
     await supabase.auth.signOut();
     setCurrentUserState(null);
     setCart([]);
     setCurrentPageState("home");
     setAdminPageState("Dashboard");
     window.location.href = "/";
-  }, []);
+  }, [currentUser]);
 
   const switchRole = useCallback(
     (role: Role) => {
@@ -525,6 +674,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         setSelectedCategory,
         selectedSubcategory,
         setSelectedSubcategory,
+        notifications,
+        pushNotification,
+        markAllNotificationsRead,
+        clearNotifications,
       }}
     >
       {loading && (
