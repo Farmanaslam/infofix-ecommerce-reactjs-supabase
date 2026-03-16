@@ -86,6 +86,19 @@ const Main: React.FC = () => {
     restoreSession();
   }, []);
 
+  useEffect(() => {
+    // Register SW only in production or on localhost
+    // SW must be at root level so it controls the entire app
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("/sw.js")
+          .then((reg) => console.log("✅ SW registered:", reg.scope))
+          .catch((err) => console.error("❌ SW failed:", err));
+      });
+    }
+  }, []); // Runs once on app mount
+
   if (!authReady) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white">

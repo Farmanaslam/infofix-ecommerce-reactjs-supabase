@@ -26,9 +26,9 @@ import {
   Download,
   Zap,
 } from "lucide-react";
-import logo from "../public/logo.jpg";
 import { CATEGORIES, SUBCATEGORIES } from "../constants";
 import { NotificationPanel } from "@/pages/NotificationPanel";
+import { InstallPWA } from "./InstallPWA";
 
 export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -205,10 +205,11 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
           >
             <div className="relative">
               <img
-                src={logo}
+                src="/icons/favicon.svg"
                 alt="Infofix"
-                className="h-10 w-11 lg:h-12 lg:w-14 object-contain"
+                className="h-10 w-11 lg:h-11 lg:w-14 object-contain"
               />
+
               {/* glow on hover */}
               <div className="absolute inset-0 rounded-xl bg-indigo-400/0 group-hover:bg-indigo-400/10 transition-colors duration-200" />
             </div>
@@ -573,10 +574,11 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <div className="h-20 flex items-center justify-between px-5 bg-white border-b border-slate-100 shrink-0">
               <div className="flex items-center gap-2.5">
                 <img
-                  src={logo}
+                  src="/icons/favicon.svg"
                   alt="Infofix"
                   className="h-12 w-13 object-contain"
                 />
+
                 <div className="flex flex-col leading-none">
                   <span className="text-[1.35rem] font-black tracking-tight">
                     <span className="text-indigo-600">Info</span>
@@ -846,7 +848,10 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <div className="w-5 h-px bg-slate-600" />
             <ul className="space-y-2 text-xs text-slate-500">
               <li>
-                <button className="hover:text-white transition-colors duration-150">
+                <button
+                  onClick={() => setCurrentPage("policy")}
+                  className="hover:text-white transition-colors duration-150"
+                >
                   Payments
                 </button>
               </li>
@@ -859,20 +864,23 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 </button>
               </li>
               <li>
-                <button className="hover:text-white transition-colors duration-150">
+                <button
+                  onClick={() => setCurrentPage("policy")}
+                  className="hover:text-white transition-colors duration-150"
+                >
                   FAQ
                 </button>
               </li>
               <li>
-                <button className="hover:text-white transition-colors duration-150">
+                <button
+                  onClick={() => setCurrentPage("contact")}
+                  className="hover:text-white transition-colors duration-150"
+                >
                   Raise Query
                 </button>
               </li>
               <li className="flex items-center gap-1.5">
-                <Download className="w-3 h-3 text-orange-400" />
-                <button className="hover:text-white transition-colors duration-150">
-                  Download App
-                </button>
+                <InstallPWA />
               </li>
             </ul>
           </div>
@@ -900,12 +908,18 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 </button>
               </li>
               <li>
-                <button className="hover:text-white transition-colors duration-150">
+                <button
+                  onClick={() => setCurrentPage("policy")}
+                  className="hover:text-white transition-colors duration-150"
+                >
                   Privacy
                 </button>
               </li>
               <li>
-                <button className="hover:text-white transition-colors duration-150">
+                <button
+                  onClick={() => setCurrentPage("policy")}
+                  className="hover:text-white transition-colors duration-150"
+                >
                   Shipping
                 </button>
               </li>

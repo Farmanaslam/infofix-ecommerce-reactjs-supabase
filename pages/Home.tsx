@@ -13,9 +13,14 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
-
+import { HeroCarousel } from "./HeroCarousel";
 export const Home: React.FC = () => {
-  const { setCurrentPage, setSelectedCategory, addToCart } = useStore();
+  const {
+    setCurrentPage,
+    setSelectedCategory,
+    setHeaderSearchQuery,
+    addToCart,
+  } = useStore();
   const [featured, setFeatured] = useState<any[]>([]);
 
   useEffect(() => {
@@ -79,7 +84,7 @@ export const Home: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentReview((prev) => (prev === reviews.length - 1 ? 0 : prev + 1));
-    }, 6000); // change every 4 seconds
+    }, 6000);
 
     return () => clearInterval(interval);
   }, []);
@@ -91,38 +96,77 @@ export const Home: React.FC = () => {
   return (
     <div className="flex flex-col">
       {/* ================= HERO SECTION ================= */}
-      <section className="relative h-[85vh] flex items-center justify-center overflow-hidden bg-gray-900">
-        <img
-          src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&q=80&w=2070"
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
-          alt="Laptop Showroom"
-        />
-        <div className="absolute inset-0 bg-linear-to-b from-gray-900/60 via-gray-900/80 to-gray-900"></div>
+      <section className="bg-white py-3 px-3 md:px-6 border-b border-gray-200">
+        <div className="max-w-350 mx-auto grid grid-cols-1 md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_340px] gap-4">
+          {/* ---- LEFT: CAROUSEL ---- */}
+          <HeroCarousel />
 
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto space-y-8">
-          <h1 className="text-5xl md:text-7xl font-black text-white leading-tight tracking-tight">
-            Powering Smart & Affordable{" "}
-            <span className="text-indigo-500">Computing</span>
-          </h1>
-
-          <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed font-medium">
-            New and certified refurbished laptops, desktops, and accessories
-            backed by expert servicing and trusted local support.
-          </p>
-
-          <div className="flex flex-wrap justify-center gap-4 pt-4">
-            <button
+          {/* ---- RIGHT: PROMO BANNERS ---- */}
+          <div className="flex flex-row md:flex-col gap-3">
+            {/* Banner 1 — Offer Zone */}
+            <div
               onClick={() => setCurrentPage("shop")}
-              className="cursor-pointer bg-indigo-600 hover:bg-indigo-500 text-white px-10 py-4 rounded-2xl font-bold transition-all flex items-center gap-2"
+              className="cursor-pointer relative flex-1 rounded-2xl overflow-hidden min-h-40 md:min-h-0 group"
             >
-              Shop Now <ArrowRight className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setCurrentPage("branches")}
-              className="cursor-pointer bg-white/10 hover:bg-white/20 text-white border border-white/20 px-10 py-4 rounded-2xl font-bold backdrop-blur-md"
+              <img
+                src="https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?auto=format&fit=crop&q=80&w=800"
+                alt="Deals"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-indigo-900/70" />
+              <div className="relative z-10 p-5 h-full flex flex-col justify-between">
+                <div>
+                  <span className="inline-block bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest mb-2">
+                    Limited Time
+                  </span>
+                  <h3 className="text-white font-black text-xl md:text-2xl leading-tight">
+                    OFFER
+                    <br />
+                    ZONE
+                  </h3>
+                  <p className="text-indigo-200 text-xs mt-1 font-medium">
+                    Up to 40% off on select laptops & desktops
+                  </p>
+                </div>
+                <button className="mt-3 self-start bg-white text-indigo-700 text-xs font-black px-4 py-1.5 rounded-xl uppercase tracking-wider hover:bg-indigo-50 transition-colors">
+                  Shop Now →
+                </button>
+              </div>
+            </div>
+
+            {/* Banner 2 — Refurbished */}
+            <div
+              onClick={() => {
+                setSelectedCategory("Refurbished Laptops");
+                setCurrentPage("shop");
+              }}
+              className="cursor-pointer relative flex-1 rounded-2xl overflow-hidden min-h-40 md:min-h-0 group"
             >
-              Visit Our Stores
-            </button>
+              <img
+                src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&q=80&w=800"
+                alt="Refurbished"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gray-900/65" />
+              <div className="relative z-10 p-5 h-full flex flex-col justify-between">
+                <div>
+                  <span className="inline-block bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest mb-2">
+                    Certified
+                  </span>
+                  <h3 className="text-white font-black text-xl md:text-2xl leading-tight">
+                    SAVE MORE,
+                    <br />
+                    BUY SMART
+                  </h3>
+                  <p className="text-gray-300 text-xs mt-1 font-medium">
+                    Refurbished laptops tested & warranted
+                  </p>
+                </div>
+                <button className="mt-3 self-start bg-emerald-500 text-white text-xs font-black px-4 py-1.5 rounded-xl uppercase tracking-wider hover:bg-emerald-400 transition-colors">
+                  Explore →
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -164,27 +208,216 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ================= BROWSE BY CATEGORY ================= */}
-      <section className="py-24 max-w-7xl mx-auto px-4">
-        <h2 className="text-4xl font-black text-gray-900 mb-12 text-center">
-          Browse by Category
-        </h2>
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-14">
+            <p className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-3">
+              What Are You Looking For?
+            </p>
+            <h2 className="text-4xl font-black text-gray-900">
+              Browse by Category
+            </h2>
+          </div>
 
-        <div className="grid md:grid-cols-4 gap-8">
-          {[
-            "Refurbished Laptops",
-            "New Laptops",
-            "Desktops & Workstations",
-            "Accessories",
-          ].map((cat, i) => (
-            <div
-              key={i}
-              onClick={() => setCurrentPage("shop")}
-              className="bg-gray-100 hover:bg-indigo-50 cursor-pointer p-10 rounded-3xl text-center transition-all shadow-md"
-            >
-              <Laptop className="w-10 h-10 text-indigo-600 mx-auto mb-4" />
-              <h3 className="font-bold text-gray-900">{cat}</h3>
-            </div>
-          ))}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+            {(
+              [
+                {
+                  label: "Refurbished Laptops",
+                  sub: "Certified & Tested",
+                  count: "50+ Products",
+                  bg: "bg-indigo-600",
+                  hoverBg: "hover:bg-indigo-700",
+                  badgeText: "Save up to 40%",
+                  badgeBg: "bg-white/20 text-white",
+                  dark: true,
+                  action: () => {
+                    setSelectedCategory(null);
+                    setHeaderSearchQuery("refurbished");
+                    setCurrentPage("shop");
+                  },
+                  icon: (
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                      className="w-9 h-9"
+                    >
+                      <rect x="2" y="4" width="20" height="13" rx="2" />
+                      <path d="M8 20h8M12 17v3" />
+                      <path
+                        d="M7 9l2 2 4-4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  ),
+                },
+                {
+                  label: "New Laptops",
+                  sub: "Latest Models",
+                  count: "50+ Products",
+                  bg: "bg-white",
+                  hoverBg: "hover:bg-indigo-50",
+                  badgeText: "Brand New",
+                  badgeBg: "bg-indigo-100 text-indigo-700",
+                  dark: false,
+                  action: () => {
+                    setSelectedCategory(null);
+                    setCurrentPage("shop");
+                  },
+                  icon: (
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                      className="w-9 h-9"
+                    >
+                      <rect x="2" y="4" width="20" height="13" rx="2" />
+                      <path d="M8 20h8M12 17v3" />
+                      <path d="M9 10h6M12 8v4" strokeLinecap="round" />
+                    </svg>
+                  ),
+                },
+                {
+                  label: "Desktops & Workstations",
+                  sub: "High Performance",
+                  count: "50+ Products",
+                  bg: "bg-white",
+                  hoverBg: "hover:bg-indigo-50",
+                  badgeText: "Power Users",
+                  badgeBg: "bg-indigo-100 text-indigo-700",
+                  dark: false,
+                  action: () => {
+                    setSelectedCategory("Desktops & Workstations");
+                    setHeaderSearchQuery("");
+                    setCurrentPage("shop");
+                  },
+                  icon: (
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                      className="w-9 h-9"
+                    >
+                      <rect x="2" y="3" width="14" height="11" rx="2" />
+                      <path d="M16 8h4a2 2 0 012 2v7a2 2 0 01-2 2H8a2 2 0 01-2-2v-3" />
+                      <circle cx="18" cy="14" r="1" fill="currentColor" />
+                    </svg>
+                  ),
+                },
+                {
+                  label: "Accessories",
+                  sub: "Mice, Keyboards & More",
+                  count: "50+ Products",
+                  bg: "bg-gray-900",
+                  hoverBg: "hover:bg-gray-800",
+                  badgeText: "All Brands",
+                  badgeBg: "bg-white/15 text-white",
+                  dark: true,
+                  // Uses headerSearchQuery — keyword search since accessories span many categories
+                  // Accessories
+                  action: () => {
+                    setSelectedCategory(null);
+                    setHeaderSearchQuery("peripherals");
+                    setCurrentPage("shop");
+                  },
+                  icon: (
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                      className="w-9 h-9"
+                    >
+                      <rect x="3" y="9" width="18" height="11" rx="2" />
+                      <path d="M8 9V7a4 4 0 018 0v2" strokeLinecap="round" />
+                      <circle cx="9" cy="14" r="1" fill="currentColor" />
+                      <circle cx="15" cy="14" r="1" fill="currentColor" />
+                    </svg>
+                  ),
+                },
+              ] as const
+            ).map((cat, i) => (
+              <div
+                key={i}
+                onClick={cat.action}
+                className={`
+            cursor-pointer group relative overflow-hidden
+            ${cat.bg} ${cat.hoverBg}
+            border border-gray-200/60
+            p-6 md:p-8 rounded-3xl
+            flex flex-col gap-4
+            shadow-sm hover:shadow-2xl hover:shadow-indigo-500/15
+            transition-all duration-300 ease-out
+            hover:-translate-y-2
+          `}
+              >
+                {/* Decorative bg circles */}
+                <div
+                  className={`absolute -top-6 -right-6 w-24 h-24 rounded-full transition-transform duration-500 group-hover:scale-150 ${cat.dark ? "bg-white/5" : "bg-indigo-600/5"}`}
+                />
+                <div
+                  className={`absolute -bottom-8 -right-4 w-20 h-20 rounded-full transition-transform duration-500 group-hover:scale-125 ${cat.dark ? "bg-white/5" : "bg-indigo-600/5"}`}
+                />
+
+                {/* Badge */}
+                <span
+                  className={`self-start text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${cat.badgeBg}`}
+                >
+                  {cat.badgeText}
+                </span>
+
+                {/* Icon */}
+                <div
+                  className={`
+            w-14 h-14 rounded-2xl flex items-center justify-center
+            transition-all duration-300 group-hover:scale-110 group-hover:rotate-3
+            ${cat.dark ? "bg-white/10 text-white" : "bg-indigo-50 text-indigo-600"}
+          `}
+                >
+                  {cat.icon}
+                </div>
+
+                {/* Text */}
+                <div className="flex-1">
+                  <h3
+                    className={`font-black text-base leading-snug ${cat.dark ? "text-white" : "text-gray-900"}`}
+                  >
+                    {cat.label}
+                  </h3>
+                  <p
+                    className={`text-xs mt-1 font-medium ${cat.dark ? "text-white/55" : "text-gray-400"}`}
+                  >
+                    {cat.sub}
+                  </p>
+                </div>
+
+                {/* Footer: count + arrow */}
+                <div
+                  className={`flex items-center justify-between mt-auto pt-3 border-t ${cat.dark ? "border-white/10" : "border-gray-100"}`}
+                >
+                  <span
+                    className={`text-[11px] font-bold ${cat.dark ? "text-white/50" : "text-gray-400"}`}
+                  >
+                    {cat.count}
+                  </span>
+                  <div
+                    className={`
+              w-7 h-7 rounded-full flex items-center justify-center
+              transition-all duration-300 group-hover:translate-x-1
+              ${cat.dark ? "bg-white/15 text-white" : "bg-indigo-100 text-indigo-600"}
+            `}
+                  >
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
