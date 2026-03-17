@@ -33,6 +33,7 @@ const Main: React.FC = () => {
     viewMode,
     setViewMode,
     setAdminPage,
+    fetchDashboardData,
   } = useStore();
   const [authReady, setAuthReady] = useState(false);
   useEffect(() => {

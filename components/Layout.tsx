@@ -690,7 +690,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                   )}
 
                   {(currentUser?.role === "MANAGER" ||
-                    currentUser?.role === "INVENTORY") && (
+                    currentUser?.role === "INVENTORY" ||
+                    currentUser?.role === "ADMIN") && (
                     <button
                       onClick={() => {
                         setViewMode("ADMIN");

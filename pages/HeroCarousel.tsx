@@ -76,7 +76,8 @@ export const HeroCarousel: React.FC = () => {
         .slide-exit-prev  { animation: slideOutRight 0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
       `}</style>
 
-      <div className="relative rounded-none sm:rounded-2xl overflow-hidden h-52 sm:h-80 md:h-115 lg:h-125 bg-gray-200 group">
+      <div className="relative rounded-none sm:rounded-2xl overflow-hidden h-48 sm:h-80 md:h-115 lg:h-125 bg-gray-200 group">
+        {" "}
         {/* Exiting slide */}
         {prev !== null && (
           <div
@@ -86,11 +87,10 @@ export const HeroCarousel: React.FC = () => {
             <img
               src={slides[prev].image}
               alt=""
-              className="w-full h-full object-cover object-left sm:object-center"
+              className="w-full h-full object-cover object-top"
             />
           </div>
         )}
-
         {/* Entering slide */}
         <div
           key={`curr-${current}`}
@@ -99,10 +99,9 @@ export const HeroCarousel: React.FC = () => {
           <img
             src={slides[current].image}
             alt={`Slide ${current + 1}`}
-            className="w-full h-full object-cover object-left sm:object-center"
+            className="w-full h-full object-cover object-top"
           />
         </div>
-
         {/* Prev arrow */}
         <button
           onClick={goPrev}
@@ -110,7 +109,6 @@ export const HeroCarousel: React.FC = () => {
         >
           <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
-
         {/* Next arrow */}
         <button
           onClick={goNext}
@@ -118,7 +116,6 @@ export const HeroCarousel: React.FC = () => {
         >
           <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
-
         {/* Dots */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-2">
           {slides.map((_, i) => (

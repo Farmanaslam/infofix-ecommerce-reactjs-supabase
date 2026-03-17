@@ -65,6 +65,7 @@ export const Login: React.FC = () => {
       .single();
 
     if (staffProfile) {
+      setViewMode("STORE");
       setCurrentUser({
         id: user.id,
         name: staffProfile.full_name,
@@ -85,7 +86,6 @@ export const Login: React.FC = () => {
         created_at: new Date().toISOString(),
       });
 
-      setViewMode("STORE");
       setCurrentPage("home");
       return;
     }

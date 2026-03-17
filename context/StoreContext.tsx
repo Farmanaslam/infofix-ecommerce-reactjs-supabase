@@ -84,6 +84,7 @@ interface StoreContextType extends AppState {
   ) => Promise<void>;
   markAllNotificationsRead: () => void;
   clearNotifications: () => void;
+  fetchDashboardData: () => Promise<void>;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -344,86 +345,117 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       await supabase.from("notifications").delete().neq("id", "no-op");
     }
   }, [currentUser]);
-  useEffect(() => {
-    // Explicit row type so TS does not infer GenericStringError on the result
-    type OrderRow = {
-      id: string;
-      order_number: string;
-      user_id: string;
-      customer_name: string;
-      customer_email: string;
-      customer_phone: string | null;
-      total_amount: string | number;
-      subtotal: string | number;
-      tax: string | number;
-      delivery_charge: string | number;
-      status: string;
-      payment_status: string | null;
-      payment_method: string | null;
-      tracking_id: string | null;
-      courier_name: string | null;
-      notes: string | null;
-      created_at: string;
-      updated_at: string;
-    };
+  // 1. Add this ref to track if already fetching (prevents duplicate calls)
+  const isFetchingRef = useRef(false);
 
-    const fetchDashboardData = async () => {
-      try {
-        const { data: ordersData, error: ordersError } = await supabase
-          .from("orders")
-          .select(
-            "id, order_number, user_id, customer_name, customer_email, customer_phone, " +
-              "total_amount, subtotal, tax, delivery_charge, status, payment_status, " +
-              "payment_method, tracking_id, courier_name, notes, created_at, updated_at",
-          )
-          .order("created_at", { ascending: false })
-          .returns<OrderRow[]>();
+  // 2. Replace the entire dashboard useEffect with this:
+  const fetchDashboardData = useCallback(async () => {
+    console.log("FETCH CALLED");
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
+    try {
+      type OrderRow = {
+        id: string;
+        order_number: string;
+        user_id: string;
+        customer_name: string;
+        customer_email: string;
+        customer_phone: string | null;
+        total_amount: string | number;
+        subtotal: string | number;
+        tax: string | number;
+        delivery_charge: string | number;
+        status: string;
+        payment_status: string | null;
+        payment_method: string | null;
+        tracking_id: string | null;
+        courier_name: string | null;
+        notes: string | null;
+        created_at: string;
+        updated_at: string;
+      };
+      const { data: ordersData, error: ordersError } = await supabase
+        .from("orders")
+        .select(
+          "id, order_number, user_id, customer_name, customer_email, customer_phone, " +
+            "total_amount, subtotal, tax, delivery_charge, status, payment_status, " +
+            "payment_method, tracking_id, courier_name, notes, created_at, updated_at",
+        )
+        .order("created_at", { ascending: false })
+        .returns<OrderRow[]>();
+      console.log("ORDERS COUNT:", ordersData?.length);
 
-        if (!ordersError && ordersData) {
-          setOrders(ordersData as unknown as Order[]);
-          const revenue = ordersData.reduce(
-            (sum, o) => sum + (parseFloat(String(o.total_amount)) || 0),
-            0,
-          );
-          setTotalRevenue(revenue);
-        }
-
-        const { count, error: countError } = await supabase
-          .from("customers")
-          .select("id", { count: "exact", head: true });
-        if (!countError && count !== null) setActiveCustomersCount(count);
-
-        // ← NEW: fetch avatar_url from staffs table for current session user
-        const { data: sessionData } = await supabase.auth.getSession();
-        const sessionUser = sessionData?.session?.user;
-        if (sessionUser) {
-          const { data: staffRow } = await supabase
-            .from("staffs")
-            .select("full_name, email, role, avatar_url")
-            .eq("id", sessionUser.id)
-            .maybeSingle();
-
-          if (staffRow) {
-            setCurrentUserState(
-              (prev) =>
-                ({
-                  ...(prev ?? {}),
-                  id: sessionUser.id,
-                  name: staffRow.full_name,
-                  email: staffRow.email,
-                  role: staffRow.role,
-                  avatar_url: staffRow.avatar_url,
-                }) as any,
-            );
-          }
-        }
-      } catch (err) {
-        console.error("[StoreContext] fetchDashboardData error:", err);
+      if (!ordersError && ordersData) {
+        setOrders(ordersData as unknown as Order[]);
+        const revenue = ordersData.reduce(
+          (sum, o) => sum + (parseFloat(String(o.total_amount)) || 0),
+          0,
+        );
+        setTotalRevenue(revenue);
       }
-    };
 
-    fetchDashboardData();
+      const { count, error: countError } = await supabase
+        .from("customers")
+        .select("id", { count: "exact", head: true });
+      if (!countError && count !== null) setActiveCustomersCount(count);
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const sessionUser = sessionData?.session?.user;
+      if (sessionUser) {
+        const { data: staffRow } = await supabase
+          .from("staffs")
+          .select("full_name, email, role, avatar_url")
+          .eq("id", sessionUser.id)
+          .maybeSingle();
+        if (staffRow) {
+          setCurrentUserState(
+            (prev) =>
+              ({
+                ...(prev ?? {}),
+                id: sessionUser.id,
+                name: staffRow.full_name,
+                email: staffRow.email,
+                role: staffRow.role,
+                avatar_url: staffRow.avatar_url,
+              }) as any,
+          );
+        }
+      }
+    } catch (err) {
+      console.error("[StoreContext] fetchDashboardData error:", err);
+    } finally {
+      isFetchingRef.current = false;
+    }
   }, []);
+
+  // TO:
+  useEffect(() => {
+    // Wait for Supabase to restore session, THEN fetch
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === "INITIAL_SESSION") {
+          // Auth is now ready (session may be null for logged-out users)
+          fetchDashboardData();
+        } else if (event === "SIGNED_IN") {
+          fetchDashboardData();
+        }
+      },
+    );
+
+    const channel = supabase
+      .channel("orders-watch-global")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        () => fetchDashboardData(),
+      )
+      .subscribe();
+
+    return () => {
+      authListener.subscription.unsubscribe();
+      supabase.removeChannel(channel);
+    };
+  }, [fetchDashboardData]);
 
   const showCartToast = useCallback((product: Product) => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -678,6 +710,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         pushNotification,
         markAllNotificationsRead,
         clearNotifications,
+        fetchDashboardData,
       }}
     >
       {loading && (
