@@ -623,11 +623,30 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     localStorage.setItem("adminPage", page);
     setAdminPageState(page);
   }, []);
+  const setCurrentPage = useCallback(
+    (page: CustomerPage) => {
+      // If already on same page → force scroll to top
+      if (currentPage === page) {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+        return;
+      }
 
-  const setCurrentPage = useCallback((page: CustomerPage) => {
-    localStorage.setItem("currentPage", page);
-    setCurrentPageState(page);
-  }, []);
+      localStorage.setItem("currentPage", page);
+      setCurrentPageState(page);
+
+      // Also scroll to top after navigation
+      setTimeout(() => {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }, 0);
+    },
+    [currentPage],
+  );
 
   const logout = useCallback(async () => {
     if (currentUser) {
