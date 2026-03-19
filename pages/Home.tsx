@@ -96,8 +96,8 @@ export const Home: React.FC = () => {
   return (
     <div className="flex flex-col">
       {/* ================= HERO SECTION ================= */}
-      <section className="bg-white py-3 px-3 md:px-6 border-b border-gray-200">
-        <div className="max-w-350 mx-auto grid grid-cols-1 md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_340px] gap-4">
+      <section className="bg-white py-3 border-b border-gray-200">
+        <div className="px-4 lg:px-20 grid grid-cols-1 md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_340px] gap-4">
           {/* ---- LEFT: CAROUSEL ---- */}
           <HeroCarousel />
 

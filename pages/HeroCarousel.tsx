@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const slides = [
-  { image: "/hero2.jpeg" },
-  { image: "/hero1.jpeg" },
-  { image: "/hero3.jpeg" },
+  { image: "/hero2.webp" },
+  { image: "/hero1.webp" },
+  { image: "/hero3.webp" },
 ];
 
 export const HeroCarousel: React.FC = () => {
@@ -76,7 +76,7 @@ export const HeroCarousel: React.FC = () => {
         .slide-exit-prev  { animation: slideOutRight 0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
       `}</style>
 
-      <div className="relative rounded-none sm:rounded-2xl overflow-hidden h-48 sm:h-80 md:h-115 lg:h-125 bg-gray-200 group">
+      <div className="relative rounded-none sm:rounded-2xl overflow-hidden w-full aspect-3/2 bg-black group">
         {" "}
         {/* Exiting slide */}
         {prev !== null && (
@@ -87,7 +87,7 @@ export const HeroCarousel: React.FC = () => {
             <img
               src={slides[prev].image}
               alt=""
-              className="w-full h-full object-cover object-top"
+              className="w-full h-full object-contain"
             />
           </div>
         )}
@@ -99,7 +99,7 @@ export const HeroCarousel: React.FC = () => {
           <img
             src={slides[current].image}
             alt={`Slide ${current + 1}`}
-            className="w-full h-full object-cover object-top"
+            className="w-full h-full object-contain"
           />
         </div>
         {/* Prev arrow */}
