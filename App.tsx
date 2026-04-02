@@ -58,9 +58,8 @@ const Main: React.FC = () => {
               role: staff.role,
               avatar: "",
             });
-            if (!localStorage.getItem("adminPage")) {
-              setAdminPage("Dashboard");
-            }
+            setViewMode("STORE");
+            localStorage.setItem("currentPage", "home");
             return;
           }
 
@@ -76,8 +75,59 @@ const Main: React.FC = () => {
               name: profile.full_name,
               email: profile.email,
               role: "CUSTOMER",
-              avatar: "",
+              avatar: `https://i.pravatar.cc/150?u=${user.id}`,
             });
+          } else {
+            const fullName =
+              user.user_metadata?.full_name ||
+              user.user_metadata?.name ||
+              user.email?.split("@")[0] ||
+              "User";
+            const email = user.email ?? "";
+
+            const { error: insertError } = await supabase
+              .from("customers")
+              .insert({
+                id: user.id,
+                full_name: fullName,
+                email: email,
+                phone: "",
+                address1: "",
+                address2: "",
+                city: "",
+                state: "",
+                pincode: "",
+                country: "India",
+                role: "CUSTOMER",
+              });
+
+            if (!insertError) {
+              await supabase.from("notifications").insert({
+                id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                type: "info",
+                title: "New Google Signup",
+                message: `${fullName} (${email}) signed up via Google.`,
+                user_id: user.id,
+                user_name: fullName,
+                user_role: "CUSTOMER",
+                read_by: [],
+                created_at: new Date().toISOString(),
+              });
+            }
+
+            setCurrentUser({
+              id: user.id,
+              name: fullName,
+              email: email,
+              role: "CUSTOMER",
+              avatar:
+                user.user_metadata?.avatar_url ||
+                `https://i.pravatar.cc/150?u=${user.id}`,
+            });
+          }
+          const stalePage = localStorage.getItem("currentPage");
+          if (!stalePage || stalePage === "login" || stalePage === "signup") {
+            localStorage.setItem("currentPage", "home");
           }
         }
       } finally {
@@ -88,8 +138,6 @@ const Main: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Register SW only in production or on localhost
-    // SW must be at root level so it controls the entire app
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker

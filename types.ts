@@ -3,8 +3,17 @@ export type Role = "MANAGER" | "INVENTORY" | "ADMIN" | "CUSTOMER";
 export interface User {
   id: string;
   name: string;
+  email: string;
   role: Role;
   avatar: string;
+  avatar_url?: string;
+  phone?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  country?: string;
 }
 
 export interface Product {
@@ -44,15 +53,13 @@ export interface Branch {
 export interface CartItem extends Product {
   quantity: number;
 }
-
 export interface AppState {
   products: Product[];
   orders: Order[];
-  currentUser: User;
+  currentUser: User | null;
   cart: CartItem[];
   branches: Branch[];
 }
-
 // ─── Supabase DB types (Inventory admin panel only) ──────────────────────────
 // Maps directly to your Supabase `products` table columns.
 // Kept separate from Product so the customer-facing type stays unchanged.

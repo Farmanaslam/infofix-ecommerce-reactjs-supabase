@@ -84,7 +84,9 @@ export const Checkout: React.FC = () => {
   const total = subtotal + tax + delivery;
 
   const isDigital = selectedPayment && selectedPayment !== "COD";
-  const canPlaceOrder = selectedPayment && addressConfirmed && cart.length > 0;
+  const hasPhone = !!savedAddress?.phone?.trim();
+  const canPlaceOrder =
+    selectedPayment && addressConfirmed && cart.length > 0 && hasPhone;
 
   // ── Place order ───────────────────────────────────────────────────────────
   const handlePlaceOrder = async () => {
@@ -258,7 +260,20 @@ export const Checkout: React.FC = () => {
                       ? "✓ Address Confirmed"
                       : "Use This Address"}
                   </button>
-
+                  {!savedAddress?.phone?.trim() && (
+                    <p className="mt-4 text-xs text-red-600 font-semibold bg-red-50 px-4 py-2 rounded-xl flex items-center justify-between gap-2">
+                      <span>
+                        ⚠ Phone number is required. Please add it in your
+                        profile.
+                      </span>
+                      <button
+                        onClick={() => setCurrentPage("profile")}
+                        className="underline shrink-0 hover:text-red-800 transition"
+                      >
+                        Go to Profile →
+                      </button>
+                    </p>
+                  )}
                   {!addressConfirmed && (
                     <button
                       onClick={() => setCurrentPage("profile")}

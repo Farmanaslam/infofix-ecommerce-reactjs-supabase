@@ -206,9 +206,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const [currentUser, setCurrentUserState] = useState<User | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [branches, setBranches] = useState<Branch[]>(INITIAL_BRANCHES);
-  const [currentPage, setCurrentPageState] = useState<CustomerPage>(
-    (localStorage.getItem("currentPage") as CustomerPage) || "home",
-  );
+  const savedPage = localStorage.getItem("currentPage") as CustomerPage;
+  const safePage: CustomerPage =
+    savedPage && !["login", "signup"].includes(savedPage) ? savedPage : "home";
+  const [currentPage, setCurrentPageState] = useState<CustomerPage>(safePage);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(

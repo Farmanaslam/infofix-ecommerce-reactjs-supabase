@@ -75,8 +75,8 @@ export const ProductCard: React.FC<ProductProps> = ({
   const delay = (cardIdx % PER_PAGE) * 55;
 
   return (
-    <article
-      className="group relative flex flex-col cursor-pointer"
+   <article
+      className="group relative flex flex-col cursor-pointer h-full"
       style={{
         opacity: revealed ? 1 : 0,
         transform: revealed
@@ -201,7 +201,7 @@ export const ProductCard: React.FC<ProductProps> = ({
       </div>
 
       {/* ── Info ── */}
-      <div className="flex flex-col gap-1.5 px-2 transition-transform duration-500 group-hover:translate-x-0.5">
+    <div className="flex flex-col flex-1 gap-1.5 px-2 transition-transform duration-500 group-hover:translate-x-0.5">
         <div className="flex items-center justify-between">
           <span className="text-[10px] text-indigo-600 font-black uppercase tracking-[0.18em]">
             {product.category}
@@ -219,7 +219,7 @@ export const ProductCard: React.FC<ProductProps> = ({
           </div>
         </div>
 
-        <h3 className="font-bold text-[18px] text-gray-900 leading-snug line-clamp-2 group-hover:text-indigo-600 transition-colors duration-200">
+       <h3 className="font-bold text-[18px] text-gray-900 leading-snug line-clamp-2 min-h-12 group-hover:text-indigo-600 transition-colors duration-200">
           {product.name}
         </h3>
 
@@ -248,6 +248,9 @@ export const ProductCard: React.FC<ProductProps> = ({
             ))}
           </div>
         )}
+
+        {/* Price row */}
+     <div className="flex-1" />
 
         {/* Price row */}
         <div className="flex items-end justify-between mt-1.5">
