@@ -1,25 +1,99 @@
-<<<<<<< HEAD
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🖥️ Infofix Computers — E-commerce Platform
 
-# Run and deploy your AI Studio app
+A modern, production-ready eCommerce web application for selling **Desktop PCs, Laptops, Custom Builds, and Computer Components**. Built with a focus on performance, user experience, and real-world business needs.
 
-This contains everything you need to run your app locally.
+---
 
-View your app in AI Studio: https://ai.studio/apps/drive/1btffPaFS9aniDuRwUc4Zzf6mhzseYbQ_
+---
 
-## Run Locally
+## ✨ Features
 
-**Prerequisites:**  Node.js
+- 🛒 **Full E-commerce Flow**
+  - Product listing & categories
+  - Add to cart & cart management
+  - Order placement
 
+- 🖥️ **Custom PC Builder**
+  - Users can request custom builds based on budget & use case
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
-=======
-# infofix-ecommerce-reactjs-supabase
-A full-stack eCommerce web application for Infofix Computers built with Next.js and Supabase.
->>>>>>> ec4663447c3a9ae0da1de0b5240d152e75e640f9
+- 🔍 **Search & Filtering**
+  - Category-based browsing (Desktop, Laptop, Components)
+
+- 📦 **Deals & Discounts**
+  - Dynamic pricing with discount percentage
+
+- 📊 **Analytics Ready**
+  - Integrated with Google Analytics (GA4)
+
+- 📱 **Responsive UI**
+  - Optimized for mobile, tablet, and desktop
+
+- ⚡ **High Performance UI**
+  - Smooth animations, modern design, fast loading
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+- ⚛️ React.js with Typescript
+- 🎨 Tailwind CSS
+- 🧩 Lucide Icons
+
+### Backend / Database
+
+- 🟢 Supabase (PostgreSQL)
+- 🔐 Authentication & Data Management
+
+### Other Tools
+
+- 📊 Google Analytics (GA4)
+- ☁️ Deployment (Vercel / Netlify / AWS)
+
+---
+
+## 📂 Project Structure
+
+src/
+│── components/
+│── pages/
+│── context/
+│── lib/
+│── assets/
+│── App.tsx
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1️⃣ Clone the repo
+
+2️⃣ Install dependencies
+npm install
+3️⃣ Setup Environment Variables
+
+Create a .env file:
+
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+
+4️⃣ Run the project
+npm run dev
+📦 Deployment
+
+This project is deployed on:
+
+🌐 Hostinger
+
+To build:
+
+npm run build
+📊 Analytics Tracking
+
+Integrated with Google Analytics (GA4) to track:
+
+User visits
+Product views
+Add to cart
+Purchases
