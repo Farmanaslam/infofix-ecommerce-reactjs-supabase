@@ -74,8 +74,27 @@ export const ProductCard: React.FC<ProductProps> = ({
   const isOut = product.stock === 0;
   const delay = (cardIdx % PER_PAGE) * 55;
 
+  // specs can be an array of strings OR a Record<string,string> depending on
+  // how the store mapper normalises it. Support both shapes here.
+  const specEntries: { key: string; value: string }[] = (() => {
+    if (!product.specs) return [];
+    if (Array.isArray(product.specs)) {
+      // Legacy: array of "Key: Value" strings
+      return (product.specs as string[]).map((s) => {
+        const idx = s.indexOf(":");
+        return idx > -1
+          ? { key: s.slice(0, idx).trim(), value: s.slice(idx + 1).trim() }
+          : { key: s, value: "" };
+      });
+    }
+    // Preferred: Record<string,string>
+    return Object.entries(product.specs as Record<string, string>).map(
+      ([key, value]) => ({ key, value: String(value) }),
+    );
+  })();
+
   return (
-   <article
+    <article
       className="group relative flex flex-col cursor-pointer h-full"
       style={{
         opacity: revealed ? 1 : 0,
@@ -201,7 +220,7 @@ export const ProductCard: React.FC<ProductProps> = ({
       </div>
 
       {/* ── Info ── */}
-    <div className="flex flex-col flex-1 gap-1.5 px-2 transition-transform duration-500 group-hover:translate-x-0.5">
+      <div className="flex flex-col flex-1 gap-1.5 px-2 transition-transform duration-500 group-hover:translate-x-0.5">
         <div className="flex items-center justify-between">
           <span className="text-[10px] text-indigo-600 font-black uppercase tracking-[0.18em]">
             {product.category}
@@ -219,20 +238,26 @@ export const ProductCard: React.FC<ProductProps> = ({
           </div>
         </div>
 
-       <h3 className="font-bold text-[18px] text-gray-900 leading-snug line-clamp-2 min-h-12 group-hover:text-indigo-600 transition-colors duration-200">
+        <h3 className="font-bold text-[18px] text-gray-900 leading-snug line-clamp-2 min-h-12 group-hover:text-indigo-600 transition-colors duration-200">
           {product.name}
         </h3>
 
-        {product.specs.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-0.5">
-            {product.specs.slice(0, 2).map((s, i) => (
-              <span
-                key={i}
-                className="text-[9px] bg-gray-100 text-gray-500 px-2 py-1 rounded-lg font-semibold"
-              >
-                {s}
+        {/* ── Model + Brand row ── */}
+        {(product.model || product.brand) && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {product.model && (
+              <span className="text-[11px] font-semibold text-gray-500 leading-none">
+                {product.model}
               </span>
-            ))}
+            )}
+            {product.model && product.brand && (
+              <span className="text-gray-300 text-[10px]">·</span>
+            )}
+            {product.brand && (
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">
+                {product.brand}
+              </span>
+            )}
           </div>
         )}
 
@@ -249,8 +274,7 @@ export const ProductCard: React.FC<ProductProps> = ({
           </div>
         )}
 
-        {/* Price row */}
-     <div className="flex-1" />
+        <div className="flex-1" />
 
         {/* Price row */}
         <div className="flex items-end justify-between mt-1.5">

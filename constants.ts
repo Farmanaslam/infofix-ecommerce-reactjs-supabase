@@ -2,198 +2,14 @@ import { Product, User, Order, Branch } from "./types";
 
 export const CATEGORIES = [
   "Laptop",
-  "RAM",
-  "Processor",
-  "Graphics Card",
-  "Motherboard",
-  "Cabinet",
-  "Monitor",
-  "SMPS",
-  "Storage",
-  "CPU Cooler",
-  "Peripherals",
-  "CCTV",
-  "Mini PC",
-  "Custom Cooling",
+  "Desktop",
+  "Custom PC",
 ];
 
 export const SUBCATEGORIES: Record<
   string,
   { groups: { label: string; items: string[] }[] }
 > = {
-  Processor: {
-    groups: [
-      {
-        label: "AMD",
-        items: [
-          "Ryzen 3",
-          "Ryzen 5",
-          "Ryzen 7",
-          "Ryzen 9",
-          "Ryzen Threadripper",
-        ],
-      },
-      {
-        label: "AMD Series",
-        items: [
-          "AMD 9000 Series",
-          "AMD 8000 Series",
-          "AMD 7000 Series",
-          "AMD 5000 Series",
-          "AMD 4000 Series",
-          "AMD 3000 Series",
-        ],
-      },
-      {
-        label: "Intel",
-        items: [
-          "Core i3",
-          "Core i5",
-          "Core i7",
-          "Core i9",
-          "Core Ultra 5",
-          "Core Ultra 7",
-          "Core Ultra 9",
-        ],
-      },
-      {
-        label: "Intel Gen",
-        items: [
-          "Intel 14th Gen",
-          "Intel 13th Gen",
-          "Intel 12th Gen",
-          "Intel 11th Gen",
-          "Intel 10th Gen",
-        ],
-      },
-    ],
-  },
-  "CPU Cooler": {
-    groups: [
-      {
-        label: "Type",
-        items: ["Air Cooler", "AIO Liquid Cooler", "Custom Loop"],
-      },
-    ],
-  },
-  Motherboard: {
-    groups: [
-      {
-        label: "Platform",
-        items: ["Intel Motherboard", "AMD Motherboard"],
-      },
-      {
-        label: "Form Factor",
-        items: ["ATX", "Micro ATX", "Mini ITX"],
-      },
-    ],
-  },
-  "Graphics Card": {
-    groups: [
-      {
-        label: "Brand",
-        items: ["NVIDIA", "AMD Radeon"],
-      },
-      {
-        label: "NVIDIA Series",
-        items: [
-          "RTX 4000 Series",
-          "RTX 3000 Series",
-          "GTX 1600 Series",
-          "GTX 1000 Series",
-        ],
-      },
-      {
-        label: "AMD Series",
-        items: ["RX 7000 Series", "RX 6000 Series", "RX 5000 Series"],
-      },
-    ],
-  },
-  RAM: {
-    groups: [
-      {
-        label: "Type",
-        items: ["DDR5", "DDR4", "DDR3"],
-      },
-      {
-        label: "Capacity",
-        items: ["4GB", "8GB", "16GB", "32GB", "64GB"],
-      },
-    ],
-  },
-  Storage: {
-    groups: [
-      {
-        label: "Type",
-        items: [
-          "SSD",
-          "HDD",
-          "NVMe SSD",
-          "External SSD",
-          "External HDD",
-          "Pen Drive",
-        ],
-      },
-      {
-        label: "Capacity",
-        items: ["256GB", "512GB", "1TB", "2TB", "4TB"],
-      },
-    ],
-  },
-  SMPS: {
-    groups: [
-      {
-        label: "Wattage",
-        items: ["Up to 500W", "500W - 750W", "750W - 1000W", "1000W+"],
-      },
-      {
-        label: "Rating",
-        items: ["80+ Bronze", "80+ Gold", "80+ Platinum", "80+ Titanium"],
-      },
-    ],
-  },
-  Cabinet: {
-    groups: [
-      {
-        label: "Form Factor",
-        items: ["Full Tower", "Mid Tower", "Mini Tower", "Mini ITX"],
-      },
-    ],
-  },
-  Monitor: {
-    groups: [
-      {
-        label: "Size",
-        items: ['Up to 24"', '25" - 27"', '28" - 32"', '32"+'],
-      },
-      {
-        label: "Type",
-        items: [
-          "Gaming Monitor",
-          "Professional Monitor",
-          "4K Monitor",
-          "Curved Monitor",
-        ],
-      },
-    ],
-  },
-  Peripherals: {
-    groups: [
-      {
-        label: "Type",
-        items: [
-          "Keyboard",
-          "Mouse",
-          "Headset",
-          "Webcam",
-          "Mouse Pad",
-          "Speaker",
-          "UPS",
-          "Printer",
-        ],
-      },
-    ],
-  },
   Laptop: {
     groups: [
       {
@@ -201,35 +17,26 @@ export const SUBCATEGORIES: Record<
         items: ["Dell", "HP", "Lenovo", "Acer", "Asus", "Apple", "MSI"],
       },
       {
-        label: "Type",
-        items: [
-          "Gaming Laptop",
-          "Business Laptop",
-          "Student Laptop",
-          "Refurbished Laptop",
-        ],
+        label: "Usage",
+        items: ["Gaming", "Business", "Student", "Refurbished"],
       },
     ],
   },
-  "Custom Cooling": {
+
+  Desktop: {
     groups: [
       {
         label: "Type",
-        items: [
-          "Fans",
-          "Radiators",
-          "Water Blocks",
-          "Tubing & Fittings",
-          "Reservoirs",
-        ],
+        items: ["Office Desktop", "Gaming Desktop", "Student Desktop"],
       },
     ],
   },
-  "Mini PC": {
+
+  "Custom PC": {
     groups: [
       {
-        label: "Type",
-        items: ["Barebone Mini PC", "Ready-to-Use Mini PC", "NUC"],
+        label: "Purpose",
+        items: ["Gaming PC", "Editing PC", "Workstation"],
       },
     ],
   },
