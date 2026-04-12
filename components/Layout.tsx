@@ -98,7 +98,14 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     .join("")
     .toUpperCase()
     .slice(0, 2);
-
+  const promoItems = [
+    "🚚 Free Delivery Across India",
+    "⚡ Same-Day Service Available",
+    "💰 Best Price Guaranteed",
+    "🔒 1-Year Warranty Included",
+    "🛠️ Expert Tech Support",
+    "🏪 5 Stores in West Bengal",
+  ];
   return (
     <div className="min-h-screen flex flex-col relative">
       {/* ═══════════════════════════════════════════
@@ -113,19 +120,36 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
         }}
       >
         {/* ── PROMO STRIP ───────────────────────── */}
-        <div className="relative overflow-hidden bg-linear-to-r from-slate-900 via-indigo-950 to-slate-900 h-9 flex items-center justify-center px-4 gap-3">
-          {/* subtle shimmer line */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-px h-full bg-linear-to-b from-transparent via-indigo-400/20 to-transparent" />
+        <div className="relative overflow-hidden bg-linear-to-r from-slate-900 via-indigo-950 to-slate-900 h-9 flex items-center justify-center px-6">
+          {/* Desktop: full spaced items */}
+          <div className="hidden md:flex items-center gap-8">
+            {[
+              { icon: "🚚", text: "Free Delivery All Over India" },
+              { icon: "💰", text: "Best Price Guaranteed" },
+              { icon: "🛠️", text: "Expert In-House Support" },
+              { icon: "⚡", text: "Same-Day Ready" },
+              { icon: "🏪", text: "5 Stores · Walk In Anytime" },
+            ].map((item, i) => (
+              <React.Fragment key={i}>
+                <span className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-slate-300 uppercase whitespace-nowrap">
+                  <span>{item.icon}</span> {item.text}
+                </span>
+                {i < 4 && (
+                  <span className="w-1 h-1 rounded-full bg-indigo-500/60 shrink-0" />
+                )}
+              </React.Fragment>
+            ))}
           </div>
-          <Zap className="w-3 h-3 text-amber-400 shrink-0" />
-          <p className="text-[11px] font-semibold tracking-widest text-slate-300 uppercase truncate">
-            Free delivery above ₹999 &nbsp;·&nbsp; Open 7 days &nbsp;·&nbsp;
-            Expert Tech Support
-          </p>
-          <Zap className="w-3 h-3 text-amber-400 shrink-0" />
-        </div>
 
+          {/* Mobile: single clean line */}
+          <div className="flex md:hidden items-center gap-2">
+            <Zap className="w-3 h-3 text-amber-400 shrink-0" />
+            <span className="text-[11px] font-semibold tracking-widest text-slate-300 uppercase">
+              Free Delivery · Best Price · 5 Stores
+            </span>
+            <Zap className="w-3 h-3 text-amber-400 shrink-0" />
+          </div>
+        </div>
         {/* ── UTILITY BAR (desktop only) ────────── */}
         <div className="hidden lg:block border-b border-slate-100 bg-slate-50/70">
           <div className="px-20 h-9 flex items-center justify-between">
@@ -230,7 +254,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <div className="search-pill flex w-full bg-slate-50 border border-slate-200 rounded-full overflow-hidden transition-all duration-200 hover:border-indigo-300">
               <input
                 type="text"
-                placeholder="Search laptops, desktops, components…"
+                placeholder="Search for PCs, laptops & custom builds..."
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -440,7 +464,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                     ))}
                   </ul>
                   {hoveredCategory && SUBCATEGORIES[hoveredCategory] && (
-                    <div className="bg-slate-50/80 border-l border-slate-100 w-64 p-4 overflow-y-auto">
+                    <div className="bg-white border-l border-slate-100 w-64 p-4 overflow-y-auto">
                       {SUBCATEGORIES[hoveredCategory].groups.map((group) => (
                         <div key={group.label} className="mb-4">
                           <p className="text-[9.5px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">
@@ -1265,19 +1289,19 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
               <Store className="w-6 h-6" />
             </div>
             <span className="font-black text-xl tracking-tight text-slate-900">
-              NexusAdmin
+              Infofix Staff
             </span>
           </div>
           <div className="p-4 bg-slate-50 rounded-2xl flex items-center gap-3 border border-slate-200">
-            {(currentUser.avatar_url ?? currentUser.avatar) ? (
+            {(currentUser?.avatar_url ?? currentUser?.avatar) ? (
               <img
-                src={currentUser.avatar_url ?? currentUser.avatar}
-                alt={currentUser.name}
+                src={currentUser?.avatar_url ?? currentUser?.avatar}
+                alt={currentUser?.name}
                 className="w-10 h-10 rounded-xl object-cover"
               />
             ) : (
               <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs font-black">
-                {currentUser.name
+                {currentUser?.name
                   ?.split(" ")
                   .map((w: string) => w[0])
                   .join("")
@@ -1287,10 +1311,10 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
             )}
             <div className="overflow-hidden">
               <p className="text-xs font-bold text-slate-900 truncate">
-                {currentUser.name}
+                {currentUser?.name}
               </p>
               <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-widest">
-                {currentUser.role}
+                {currentUser?.role}
               </p>
             </div>
           </div>
@@ -1373,15 +1397,15 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
             </button>
             <div className="hidden lg:block h-10 w-px bg-slate-200" />
             <div className="flex items-center gap-2 lg:gap-3">
-              {(currentUser.avatar_url ?? currentUser.avatar) ? (
+              {(currentUser?.avatar_url ?? currentUser?.avatar) ? (
                 <img
-                  src={currentUser.avatar_url ?? currentUser.avatar}
+                  src={currentUser?.avatar_url ?? currentUser?.avatar}
                   alt=""
                   className="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-indigo-100 object-cover"
                 />
               ) : (
                 <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-indigo-100 bg-indigo-600 flex items-center justify-center text-white text-xs font-black">
-                  {currentUser.name
+                  {currentUser?.name
                     ?.split(" ")
                     .map((w: string) => w[0])
                     .join("")
@@ -1391,7 +1415,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
               )}
               <div className="hidden sm:block text-right">
                 <p className="text-sm font-bold text-slate-900">
-                  {currentUser.name}
+                  {currentUser?.name}
                 </p>
                 <p className="text-[10px] text-emerald-500 font-bold uppercase">
                   Active

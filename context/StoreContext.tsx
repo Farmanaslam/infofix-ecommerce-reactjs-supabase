@@ -194,6 +194,7 @@ async function fetchCartFromSupabase(userId: string): Promise<CartItem[]> {
     likesCount: 0,
     tags: [],
     images: [],
+    model: "",
   }));
 }
 
@@ -351,7 +352,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
 
   // 2. Replace the entire dashboard useEffect with this:
   const fetchDashboardData = useCallback(async () => {
-    console.log("FETCH CALLED");
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
     try {
@@ -384,7 +384,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         )
         .order("created_at", { ascending: false })
         .returns<OrderRow[]>();
-      console.log("ORDERS COUNT:", ordersData?.length);
 
       if (!ordersError && ordersData) {
         setOrders(ordersData as unknown as Order[]);

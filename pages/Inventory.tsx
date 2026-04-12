@@ -458,12 +458,17 @@ export const Inventory: React.FC = () => {
       });
       const retailPrice = parseFloat(form.retail_price) || 0;
       const discPercent = parseFloat(form.discount_percent) || 0;
-      const discPrice = form.discounted_price
-        ? parseFloat(form.discounted_price)
-        : discPercent > 0
-          ? parseFloat((retailPrice * (1 - discPercent / 100)).toFixed(2))
+      const discPrice =
+        form.discounted_price !== ""
+          ? parseFloat(form.discounted_price)
           : retailPrice;
+      const allImages = form.image_urls?.length
+        ? form.image_urls
+        : form.image_url
+          ? [form.image_url]
+          : [];
 
+      const primaryImage = allImages[0] ?? form.image_url ?? null;
       const payload = {
         name: form.name.trim(),
         description: form.description.trim(),
@@ -472,18 +477,15 @@ export const Inventory: React.FC = () => {
         sku: `SKU-${Date.now().toString(36).toUpperCase()}`,
         retail_price: retailPrice,
         discount_percent: discPercent,
+        discounted_price: discPrice,
         stock_quantity: parseInt(form.stock_quantity) || 0,
         condition: form.condition,
         category_id: parseInt(form.category_id),
         subcategory_id: form.subcategory_id
           ? parseInt(form.subcategory_id)
           : null,
-        image_url: form.image_url || null,
-        images: form.image_urls?.length
-          ? form.image_urls
-          : form.image_url
-            ? [form.image_url]
-            : [],
+        image_url: primaryImage,
+        images: allImages,
         is_active: form.is_active,
         specs: specsObj,
       };
@@ -809,19 +811,15 @@ export const Inventory: React.FC = () => {
     val: string,
   ) => {
     const updated = { ...form, [field]: val };
+
     const retail = parseFloat(updated.retail_price) || 0;
     const disc = parseFloat(updated.discounted_price) || 0;
-    const pct = parseFloat(updated.discount_percent) || 0;
-    if (
-      (field === "retail_price" || field === "discounted_price") &&
-      retail > 0 &&
-      disc > 0 &&
-      disc < retail
-    ) {
+
+    // ✅ ONLY calculate percentage
+    if (retail > 0 && disc > 0 && disc < retail) {
       updated.discount_percent = ((1 - disc / retail) * 100).toFixed(0);
-    } else if (field === "discount_percent" && retail > 0 && pct >= 0) {
-      updated.discounted_price = (retail * (1 - pct / 100)).toFixed(2);
     }
+
     setForm(updated);
   };
 
@@ -1970,13 +1968,43 @@ export const Inventory: React.FC = () => {
                       type="url"
                       placeholder="https://... paste URL then press Enter to add"
                       className="input"
+                      onBlur={(e) => {
+                        const val = e.target.value.trim();
+                        if (
+                          !val ||
+                          !(
+                            val.startsWith("http://") ||
+                            val.startsWith("https://")
+                          )
+                        )
+                          return;
+                        if ((form.image_urls?.length ?? 0) >= 5) {
+                          toast("Max 5 images allowed", "error");
+                          return;
+                        }
+                        setForm((f) => ({
+                          ...f,
+                          image_url: f.image_url || val,
+                          image_urls: [...(f.image_urls ?? []), val],
+                        }));
+                        setImagePreviews((prev) => [...prev, val]);
+                        e.target.value = "";
+                        toast("Image URL added!");
+                      }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
                           const val = (
                             e.target as HTMLInputElement
                           ).value.trim();
-                          if (!val) return;
+                          if (
+                            !val ||
+                            !(
+                              val.startsWith("http://") ||
+                              val.startsWith("https://")
+                            )
+                          )
+                            return;
                           if ((form.image_urls?.length ?? 0) >= 5) {
                             toast("Max 5 images allowed", "error");
                             return;
@@ -1988,9 +2016,23 @@ export const Inventory: React.FC = () => {
                           }));
                           setImagePreviews((prev) => [...prev, val]);
                           (e.target as HTMLInputElement).value = "";
+                          toast("Image URL added!");
                         }
                       }}
                     />
+                    {(form.image_urls ?? []).filter((url) =>
+                      url.startsWith("http"),
+                    ).length > 0 && (
+                      <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1 -mt-2">
+                        <Check className="w-3 h-3" />
+                        {
+                          (form.image_urls ?? []).filter((url) =>
+                            url.startsWith("http"),
+                          ).length
+                        }{" "}
+                        URL(s) added — press Enter or click away to confirm
+                      </p>
+                    )}
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">
                         Quick Placeholder

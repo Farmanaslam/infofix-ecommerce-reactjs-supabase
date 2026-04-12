@@ -131,7 +131,41 @@ export const Checkout: React.FC = () => {
 
       // Clear cart from Supabase + context
       await clearCart();
-
+      // ── Send order confirmation emails ────────────────────────────────────────
+      try {
+        await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-order-email`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+            },
+            body: JSON.stringify({
+              ...data, // has order_number
+              customer_name: currentUser.name,
+              customer_email: currentUser.email,
+              customer_phone: savedAddress.phone,
+              address_line: savedAddress.address_line,
+              city: savedAddress.city,
+              state: savedAddress.state,
+              pincode: savedAddress.pincode,
+              items: orderItems,
+              subtotal,
+              tax,
+              total_amount: total,
+              payment_method:
+                selectedPayment === "COD"
+                  ? "Cash on Delivery"
+                  : selectedPayment,
+              payment_status: selectedPayment === "COD" ? "Pending" : "Paid",
+            }),
+          },
+        );
+      } catch (emailErr) {
+        console.warn("Email send failed (non-blocking):", emailErr);
+        // Don't block order success if email fails
+      }
       setOrderNumber(data?.order_number ?? "");
       setOrderPlaced(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -178,6 +212,10 @@ export const Checkout: React.FC = () => {
           <p className="text-indigo-600 text-sm font-semibold">
             Please keep your phone reachable — we'll call or WhatsApp you within
             24-48 hours.
+          </p>
+          <p className="text-indigo-700 text-sm">
+            For any help or enquiry, feel free to call us at{" "}
+            <span className="font-bold">+91 8293295257</span>.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row justify-center gap-4">

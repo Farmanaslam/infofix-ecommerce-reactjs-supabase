@@ -95,6 +95,7 @@ function fromSupabase(row: any): Product {
     tags: (row.product_tags ?? [])
       .map((pt: any) => pt.tags?.name)
       .filter(Boolean),
+    model: row.model ?? "",
   };
 }
 
@@ -125,6 +126,7 @@ function fromConstant(p: any): Product {
         : p.image
           ? [p.image]
           : [],
+    model: p.model ?? "",
   };
 }
 
@@ -137,10 +139,10 @@ const SkeletonCard = React.memo(({ idx }: { idx: number }) => (
       animation: "skeletonFade 0.4s ease both",
     }}
   >
-    <div className="relative aspect-4/5 rounded-[28px] overflow-hidden mb-6 bg-gray-100">
+    <div className="relative aspect-square md:aspect-4/5 rounded-2xl md:rounded-[28px] overflow-hidden mb-3 md:mb-6 bg-gray-100">
       <div className="skeleton-shimmer absolute inset-0" />
     </div>
-    <div className="px-2 space-y-3">
+    <div className="px-1 md:px-2 space-y-1.5 md:space-y-3">
       <div className="flex justify-between items-center">
         <div className="h-2.5 w-20 rounded-full bg-gray-100 skeleton-shimmer" />
         <div
@@ -444,12 +446,6 @@ export const Store: React.FC = () => {
       setFetchError(null);
 
       let loaded = false;
-      console.log("[Store] load() called with:", {
-        selectedCategory,
-        selectedSubcategory,
-        searchQuery,
-        page: currentPage,
-      });
       if (IS_SB && supabase) {
         try {
           let q = supabase
@@ -461,7 +457,7 @@ export const Store: React.FC = () => {
                rating_avg, rating_count, likes_count, created_at,
                categories ( name, slug ),
                subcategories ( name, slug ),
-               product_tags ( tags ( name ) )`,
+               product_tags ( tags ( name ) ),model`,
               { count: "exact" },
             )
             .eq("is_active", true);
@@ -500,11 +496,32 @@ export const Store: React.FC = () => {
               );
             }
           }
-
-          if (selectedCondition !== "All")
-            q = q.eq("condition", selectedCondition);
           if (selectedBrands.length) {
             q = q.or(selectedBrands.map((b) => `brand.ilike.%${b}%`).join(","));
+          }
+
+          // ── RAM filter ──
+          if (selectedRam.length) {
+            const ramConditions = selectedRam
+              .flatMap((ram) => [
+                `specs->>0.ilike.%${ram}%`,
+                `name.ilike.%${ram}%`,
+                `description.ilike.%${ram}%`,
+              ])
+              .join(",");
+            q = q.or(ramConditions);
+          }
+
+          // ── Storage filter ──
+          if (selectedStorage.length) {
+            const storageConditions = selectedStorage
+              .flatMap((s) => [
+                `specs->>0.ilike.%${s}%`,
+                `name.ilike.%${s}%`,
+                `description.ilike.%${s}%`,
+              ])
+              .join(",");
+            q = q.or(storageConditions);
           }
           if (searchQuery.trim()) {
             const terms = searchQuery
@@ -780,23 +797,17 @@ export const Store: React.FC = () => {
           className="sticky top-0 z-30 -mx-4 px-4 py-4 bg-white/96 backdrop-blur-sm border-b border-gray-100 mb-6"
         >
           <div className="flex flex-col gap-4 max-w-7xl mx-auto">
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5 w-full">
-              {[
-                "All",
-                "Laptop",
-                "Graphics Card",
-                "Processor",
-                "RAM",
-                "Monitor",
-                "CCTV",
-                "Peripherals",
-              ].map((cat) => (
+            <div className="flex flex-wrap items-center gap-2 w-full">
+              {["All", "Laptop", "Desktop", "Custom PC"].map((cat) => (
                 <button
                   key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest whitespace-nowrap shrink-0 touch-pan-x transition-all duration-200 ${selectedCategory === cat ? "bg-indigo-600 text-white shadow-md shadow-indigo-200" : "bg-gray-100 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 border border-transparent hover:border-indigo-200"}`}
+                  onClick={() => {
+                    setSelectedCategory(cat);
+                    if (cat === "All") setSelectedSubcategory("");
+                  }}
+                  className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-200 ${selectedCategory === cat ? "bg-indigo-600 text-white shadow-md shadow-indigo-200" : "bg-gray-100 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 border border-transparent hover:border-indigo-200"}`}
                 >
-                  {cat === "All" ? "All Products" : cat}
+                  {cat === "All" ? "All" : cat}
                 </button>
               ))}
             </div>
@@ -844,14 +855,16 @@ export const Store: React.FC = () => {
 
         {/* ── Product grid ── */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-6 md:gap-x-8 md:gap-y-16">
+            {" "}
             {Array.from({ length: PER_PAGE }).map((_, i) => (
               <SkeletonCard key={`skeleton-${i}`} idx={i} />
             ))}
           </div>
         ) : products.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16 items-stretch">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-6 md:gap-x-8 md:gap-y-16 items-stretch">
+              {" "}
               {products.map((product, index) => (
                 <ProductCard
                   key={`${product.id}-p${page}`}
@@ -946,15 +959,6 @@ export const Store: React.FC = () => {
                 onChange={(v) => setSelectedCategory(v || "All")}
               />
               <FilterSection
-                title="Condition"
-                options={["New", "Refurbished"]}
-                selected={
-                  selectedCondition === "All" ? [] : [selectedCondition]
-                }
-                single
-                onChange={(v) => setSelectedCondition(v || "All")}
-              />
-              <FilterSection
                 title="Brand"
                 options={[
                   "Dell",
@@ -971,21 +975,6 @@ export const Store: React.FC = () => {
                 ]}
                 selected={selectedBrands}
                 onChange={setSelectedBrands}
-              />
-              <FilterSection
-                title="Processor"
-                options={[
-                  "i3",
-                  "i5",
-                  "i7",
-                  "i9",
-                  "Ryzen 3",
-                  "Ryzen 5",
-                  "Ryzen 7",
-                  "Ryzen 9",
-                ]}
-                selected={selectedProcessors}
-                onChange={setSelectedProcessors}
               />
               <FilterSection
                 title="RAM"

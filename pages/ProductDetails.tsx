@@ -20,6 +20,7 @@ import {
   Send,
   ThumbsUp,
   BadgeCheck,
+  Cpu,
 } from "lucide-react";
 import { Product } from "../types";
 import { useStore } from "../context/StoreContext";
@@ -40,6 +41,29 @@ interface Review {
   date: string;
   verified: boolean;
   helpful: number;
+}
+
+// ─── Spec normaliser ──────────────────────────────────────────────────────────
+// product.specs can arrive as:
+//   • string[]            → ["Processor: Intel i7", "RAM: 16GB"]
+//   • Record<string,string> → { Processor: "Intel i7", RAM: "16GB" }
+//   • undefined / null
+function normaliseSpecs(
+  specs: string[] | Record<string, string> | undefined | null,
+): { key: string; value: string }[] {
+  if (!specs) return [];
+  if (Array.isArray(specs)) {
+    return specs.map((s) => {
+      const idx = s.indexOf(":");
+      return idx > -1
+        ? { key: s.slice(0, idx).trim(), value: s.slice(idx + 1).trim() }
+        : { key: s, value: "" };
+    });
+  }
+  return Object.entries(specs).map(([key, value]) => ({
+    key,
+    value: String(value),
+  }));
 }
 
 // Cart Toast
@@ -346,7 +370,9 @@ const AddReviewForm: React.FC<{
   );
 };
 
+// ═════════════════════════════════════════════════════════════════════════════
 // Main ProductDetails
+// ═════════════════════════════════════════════════════════════════════════════
 export const ProductDetails: React.FC<ProductDetailsProps> = ({
   product,
   onBack,
@@ -412,10 +438,13 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
     }
   });
 
+  // ── Derived ──
   const galleryImages: string[] =
     Array.isArray(product.images) && product.images.length > 0
       ? product.images
       : [product.image];
+
+  const specEntries = normaliseSpecs(product.specs as any);
   const savings = product.retailPrice ? product.retailPrice - product.price : 0;
   const isLow = product.stock > 0 && product.stock < 10;
   const isOut = product.stock === 0;
@@ -465,9 +494,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       return;
     }
     setPincodeStatus("checking");
-    // Simulate an API check — replace with real courier API call if needed
     setTimeout(() => {
-      // Treat pincodes starting with 0 as undeliverable for demo; replace logic as needed
       const deliverable = trimmed[0] !== "0";
       if (deliverable) {
         const d1 = new Date();
@@ -484,6 +511,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       }
     }, 900);
   };
+
   return (
     <>
       <style>{`
@@ -507,7 +535,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
 
         <div className="max-w-7xl mx-auto px-4 mt-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16">
-            {/* LEFT: Gallery */}
+            {/* ── LEFT: Gallery ── */}
             <div className="pd-fade" style={{ animationDelay: "0ms" }}>
               <div
                 className="relative aspect-square rounded-[36px] overflow-hidden bg-linear-to-br from-gray-50 to-gray-100 shadow-[0_24px_60px_-10px_rgba(99,102,241,0.2)]"
@@ -539,7 +567,6 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   className="w-full h-full object-cover"
                   style={{ animation: "imgFade 0.35s ease both" }}
                 />
-
                 <div className="absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-black/25 to-transparent pointer-events-none" />
 
                 {galleryImages.length > 1 && (
@@ -621,11 +648,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                       key={i}
                       onClick={() => setActiveImg(i)}
                       className={`relative shrink-0 w-18 h-18 rounded-2xl overflow-hidden transition-all duration-200
-                        ${
-                          activeImg === i
-                            ? "ring-[2.5px] ring-offset-2 ring-indigo-600 scale-[1.07] shadow-lg shadow-indigo-200/60"
-                            : "ring-1 ring-gray-200 opacity-60 hover:opacity-100 hover:ring-gray-300 hover:scale-[1.03]"
-                        }`}
+                        ${activeImg === i ? "ring-[2.5px] ring-offset-2 ring-indigo-600 scale-[1.07] shadow-lg shadow-indigo-200/60" : "ring-1 ring-gray-200 opacity-60 hover:opacity-100 hover:ring-gray-300 hover:scale-[1.03]"}`}
                     >
                       <img
                         src={img}
@@ -646,8 +669,9 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
               )}
             </div>
 
-            {/* RIGHT: Info */}
+            {/* ── RIGHT: Info ── */}
             <div className="flex flex-col gap-5">
+              {/* Breadcrumb + brand */}
               <div
                 className="pd-fade flex items-center gap-2 flex-wrap"
                 style={{ animationDelay: "60ms" }}
@@ -670,6 +694,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 )}
               </div>
 
+              {/* Product name */}
               <h1
                 className="font-black text-[1.85rem] md:text-[2.3rem] text-gray-900 leading-[1.08] tracking-tight pd-fade"
                 style={{ animationDelay: "80ms" }}
@@ -677,6 +702,25 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 {product.name}
               </h1>
 
+              {/* ── Model number row ── */}
+              {(product.model || product.brand) && (
+                <div
+                  className="pd-fade flex items-center gap-2 flex-wrap -mt-2"
+                  style={{ animationDelay: "90ms" }}
+                >
+                  {product.model && (
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-xl">
+                      <Cpu className="w-3 h-3 text-gray-400" />
+                      Model:{" "}
+                      <span className="font-bold text-gray-700">
+                        {product.model}
+                      </span>
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Rating + likes */}
               <div
                 className="pd-fade flex items-center gap-4 flex-wrap"
                 style={{ animationDelay: "100ms" }}
@@ -711,6 +755,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
 
               <div className="h-px bg-gray-100" />
 
+              {/* Price */}
               <div className="pd-fade" style={{ animationDelay: "130ms" }}>
                 <div className="flex items-baseline gap-3 flex-wrap">
                   <span className="font-black text-[2.4rem] text-gray-900 tracking-tighter leading-none">
@@ -737,6 +782,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 )}
               </div>
 
+              {/* Description */}
               {product.description && (
                 <p
                   className="text-gray-600 text-[14.5px] leading-relaxed pd-fade"
@@ -746,20 +792,28 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 </p>
               )}
 
-              {product.specs.length > 0 && (
+              {/* ── Key Specifications — full key:value table ── */}
+              {specEntries.length > 0 && (
                 <div className="pd-fade" style={{ animationDelay: "190ms" }}>
                   <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-3">
                     Key Specifications
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {product.specs.map((spec, i) => (
+                  <div className="rounded-2xl border border-gray-100 overflow-hidden bg-gray-50/60">
+                    {specEntries.map((spec, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-2.5 bg-gray-50 border border-gray-100 rounded-2xl px-3.5 py-2.5 hover:border-indigo-100 hover:bg-indigo-50/30 transition-colors"
+                        className={`flex items-start gap-3 px-4 py-3 hover:bg-indigo-50/40 transition-colors
+                          ${i !== specEntries.length - 1 ? "border-b border-gray-100" : ""}`}
                       >
-                        <CheckCircle className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                        <span className="text-xs font-semibold text-gray-700">
-                          {spec}
+                        {/* Key */}
+                        <span className="w-36 shrink-0 text-[11px] font-black text-gray-400 uppercase tracking-wide leading-snug pt-0.5">
+                          {spec.key || "—"}
+                        </span>
+                        {/* Divider */}
+                        <span className="text-gray-200 shrink-0 mt-0.5">·</span>
+                        {/* Value */}
+                        <span className="flex-1 text-[13px] font-semibold text-gray-800 leading-snug">
+                          {spec.value || spec.key}
                         </span>
                       </div>
                     ))}
@@ -767,6 +821,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 </div>
               )}
 
+              {/* Tags */}
               {product.tags.length > 0 && (
                 <div
                   className="flex flex-wrap gap-1.5 pd-fade"
@@ -783,6 +838,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 </div>
               )}
 
+              {/* Qty + CTA */}
               {!isOut ? (
                 <div
                   className="pd-fade space-y-3"
@@ -843,13 +899,13 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 </button>
               )}
 
+              {/* Delivery */}
               {!isOut && (
                 <div
                   className="pd-fade space-y-2"
                   style={{ animationDelay: "250ms" }}
                 >
                   {currentUser ? (
-                    // Logged in — show static delivery estimate
                     <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3">
                       <Truck className="w-5 h-5 text-emerald-600 shrink-0" />
                       <div>
@@ -869,7 +925,6 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                       </div>
                     </div>
                   ) : (
-                    // Not logged in — show pincode checker
                     <div className="border border-gray-200 rounded-2xl overflow-hidden">
                       <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 border-b border-gray-100">
                         <Truck className="w-4 h-4 text-gray-400 shrink-0" />
@@ -906,7 +961,6 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                             )}
                           </button>
                         </div>
-
                         {pincodeStatus === "ok" && (
                           <div className="flex items-start gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-3.5 py-2.5">
                             <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
@@ -920,7 +974,6 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                             </div>
                           </div>
                         )}
-
                         {pincodeStatus === "fail" && (
                           <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-3.5 py-2.5">
                             <X className="w-4 h-4 text-red-500 shrink-0" />
@@ -937,6 +990,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 </div>
               )}
 
+              {/* Trust badges */}
               <div
                 className="grid grid-cols-2 gap-2.5 pt-2 border-t border-gray-100 pd-fade"
                 style={{ animationDelay: "270ms" }}
@@ -976,7 +1030,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
             </div>
           </div>
 
-          {/* Reviews Section */}
+          {/* ── Reviews Section ── */}
           <div className="mt-20 pt-12 border-t border-gray-100">
             <div className="flex items-center justify-between mb-8">
               <div>
@@ -1020,7 +1074,6 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   </div>
                 ))}
               </div>
-
               <div className="space-y-4">
                 {reviews.slice(0, 6).map((r) => (
                   <ReviewCard key={r.id} review={r} />

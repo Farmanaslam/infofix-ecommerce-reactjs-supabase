@@ -127,7 +127,7 @@ export const Contact: React.FC = () => {
                 <input
                   name="fullname"
                   type="text"
-                  placeholder="John Doe"
+                  placeholder="Krishna Sharma"
                   className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-indigo-600 font-medium transition-all"
                 />
               </div>

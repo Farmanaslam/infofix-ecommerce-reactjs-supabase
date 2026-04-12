@@ -35,6 +35,7 @@ export interface Product {
   reviews: number;
   likesCount: number;
   tags: string[];
+  model: string;
 }
 
 export interface Branch {

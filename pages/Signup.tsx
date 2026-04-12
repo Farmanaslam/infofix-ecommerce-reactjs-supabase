@@ -269,7 +269,7 @@ export const Signup = () => {
                 icon={User}
                 label="Full Name"
                 name="fullName"
-                placeholder="John Doe"
+                placeholder="Krishna Sharma"
                 required
                 value={formData.fullName}
                 onChange={handleChange}
@@ -279,7 +279,7 @@ export const Signup = () => {
                 label="Email Address"
                 name="email"
                 type="email"
-                placeholder="john@example.com"
+                placeholder="krishna@example.com"
                 required
                 value={formData.email}
                 onChange={handleChange}
