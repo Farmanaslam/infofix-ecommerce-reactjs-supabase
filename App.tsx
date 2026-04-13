@@ -147,6 +147,15 @@ const Main: React.FC = () => {
       });
     }
   }, []); // Runs once on app mount
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.gtag) {
+      window.gtag("event", "page_view", {
+        page_title: currentPage,
+        page_path: `/${currentPage}`,
+        page_location: window.location.origin + "/" + currentPage,
+      });
+    }
+  }, [currentPage]);
 
   if (!authReady) {
     return (
