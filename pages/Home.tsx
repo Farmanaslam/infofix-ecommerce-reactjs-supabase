@@ -1249,12 +1249,12 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* ══════════ TRUST ══════════ */}
+      {/* ══════════ TRUST ══════════ */} 
       <section
         className="py-8 md:py-12 bg-white border-b border-gray-100"
         ref={counterRef}
       >
-        <div className="max-w-7xl mx-auto px-3 md:px-4">
+        <div className="app-container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 stagger-children">
             {[
               {
@@ -1314,7 +1314,7 @@ export const Home: React.FC = () => {
 
       {/* ══════════ BROWSE BY CATEGORY ══════════ */}
       <section className="py-10 md:py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-3 md:px-4">
+        <div className="app-container">
           <div className="text-center mb-6 md:mb-14 reveal">
             <p className="text-[10px] md:text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-1 md:mb-3">
               What Are You Looking For?
@@ -1710,7 +1710,7 @@ export const Home: React.FC = () => {
 
       {/* ══════════ CONFIGURATION TIERS ══════════ */}
       <section className="py-10 md:py-24 bg-gray-50 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-3 md:px-4">
+        <div className="app-container">
           <div className="text-center mb-6 md:mb-14 reveal">
             <p className="text-[10px] md:text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-1 md:mb-2">
               Pick Your Power
@@ -1889,7 +1889,7 @@ export const Home: React.FC = () => {
 
       {/* ══════════ WHY INFOFIX ══════════ */}
       <section className="py-10 md:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-3 md:px-4">
+        <div className="app-container">
           <div className="text-center mb-6 md:mb-14 reveal">
             <p className="text-[10px] md:text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-1 md:mb-2">
               Why 5,000+ Customers Choose Us

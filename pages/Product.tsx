@@ -295,8 +295,8 @@ export const ProductCard: React.FC<ProductProps> = ({
               </span>
             )}
           </div>
-          <div className="text-right">
-            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">
+          <div className="hidden md:block text-right">
+            <p className="text-[10px]  text-gray-400 font-semibold uppercase tracking-wider">
               {product.reviews} reviews
             </p>
             {likes > 0 && (

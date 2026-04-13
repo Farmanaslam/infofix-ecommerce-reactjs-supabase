@@ -790,7 +790,7 @@ export const Store: React.FC = () => {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 mt-4">
+      <div className="app-container mt-4">
         {/* ── Filter Bar ── */}
         <div
           ref={gridRef}
@@ -1047,7 +1047,7 @@ export const Store: React.FC = () => {
 
       {/* ── Trust Section ── */}
       {!loading && products.length > 0 && (
-        <section className="mt-24 max-w-7xl mx-auto px-4">
+        <section className="mt-24 app-container">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
             {[
               { stat: "5000+", label: "Happy Customers" },
