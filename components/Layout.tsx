@@ -120,7 +120,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
         }}
       >
         {/* ── PROMO STRIP ───────────────────────── */}
-        <div className="relative overflow-hidden bg-linear-to-r from-slate-900 via-indigo-950 to-slate-900 h-9 flex items-center justify-center px-6">
+        <div className="relative overflow-hidden bg-linear-to-r from-slate-900 via-indigo-950 to-slate-900 h-9 flex items-center justify-center px-4 lg:px-20">
           {/* Desktop: full spaced items */}
           <div className="hidden md:flex items-center gap-8">
             {[
@@ -318,8 +318,11 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
 
                   {/* dropdown */}
                   <div
-                    className={`absolute right-0 top-full mt-2.5 w-52 bg-white border border-slate-100 rounded-2xl overflow-hidden transition-all duration-200 ${isAccountOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"}`}
-                    style={{ boxShadow: "0 12px 40px rgba(15,23,42,0.12)" }}
+                    className={`absolute right-0 top-full mt-2.5 w-52 bg-white border border-slate-100 rounded-2xl overflow-hidden transition-all duration-200 z-50 ${isAccountOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"}`}
+                    style={{
+                      boxShadow: "0 12px 40px rgba(15,23,42,0.25)",
+                      isolation: "isolate",
+                    }}
                   >
                     {/* user info header */}
                     <div className="px-4 py-3 bg-slate-50 border-b border-slate-100">
@@ -832,7 +835,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
           FOOTER
       ═══════════════════════════════════════════ */}
       <footer className="bg-[#0f172a] text-white pt-16 pb-4">
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 mb-16">
+        <div className="app-container grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 mb-16">
           {[
             {
               title: "About",
@@ -1029,7 +1032,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
         </div>
 
         <div className="border-t border-slate-800 pt-8 pb-4">
-          <div className="max-w-7xl mx-auto px-4 flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div className="app-container flex flex-col lg:flex-row items-center justify-between gap-6">
             <div className="flex flex-wrap items-center justify-center gap-6 text-[11px] font-bold text-slate-400">
               <div className="flex items-center gap-2 hover:text-white transition-colors duration-150">
                 <Briefcase className="w-4 h-4 text-amber-400" />

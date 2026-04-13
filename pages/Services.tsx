@@ -242,7 +242,7 @@ export const Services: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 mt-24 space-y-28">
+      <div className="app-container mt-24 space-y-28">
         {/* ── 3 MAIN SERVICES ── */}
         <section className="space-y-10">
           <div className="text-center space-y-3">
