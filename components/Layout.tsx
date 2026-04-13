@@ -1319,7 +1319,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
             </div>
           </div>
         </div>
-        <nav className="flex-1 p-6 space-y-1.5 overflow-hidden">
+        <nav className="flex-1 p-6 space-y-1.5 overflow-y-auto">
           {visibleNav.map((item) => (
             <button
               key={item.name}

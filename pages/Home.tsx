@@ -1488,7 +1488,7 @@ export const Home: React.FC = () => {
             backgroundSize: "48px 48px",
           }}
         />
-        <div className="relative max-w-7xl mx-auto px-3 md:px-4 grid md:grid-cols-2 gap-6 md:gap-12 items-center">
+<div className="relative app-container grid md:grid-cols-2 gap-6 md:gap-12 items-center">
           <div className="space-y-4 md:space-y-5 reveal from-left">
             <div
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-indigo-400 text-[10px] font-black uppercase tracking-widest"
@@ -1572,7 +1572,7 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ══════════ BEST DEALS ══════════ */}
-      <section className="py-10 md:py-28 max-w-7xl mx-auto px-3 md:px-4">
+<section className="py-10 md:py-28 app-container">
         <div className="flex items-end justify-between mb-6 md:mb-16 reveal">
           <div className="space-y-1 md:space-y-4">
             <h2 className="text-[10px] md:text-xs font-black text-indigo-600 uppercase tracking-[0.2em]">
@@ -2036,7 +2036,7 @@ export const Home: React.FC = () => {
               "radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)",
           }}
         />
-        <div className="relative max-w-7xl mx-auto px-3 md:px-4 py-10 md:py-20 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+<div className="relative app-container py-10 md:py-20 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           <div className="space-y-4 md:space-y-6 reveal from-left">
             <div
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest"
@@ -2181,7 +2181,7 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ══════════ SERVICES ══════════ */}
-      <section className="py-10 md:py-24 max-w-7xl mx-auto px-3 md:px-4 text-center">
+<section className="py-10 md:py-24 app-container text-center">
         <div className="mb-6 md:mb-12 reveal">
           <p className="text-[10px] md:text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-1 md:mb-2">
             What We Offer
@@ -2272,7 +2272,7 @@ export const Home: React.FC = () => {
               "radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)",
           }}
         />
-        <div className="relative max-w-7xl mx-auto px-3 md:px-4 py-10 md:py-20 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+<div className="relative app-container py-10 md:py-20 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           <div className="space-y-4 md:space-y-6 reveal from-left">
             <div
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest"

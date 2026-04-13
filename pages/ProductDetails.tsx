@@ -523,7 +523,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       `}</style>
 
       <div className="min-h-screen bg-white pb-32">
-        <div className="max-w-7xl mx-auto px-4 pt-6 pb-2">
+        <div className="app-container pt-6 pb-2">
           <button
             onClick={onBack}
             className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-indigo-600 transition-colors group"
@@ -533,7 +533,8 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
           </button>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 mt-4">
+        <div className="app-container mt-4"
+>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16">
             {/* ── LEFT: Gallery ── */}
             <div className="pd-fade" style={{ animationDelay: "0ms" }}>

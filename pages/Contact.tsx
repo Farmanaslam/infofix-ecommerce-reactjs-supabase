@@ -5,7 +5,7 @@ import { useStore } from "../context/StoreContext";
 export const Contact: React.FC = () => {
   const { setCurrentPage } = useStore();
   return (
-    <div className="py-24 max-w-7xl mx-auto px-4">
+<div className="py-24 app-container">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-24">
         <div className="space-y-12">
           <div className="space-y-6">
