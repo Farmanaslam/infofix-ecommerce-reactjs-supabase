@@ -17,6 +17,7 @@ import {
   Truck,
   Clock,
   XCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { supabase } from "../lib/supabaseClient";
@@ -28,7 +29,7 @@ const emptyAddressForm: AddressForm = {
   city: "",
   state: "",
   pincode: "",
-  country: "",
+  country: "India",
 };
 
 const StatusBadge = ({ status }: { status: string }) => {
@@ -148,7 +149,15 @@ export const Profile: React.FC = () => {
     state: string,
     pincode: string,
     country: string,
-  ) => `${line1}\n${city} – ${pincode}\n${state}, ${country}`;
+  ) => {
+    const parts: string[] = [];
+    if (line1?.trim()) parts.push(line1.trim());
+    const cp = [city?.trim(), pincode?.trim()].filter(Boolean).join(" – ");
+    if (cp) parts.push(cp);
+    const sc = [state?.trim(), country?.trim()].filter(Boolean).join(", ");
+    if (sc) parts.push(sc);
+    return parts.join("\n") || null;
+  };
 
   // ── PROFILE EDITING ────────────────────────────────────────────────────────
   const handleEditProfile = () => {
@@ -194,7 +203,7 @@ export const Profile: React.FC = () => {
       city: customer.city,
       state: customer.state,
       pincode: customer.pincode,
-      country: customer.country,
+      country: customer.country?.trim() || "India",
     });
     setEditingAddress("address1");
     setAddingNew(false);
@@ -330,6 +339,29 @@ export const Profile: React.FC = () => {
             {error}
           </div>
         )}
+        {/* Profile incomplete warning for Google signup users */}
+        {(!customer.phone?.replace(/\D/g, "") ||
+          customer.phone.replace(/\D/g, "").length < 10 ||
+          !customer.address1?.trim()) && (
+          <div className="mb-6 px-5 py-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl font-semibold flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 shrink-0 text-amber-500 mt-0.5" />
+            <span className="text-sm leading-relaxed">
+              <span className="font-black">Complete your profile</span> — please
+              add your{" "}
+              {!customer.phone?.replace(/\D/g, "") ||
+              customer.phone.replace(/\D/g, "").length < 10
+                ? "phone number"
+                : ""}
+              {(!customer.phone?.replace(/\D/g, "") ||
+                customer.phone.replace(/\D/g, "").length < 10) &&
+              !customer.address1?.trim()
+                ? " and "
+                : ""}
+              {!customer.address1?.trim() ? "delivery address" : ""} before
+              placing orders.
+            </span>
+          </div>
+        )}
 
         {/* ── PROFILE OVERVIEW ─────────────────────────────────────────────── */}
         <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100 border border-gray-100 p-10 mb-12">
@@ -392,18 +424,25 @@ export const Profile: React.FC = () => {
                     Phone Number
                   </label>
                   <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400" />
-                    <input
-                      className={`${inputCls} pl-10`}
-                      placeholder="Phone"
-                      value={profileForm.phone}
-                      onChange={(e) =>
-                        setProfileForm({
-                          ...profileForm,
-                          phone: e.target.value,
-                        })
-                      }
-                    />
+                    <div className="flex rounded-xl overflow-hidden border border-indigo-200 bg-white focus-within:ring-2 focus-within:ring-indigo-400">
+                      <span className="flex items-center px-3 bg-indigo-50 text-sm font-bold text-gray-600 border-r border-indigo-200 shrink-0">
+                        +91
+                      </span>
+                      <input
+                        className="flex-1 px-4 py-3 font-medium focus:outline-none text-gray-800 bg-white"
+                        placeholder="98765 43210"
+                        maxLength={10}
+                        value={profileForm.phone
+                          .replace(/^91/, "")
+                          .replace(/\D/g, "")}
+                        onChange={(e) =>
+                          setProfileForm({
+                            ...profileForm,
+                            phone: `91${e.target.value.replace(/\D/g, "").slice(0, 10)}`,
+                          })
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -411,7 +450,7 @@ export const Profile: React.FC = () => {
                     Member Since
                   </label>
                   <div className="px-5 py-3 bg-gray-50 rounded-xl font-semibold text-gray-400 border border-gray-100 text-sm">
-                    {joinDate} — not editable
+                    {joinDate}
                   </div>
                 </div>
               </div>
@@ -467,7 +506,13 @@ export const Profile: React.FC = () => {
                 <div className="flex items-center gap-3 px-5 py-4 bg-gray-50 rounded-2xl">
                   <Phone className="w-4 h-4 text-indigo-600" />
                   <span className="font-semibold text-gray-800">
-                    +{customer.phone}
+                    {customer.phone?.replace(/\D/g, "").length >= 10 ? (
+                      `+${customer.phone}`
+                    ) : (
+                      <span className="text-amber-500 text-sm font-semibold italic">
+                        Not added — please edit profile
+                      </span>
+                    )}
                   </span>
                 </div>
               </div>
@@ -567,15 +612,21 @@ export const Profile: React.FC = () => {
               <div className="bg-indigo-50 p-6 rounded-2xl flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
                   <MapPin className="w-6 h-6 text-indigo-600 mt-1 shrink-0" />
-                  <p className="text-gray-600 whitespace-pre-line leading-relaxed">
-                    {formatAddress(
-                      customer.address1,
-                      customer.city,
-                      customer.state,
-                      customer.pincode,
-                      customer.country,
-                    )}
-                  </p>
+                  {customer.address1?.trim() ? (
+                    <p className="text-gray-600 whitespace-pre-line leading-relaxed">
+                      {formatAddress(
+                        customer.address1,
+                        customer.city,
+                        customer.state,
+                        customer.pincode,
+                        customer.country,
+                      )}
+                    </p>
+                  ) : (
+                    <p className="text-amber-500 text-sm font-semibold italic">
+                      No address added — please edit one before ordering
+                    </p>
+                  )}
                 </div>
                 <button
                   onClick={handleEditAddress1}
