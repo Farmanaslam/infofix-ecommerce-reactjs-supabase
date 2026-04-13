@@ -88,7 +88,7 @@ export const Branches: React.FC = () => {
       </section>
 
       {/* Main Grid */}
-<div className="app-container pt-6 relative z-20">
+      <div className="app-container pt-6 relative z-20">
         {/* Store Overview Section */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl font-black text-gray-900 mb-4">
@@ -234,7 +234,7 @@ export const Branches: React.FC = () => {
       </div>
 
       {/* Premium CTA Footer */}
-<section className="mt-40 app-container">
+      <section className="mt-40 app-container">
         <div className="relative bg-[#172337] rounded-[56px] p-16 md:p-32 overflow-hidden text-center text-white">
           <div className="absolute top-0 left-0 w-full h-full bg-linear-to-br from-indigo-600/20 to-transparent"></div>
           <div className="relative z-10 space-y-8 max-w-3xl mx-auto">

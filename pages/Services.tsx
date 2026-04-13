@@ -106,50 +106,51 @@ export const Services: React.FC = () => {
       color: "#06b6d4",
     },
   ];
-
   const buildTiers = [
     {
       tier: "Essential",
-      use: "Study, Office & Browse",
-      price: "₹14,999",
-      old: "₹19,000",
+      use: "Study, Office & Daily Use",
+      price: "₹10,999",
+      old: "₹14,999",
       color: "#6366f1",
       specs: [
-        "Intel Core i3 / Ryzen 3",
-        "8GB DDR4 RAM",
-        "256GB SSD",
-        "Windows 11 Home",
+        "Intel Core i3 3rd Gen",
+        "4GB RAM + 128GB SSD",
+        '19" Monitor + Full Setup',
+        "Keyboard, Mouse Included",
       ],
+      ideal: "Students, Home Use, Basic Office",
     },
     {
       tier: "Professional",
-      use: "Work, Dev & Multitask",
-      price: "₹28,999",
-      old: "₹36,000",
+      use: "Work, Multitasking & Business",
+      price: "₹24,999",
+      old: "₹33,999",
       color: "#818cf8",
       featured: true,
       specs: [
-        "Intel Core i5 / Ryzen 5",
-        "16GB DDR5 RAM",
-        "512GB NVMe SSD",
-        "Windows 11 Pro",
+        "Intel Core i5 6th Gen",
+        "8GB DDR4 RAM",
+        "512GB SSD Storage",
+        '22" Monitor + Full Setup',
       ],
+      ideal: "Office Work, Developers, Shops",
     },
     {
       tier: "Performance",
-      use: "Editing, Gaming & CAD",
-      price: "₹52,999",
-      old: "₹65,000",
+      use: "Gaming, Editing & High-End Work",
+      price: "₹86,799",
+      old: "₹1,02,999",
       color: "#10b981",
       specs: [
-        "Intel Core i7 / Ryzen 7",
-        "32GB DDR5 RAM",
-        "1TB NVMe SSD",
-        "Dedicated GPU",
+        "Intel i5 14th Gen Processor",
+        "16GB RAM + 512GB NVMe SSD",
+        "RTX 3050 6GB Graphics",
+        '27" Monitor + RGB Setup',
       ],
+      ideal: "Gamers, Creators, Professionals",
     },
   ];
-
   return (
     <div className="pb-28">
       <style>{`

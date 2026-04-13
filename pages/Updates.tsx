@@ -56,7 +56,7 @@ export const Updates: React.FC = () => {
       : posts.filter((p) => p.category === activeCategory);
 
   return (
-<div className="py-24 app-container">
+    <div className="py-24 app-container">
       {/* Hero */}
       <div className="mb-16 text-center space-y-6">
         <h1 className="text-5xl font-black text-gray-900">

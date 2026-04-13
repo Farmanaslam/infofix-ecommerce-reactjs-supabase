@@ -533,8 +533,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
           </button>
         </div>
 
-        <div className="app-container mt-4"
->
+        <div className="app-container mt-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16">
             {/* ── LEFT: Gallery ── */}
             <div className="pd-fade" style={{ animationDelay: "0ms" }}>

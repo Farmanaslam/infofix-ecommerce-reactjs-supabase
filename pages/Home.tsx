@@ -32,76 +32,79 @@ import { supabase } from "@/lib/supabaseClient";
 // ─────────────────────────────────────────────────────────
 const heroSlides = [
   {
-    eyebrow: "New Arrival 2025",
-    headline: "Built for",
-    accent: "Power Users",
-    accentColor: "#6366f1",
-    glowColor: "rgba(99,102,241,0.22)",
-    sub: "Custom-configured desktop PCs engineered for performance, reliability, and the work that matters.",
-    price: "₹28,999",
-    oldPrice: "₹35,000",
-    specs: [
-      { label: "Intel Core i5", icon: "cpu" },
-      { label: "16GB DDR5 RAM", icon: "memory" },
-      { label: "512GB NVMe SSD", icon: "storage" },
-      { label: "Win 11 Pro", icon: "os" },
-    ],
-    productName: "Infofix Workstation Pro",
-    productSpec: "i5 / 16GB / 512GB SSD / Win 11",
-  },
-  {
-    eyebrow: "New Laptops — 2025",
-    headline: "Thin, Fast,",
-    accent: "Ready for Anything",
-    accentColor: "#10b981",
-    glowColor: "rgba(16,185,129,0.18)",
-    sub: "Premium laptops for students, creators, and professionals. Handpicked brands, honest prices.",
-    price: "₹32,999",
-    oldPrice: "₹42,000",
-    specs: [
-      { label: "Intel Core i5", icon: "cpu" },
-      { label: "16GB LPDDR5", icon: "memory" },
-      { label: "512GB SSD", icon: "storage" },
-      { label: '14" FHD IPS', icon: "os" },
-    ],
-    productName: "Infofix Laptop Select",
-    productSpec: "i5 / 16GB / 512GB / FHD",
-  },
-  {
-    eyebrow: "High Performance Series",
-    headline: "Unleash",
-    accent: "Maximum Power",
-    accentColor: "#818cf8",
-    glowColor: "rgba(129,140,248,0.18)",
-    sub: "Professional-grade workstations for developers, creators, and power users who demand more.",
-    price: "₹62,999",
-    oldPrice: "₹75,000",
-    specs: [
-      { label: "Intel Core i7", icon: "cpu" },
-      { label: "32GB DDR5 RAM", icon: "memory" },
-      { label: "1TB NVMe SSD", icon: "storage" },
-      { label: "RTX GPU Included", icon: "gpu" },
-    ],
-    productName: "Infofix Power i7 Edition",
-    productSpec: "i7 / 32GB / 1TB NVMe / RTX",
-  },
-  {
     eyebrow: "Best Value Pick",
     headline: "Smart Tech,",
     accent: "Smart Price",
     accentColor: "#f59e0b",
     glowColor: "rgba(245,158,11,0.18)",
-    sub: "Ideal for students, home offices, and everyday computing. Reliable performance at an honest price.",
-    price: "₹18,499",
-    oldPrice: "₹22,000",
+    sub: "Perfect entry-level desktop for students and home users. Smooth performance for online classes, browsing, MS Office, and daily tasks — all at an unbeatable price.",
+    price: "₹10,999",
+    oldPrice: "₹14,999",
     specs: [
-      { label: "Intel Core i3", icon: "cpu" },
-      { label: "8GB DDR4 RAM", icon: "memory" },
-      { label: "256GB SSD", icon: "storage" },
-      { label: "Win 11 Home", icon: "os" },
+      { label: "Intel Core i3 (3rd Gen)", icon: "cpu" },
+      { label: "4GB DDR3 RAM", icon: "memory" },
+      { label: "128GB SSD", icon: "storage" },
+      { label: '19" Monitor + Accessories', icon: "os" },
     ],
     productName: "Infofix Essential i3",
-    productSpec: "i3 / 8GB / 256GB SSD / Win 11",
+    productSpec: "i3 / 4GB / 128GB SSD / Full Set",
+  },
+
+  {
+    eyebrow: "Office & Study Ready",
+    headline: "Built for",
+    accent: "Everyday Work",
+    accentColor: "#6366f1",
+    glowColor: "rgba(99,102,241,0.22)",
+    sub: "Reliable performance for office work, multitasking, and students. Ideal for billing, Excel, coding beginners, and productivity tasks with smooth SSD speed.",
+    price: "₹24,999",
+    oldPrice: "₹33,999",
+    specs: [
+      { label: "Intel Core i5 (6th Gen)", icon: "cpu" },
+      { label: "8GB DDR4 RAM", icon: "memory" },
+      { label: "512GB SSD", icon: "storage" },
+      { label: '22" Monitor Full Setup', icon: "os" },
+    ],
+    productName: "Infofix Workstation i5",
+    productSpec: 'i5 / 8GB / 512GB SSD / 22"',
+  },
+
+  {
+    eyebrow: "Gaming Performance",
+    headline: "Unleash",
+    accent: "Maximum Power",
+    accentColor: "#818cf8",
+    glowColor: "rgba(129,140,248,0.18)",
+    sub: "High-performance gaming desktop built for modern gamers and creators. Enjoy smooth gameplay, fast rendering, and multitasking with powerful GPU and RGB setup.",
+    price: "₹86,799",
+    oldPrice: "₹1,02,999",
+    specs: [
+      { label: "Intel i5 14th Gen", icon: "cpu" },
+      { label: "16GB DDR4 RAM", icon: "memory" },
+      { label: "512GB NVMe SSD", icon: "storage" },
+      { label: "RTX 3050 6GB GPU", icon: "gpu" },
+    ],
+    productName: "Infofix Gaming Beast",
+    productSpec: "i5 14th / 16GB / RTX 3050",
+  },
+
+  {
+    eyebrow: "Gaming Value Deal",
+    headline: "High FPS,",
+    accent: "Lower Price",
+    accentColor: "#10b981",
+    glowColor: "rgba(16,185,129,0.18)",
+    sub: "Affordable gaming PC designed for smooth 1080p gaming, streaming, and editing. Perfect balance of performance and price for budget gamers.",
+    price: "₹52,999",
+    oldPrice: "₹64,999",
+    specs: [
+      { label: "Ryzen 5 5500", icon: "cpu" },
+      { label: "8GB DDR4 RAM", icon: "memory" },
+      { label: "512GB SSD", icon: "storage" },
+      { label: "RX 580 8GB GPU", icon: "gpu" },
+    ],
+    productName: "Infofix Gaming Starter",
+    productSpec: 'R5 / 8GB / RX 580 / 24"',
   },
 ];
 
@@ -786,6 +789,19 @@ export const Home: React.FC = () => {
       rating: 5,
     },
   ];
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (dir: "left" | "right") => {
+    if (!scrollRef.current) return;
+
+    const container = scrollRef.current;
+    const scrollAmount = 240;
+
+    container.scrollBy({
+      left: dir === "right" ? scrollAmount : -scrollAmount,
+      behavior: "smooth",
+    });
+  };
 
   useEffect(() => {
     const interval = setInterval(
@@ -811,59 +827,59 @@ export const Home: React.FC = () => {
 
   const buildTiers = [
     {
-      tier: "Essential",
-      tagline: "Work, Study & Browse",
-      price: "₹14,999",
-      oldPrice: "₹19,000",
-      color: "#6366f1",
-      bg: "#f8f8ff",
+      tier: "Smart Price",
+      tagline: "Best Budget Desktop for Everyday Use",
+      price: "₹10,999",
+      oldPrice: "₹14,999",
+      color: "#f59e0b",
+      bg: "linear-gradient(135deg,#fff7ed 0%,#ffedd5 100%)",
       dark: false,
+      featured: false,
       specs: [
-        "Desktop PC or Laptop",
-        "Intel Core i3 / Ryzen 3",
-        "8GB DDR4 RAM",
-        "256GB SSD",
-        "Windows 11 Home",
+        "Intel Core i3 (3rd Gen)",
+        "4GB RAM + 128GB SSD",
+        '19" Monitor Full Set',
+        "Keyboard + Mouse Included",
       ],
-      ideal: "Students & Home Users",
+      ideal: "Students, Home Use, Basic Work",
     },
+
     {
-      tier: "Professional",
-      tagline: "Power Through Everything",
-      price: "₹28,999",
-      oldPrice: "₹36,000",
-      color: "#818cf8",
-      bg: "#0a0a0f",
+      tier: "Balanced Performance",
+      tagline: "Smooth Multitasking & Office Work",
+      price: "₹24,999",
+      oldPrice: "₹33,999",
+      color: "#6366f1",
+      bg: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)",
       dark: true,
-      specs: [
-        "Desktop PC or Laptop",
-        "Intel Core i5 / Ryzen 5",
-        "16GB DDR5 RAM",
-        "512GB NVMe SSD",
-        "Windows 11 Pro",
-      ],
-      ideal: "Professionals & SMBs",
       featured: true,
-    },
-    {
-      tier: "Performance",
-      tagline: "No Compromise Power",
-      price: "₹52,999",
-      oldPrice: "₹65,000",
-      color: "#6366f1",
-      bg: "#f8f8ff",
-      dark: false,
       specs: [
-        "Desktop PC or Laptop",
-        "Intel Core i7 / Ryzen 7",
-        "32GB DDR5 RAM",
-        "1TB NVMe SSD",
-        "Dedicated GPU",
+        "Intel Core i5 (6th Gen)",
+        "8GB DDR4 RAM",
+        "512GB SSD Storage",
+        '22" Monitor + Full Setup',
       ],
-      ideal: "Creators & Developers",
+      ideal: "Office Work, Students, Business Use",
+    },
+
+    {
+      tier: "Maximum Power",
+      tagline: "High-End Gaming & Creator Machine",
+      price: "₹86,799",
+      oldPrice: "₹1,02,999",
+      color: "#10b981",
+      bg: "linear-gradient(135deg,#022c22 0%,#064e3b 100%)",
+      dark: true,
+      featured: false,
+      specs: [
+        "Intel Core i5 14th Gen",
+        "16GB High-Speed RAM",
+        "512GB NVMe SSD",
+        "RTX 3050 6GB GPU",
+      ],
+      ideal: "Gaming, Editing, Heavy Workloads",
     },
   ];
-
   const whyUs = [
     {
       icon: TrendingUp,
@@ -1056,8 +1072,8 @@ export const Home: React.FC = () => {
     background-clip: text;
     animation: shimmer 3s linear infinite;
   }
-  .card-hover { transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1); }
-  .card-hover:hover { transform: translateY(-8px); }
+ .card-hover { transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease; }
+.card-hover:hover { transform: translateY(-10px) scale(1.02) !important; }
   .pulse-dot { animation: pulseGlobal 2s ease infinite; }
   .sidebar-scroll::-webkit-scrollbar { display: none; }
 `}</style>
@@ -1077,7 +1093,7 @@ export const Home: React.FC = () => {
             <div className="flex flex-col gap-3 hero-promo-stack">
               <div
                 onClick={() => setCurrentPage("shop")}
-                className="cursor-pointer group relative flex-1 rounded-2xl overflow-hidden"
+                className="cursor-pointer group relative flex-1 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02]"
                 style={{
                   background: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)",
                   border: "1px solid #3730a3",
@@ -1115,7 +1131,7 @@ export const Home: React.FC = () => {
                   setSelectedCategory("Laptop");
                   setCurrentPage("shop");
                 }}
-                className="cursor-pointer group relative flex-1 rounded-2xl overflow-hidden"
+                className="cursor-pointer group relative flex-1 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02]"
                 style={{
                   background: "linear-gradient(135deg,#064e3b 0%,#065f46 100%)",
                   border: "1px solid #047857",
@@ -1142,7 +1158,7 @@ export const Home: React.FC = () => {
               </div>
               <div
                 onClick={() => setCurrentPage("contact")}
-                className="cursor-pointer group relative flex-1 rounded-2xl overflow-hidden"
+                className="cursor-pointer group relative flex-1 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02]"
                 style={{
                   background: "linear-gradient(135deg,#431407 0%,#7c2d12 100%)",
                   border: "1px solid #9a3412",
@@ -1249,7 +1265,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* ══════════ TRUST ══════════ */} 
+      {/* ══════════ TRUST ══════════ */}
       <section
         className="py-8 md:py-12 bg-white border-b border-gray-100"
         ref={counterRef}
@@ -1359,7 +1375,7 @@ export const Home: React.FC = () => {
                 sub: "RTX GPU · High FPS · RGB",
                 badge: "Top Sellers",
                 badgeColor: "#ef4444",
-                from: "₹45,999",
+                from: "19,999",
                 dark: true,
                 icon: <Zap className="w-6 h-6 md:w-8 md:h-8" />,
                 action: () => {
@@ -1373,7 +1389,7 @@ export const Home: React.FC = () => {
                 sub: "Rendering · CAD · Data Work",
                 badge: "Pro Grade",
                 badgeColor: "#10b981",
-                from: "₹62,999",
+                from: "24,999",
                 dark: false,
                 icon: <Cpu className="w-6 h-6 md:w-8 md:h-8" />,
                 action: () => {
@@ -1386,7 +1402,7 @@ export const Home: React.FC = () => {
                 sub: "Built for your exact needs",
                 badge: "Popular",
                 badgeColor: "#8b5cf6",
-                from: "₹18,999",
+                from: "11,499",
                 dark: false,
                 icon: <Cpu className="w-6 h-6 md:w-8 md:h-8" />,
                 action: () => setCurrentPage("contact"),
@@ -1488,7 +1504,7 @@ export const Home: React.FC = () => {
             backgroundSize: "48px 48px",
           }}
         />
-<div className="relative app-container grid md:grid-cols-2 gap-6 md:gap-12 items-center">
+        <div className="relative app-container grid md:grid-cols-2 gap-6 md:gap-12 items-center">
           <div className="space-y-4 md:space-y-5 reveal from-left">
             <div
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-indigo-400 text-[10px] font-black uppercase tracking-widest"
@@ -1572,7 +1588,7 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ══════════ BEST DEALS ══════════ */}
-<section className="py-10 md:py-28 app-container">
+      <section className="py-10 md:py-28 app-container">
         <div className="flex items-end justify-between mb-6 md:mb-16 reveal">
           <div className="space-y-1 md:space-y-4">
             <h2 className="text-[10px] md:text-xs font-black text-indigo-600 uppercase tracking-[0.2em]">
@@ -1723,10 +1739,7 @@ export const Home: React.FC = () => {
             </p>
           </div>
           {/* Mobile: horizontal scroll tiers */}
-          <div
-            className="flex md:hidden gap-3 overflow-x-auto pb-2 sidebar-scroll"
-            style={{ scrollbarWidth: "none" }}
-          >
+          <div className="grid md:hidden grid-cols-1 gap-4">
             {buildTiers.map((tier, i) => (
               <div
                 key={i}
@@ -1734,16 +1747,16 @@ export const Home: React.FC = () => {
                   setSelectedCategory("Desktop");
                   setCurrentPage("shop");
                 }}
-                className="cursor-pointer relative rounded-2xl p-5 flex flex-col gap-3 shrink-0"
+                className={`card-hover cursor-pointer relative rounded-2xl p-5 flex flex-col gap-3 transition-all duration-300 hover:shadow-lg ${
+                  tier.featured
+                    ? "shadow-xl shadow-indigo-500/20"
+                    : "hover:shadow-lg hover:shadow-indigo-500/10"
+                }`}
                 style={{
-                  background: tier.bg,
+                  background: tier.bg || "#fff",
                   border: tier.featured
                     ? "2px solid #6366f1"
                     : "1px solid #e5e7eb",
-                  minWidth: 220,
-                  boxShadow: tier.featured
-                    ? "0 8px 30px rgba(99,102,241,0.2)"
-                    : "none",
                 }}
               >
                 {(tier as any).featured && (
@@ -1792,7 +1805,8 @@ export const Home: React.FC = () => {
                   ))}
                 </div>
                 <button
-                  className={`w-full py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all ${tier.dark ? "bg-indigo-600 text-white" : "bg-gray-900 text-white hover:bg-indigo-600"}`}
+                  className="w-full py-3.5 rounded-2xl font-black text-sm uppercase tracking-wider transition-all duration-200 hover:opacity-80 hover:scale-[1.02] active:scale-[0.98]"
+                  style={{ background: tier.color, color: "#fff" }}
                 >
                   Shop {tier.tier} →
                 </button>
@@ -1808,7 +1822,7 @@ export const Home: React.FC = () => {
                   setSelectedCategory("Desktop");
                   setCurrentPage("shop");
                 }}
-                className={`card-hover cursor-pointer relative rounded-4xl p-8 flex flex-col gap-5 ${tier.featured ? "md:-mt-6 shadow-2xl shadow-indigo-500/20" : "shadow-sm"}`}
+                className={`card-hover cursor-pointer relative rounded-4xl p-8 flex flex-col gap-5 ${tier.featured ? "md:-mt-6 shadow-2xl shadow-indigo-500/20" : "shadow-sm hover:shadow-xl hover:shadow-indigo-500/15"}`}
                 style={{
                   background: tier.bg,
                   border: tier.featured
@@ -1868,7 +1882,8 @@ export const Home: React.FC = () => {
                   Ideal for: {tier.ideal}
                 </div>
                 <button
-                  className={`w-full py-3.5 rounded-2xl font-black text-sm uppercase tracking-wider transition-all ${tier.dark ? "bg-indigo-600 text-white hover:bg-indigo-500" : "bg-gray-900 text-white hover:bg-indigo-600"}`}
+                  className={`w-full py-3.5 rounded-2xl font-black text-sm uppercase tracking-wider transition-all`}
+                  style={{ background: tier.color, color: "#fff" }}
                 >
                   Shop {tier.tier} →
                 </button>
@@ -2036,7 +2051,7 @@ export const Home: React.FC = () => {
               "radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)",
           }}
         />
-<div className="relative app-container py-10 md:py-20 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+        <div className="relative app-container py-10 md:py-20 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           <div className="space-y-4 md:space-y-6 reveal from-left">
             <div
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest"
@@ -2181,7 +2196,7 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ══════════ SERVICES ══════════ */}
-<section className="py-10 md:py-24 app-container text-center">
+      <section className="py-10 md:py-24 app-container text-center">
         <div className="mb-6 md:mb-12 reveal">
           <p className="text-[10px] md:text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-1 md:mb-2">
             What We Offer
@@ -2272,7 +2287,7 @@ export const Home: React.FC = () => {
               "radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)",
           }}
         />
-<div className="relative app-container py-10 md:py-20 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+        <div className="relative app-container py-10 md:py-20 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           <div className="space-y-4 md:space-y-6 reveal from-left">
             <div
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest"
