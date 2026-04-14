@@ -90,7 +90,7 @@ function fromSupabase(row: any): Product {
       ? Object.values(row.specs as Record<string, unknown>).map(String)
       : [],
     rating: Number(row.rating_avg ?? 0),
-    reviews: row.rating_count ?? 0,
+    reviews: row.reviews_count ?? row.rating_count ?? 0,
     likesCount: row.likes_count ?? 0,
     tags: (row.product_tags ?? [])
       .map((pt: any) => pt.tags?.name)
@@ -333,8 +333,14 @@ export const Store: React.FC = () => {
   } = useStore();
 
   // ── Navigation state ──────────────────────────────────────────────────────
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(() => {
+    try {
+      const saved = sessionStorage.getItem("selectedProduct");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   // ── data state ──
   const [products, setProducts] = useState<Product[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -399,6 +405,7 @@ export const Store: React.FC = () => {
   // ── Handlers ─────────────────────────────────────────────────────────────
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product);
+    sessionStorage.setItem("selectedProduct", JSON.stringify(product));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -428,9 +435,9 @@ export const Store: React.FC = () => {
 
   const handleNavigateToCart = () => {
     setSelectedProduct(null);
+    sessionStorage.removeItem("selectedProduct");
     setCurrentPage("cart");
   };
-
   // ── Hero search bar submit ────────────────────────────────────────────────
   const handleHeroSearch = () => {
     const q = heroSearch.trim();
@@ -454,7 +461,7 @@ export const Store: React.FC = () => {
               `id, name, description, image_url, images,
                retail_price, discount_percent, discounted_price,
                stock_quantity, condition, brand, specs,
-               rating_avg, rating_count, likes_count, created_at,
+               rating_avg, rating_count, reviews_count, likes_count, created_at,
                categories ( name, slug ),
                subcategories ( name, slug ),
                product_tags ( tags ( name ) ),model`,
@@ -566,7 +573,28 @@ export const Store: React.FC = () => {
           const { data, error, count } = await q;
           if (error) throw error;
 
-          setProducts((data ?? []).map(fromSupabase));
+          const mappedProducts = (data ?? []).map(fromSupabase);
+
+          const productIds = mappedProducts.map((p) => Number(p.id));
+          if (productIds.length > 0) {
+            const { data: reviewRows } = await supabase
+              .from("reviews")
+              .select("product_id")
+              .in("product_id", productIds);
+
+            if (reviewRows) {
+              const countMap: Record<number, number> = {};
+              for (const row of reviewRows) {
+                countMap[row.product_id] = (countMap[row.product_id] ?? 0) + 1;
+              }
+              for (const p of mappedProducts) {
+                const realCount = countMap[Number(p.id)];
+                if (realCount !== undefined) p.reviews = realCount;
+              }
+            }
+          }
+
+          setProducts(mappedProducts);
           setTotalCount(count ?? 0);
           setFromFallback(false);
           loaded = true;
@@ -685,10 +713,10 @@ export const Store: React.FC = () => {
 
   const handlePageChange = (newPage: number) => {
     setRevealed(false);
+    setPage(newPage);
     setTimeout(() => {
-      setPage(newPage);
       gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 220);
+    }, 50);
   };
 
   // ── If a product is selected, render ProductDetails ───────────────────────
@@ -698,6 +726,7 @@ export const Store: React.FC = () => {
         product={selectedProduct}
         onBack={() => {
           setSelectedProduct(null);
+          sessionStorage.removeItem("selectedProduct");
           window.scrollTo({ top: 0, behavior: "smooth" });
         }}
         onNavigateToCart={handleNavigateToCart}
@@ -754,7 +783,7 @@ export const Store: React.FC = () => {
           </p>
 
           <div
-            className="max-w-2xl mx-auto relative group anim-fade-in-up"
+            className="w-[90%] sm:w-full max-w-2xl mx-auto relative group anim-fade-in-up"
             style={{ animationDelay: "0.24s" }}
           >
             <div className="absolute inset-0 bg-indigo-600/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
@@ -781,9 +810,10 @@ export const Store: React.FC = () => {
               )}
               <button
                 onClick={handleHeroSearch}
-                className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shrink-0"
+                className="bg-indigo-600 text-white px-3 py-3 sm:px-6 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shrink-0"
               >
-                Search
+                <span className="hidden sm:inline">Search</span>
+                <Search className="w-4 h-4 sm:hidden" />
               </button>
             </div>
           </div>

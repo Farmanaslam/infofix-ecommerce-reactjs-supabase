@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Star,
   Heart,
@@ -186,14 +186,31 @@ const StarPicker: React.FC<{
 
 // Review Card
 const ReviewCard: React.FC<{ review: Review }> = ({ review }) => {
-  const [helpful, setHelpful] = useState(review.helpful);
-  const [marked, setMarked] = useState(false);
+  const storageKey = `helpful_${review.id}`;
+
+  const [helpful, setHelpful] = useState(() => {
+    try {
+      const stored = localStorage.getItem(storageKey);
+      return stored ? Number(stored) : review.helpful;
+    } catch {
+      return review.helpful;
+    }
+  });
+
+  const [marked, setMarked] = useState(() => {
+    try {
+      return localStorage.getItem(`${storageKey}_marked`) === "1";
+    } catch {
+      return false;
+    }
+  });
+
   return (
     <div className="bg-white border border-gray-100 rounded-3xl p-5 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all duration-300">
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-linear-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-indigo-200/60">
-            {review.name[0].toUpperCase()}
+            {(review.name?.[0] ?? "?").toUpperCase()}
           </div>
           <div>
             <div className="flex items-center gap-1.5">
@@ -228,8 +245,13 @@ const ReviewCard: React.FC<{ review: Review }> = ({ review }) => {
         <button
           onClick={() => {
             if (!marked) {
-              setHelpful((h) => h + 1);
+              const newCount = helpful + 1;
+              setHelpful(newCount);
               setMarked(true);
+              try {
+                localStorage.setItem(storageKey, String(newCount));
+                localStorage.setItem(`${storageKey}_marked`, "1");
+              } catch {}
             }
           }}
           className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl transition-all ${marked ? "bg-indigo-50 text-indigo-600 border border-indigo-100" : "text-gray-400 hover:text-indigo-500 hover:bg-gray-50"}`}
@@ -251,10 +273,18 @@ const AddReviewForm: React.FC<{
   const [stars, setStars] = useState(0);
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
-  const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = () => {
+  // ── Check on mount if this user already reviewed this product ──
+  const [submitted, setSubmitted] = useState(() => {
+    try {
+      return localStorage.getItem(`reviewed_product_${productId}`) === "1";
+    } catch {
+      return false;
+    }
+  });
+
+  const handleSubmit = async () => {
     if (!name.trim()) {
       setError("Please enter your name.");
       return;
@@ -268,6 +298,7 @@ const AddReviewForm: React.FC<{
       return;
     }
     setError("");
+
     const newReview: Review = {
       id: Date.now().toString(),
       name: name.trim(),
@@ -278,26 +309,41 @@ const AddReviewForm: React.FC<{
       verified: false,
       helpful: 0,
     };
+
+    if (supabase) {
+      await supabase.from("reviews").insert({
+        product_id: Number(productId),
+        reviewer: name.trim(),
+        rating: stars,
+        body: text.trim(),
+      });
+    } else {
+      try {
+        const key = `reviews_${productId}`;
+        const existing = JSON.parse(localStorage.getItem(key) ?? "[]");
+        localStorage.setItem(key, JSON.stringify([newReview, ...existing]));
+      } catch {}
+    }
+
+    // ── Persist so reload shows "already reviewed" ──
     try {
-      const key = `reviews_${productId}`;
-      const existing = JSON.parse(localStorage.getItem(key) ?? "[]");
-      localStorage.setItem(key, JSON.stringify([newReview, ...existing]));
+      localStorage.setItem(`reviewed_product_${productId}`, "1");
     } catch {}
+
     onSubmit(newReview);
     setSubmitted(true);
   };
 
+  // ── Already reviewed (persists across reloads) ──
   if (submitted) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 bg-emerald-50 rounded-3xl border border-emerald-100">
         <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-200">
           <Check className="w-8 h-8 text-white" strokeWidth={2.5} />
         </div>
-        <p className="font-black text-gray-900 text-lg">
-          Thanks for your review!
-        </p>
-        <p className="text-sm text-gray-500">
-          Your feedback helps other customers make better choices.
+        <p className="font-black text-gray-900 text-lg">Review Submitted!</p>
+        <p className="text-sm text-gray-500 text-center max-w-xs">
+          You've already reviewed this product. Thank you for your feedback!
         </p>
       </div>
     );
@@ -405,39 +451,57 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
     "idle" | "checking" | "ok" | "fail"
   >("idle");
   const [deliveryDate, setDeliveryDate] = useState("");
-  const [reviews, setReviews] = useState<Review[]>(() => {
-    const seed: Review[] = [
-      {
-        id: "s1",
-        name: "Rahul M.",
-        stars: 5,
-        title: "Absolutely worth it!",
-        text: "Excellent condition, exactly as described. Delivery was fast and packaging was great. Would highly recommend to anyone looking for quality at this price point.",
-        date: "2 weeks ago",
-        verified: true,
-        helpful: 14,
-      },
-      {
-        id: "s2",
-        name: "Priya S.",
-        stars: 4,
-        title: "Great value for money",
-        text: "Works perfectly for my daily use. Minor cosmetic marks but performance is flawless. Infofix warranty gives real peace of mind.",
-        date: "1 month ago",
-        verified: true,
-        helpful: 8,
-      },
-    ];
-    try {
-      const stored = JSON.parse(
-        localStorage.getItem(`reviews_${product.id}`) ?? "[]",
-      );
-      return [...stored, ...seed];
-    } catch {
-      return seed;
-    }
-  });
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
 
+  useEffect(() => {
+    const fetchReviews = async () => {
+      setReviewsLoading(true);
+
+      // 1. Try Supabase first
+      if (supabase) {
+        const { data, error } = await supabase
+          .from("reviews")
+          .select("*")
+          .eq("product_id", Number(product.id))
+          .order("created_at", { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          setReviews(
+            data.map((r: any) => ({
+              id: String(r.id),
+              name: r.reviewer ?? "Customer",
+              stars: r.rating ?? 5,
+              title: "",
+              text: r.body ?? "",
+              date: new Date(r.created_at).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              }),
+              verified: true,
+              helpful: 0,
+            })),
+          );
+          setReviewsLoading(false);
+          return;
+        }
+      }
+
+      // 2. Fallback: localStorage only (no hardcoded seed reviews)
+      try {
+        const stored = JSON.parse(
+          localStorage.getItem(`reviews_${product.id}`) ?? "[]",
+        );
+        setReviews(stored);
+      } catch {
+        setReviews([]);
+      }
+      setReviewsLoading(false);
+    };
+
+    fetchReviews();
+  }, [product.id]);
   // ── Derived ──
   const galleryImages: string[] =
     Array.isArray(product.images) && product.images.length > 0

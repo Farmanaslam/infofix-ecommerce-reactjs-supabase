@@ -246,7 +246,7 @@ export const AboutUs: React.FC = () => {
                 badge: "In-House Built",
                 badgeColor: "#10b981",
                 desc: "Assembled, configured, and stress-tested by our in-house technicians. Office desktops, workstations, and gaming rigs — ready same-day across our branches.",
-                from: "Starting ₹14,999",
+                from: "Starting ₹10,999",
                 dark: true,
               },
               {
@@ -255,7 +255,7 @@ export const AboutUs: React.FC = () => {
                 badge: "Any Config",
                 badgeColor: "#f59e0b",
                 desc: "Tell us your budget, use case, and workload. We source every component, assemble, and deliver a machine built precisely for you — gaming, editing, coding, or office.",
-                from: "Starting ₹14,999",
+                from: "Starting ₹10,999",
                 dark: false,
               },
               {

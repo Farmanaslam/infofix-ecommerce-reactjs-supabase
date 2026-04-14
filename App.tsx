@@ -59,7 +59,6 @@ const Main: React.FC = () => {
               avatar: "",
             });
             setViewMode("STORE");
-            localStorage.setItem("currentPage", "home");
             return;
           }
 
@@ -126,7 +125,12 @@ const Main: React.FC = () => {
             });
           }
           const stalePage = localStorage.getItem("currentPage");
-          if (!stalePage || stalePage === "login" || stalePage === "signup") {
+          if (
+            !stalePage ||
+            stalePage === "login" ||
+            stalePage === "signup" ||
+            stalePage === "checkout"
+          ) {
             localStorage.setItem("currentPage", "home");
           }
         }

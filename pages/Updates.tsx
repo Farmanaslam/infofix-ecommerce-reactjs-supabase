@@ -3,29 +3,16 @@ import { Calendar, User, ChevronRight, X } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import { UpdatePost } from "../types";
 import { UpdateCardSkeleton } from "./Skeleton";
+
 export const Updates: React.FC = () => {
   const [posts, setPosts] = useState<UpdatePost[]>([]);
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedPost, setSelectedPost] = useState<UpdatePost | null>(null);
-  const [expandedPost, setExpandedPost] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const fallbackPosts: UpdatePost[] = [
-    {
-      id: "1",
-      title: "Why Business-Series Laptops Are Better Than Home-Series Laptops",
-      excerpt:
-        "Business laptops are designed for durability and long-term performance.",
-      category: "Business & Student Laptops",
-      author: "Infofix Technical Team",
-      image_url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
-      published_date: "2024-10-12",
-      is_featured: true,
-    },
-  ];
+
   useEffect(() => {
     const fetchUpdates = async () => {
       setLoading(true);
-
       const { data, error } = await supabase
         .from("updates")
         .select("*")
@@ -36,34 +23,35 @@ export const Updates: React.FC = () => {
       } else {
         setPosts(data);
       }
-
       setLoading(false);
     };
 
     fetchUpdates();
   }, []);
 
-  const categories = [
-    "All",
-    "Business & Student Laptops",
-    "Refurbished vs New",
-    "Accessories & Upgrades",
-  ];
+  const categories = ["All", "Desktop PCs", "Custom Build PCs", "Laptops"];
 
   const filteredPosts =
     activeCategory === "All"
       ? posts
       : posts.filter((p) => p.category === activeCategory);
 
+  const categoryStyle: Record<string, string> = {
+    "Desktop PCs": "bg-orange-50 text-orange-700",
+    "Custom Build PCs": "bg-blue-50 text-blue-700",
+    Laptops: "bg-green-50 text-green-700",
+  };
+
   return (
     <div className="py-24 app-container">
       {/* Hero */}
       <div className="mb-16 text-center space-y-6">
         <h1 className="text-5xl font-black text-gray-900">
-          Tech Updates & Buying Guides
+          Tech Guides & Buying Advice
         </h1>
         <p className="text-gray-500 text-lg max-w-3xl mx-auto">
-          Learn before you buy. Stay updated with Infofix Computers.
+          Expert insights on desktops, custom-built PCs, and laptops — written
+          by the Infofix technical team.
         </p>
       </div>
 
@@ -109,6 +97,15 @@ export const Updates: React.FC = () => {
               </div>
 
               <div className="space-y-6">
+                {/* Category badge */}
+                <span
+                  className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
+                    categoryStyle[post.category] ?? "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {post.category}
+                </span>
+
                 <div className="flex items-center gap-6 text-sm font-bold text-gray-400">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
@@ -124,7 +121,7 @@ export const Updates: React.FC = () => {
                   {post.title}
                 </h2>
 
-                <p className="text-gray-500 text-lg font-medium">
+                <p className="text-gray-500 text-lg font-medium line-clamp-3">
                   {post.excerpt}
                 </p>
 
@@ -154,7 +151,17 @@ export const Updates: React.FC = () => {
             <img
               src={selectedPost.image_url}
               className="w-full rounded-2xl mb-8"
+              alt={selectedPost.title}
             />
+
+            <span
+              className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide mb-4 ${
+                categoryStyle[selectedPost.category] ??
+                "bg-gray-100 text-gray-500"
+              }`}
+            >
+              {selectedPost.category}
+            </span>
 
             <h2 className="text-4xl font-black mb-6">{selectedPost.title}</h2>
 
@@ -171,8 +178,9 @@ export const Updates: React.FC = () => {
           Written by Real Technicians
         </h2>
         <p className="text-gray-600 max-w-3xl mx-auto">
-          All updates are created by experienced technicians at Infofix
-          Computers based on real customer needs.
+          All guides are created by experienced technicians at Infofix Computers
+          based on real customer questions and hands-on experience with the
+          machines we sell and build.
         </p>
       </div>
     </div>
