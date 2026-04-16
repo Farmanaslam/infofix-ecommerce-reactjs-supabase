@@ -1375,7 +1375,7 @@ export const Home: React.FC = () => {
                 sub: "RTX GPU · High FPS · RGB",
                 badge: "Top Sellers",
                 badgeColor: "#ef4444",
-                from: "19,999",
+                from: "14,999",
                 dark: true,
                 icon: <Zap className="w-6 h-6 md:w-8 md:h-8" />,
                 action: () => {
