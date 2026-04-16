@@ -92,9 +92,7 @@ function fromSupabase(row: any): Product {
     rating: Number(row.rating_avg ?? 0),
     reviews: row.reviews_count ?? row.rating_count ?? 0,
     likesCount: row.likes_count ?? 0,
-    tags: (row.product_tags ?? [])
-      .map((pt: any) => pt.tags?.name)
-      .filter(Boolean),
+    tags: [],
     model: row.model ?? "",
   };
 }
@@ -404,8 +402,9 @@ export const Store: React.FC = () => {
 
   // ── Handlers ─────────────────────────────────────────────────────────────
   const handleViewDetails = (product: Product) => {
-    setSelectedProduct(product);
-    sessionStorage.setItem("selectedProduct", JSON.stringify(product));
+    const enriched = products.find((p) => p.id === product.id) ?? product;
+    setSelectedProduct(enriched);
+    sessionStorage.setItem("selectedProduct", JSON.stringify(enriched));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -463,8 +462,7 @@ export const Store: React.FC = () => {
                stock_quantity, condition, brand, specs,
                rating_avg, rating_count, reviews_count, likes_count, created_at,
                categories ( name, slug ),
-               subcategories ( name, slug ),
-               product_tags ( tags ( name ) ),model`,
+               subcategories ( name, slug ),model`,
               { count: "exact" },
             )
             .eq("is_active", true);
@@ -574,7 +572,32 @@ export const Store: React.FC = () => {
           if (error) throw error;
 
           const mappedProducts = (data ?? []).map(fromSupabase);
+          // ── Fetch tags separately and attach ──
+          const productIdsForTags = mappedProducts.map((p) => Number(p.id));
+          if (productIdsForTags.length > 0) {
+            const { data: tagRows } = await supabase
+              .from("product_tags")
+              .select("product_id, tags ( name )")
+              .in("product_id", productIdsForTags);
 
+            if (tagRows) {
+              const tagsMap: Record<number, string[]> = {};
+              for (const row of tagRows) {
+                const pid = row.product_id;
+                const name = (row.tags as any)?.name;
+                if (name) {
+                  if (!tagsMap[pid]) tagsMap[pid] = [];
+                  tagsMap[pid].push(name);
+                }
+              }
+              // ✅ Direct overwrite — separate fetch is authoritative
+              for (const p of mappedProducts) {
+                p.tags = tagsMap[Number(p.id)] ?? [];
+              }
+            }
+          }
+
+          // ── Fetch real review counts ──
           const productIds = mappedProducts.map((p) => Number(p.id));
           if (productIds.length > 0) {
             const { data: reviewRows } = await supabase
@@ -594,6 +617,7 @@ export const Store: React.FC = () => {
             }
           }
 
+          // ✅ setProducts AFTER all enrichment is done
           setProducts(mappedProducts);
           setTotalCount(count ?? 0);
           setFromFallback(false);
@@ -1081,7 +1105,7 @@ export const Store: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
             {[
               { stat: "5000+", label: "Happy Customers" },
-              { stat: "1 Year", label: "Warranty on Refurbished" },
+              { stat: "1 Year", label: "Warranty on All Products" },
               { stat: "Secure", label: "Verified Payments" },
               { stat: "Fast", label: "PAN India Shipping" },
             ].map((item) => (

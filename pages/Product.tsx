@@ -74,12 +74,9 @@ export const ProductCard: React.FC<ProductProps> = ({
   const isOut = product.stock === 0;
   const delay = (cardIdx % PER_PAGE) * 55;
 
-  // specs can be an array of strings OR a Record<string,string> depending on
-  // how the store mapper normalises it. Support both shapes here.
   const specEntries: { key: string; value: string }[] = (() => {
     if (!product.specs) return [];
     if (Array.isArray(product.specs)) {
-      // Legacy: array of "Key: Value" strings
       return (product.specs as string[]).map((s) => {
         const idx = s.indexOf(":");
         return idx > -1
@@ -87,7 +84,6 @@ export const ProductCard: React.FC<ProductProps> = ({
           : { key: s, value: "" };
       });
     }
-    // Preferred: Record<string,string>
     return Object.entries(product.specs as Record<string, string>).map(
       ([key, value]) => ({ key, value: String(value) }),
     );
@@ -107,7 +103,7 @@ export const ProductCard: React.FC<ProductProps> = ({
     >
       {/* ── Image ── */}
       <div
-        className="relative aspect-4/5 rounded-[28px] overflow-hidden bg-gray-50 mb-6
+        className="relative aspect-square md:aspect-4/5 rounded-2xl md:rounded-[28px] overflow-hidden bg-gray-50 mb-3 md:mb-6
                      transition-all duration-500
                      group-hover:-translate-y-2 group-hover:shadow-[0_32px_64px_-12px_rgba(79,70,229,0.18)]"
       >
@@ -125,9 +121,9 @@ export const ProductCard: React.FC<ProductProps> = ({
 
         <div className="absolute inset-0 bg-gray-900/0 group-hover:bg-gray-900/14 transition-colors duration-400 pointer-events-none" />
 
-        {/* Action buttons */}
+        {/* ── Action buttons ── */}
         <div
-          className="absolute top-5 right-5 flex flex-col gap-2 z-20
+          className="absolute top-3 right-3 md:top-5 md:right-5 flex flex-col gap-1.5 md:gap-2 z-20
                         translate-x-14 group-hover:translate-x-0
                         transition-transform duration-300 ease-out"
           onClick={(e) => e.stopPropagation()}
@@ -136,7 +132,7 @@ export const ProductCard: React.FC<ProductProps> = ({
             onClick={handleLike}
             aria-label={liked ? "Liked" : "Like this product"}
             aria-pressed={liked}
-            className={`w-10 h-10 rounded-2xl flex items-center justify-center backdrop-blur-md border shadow-lg transition-all duration-250
+            className={`w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl flex items-center justify-center backdrop-blur-md border shadow-lg transition-all duration-250
               ${
                 liked
                   ? "bg-red-500 border-red-400 text-white scale-110 shadow-red-200/60"
@@ -144,7 +140,7 @@ export const ProductCard: React.FC<ProductProps> = ({
               }`}
           >
             <Heart
-              className={`w-4 h-4 transition-all duration-200 ${liked ? "fill-current" : ""}`}
+              className={`w-3.5 h-3.5 transition-all duration-200 ${liked ? "fill-current" : ""}`}
             />
           </button>
           <button
@@ -153,98 +149,114 @@ export const ProductCard: React.FC<ProductProps> = ({
               onViewDetails(product);
             }}
             aria-label="Quick view"
-            className="w-10 h-10 rounded-2xl flex items-center justify-center
+            className="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl flex items-center justify-center
                        bg-white/90 backdrop-blur-md border border-white/60 text-gray-500
                        hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200
                        shadow-lg transition-all duration-200 delay-60"
           >
-            <Eye className="w-4 h-4" />
+            <Eye className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {/* Add to cart (hover) */}
+        {/* ── Hover Add to Cart (desktop only) ── */}
         {!isOut && (
           <div
-            className="absolute inset-x-3 bottom-3 z-20
-                  hidden md:block
-                  translate-y-full group-hover:translate-y-0
-                  transition-transform duration-400 ease-out"
+            className="absolute inset-x-3 bottom-3 z-20 hidden md:block
+                        translate-y-full group-hover:translate-y-0
+                        transition-transform duration-400 ease-out"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => onAddToCart(product)}
               className="w-full bg-gray-900 hover:bg-indigo-600 text-white
-                 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em]
-                 flex items-center justify-center gap-2 shadow-2xl transition-colors duration-200"
+                         py-3 rounded-2xl font-black text-[9px] uppercase tracking-[0.18em]
+                         flex items-center justify-center gap-2 shadow-2xl transition-colors duration-200"
             >
-              <ShoppingBag className="w-3.5 h-3.5" />
+              <ShoppingBag className="w-3 h-3" />
               Add to Cart
             </button>
           </div>
         )}
 
-        {/* Badges */}
-        <div className="absolute top-5 left-5 flex flex-col gap-1.5 z-10 pointer-events-none">
-          {product.condition === "Refurbished" && (
-            <span className="bg-emerald-600 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg shadow-lg">
-              ✓ Infofix Certified
-            </span>
-          )}
-          {product.condition === "New" && (
-            <span className="bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg shadow-lg">
-              Brand New
-            </span>
-          )}
+        {/* ── ALL Badges — shown on BOTH mobile and desktop, top-left ── */}
+
+        <div className="absolute top-1.5 left-1.5 md:top-3 md:left-3 flex flex-col gap-0.75 md:gap-1 z-10 pointer-events-none">
+          {product.tags &&
+            product.tags.length > 0 &&
+            product.tags.slice(0, 3).map((tag, i) => {
+              const tagColors: Record<string, string> = {
+                Gaming: "bg-purple-600/95",
+                Budget: "bg-green-600/95",
+                Professional: "bg-blue-700/95",
+                "Best Seller": "bg-amber-500/95",
+                "New Arrival": "bg-indigo-600/95",
+                Sale: "bg-red-600/95",
+                Certified: "bg-emerald-600/95",
+                Refurbished: "bg-teal-600/95",
+              };
+              const color = tagColors[tag] ?? "bg-gray-700/95";
+              return (
+                <span
+                  key={i}
+                  className={`${color} backdrop-blur-sm text-white 
+                      text-[3px] md:text-[5px] 
+                      font-black uppercase tracking-[0.12em] 
+                     px-1 md:px-1.5 py-0.5 md:py-0.75 
+                       rounded-sm md:rounded 
+                     shadow-sm leading-none`}
+                >
+                  {tag}
+                </span>
+              );
+            })}
+
           {isOut && (
-            <span className="bg-gray-700 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">
+            <span className="bg-gray-700/95 backdrop-blur-sm text-white text-[3px] md:text-[5px] font-black uppercase tracking-wide px-1.5 md:px-2 py-0.5 md:py-0.75 rounded-sm md:rounded-md leading-none">
               Out of Stock
             </span>
           )}
           {isLow && !isOut && (
-            <span className="bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg shadow-lg flex items-center gap-1">
-              <Zap className="w-2.5 h-2.5" />
-              Only {product.stock} left
+            <span className="bg-orange-500/95 backdrop-blur-sm text-white text-[3px] md:text-[5px] font-black uppercase tracking-wide px-1.5 md:px-2 py-0.5 md:py-0.75 rounded-sm md:rounded-md shadow-sm flex items-center gap-0.5 leading-none">
+              <Zap className="w-2 h-2" />
+              {product.stock} left
             </span>
           )}
           {product.discountPercent >= 10 && (
-            <span className="bg-red-500 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg shadow-lg">
+            <span className="bg-red-500/95 backdrop-blur-sm text-white text-[3px] md:text-[5px] font-black uppercase tracking-wide px-1.5 md:px-2 py-0.5 md:py-0.75 rounded-sm md:rounded-md shadow-sm leading-none">
               {product.discountPercent}% OFF
-            </span>
-          )}
-          {cardIdx === 0 && (
-            <span className="bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg shadow-lg flex items-center gap-1">
-              <Sparkles className="w-2.5 h-2.5" /> New
             </span>
           )}
         </div>
       </div>
 
       {/* ── Info ── */}
-      <div className="flex flex-col flex-1 gap-1.5 px-2 transition-transform duration-500 group-hover:translate-x-0.5">
+      <div className="flex flex-col flex-1 gap-1 md:gap-1.5 px-1 md:px-2 transition-transform duration-500 group-hover:translate-x-0.5">
+        {/* Category + Rating */}
         <div className="flex items-center justify-between">
-          <span className="text-[10px] text-indigo-600 font-black uppercase tracking-[0.18em]">
+          <span className="text-[9px] md:text-[10px] text-indigo-600 font-black uppercase tracking-[0.15em] truncate max-w-[60%]">
             {product.category}
             {product.subcategory && (
-              <span className="text-gray-400 font-medium normal-case ml-1 tracking-normal">
+              <span className="text-gray-400 font-medium normal-case ml-1 tracking-normal hidden md:inline">
                 · {product.subcategory}
               </span>
             )}
           </span>
-          <div className="flex items-center gap-1 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-lg">
-            <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-            <span className="text-[10px] font-bold text-amber-700">
+          <div className="flex items-center gap-0.5 md:gap-1 bg-amber-50 border border-amber-100 px-1.5 md:px-2 py-0.5 rounded-lg shrink-0">
+            <Star className="w-2.5 h-2.5 md:w-3 md:h-3 text-amber-500 fill-amber-500" />
+            <span className="text-[9px] md:text-[10px] font-bold text-amber-700">
               {product.rating.toFixed(1)}
             </span>
           </div>
         </div>
 
-        <h3 className="font-bold text-[18px] text-gray-900 leading-snug line-clamp-2 min-h-12 group-hover:text-indigo-600 transition-colors duration-200">
+        {/* Product Name */}
+        <h3 className="font-bold text-[13px] md:text-[18px] text-gray-900 leading-snug line-clamp-2 md:min-h-12 group-hover:text-indigo-600 transition-colors duration-200">
           {product.name}
         </h3>
 
-        {/* ── Model + Brand row ── */}
+        {/* Model + Brand — desktop only */}
         {(product.model || product.brand) && (
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="hidden md:flex items-center gap-1.5 flex-wrap">
             {product.model && (
               <span className="text-[11px] font-semibold text-gray-500 leading-none">
                 {product.model}
@@ -261,42 +273,36 @@ export const ProductCard: React.FC<ProductProps> = ({
           </div>
         )}
 
-        {product.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {product.tags.slice(0, 2).map((t) => (
-              <span
-                key={t}
-                className="text-[8px] bg-indigo-50 text-indigo-500 border border-indigo-100 px-2 py-0.5 rounded-full font-bold uppercase tracking-wide"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
+        {/* Brand — mobile only, compact */}
+        {product.brand && (
+          <span className="md:hidden text-[9px] font-black text-gray-400 uppercase tracking-wider leading-none">
+            {product.brand}
+          </span>
         )}
 
         <div className="flex-1" />
 
-        {/* Price row */}
-        <div className="flex items-end justify-between mt-1.5">
+        {/* Price */}
+        <div className="flex items-end justify-between mt-1">
           <div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-black text-[22px] text-gray-900 tracking-tight leading-none">
+            <div className="flex items-baseline gap-1.5 md:gap-2 flex-wrap">
+              <span className="font-black text-[16px] md:text-[22px] text-gray-900 tracking-tight leading-none">
                 ₹{product.price.toLocaleString("en-IN")}
               </span>
               {product.retailPrice && product.retailPrice > product.price && (
-                <span className="text-sm text-gray-400 line-through font-medium">
+                <span className="text-[11px] md:text-sm text-gray-400 line-through font-medium">
                   ₹{product.retailPrice.toLocaleString("en-IN")}
                 </span>
               )}
             </div>
             {savings > 0 && (
-              <span className="text-[10px] text-emerald-600 font-bold mt-0.5 block">
+              <span className="text-[9px] md:text-[10px] text-emerald-600 font-bold mt-0.5 block">
                 Save ₹{savings.toLocaleString("en-IN")}
               </span>
             )}
           </div>
           <div className="hidden md:block text-right">
-            <p className="text-[10px]  text-gray-400 font-semibold uppercase tracking-wider">
+            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">
               {product.reviews} reviews
             </p>
             {likes > 0 && (
@@ -312,45 +318,43 @@ export const ProductCard: React.FC<ProductProps> = ({
           </div>
         </div>
 
-        {/* ── Mobile: Add to Cart + Buy Now both always visible ── */}
+        {/* ── CTA Buttons ── */}
         {!isOut && (
-          <div className="mt-3 flex flex-col gap-2">
-            {/* Add to Cart — mobile only */}
+          <div className="mt-2 md:mt-3 flex flex-col gap-1.5 md:gap-2">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onAddToCart(product);
               }}
-              className="md:hidden w-full flex items-center justify-center gap-2
-                 bg-gray-900 hover:bg-gray-800 active:scale-[0.98]
-                 text-white py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em]
-                 shadow-md transition-all duration-200"
+              className="md:hidden w-full flex items-center justify-center gap-1.5
+                         bg-gray-900 hover:bg-gray-800 active:scale-[0.98]
+                         text-white py-2.5 rounded-xl font-black text-[9px] uppercase tracking-[0.18em]
+                         shadow-sm transition-all duration-200"
             >
-              <ShoppingBag className="w-3.5 h-3.5" />
+              <ShoppingBag className="w-3 h-3" />
               Add to Cart
             </button>
-
-            {/* Buy Now — always visible */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onBuyNow(product);
               }}
-              className="w-full flex items-center justify-center gap-2
-                 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98]
-                 text-white py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-[0.18em]
-                 shadow-lg shadow-indigo-200/70 transition-all duration-200 group/btn"
+              className="w-full flex items-center justify-center gap-1.5 md:gap-2
+                         bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98]
+                         text-white py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black
+                         text-[9px] md:text-[11px] uppercase tracking-[0.15em] md:tracking-[0.18em]
+                         shadow-lg shadow-indigo-200/70 transition-all duration-200 group/btn"
             >
               Buy Now
-              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-0.5" />
+              <ArrowRight className="w-3 h-3 md:w-3.5 md:h-3.5 transition-transform duration-200 group-hover/btn:translate-x-0.5" />
             </button>
           </div>
         )}
         {isOut && (
           <button
             disabled
-            className="mt-3 w-full py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-[0.18em]
-                       bg-gray-100 text-gray-400 cursor-not-allowed"
+            className="mt-2 md:mt-3 w-full py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black
+                       text-[9px] md:text-[11px] uppercase tracking-[0.15em] bg-gray-100 text-gray-400 cursor-not-allowed"
           >
             Out of Stock
           </button>

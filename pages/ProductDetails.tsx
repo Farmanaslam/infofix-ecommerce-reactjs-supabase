@@ -21,6 +21,7 @@ import {
   ThumbsUp,
   BadgeCheck,
   Cpu,
+  AlertTriangle,
 } from "lucide-react";
 import { Product } from "../types";
 import { useStore } from "../context/StoreContext";
@@ -44,10 +45,6 @@ interface Review {
 }
 
 // ─── Spec normaliser ──────────────────────────────────────────────────────────
-// product.specs can arrive as:
-//   • string[]            → ["Processor: Intel i7", "RAM: 16GB"]
-//   • Record<string,string> → { Processor: "Intel i7", RAM: "16GB" }
-//   • undefined / null
 function normaliseSpecs(
   specs: string[] | Record<string, string> | undefined | null,
 ): { key: string; value: string }[] {
@@ -275,7 +272,6 @@ const AddReviewForm: React.FC<{
   const [text, setText] = useState("");
   const [error, setError] = useState("");
 
-  // ── Check on mount if this user already reviewed this product ──
   const [submitted, setSubmitted] = useState(() => {
     try {
       return localStorage.getItem(`reviewed_product_${productId}`) === "1";
@@ -325,7 +321,6 @@ const AddReviewForm: React.FC<{
       } catch {}
     }
 
-    // ── Persist so reload shows "already reviewed" ──
     try {
       localStorage.setItem(`reviewed_product_${productId}`, "1");
     } catch {}
@@ -334,7 +329,6 @@ const AddReviewForm: React.FC<{
     setSubmitted(true);
   };
 
-  // ── Already reviewed (persists across reloads) ──
   if (submitted) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 bg-emerald-50 rounded-3xl border border-emerald-100">
@@ -453,12 +447,12 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
   const [deliveryDate, setDeliveryDate] = useState("");
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
-
+  const [showFullDesc, setShowFullDesc] = useState(false);
+  const [showImageViewer, setShowImageViewer] = useState(false);
   useEffect(() => {
     const fetchReviews = async () => {
       setReviewsLoading(true);
 
-      // 1. Try Supabase first
       if (supabase) {
         const { data, error } = await supabase
           .from("reviews")
@@ -488,7 +482,6 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
         }
       }
 
-      // 2. Fallback: localStorage only (no hardcoded seed reviews)
       try {
         const stored = JSON.parse(
           localStorage.getItem(`reviews_${product.id}`) ?? "[]",
@@ -502,6 +495,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
 
     fetchReviews();
   }, [product.id]);
+
   // ── Derived ──
   const galleryImages: string[] =
     Array.isArray(product.images) && product.images.length > 0
@@ -511,6 +505,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
   const specEntries = normaliseSpecs(product.specs as any);
   const savings = product.retailPrice ? product.retailPrice - product.price : 0;
   const isLow = product.stock > 0 && product.stock < 10;
+  const isVeryLow = product.stock > 0 && product.stock <= 5;
   const isOut = product.stock === 0;
   const maxQty = Math.min(product.stock, 10);
   const avgRating = reviews.length
@@ -576,6 +571,16 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
     }, 900);
   };
 
+  // ── Stock urgency label helper ─────────────────────────────────────────────
+  const stockUrgencyLabel = () => {
+    if (product.stock === 1) return "Only 1 left in stock – order soon!";
+    if (product.stock === 2) return "Only 2 left in stock – order soon!";
+    if (product.stock === 3) return "Only 3 left in stock – order soon!";
+    if (product.stock === 4) return "Only 4 left in stock – order soon!";
+    if (product.stock === 5) return "Only 5 left in stock – order soon!";
+    return null;
+  };
+
   return (
     <>
       <style>{`
@@ -628,7 +633,8 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   }
                   alt={product.name}
                   onError={() => setImgError(true)}
-                  className="w-full h-full object-cover"
+                  onClick={() => setShowImageViewer(true)}
+                  className="cursor-zoom-in w-full h-full object-cover"
                   style={{ animation: "imgFade 0.35s ease both" }}
                 />
                 <div className="absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-black/25 to-transparent pointer-events-none" />
@@ -667,24 +673,6 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                     ))}
                   </div>
                 )}
-
-                <div className="absolute top-5 left-5 flex flex-col gap-1.5 z-10">
-                  {product.condition === "Refurbished" && (
-                    <span className="bg-emerald-600/95 backdrop-blur text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl shadow-lg">
-                      ✓ Infofix Certified
-                    </span>
-                  )}
-                  {product.condition === "New" && (
-                    <span className="bg-blue-600/95 backdrop-blur text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl shadow-lg">
-                      Brand New
-                    </span>
-                  )}
-                  {product.discountPercent >= 10 && (
-                    <span className="bg-red-500/95 backdrop-blur text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl shadow-lg">
-                      {product.discountPercent}% OFF
-                    </span>
-                  )}
-                </div>
 
                 <button
                   onClick={handleLike}
@@ -757,7 +745,6 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   </span>
                 )}
               </div>
-
               {/* Product name */}
               <h1
                 className="font-black text-[1.85rem] md:text-[2.3rem] text-gray-900 leading-[1.08] tracking-tight pd-fade"
@@ -765,7 +752,6 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
               >
                 {product.name}
               </h1>
-
               {/* ── Model number row ── */}
               {(product.model || product.brand) && (
                 <div
@@ -783,7 +769,6 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   )}
                 </div>
               )}
-
               {/* Rating + likes */}
               <div
                 className="pd-fade flex items-center gap-4 flex-wrap"
@@ -816,9 +801,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   </div>
                 )}
               </div>
-
               <div className="h-px bg-gray-100" />
-
               {/* Price */}
               <div className="pd-fade" style={{ animationDelay: "130ms" }}>
                 <div className="flex items-baseline gap-3 flex-wrap">
@@ -838,25 +821,42 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                     {product.discountPercent}% off)
                   </span>
                 )}
-                {isLow && (
+                {/* ── Stock urgency on price row (like Amazon) ── */}
+                {isVeryLow && !isOut && (
+                  <div className="flex items-center gap-1.5 mt-2 text-red-600 font-bold text-sm">
+                    <AlertTriangle className="w-4 h-4 shrink-0" />
+                    {stockUrgencyLabel()}
+                  </div>
+                )}
+                {isLow && !isVeryLow && !isOut && (
                   <div className="flex items-center gap-1.5 mt-2 text-orange-500 font-bold text-xs">
                     <Zap className="w-3.5 h-3.5" /> Only {product.stock} left —
                     order soon!
                   </div>
                 )}
               </div>
-
               {/* Description */}
               {product.description && (
-                <p
-                  className="text-gray-600 text-[14.5px] leading-relaxed pd-fade"
-                  style={{ animationDelay: "160ms" }}
-                >
-                  {product.description}
-                </p>
-              )}
+                <div className="pd-fade" style={{ animationDelay: "160ms" }}>
+                  <p
+                    className={`text-gray-600 text-[14.5px] leading-relaxed transition-all duration-300 ${
+                      !showFullDesc ? "line-clamp-2" : ""
+                    }`}
+                  >
+                    {product.description}
+                  </p>
 
-              {/* ── Key Specifications — full key:value table ── */}
+                  {product.description.length > 120 && (
+                    <button
+                      onClick={() => setShowFullDesc((prev) => !prev)}
+                      className="mt-2 text-indigo-600 font-bold text-xs uppercase tracking-wider hover:underline"
+                    >
+                      {showFullDesc ? "Show Less" : "Read More"}
+                    </button>
+                  )}
+                </div>
+              )}
+              {/* ── Key Specifications ── */}
               {specEntries.length > 0 && (
                 <div className="pd-fade" style={{ animationDelay: "190ms" }}>
                   <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-3">
@@ -869,13 +869,10 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                         className={`flex items-start gap-3 px-4 py-3 hover:bg-indigo-50/40 transition-colors
                           ${i !== specEntries.length - 1 ? "border-b border-gray-100" : ""}`}
                       >
-                        {/* Key */}
                         <span className="w-36 shrink-0 text-[11px] font-black text-gray-400 uppercase tracking-wide leading-snug pt-0.5">
                           {spec.key || "—"}
                         </span>
-                        {/* Divider */}
                         <span className="text-gray-200 shrink-0 mt-0.5">·</span>
-                        {/* Value */}
                         <span className="flex-1 text-[13px] font-semibold text-gray-800 leading-snug">
                           {spec.value || spec.key}
                         </span>
@@ -884,24 +881,40 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   </div>
                 </div>
               )}
-
-              {/* Tags */}
-              {product.tags.length > 0 && (
+              {/* Tags — ALL shown on both mobile and desktop */}
+              {product.tags && product.tags.length > 0 && (
                 <div
                   className="flex flex-wrap gap-1.5 pd-fade"
                   style={{ animationDelay: "210ms" }}
                 >
-                  {product.tags.map((t) => (
-                    <span
-                      key={t}
-                      className="text-[9px] bg-indigo-50 text-indigo-600 border border-indigo-100 px-3 py-1 rounded-full font-black uppercase tracking-wide"
-                    >
-                      {t}
-                    </span>
-                  ))}
+                  {product.tags.map((t) => {
+                    const tagStyles: Record<string, string> = {
+                      Gaming: "bg-purple-50 text-purple-700 border-purple-200",
+                      Budget: "bg-green-50 text-green-700 border-green-200",
+                      Professional: "bg-blue-50 text-blue-700 border-blue-200",
+                      "Best Seller":
+                        "bg-amber-50 text-amber-700 border-amber-200",
+                      "New Arrival":
+                        "bg-indigo-50 text-indigo-700 border-indigo-100",
+                      Sale: "bg-red-50 text-red-700 border-red-200",
+                      Certified:
+                        "bg-emerald-50 text-emerald-700 border-emerald-200",
+                      Refurbished: "bg-teal-50 text-teal-700 border-teal-200",
+                    };
+                    const style =
+                      tagStyles[t] ??
+                      "bg-gray-50 text-gray-600 border-gray-200";
+                    return (
+                      <span
+                        key={t}
+                        className={`${style} border text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-wide`}
+                      >
+                        {t}
+                      </span>
+                    );
+                  })}
                 </div>
               )}
-
               {/* Qty + CTA */}
               {!isOut ? (
                 <div
@@ -962,7 +975,6 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   Out of Stock
                 </button>
               )}
-
               {/* Delivery */}
               {!isOut && (
                 <div
@@ -970,90 +982,152 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   style={{ animationDelay: "250ms" }}
                 >
                   {currentUser ? (
-                    <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3">
-                      <Truck className="w-5 h-5 text-emerald-600 shrink-0" />
-                      <div>
-                        <p className="text-xs font-black text-emerald-700 uppercase tracking-wide">
-                          Free Delivery · Est.{" "}
-                          {(() => {
-                            const d1 = new Date();
-                            d1.setDate(d1.getDate() + 5);
-                            const d2 = new Date();
-                            d2.setDate(d2.getDate() + 7);
-                            return `${d1.toLocaleDateString("en-IN", { day: "numeric", month: "short" })} – ${d2.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`;
-                          })()}
-                        </p>
-                        <p className="text-[11px] text-emerald-600 font-medium mt-0.5">
-                          Order today for fastest delivery
-                        </p>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3">
+                        <Truck className="w-5 h-5 text-emerald-600 shrink-0" />
+                        <div>
+                          <p className="text-xs font-black text-emerald-700 uppercase tracking-wide">
+                            Free Delivery · Est.{" "}
+                            {(() => {
+                              const d1 = new Date();
+                              d1.setDate(d1.getDate() + 5);
+                              const d2 = new Date();
+                              d2.setDate(d2.getDate() + 7);
+                              return `${d1.toLocaleDateString("en-IN", { day: "numeric", month: "short" })} – ${d2.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`;
+                            })()}
+                          </p>
+                          <p className="text-[11px] text-emerald-600 font-medium mt-0.5">
+                            Order today for fastest delivery
+                          </p>
+                        </div>
                       </div>
+                      {/* ── Stock urgency below delivery (Amazon-style) ── */}
+                      {isVeryLow && (
+                        <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-2xl px-4 py-2.5">
+                          <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+                          <p className="text-xs font-black text-red-600">
+                            {stockUrgencyLabel()}
+                          </p>
+                        </div>
+                      )}
+                      {isLow && !isVeryLow && (
+                        <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-2xl px-4 py-2.5">
+                          <Zap className="w-4 h-4 text-orange-500 shrink-0" />
+                          <p className="text-xs font-black text-orange-600">
+                            Only {product.stock} left in stock – order soon!
+                          </p>
+                        </div>
+                      )}
                     </div>
                   ) : (
-                    <div className="border border-gray-200 rounded-2xl overflow-hidden">
-                      <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 border-b border-gray-100">
-                        <Truck className="w-4 h-4 text-gray-400 shrink-0" />
-                        <span className="text-[11px] font-black uppercase tracking-widest text-gray-500">
-                          Check Delivery
-                        </span>
-                      </div>
-                      <div className="px-4 py-3 space-y-2.5">
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={6}
-                            value={pincode}
-                            onChange={(e) => {
-                              setPincode(e.target.value.replace(/\D/g, ""));
-                              setPincodeStatus("idle");
-                            }}
-                            onKeyDown={(e) =>
-                              e.key === "Enter" && checkPincode()
-                            }
-                            placeholder="Enter 6-digit pincode"
-                            className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-bold text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                          />
-                          <button
-                            onClick={checkPincode}
-                            disabled={pincodeStatus === "checking"}
-                            className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-xs font-black uppercase tracking-widest transition-colors"
-                          >
-                            {pincodeStatus === "checking" ? (
-                              <span className="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                            ) : (
-                              "Check"
-                            )}
-                          </button>
+                    <div className="space-y-2">
+                      <div className="border border-gray-200 rounded-2xl overflow-hidden">
+                        <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 border-b border-gray-100">
+                          <Truck className="w-4 h-4 text-gray-400 shrink-0" />
+                          <span className="text-[11px] font-black uppercase tracking-widest text-gray-500">
+                            Check Delivery
+                          </span>
                         </div>
-                        {pincodeStatus === "ok" && (
-                          <div className="flex items-start gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-3.5 py-2.5">
-                            <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                            <div>
-                              <p className="text-xs font-black text-emerald-700">
-                                Delivery available!
-                              </p>
-                              <p className="text-[11px] text-emerald-600 font-semibold">
-                                Free delivery by {deliveryDate}
+                        <div className="px-4 py-3 space-y-2.5">
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              maxLength={6}
+                              value={pincode}
+                              onChange={(e) => {
+                                setPincode(e.target.value.replace(/\D/g, ""));
+                                setPincodeStatus("idle");
+                              }}
+                              onKeyDown={(e) =>
+                                e.key === "Enter" && checkPincode()
+                              }
+                              placeholder="Enter 6-digit pincode"
+                              className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-bold text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                            />
+                            <button
+                              onClick={checkPincode}
+                              disabled={pincodeStatus === "checking"}
+                              className="shrink-0 flex items-center justify-center 
+             w-10 h-10 md:w-auto md:h-auto 
+             rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 
+             text-white transition-colors"
+                            >
+                              {pincodeStatus === "checking" ? (
+                                <span className="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                              ) : (
+                                <>
+                                  {/* 📱 Mobile icon */}
+                                  <svg
+                                    className="w-4 h-4 md:hidden"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle cx="11" cy="11" r="7" />
+                                    <line
+                                      x1="16.65"
+                                      y1="16.65"
+                                      x2="21"
+                                      y2="21"
+                                    />
+                                  </svg>
+
+                                  {/* 💻 Desktop text */}
+                                  <span className="hidden md:block text-xs font-black uppercase tracking-widest px-4 py-2.5">
+                                    Check
+                                  </span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                          {pincodeStatus === "ok" && (
+                            <div className="flex items-start gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-3.5 py-2.5">
+                              <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                              <div>
+                                <p className="text-xs font-black text-emerald-700">
+                                  Delivery available!
+                                </p>
+                                <p className="text-[11px] text-emerald-600 font-semibold">
+                                  Free delivery by {deliveryDate}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                          {pincodeStatus === "fail" && (
+                            <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-3.5 py-2.5">
+                              <X className="w-4 h-4 text-red-500 shrink-0" />
+                              <p className="text-xs font-bold text-red-600">
+                                {pincode.length !== 6
+                                  ? "Please enter a valid 6-digit pincode."
+                                  : "Sorry, we don't deliver to this pincode yet."}
                               </p>
                             </div>
-                          </div>
-                        )}
-                        {pincodeStatus === "fail" && (
-                          <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-3.5 py-2.5">
-                            <X className="w-4 h-4 text-red-500 shrink-0" />
-                            <p className="text-xs font-bold text-red-600">
-                              {pincode.length !== 6
-                                ? "Please enter a valid 6-digit pincode."
-                                : "Sorry, we don't deliver to this pincode yet."}
-                            </p>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
+                      {/* ── Stock urgency below pincode checker ── */}
+                      {isVeryLow && (
+                        <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-2xl px-4 py-2.5">
+                          <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+                          <p className="text-xs font-black text-red-600">
+                            {stockUrgencyLabel()}
+                          </p>
+                        </div>
+                      )}
+                      {isLow && !isVeryLow && (
+                        <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-2xl px-4 py-2.5">
+                          <Zap className="w-4 h-4 text-orange-500 shrink-0" />
+                          <p className="text-xs font-black text-orange-600">
+                            Only {product.stock} left in stock – order soon!
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
               )}
-
               {/* Trust badges */}
               <div
                 className="grid grid-cols-2 gap-2.5 pt-2 border-t border-gray-100 pd-fade"
@@ -1163,6 +1237,62 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
           </div>
         </div>
       </div>
+
+      {showImageViewer && (
+        <div
+          className="fixed inset-0 z-99999 bg-black/90 backdrop-blur-md flex items-center justify-center"
+          onTouchStart={(e) => {
+            (e.currentTarget as any)._x = e.touches[0].clientX;
+          }}
+          onTouchEnd={(e) => {
+            const diff =
+              ((e.currentTarget as any)._x ?? 0) - e.changedTouches[0].clientX;
+
+            if (Math.abs(diff) > 40) {
+              if (diff > 0)
+                setActiveImg((i) => Math.min(i + 1, galleryImages.length - 1));
+              else setActiveImg((i) => Math.max(i - 1, 0));
+            }
+          }}
+        >
+          {/* Close Button */}
+          <button
+            onClick={() => setShowImageViewer(false)}
+            className="absolute top-5 right-5 text-white bg-white/10 hover:bg-white/20 p-2 rounded-xl"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          {/* Left Arrow */}
+          {galleryImages.length > 1 && (
+            <button
+              onClick={() => setActiveImg((i) => Math.max(i - 1, 0))}
+              className="absolute left-5 text-white bg-white/10 hover:bg-white/20 p-3 rounded-xl"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+          )}
+
+          {/* Image */}
+          <img
+            src={galleryImages[activeImg]}
+            alt=""
+            className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-2xl"
+          />
+
+          {/* Right Arrow */}
+          {galleryImages.length > 1 && (
+            <button
+              onClick={() =>
+                setActiveImg((i) => Math.min(i + 1, galleryImages.length - 1))
+              }
+              className="absolute right-5 text-white bg-white/10 hover:bg-white/20 p-3 rounded-xl"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          )}
+        </div>
+      )}
     </>
   );
 };

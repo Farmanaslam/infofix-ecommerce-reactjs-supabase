@@ -179,7 +179,7 @@ export const Signup = () => {
   };
 
   return (
-    <div className="py-24 max-w-7xl mx-auto px-4">
+    <div className="py-24 app-container">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-start">
         {/* LEFT SIDE — matches Login exactly */}
         <div className="space-y-8 lg:sticky lg:top-32">
