@@ -113,7 +113,7 @@ const heroSlides = [
     accentColor: "#ec4899",
     glowColor: "rgba(236,72,153,0.18)",
     sub: "Certified refurbished laptops tested and restored by our in-house technicians. Perfect for students and budget buyers who want reliable performance without the premium price tag.",
-    price: "₹12,999",
+    price: "₹14,999",
     oldPrice: "₹28,000",
     specs: [
       { label: "Tested & Restored", icon: "cpu" },
@@ -883,7 +883,7 @@ export const Home: React.FC = () => {
     {
       tier: "Refurbished Pick",
       tagline: "Certified Refurbished Laptops",
-      price: "₹12,999",
+      price: "₹14,999",
       oldPrice: "₹28,000",
       color: "#ec4899",
       bg: "linear-gradient(135deg,#fdf2f8 0%,#fce7f3 100%)",
@@ -1195,7 +1195,7 @@ export const Home: React.FC = () => {
                       LAPTOPS
                     </h3>
                     <p className="text-pink-200 text-xs mt-1 font-medium">
-                      From ₹12,999 · Warranted
+                      From ₹14,999 · Warranted
                     </p>
                   </div>
                   <button className="mt-3 self-start bg-pink-500 text-white text-xs font-black px-4 py-1.5 rounded-xl uppercase tracking-wider hover:bg-pink-400 transition-colors flex items-center gap-1">
@@ -1245,7 +1245,7 @@ export const Home: React.FC = () => {
                   badge: "Value",
                   badgeBg: "bg-pink-500",
                   title: "Refurbished",
-                  sub: "From ₹12,999",
+                  sub: "From ₹14,999",
                   btnLabel: "Shop",
                   grad: "linear-gradient(135deg,#500724 0%,#881337 100%)",
                   border: "#9f1239",
@@ -1412,7 +1412,7 @@ export const Home: React.FC = () => {
                 sub: "Tested · Restored · Warranted",
                 badge: "Best Value",
                 badgeColor: "#ec4899",
-                from: "₹12,999",
+                from: "₹14,999",
                 dark: false,
                 icon: <RefreshCw className="w-6 h-6 md:w-8 md:h-8" />,
                 action: () => {

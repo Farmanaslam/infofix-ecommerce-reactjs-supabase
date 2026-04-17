@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, Minus, Trash2, ShoppingCart } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import ProductDetails from "./ProductDetails";
@@ -15,7 +15,15 @@ export const Cart: React.FC = () => {
   } = useStore();
 
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
-
+  useEffect(() => {
+    if (products.length === 0) return;
+    cart.forEach((item) => {
+      const exists = products.some((p) => String(p.id) === String(item.id));
+      if (!exists) {
+        removeFromCart(String(item.id));
+      }
+    });
+  }, [products]);
   // Scroll to top + set selected product
   const handleSelectProduct = (product: any) => {
     window.scrollTo({ top: 0, behavior: "smooth" });

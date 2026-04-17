@@ -155,13 +155,48 @@ const CATEGORY_KEYWORDS: Record<string, string> = {
   cpu: "Accessories",
 };
 
-function inferCategoryFromQuery(query: string): string | null {
+// AFTER
+// Maps specific subcategory keywords → { category, subcategory }
+const SUBCATEGORY_KEYWORDS: Record<
+  string,
+  { category: string; subcategory: string }
+> = {
+  ram: { category: "Accessories", subcategory: "RAM" },
+  motherboard: { category: "Accessories", subcategory: "Motherboard" },
+  motherboards: { category: "Accessories", subcategory: "Motherboard" },
+  keyboard: { category: "Accessories", subcategory: "Keyboard" },
+  keyboards: { category: "Accessories", subcategory: "Keyboard" },
+  mouse: { category: "Accessories", subcategory: "Mouse" },
+  mice: { category: "Accessories", subcategory: "Mouse" },
+  monitor: { category: "Accessories", subcategory: "Monitor" },
+  monitors: { category: "Accessories", subcategory: "Monitor" },
+  cpu: { category: "Accessories", subcategory: "CPU" },
+  gaming: { category: "Laptop", subcategory: "Gaming" },
+  "gaming laptop": { category: "Laptop", subcategory: "Gaming" },
+  "gaming laptops": { category: "Laptop", subcategory: "Gaming" },
+  "business laptop": { category: "Laptop", subcategory: "Business" },
+  "student laptop": { category: "Laptop", subcategory: "Student" },
+  refurbished: { category: "Laptop", subcategory: "Refurbished" },
+  "refurbished laptop": { category: "Laptop", subcategory: "Refurbished" },
+  "refurbished laptops": { category: "Laptop", subcategory: "Refurbished" },
+};
+
+function inferCategoryFromQuery(
+  query: string,
+): { category: string; subcategory: string } | null {
   const q = query.trim().toLowerCase();
-  if (CATEGORY_KEYWORDS[q]) return CATEGORY_KEYWORDS[q];
-  // partial match: if query starts with a known keyword
-  for (const [keyword, cat] of Object.entries(CATEGORY_KEYWORDS)) {
-    if (q.startsWith(keyword) || q === keyword) return cat;
+
+  if (SUBCATEGORY_KEYWORDS[q]) return SUBCATEGORY_KEYWORDS[q];
+  for (const [keyword, result] of Object.entries(SUBCATEGORY_KEYWORDS)) {
+    if (q === keyword || q.startsWith(keyword + " ")) return result;
   }
+  if (CATEGORY_KEYWORDS[q])
+    return { category: CATEGORY_KEYWORDS[q], subcategory: "" };
+  for (const [keyword, cat] of Object.entries(CATEGORY_KEYWORDS)) {
+    if (q === keyword || q.startsWith(keyword + " "))
+      return { category: cat, subcategory: "" };
+  }
+
   return null;
 }
 
@@ -493,35 +528,24 @@ export const Store: React.FC = () => {
     }
   }, [ctxCategory]);
 
-  // FIX 4: Bridge: header search → local search state
-  // Now we ALSO infer the category from the query so "laptop" / "laptops"
-  // from home page lands on the Laptop category automatically.
   useEffect(() => {
     const pending = headerSearchQuery?.trim();
     if (pending) {
-      // Write to ref immediately — load() will read this synchronously
       pendingSearchRef.current = pending;
 
-      // Infer category from search query
-      const inferredCat = inferCategoryFromQuery(pending);
-
-      if (inferredCat) {
-        // If query clearly maps to a category (e.g. "laptops" → Laptop),
-        // set the category filter AND clear the text search to avoid
-        // double-filtering which caused "all products" showing up.
-        setSelectedCategory(inferredCat);
-        setSelectedSubcategory("");
-        setSearchQuery("");
-        setHeroSearch("");
-        pendingSearchRef.current = ""; // category filter handles it
+      const inferred = inferCategoryFromQuery(pending);
+      if (inferred) {
+        setSelectedCategory(inferred.category);
+        setSelectedSubcategory(inferred.subcategory);
+        setSearchQuery(pending);
+        setHeroSearch(pending);
+        pendingSearchRef.current = pending;
       } else {
-        // Generic keyword search — keep category as All
         setSearchQuery(pending);
         setHeroSearch(pending);
         setSelectedCategory("All");
         setSelectedSubcategory("");
       }
-
       setPage(1);
       setHeaderSearchQuery("");
     }
@@ -571,12 +595,11 @@ export const Store: React.FC = () => {
     if (!q) return;
 
     const inferredCat = inferCategoryFromQuery(q);
-    if (inferredCat) {
-      // e.g. user typed "laptops" in store search bar → go to Laptop category
-      setSelectedCategory(inferredCat);
-      setSelectedSubcategory("");
-      setSearchQuery("");
-      setHeroSearch("");
+    const inferred = inferCategoryFromQuery(q);
+    if (inferred) {
+      setSelectedCategory(inferred.category);
+      setSelectedSubcategory(inferred.subcategory);
+      setSearchQuery(q);
     } else {
       setSearchQuery(q);
     }
@@ -672,8 +695,6 @@ export const Store: React.FC = () => {
             q = q.or(storageConditions);
           }
 
-          // FIX 6: Improved text search — use expandTerms with normalization
-          // and search across more fields including subcategory name
           if (effectiveSearchQuery) {
             const terms = effectiveSearchQuery
               .trim()
@@ -720,7 +741,20 @@ export const Store: React.FC = () => {
           if (error) throw error;
 
           const mappedProducts = (data ?? []).map(fromSupabase);
-
+          if (effectiveSearchQuery) {
+            const sq = effectiveSearchQuery.toLowerCase();
+            const score = (p: Product): number => {
+              const name = p.name.toLowerCase();
+              const brand = (p.brand ?? "").toLowerCase();
+              const model = (p.model ?? "").toLowerCase();
+              if (name.startsWith(sq) || name === sq) return 0;
+              if (name.includes(sq)) return 1;
+              if (brand.includes(sq)) return 2;
+              if (model.includes(sq)) return 3;
+              return 4;
+            };
+            mappedProducts.sort((a, b) => score(a) - score(b));
+          }
           // ── Fetch tags separately and attach ──
           const productIdsForTags = mappedProducts.map((p) => Number(p.id));
           if (productIdsForTags.length > 0) {

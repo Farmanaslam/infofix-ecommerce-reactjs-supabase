@@ -38,7 +38,7 @@ import {
   getInventoryAdvice,
 } from "../services/geminiService";
 import { InventoryRowSkeleton } from "./Skeleton";
-
+import { useStore } from "../context/StoreContext";
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CONDITIONS = ["New", "Refurbished", "Used"] as const;
 const PER_PAGE = 15;
@@ -118,6 +118,7 @@ const Field: React.FC<{ label: string; children: React.ReactNode }> = ({
 // MAIN COMPONENT
 // ═════════════════════════════════════════════════════════════════════════════
 export const Inventory: React.FC = () => {
+  const { removeFromCart, cart } = useStore();
   // ── Data ──
   const [products, setProducts] = useState<DBProduct[]>([]);
   const [categories, setCategories] = useState<DBCategory[]>([]);
@@ -541,6 +542,12 @@ export const Inventory: React.FC = () => {
       await supabase.from("product_tags").delete().eq("product_id", id);
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
+
+      // ── Remove from in-memory cart if present ──
+      if (cart.some((item) => String(item.id) === String(id))) {
+        removeFromCart(String(id));
+      }
+
       toast("Product deleted.");
       fetchProducts(page);
     } catch (err: any) {
@@ -560,6 +567,14 @@ export const Inventory: React.FC = () => {
       await supabase.from("product_tags").delete().in("product_id", ids);
       const { error } = await supabase.from("products").delete().in("id", ids);
       if (error) throw error;
+
+      // ── Remove all deleted products from in-memory cart ──
+      ids.forEach((id) => {
+        if (cart.some((item) => String(item.id) === String(id))) {
+          removeFromCart(String(id));
+        }
+      });
+
       setSelected(new Set());
       toast(`${ids.length} products deleted.`);
       fetchProducts(page);
