@@ -106,6 +106,24 @@ const heroSlides = [
     productName: "Infofix Gaming Starter",
     productSpec: 'R5 / 8GB / RX 580 / 24"',
   },
+  {
+    eyebrow: "Best Refurbished Deal",
+    headline: "Like New,",
+    accent: "Half the Price",
+    accentColor: "#ec4899",
+    glowColor: "rgba(236,72,153,0.18)",
+    sub: "Certified refurbished laptops tested and restored by our in-house technicians. Perfect for students and budget buyers who want reliable performance without the premium price tag.",
+    price: "₹12,999",
+    oldPrice: "₹28,000",
+    specs: [
+      { label: "Tested & Restored", icon: "cpu" },
+      { label: "6 Month Warranty", icon: "memory" },
+      { label: "Grade A Condition", icon: "storage" },
+      { label: "All Brands Available", icon: "os" },
+    ],
+    productName: "Infofix Certified Refurb",
+    productSpec: "i3–i7 / 8GB+ / SSD / Warranty",
+  },
 ];
 
 const SpecIcon: React.FC<{ type: string; color: string }> = ({
@@ -696,7 +714,7 @@ export const Home: React.FC = () => {
     products: 0,
     years: 0,
   });
-
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
   useEffect(() => {
     const fetchDeals = async () => {
       const { data } = await supabase
@@ -745,7 +763,7 @@ export const Home: React.FC = () => {
   }, [featured]); // re-run when featured loads
   useEffect(() => {
     if (!countersStarted) return;
-    const targets = { customers: 5000, stores: 5, products: 500, years: 8 };
+    const targets = { customers: 50000, stores: 5, products: 500, years: 8 };
     const duration = 1800;
     const steps = 60;
     let step = 0;
@@ -863,21 +881,21 @@ export const Home: React.FC = () => {
     },
 
     {
-      tier: "Maximum Power",
-      tagline: "High-End Gaming & Creator Machine",
-      price: "₹86,799",
-      oldPrice: "₹1,02,999",
-      color: "#10b981",
-      bg: "linear-gradient(135deg,#022c22 0%,#064e3b 100%)",
-      dark: true,
+      tier: "Refurbished Pick",
+      tagline: "Certified Refurbished Laptops",
+      price: "₹12,999",
+      oldPrice: "₹28,000",
+      color: "#ec4899",
+      bg: "linear-gradient(135deg,#fdf2f8 0%,#fce7f3 100%)",
+      dark: false,
       featured: false,
       specs: [
-        "Intel Core i5 14th Gen",
-        "16GB High-Speed RAM",
-        "512GB NVMe SSD",
-        "RTX 3050 6GB GPU",
+        "Grade A Refurbished Laptops",
+        "Intel i3–i5 / 4–8GB RAM",
+        "SSD Upgraded Storage",
+        "6-Month Infofix Warranty",
       ],
-      ideal: "Gaming, Editing, Heavy Workloads",
+      ideal: "Students, Budget Buyers, First Laptop",
     },
   ];
   const whyUs = [
@@ -892,9 +910,9 @@ export const Home: React.FC = () => {
       desc: "Every PC and laptop comes with a full 1-year warranty backed by our in-house service team.",
     },
     {
-      icon: Wrench,
-      title: "Expert Technicians",
-      desc: "Our certified engineers test, build, and configure every machine before it reaches you.",
+      icon: RefreshCw,
+      title: "Certified Refurbished Quality",
+      desc: "Every refurbished laptop is professionally tested, SSD-upgraded, and backed by warranty — delivering reliable performance at a much lower cost.",
     },
     {
       icon: Users,
@@ -1157,29 +1175,32 @@ export const Home: React.FC = () => {
                 </div>
               </div>
               <div
-                onClick={() => setCurrentPage("contact")}
+                onClick={() => {
+                  setSelectedCategory("Laptop");
+                  setCurrentPage("shop");
+                }}
                 className="cursor-pointer group relative flex-1 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02]"
                 style={{
-                  background: "linear-gradient(135deg,#431407 0%,#7c2d12 100%)",
-                  border: "1px solid #9a3412",
+                  background: "linear-gradient(135deg,#500724 0%,#881337 100%)",
+                  border: "1px solid #9f1239",
                 }}
               >
                 <div className="relative z-10 p-5 h-full flex flex-col justify-between">
                   <div>
-                    <span className="inline-block bg-orange-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest mb-2">
-                      Custom Order
+                    <span className="inline-block bg-pink-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest mb-2">
+                      Best Value
                     </span>
                     <h3 className="text-white font-black text-xl leading-tight">
-                      BUILD
+                      REFURB
                       <br />
-                      YOUR PC
+                      LAPTOPS
                     </h3>
-                    <p className="text-orange-200 text-xs mt-1 font-medium">
-                      Tell us your budget &amp; we'll build
+                    <p className="text-pink-200 text-xs mt-1 font-medium">
+                      From ₹12,999 · Warranted
                     </p>
                   </div>
-                  <button className="mt-3 self-start bg-orange-500 text-white text-xs font-black px-4 py-1.5 rounded-xl uppercase tracking-wider hover:bg-orange-400 transition-colors flex items-center gap-1">
-                    Get Quote <ArrowRight className="w-3 h-3" />
+                  <button className="mt-3 self-start bg-pink-500 text-white text-xs font-black px-4 py-1.5 rounded-xl uppercase tracking-wider hover:bg-pink-400 transition-colors flex items-center gap-1">
+                    Shop <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>
               </div>
@@ -1222,14 +1243,17 @@ export const Home: React.FC = () => {
                   },
                 },
                 {
-                  badge: "Build",
-                  badgeBg: "bg-orange-500",
-                  title: "Custom PC",
-                  sub: "Your budget",
-                  btnLabel: "Quote",
-                  grad: "linear-gradient(135deg,#431407 0%,#7c2d12 100%)",
-                  border: "#9a3412",
-                  action: () => setCurrentPage("contact"),
+                  badge: "Value",
+                  badgeBg: "bg-pink-500",
+                  title: "Refurbished",
+                  sub: "From ₹12,999",
+                  btnLabel: "Shop",
+                  grad: "linear-gradient(135deg,#500724 0%,#881337 100%)",
+                  border: "#9f1239",
+                  action: () => {
+                    setSelectedCategory("Laptop");
+                    setCurrentPage("shop");
+                  },
                 },
               ].map((card, i) => (
                 <div
@@ -1385,15 +1409,15 @@ export const Home: React.FC = () => {
                 },
               },
               {
-                label: "Workstations",
-                sub: "Rendering · CAD · Data Work",
-                badge: "Pro Grade",
-                badgeColor: "#10b981",
-                from: "24,999",
+                label: "Refurbished Laptops",
+                sub: "Tested · Restored · Warranted",
+                badge: "Best Value",
+                badgeColor: "#ec4899",
+                from: "₹12,999",
                 dark: false,
-                icon: <Cpu className="w-6 h-6 md:w-8 md:h-8" />,
+                icon: <RefreshCw className="w-6 h-6 md:w-8 md:h-8" />,
                 action: () => {
-                  setSelectedCategory("Desktop");
+                  setSelectedCategory("Laptop");
                   setCurrentPage("shop");
                 },
               },
@@ -1610,8 +1634,140 @@ export const Home: React.FC = () => {
             ? featured.map((product) => (
                 <div
                   key={product.id}
-                  onClick={() => {
-                    setSelectedCategory(product.categories?.name);
+                  onClick={async () => {
+                    try {
+                      const { data } = await supabase
+                        .from("products")
+                        .select(
+                          `
+        id, name, description, image_url, images,
+        retail_price, discount_percent, discounted_price,
+        stock_quantity, condition, brand, specs,
+        rating_avg, rating_count, reviews_count, likes_count,
+        categories ( name, slug ),
+        subcategories ( name, slug ), model
+      `,
+                        )
+                        .eq("id", product.id)
+                        .single();
+
+                      if (data) {
+                        const disc = data.discount_percent ?? 0;
+                        const imageUrl = data.image_url ?? "";
+                        const fullProduct = {
+                          id: String(data.id),
+                          name: data.name ?? "",
+                          description: data.description ?? "",
+                          image: imageUrl,
+                          images:
+                            Array.isArray(data.images) && data.images.length > 0
+                              ? data.images
+                              : [imageUrl],
+                          price: Number(
+                            data.discounted_price ?? data.retail_price ?? 0,
+                          ),
+                          retailPrice:
+                            disc > 0 ? Number(data.retail_price) : undefined,
+                          discountPercent: disc,
+                          stock: data.stock_quantity ?? 99,
+                          condition: data.condition ?? "New",
+                          category: data.categories?.[0]?.name ?? "",
+                          brand: data.brand ?? "",
+                          specs: data.specs
+                            ? Object.values(
+                                data.specs as Record<string, unknown>,
+                              ).map(String)
+                            : [],
+                          rating: Number(data.rating_avg ?? 0),
+                          reviews: data.reviews_count ?? data.rating_count ?? 0,
+                          likesCount: data.likes_count ?? 0,
+                          tags: [],
+                          model: data.model ?? "",
+                        };
+                        sessionStorage.setItem(
+                          "selectedProduct",
+                          JSON.stringify(fullProduct),
+                        );
+                      } else {
+                        // fallback: use what we have with all available images
+                        sessionStorage.setItem(
+                          "selectedProduct",
+                          JSON.stringify({
+                            id: String(product.id),
+                            name: product.name,
+                            description: "",
+                            image: product.image_url ?? "",
+                            images:
+                              Array.isArray(product.images) &&
+                              product.images.length > 0
+                                ? product.images
+                                : [product.image_url ?? ""],
+                            price: Number(
+                              product.discounted_price ??
+                                product.retail_price ??
+                                0,
+                            ),
+                            retailPrice:
+                              product.discount_percent > 0
+                                ? Number(product.retail_price)
+                                : undefined,
+                            discountPercent: Number(
+                              product.discount_percent ?? 0,
+                            ),
+                            stock: 99,
+                            condition: "New",
+                            category: product.categories?.name ?? "",
+                            brand: "",
+                            specs: [],
+                            rating: 0,
+                            reviews: 0,
+                            likesCount: 0,
+                            tags: [],
+                            model: "",
+                          }),
+                        );
+                      }
+                    } catch (error) {
+                      console.error("Error fetching product details:", error);
+
+                      // fallback safely
+                      sessionStorage.setItem(
+                        "selectedProduct",
+                        JSON.stringify({
+                          id: String(product.id),
+                          name: product.name ?? "",
+                          description: "",
+                          image: product.image_url ?? "",
+                          images:
+                            Array.isArray(product.images) &&
+                            product.images.length > 0
+                              ? product.images
+                              : [product.image_url ?? ""],
+                          price: Number(
+                            product.discounted_price ??
+                              product.retail_price ??
+                              0,
+                          ),
+                          retailPrice:
+                            product.discount_percent > 0
+                              ? Number(product.retail_price)
+                              : undefined,
+                          discountPercent: Number(
+                            product.discount_percent ?? 0,
+                          ),
+                          stock: 99,
+                          condition: "New",
+                          category: product.categories?.[0]?.name ?? "",
+                          brand: "",
+                          specs: [],
+                          rating: 0,
+                          reviews: 0,
+                          likesCount: 0,
+                          tags: [],
+                          model: "",
+                        }),
+                      );
+                    }
                     setCurrentPage("shop");
                   }}
                   className="group relative cursor-pointer bg-white rounded-3xl md:rounded-[40px] shadow-md md:shadow-xl shadow-gray-200/60 border border-gray-100 overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-indigo-500/20 flex md:block"
@@ -1744,7 +1900,6 @@ export const Home: React.FC = () => {
               <div
                 key={i}
                 onClick={() => {
-                  setSelectedCategory("Desktop");
                   setCurrentPage("shop");
                 }}
                 className={`card-hover cursor-pointer relative rounded-2xl p-5 flex flex-col gap-3 transition-all duration-300 hover:shadow-lg ${
@@ -1819,7 +1974,6 @@ export const Home: React.FC = () => {
               <div
                 key={i}
                 onClick={() => {
-                  setSelectedCategory("Desktop");
                   setCurrentPage("shop");
                 }}
                 className={`card-hover cursor-pointer relative rounded-4xl p-8 flex flex-col gap-5 ${tier.featured ? "md:-mt-6 shadow-2xl shadow-indigo-500/20" : "shadow-sm hover:shadow-xl hover:shadow-indigo-500/15"}`}
@@ -1907,7 +2061,7 @@ export const Home: React.FC = () => {
         <div className="app-container">
           <div className="text-center mb-6 md:mb-14 reveal">
             <p className="text-[10px] md:text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-1 md:mb-2">
-              Why 5,000+ Customers Choose Us
+              Why 50,000+ Customers Choose Us
             </p>
             <h2 className="text-2xl md:text-5xl font-black text-gray-900 tracking-tight">
               The Infofix Difference
@@ -2154,7 +2308,7 @@ export const Home: React.FC = () => {
                 icon: Award,
               },
               {
-                number: "5000+",
+                number: "50,000+",
                 label: "Happy Customers",
                 sub: "And counting",
                 color: "#818cf8",
@@ -2226,10 +2380,10 @@ export const Home: React.FC = () => {
               color: "#f59e0b",
             },
             {
-              title: "Warranty & Support",
-              desc: "Reliable after-sales support for all purchases.",
-              icon: ShieldCheck,
-              color: "#ef4444",
+              title: "Certified Refurbished",
+              desc: "Tested, upgraded, and warranty-backed laptops at affordable prices.",
+              icon: RefreshCw,
+              color: "#ec4899",
             },
           ].map((svc, i) => (
             <div

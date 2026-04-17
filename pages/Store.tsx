@@ -21,46 +21,105 @@ const PER_PAGE = 12;
 const IS_SB = !!supabase;
 
 // ─── Search aliases ────────────────────────────────────────────────────────────
+// FIX 1: Added plural forms and more variants throughout
 const SEARCH_ALIASES: Record<string, string[]> = {
-  processor: [
-    "processor",
-    "processors",
-    "cpu",
-    "intel",
-    "amd",
-    "ryzen",
-    "core i",
-  ],
-  cpu: ["processor", "cpu", "core"],
-  peripherals: [
-    "peripherals",
-    "peripheral",
-    "keyboard",
-    "mouse",
-    "headset",
-    "webcam",
-    "speaker",
-  ],
+  // Processors
+  processor: ["processor", "processors", "cpu", "intel", "amd", "ryzen", "core i"],
+  processors: ["processor", "processors", "cpu", "intel", "amd", "ryzen", "core i"],
+  cpu: ["processor", "processors", "cpu", "core"],
+  cpus: ["processor", "processors", "cpu", "core"],
+
+  // Peripherals
+  peripherals: ["peripherals", "peripheral", "keyboard", "mouse", "headset", "webcam", "speaker"],
   peripheral: ["peripherals", "peripheral"],
+
+  // CCTV / Camera
   cctv: ["cctv", "camera", "surveillance", "security camera", "dvr", "nvr"],
   camera: ["cctv", "camera", "surveillance"],
+  cameras: ["cctv", "camera", "cameras", "surveillance"],
+  surveillance: ["cctv", "camera", "surveillance"],
+
+  // RAM / Memory
   ram: ["ram", "memory", "ddr", "dimm", "sodimm"],
   memory: ["ram", "memory", "ddr"],
+
+  // GPU / Graphics
   gpu: ["gpu", "graphics card", "graphics", "nvidia", "radeon", "rtx", "gtx"],
+  gpus: ["gpu", "graphics card", "graphics", "nvidia", "radeon", "rtx", "gtx"],
   graphics: ["graphics card", "gpu", "nvidia", "radeon"],
-  laptop: ["laptop", "notebook", "ultrabook"],
-  monitor: ["monitor", "display", "screen", "led"],
+
+  // Laptop / Notebooks — FIX: added "laptops" plural
+  laptop: ["laptop", "laptops", "notebook", "notebooks", "ultrabook"],
+  laptops: ["laptop", "laptops", "notebook", "notebooks", "ultrabook"],
+  notebook: ["laptop", "laptops", "notebook", "notebooks"],
+  notebooks: ["laptop", "laptops", "notebook", "notebooks"],
+
+  // Desktop — FIX: added "desktops" plural
+  desktop: ["desktop", "desktops", "pc", "tower", "workstation"],
+  desktops: ["desktop", "desktops", "pc", "tower", "workstation"],
+  pc: ["desktop", "desktops", "pc", "tower", "workstation"],
+  pcs: ["desktop", "desktops", "pc", "tower", "workstation"],
+
+  // Monitor / Display
+  monitor: ["monitor", "monitors", "display", "screen", "led"],
+  monitors: ["monitor", "monitors", "display", "screen"],
+  display: ["monitor", "monitors", "display", "screen"],
+  screen: ["monitor", "monitors", "screen", "display"],
+
+  // SSD / Storage
   ssd: ["ssd", "solid state", "nvme", "storage"],
+  storage: ["ssd", "hdd", "hard disk", "storage", "nvme"],
+
+  // Custom PC
+  "custom pc": ["custom pc", "custom", "build", "gaming pc"],
+  custom: ["custom pc", "custom", "build"],
 };
+
+// FIX 2: Normalize term — strip common plural/suffix before alias lookup
+function normalizeTerm(term: string): string {
+  // "laptops" → "laptop", "desktops" → "desktop", "monitors" → "monitor", etc.
+  if (SEARCH_ALIASES[term]) return term; // exact match first
+  if (term.endsWith("es") && SEARCH_ALIASES[term.slice(0, -2)]) return term.slice(0, -2);
+  if (term.endsWith("s") && SEARCH_ALIASES[term.slice(0, -1)]) return term.slice(0, -1);
+  return term;
+}
 
 function expandTerms(terms: string[]): string[] {
   const expanded = new Set<string>();
   for (const term of terms) {
     expanded.add(term);
-    const aliases = SEARCH_ALIASES[term];
+    // FIX 2: normalize before looking up aliases
+    const normalized = normalizeTerm(term);
+    expanded.add(normalized);
+    const aliases = SEARCH_ALIASES[normalized] ?? SEARCH_ALIASES[term];
     if (aliases) aliases.forEach((a) => expanded.add(a));
   }
   return [...expanded];
+}
+
+// FIX 3: Map search query to a category if it clearly matches one
+// This lets "laptop" / "laptops" typed in hero search auto-select the Laptop category pill
+const CATEGORY_KEYWORDS: Record<string, string> = {
+  laptop: "Laptop",
+  laptops: "Laptop",
+  notebook: "Laptop",
+  notebooks: "Laptop",
+  desktop: "Desktop",
+  desktops: "Desktop",
+  "desktop pc": "Desktop",
+  "custom pc": "Custom PC",
+  "custom pcs": "Custom PC",
+  "gaming pc": "Custom PC",
+};
+
+function inferCategoryFromQuery(query: string): string | null {
+  const q = query.trim().toLowerCase();
+  if (CATEGORY_KEYWORDS[q]) return CATEGORY_KEYWORDS[q];
+  // partial match: if query starts with a known keyword
+  for (const [keyword, cat] of Object.entries(CATEGORY_KEYWORDS)) {
+    if (q.startsWith(keyword) || q === keyword) return cat;
+  }
+  return null;
 }
 
 // ─── Mappers ───────────────────────────────────────────────────────────────────
@@ -339,6 +398,7 @@ export const Store: React.FC = () => {
       return null;
     }
   });
+
   // ── data state ──
   const [products, setProducts] = useState<Product[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -351,8 +411,12 @@ export const Store: React.FC = () => {
   const [page, setPage] = useState(1);
 
   // ── filters ──
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(() =>
+    ctxCategory ? ctxCategory : "All",
+  );
+  const [selectedSubcategory, setSelectedSubcategory] = useState(() =>
+    ctxSubcategory ? ctxSubcategory : "",
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [sortOption, setSortOption] = useState("latest");
@@ -366,39 +430,59 @@ export const Store: React.FC = () => {
 
   const [heroSearch, setHeroSearch] = useState("");
 
-  const bridgeApplied = useRef(false);
-  const initialSearchQuery = useRef(headerSearchQuery);
-  const initialCtxCategory = useRef(ctxCategory);
-  const initialCtxSubcategory = useRef(ctxSubcategory);
-  const pendingBridge = useRef(!!(ctxCategory || headerSearchQuery?.trim()));
   const gridRef = useRef<HTMLDivElement>(null);
   const totalPages = Math.ceil(totalCount / PER_PAGE);
 
-  // ── Bridge: header search query (from any page) ───────────────────────────
-  useEffect(() => {
-    // Consume any pending header search (whether from mount or live change)
-    const pending = headerSearchQuery?.trim();
-    if (pending) {
-      setSearchQuery(pending);
-      setHeroSearch(pending);
-      setSelectedCategory("All");
-      setSelectedSubcategory("");
-      setPage(1);
-      setHeaderSearchQuery("");
-    }
-    bridgeApplied.current = true;
-  }, [headerSearchQuery]);
+  // FIX 4: Use a ref to hold the "pending search" from home page so `load()`
+  // can read it synchronously without waiting for state to settle.
+  // This fixes the race condition where headerSearchQuery bridge fires
+  // setSearchQuery but load() still sees the old empty string.
+  const pendingSearchRef = useRef<string>("");
 
+  // ── Bridge: context category → local state ──────────────────────────────
   useEffect(() => {
     if (ctxCategory) {
       setSelectedCategory(ctxCategory);
       setSelectedSubcategory(ctxSubcategory || "");
+      setPage(1);
       ctxSetCategory(null);
       ctxSetSubcategory(null);
     }
-    bridgeApplied.current = true;
-    pendingBridge.current = false;
   }, [ctxCategory]);
+
+  // FIX 4: Bridge: header search → local search state
+  // Now we ALSO infer the category from the query so "laptop" / "laptops"
+  // from home page lands on the Laptop category automatically.
+  useEffect(() => {
+    const pending = headerSearchQuery?.trim();
+    if (pending) {
+      // Write to ref immediately — load() will read this synchronously
+      pendingSearchRef.current = pending;
+
+      // Infer category from search query
+      const inferredCat = inferCategoryFromQuery(pending);
+
+      if (inferredCat) {
+        // If query clearly maps to a category (e.g. "laptops" → Laptop),
+        // set the category filter AND clear the text search to avoid
+        // double-filtering which caused "all products" showing up.
+        setSelectedCategory(inferredCat);
+        setSelectedSubcategory("");
+        setSearchQuery("");
+        setHeroSearch("");
+        pendingSearchRef.current = ""; // category filter handles it
+      } else {
+        // Generic keyword search — keep category as All
+        setSearchQuery(pending);
+        setHeroSearch(pending);
+        setSelectedCategory("All");
+        setSelectedSubcategory("");
+      }
+
+      setPage(1);
+      setHeaderSearchQuery("");
+    }
+  }, [headerSearchQuery]);
 
   // ── Handlers ─────────────────────────────────────────────────────────────
   const handleViewDetails = (product: Product) => {
@@ -437,10 +521,22 @@ export const Store: React.FC = () => {
     sessionStorage.removeItem("selectedProduct");
     setCurrentPage("cart");
   };
-  // ── Hero search bar submit ────────────────────────────────────────────────
+
+  // FIX 5: Hero search bar — also infer category from store-page search
   const handleHeroSearch = () => {
     const q = heroSearch.trim();
-    setSearchQuery(q);
+    if (!q) return;
+
+    const inferredCat = inferCategoryFromQuery(q);
+    if (inferredCat) {
+      // e.g. user typed "laptops" in store search bar → go to Laptop category
+      setSelectedCategory(inferredCat);
+      setSelectedSubcategory("");
+      setSearchQuery("");
+      setHeroSearch("");
+    } else {
+      setSearchQuery(q);
+    }
     setPage(1);
   };
 
@@ -501,6 +597,7 @@ export const Store: React.FC = () => {
               );
             }
           }
+
           if (selectedBrands.length) {
             q = q.or(selectedBrands.map((b) => `brand.ilike.%${b}%`).join(","));
           }
@@ -528,6 +625,9 @@ export const Store: React.FC = () => {
               .join(",");
             q = q.or(storageConditions);
           }
+
+          // FIX 6: Improved text search — use expandTerms with normalization
+          // and search across more fields including subcategory name
           if (searchQuery.trim()) {
             const terms = searchQuery
               .trim()
@@ -541,12 +641,14 @@ export const Store: React.FC = () => {
                   `name.ilike.%${alias}%`,
                   `description.ilike.%${alias}%`,
                   `brand.ilike.%${alias}%`,
+                  `model.ilike.%${alias}%`,
                   `specs->>0.ilike.%${alias}%`,
                 ])
                 .join(",");
               q = q.or(conditions);
             }
           }
+
           if (minPrice) q = q.gte("discounted_price", Number(minPrice));
           if (maxPrice) q = q.lte("discounted_price", Number(maxPrice));
 
@@ -572,6 +674,7 @@ export const Store: React.FC = () => {
           if (error) throw error;
 
           const mappedProducts = (data ?? []).map(fromSupabase);
+
           // ── Fetch tags separately and attach ──
           const productIdsForTags = mappedProducts.map((p) => Number(p.id));
           if (productIdsForTags.length > 0) {
@@ -590,7 +693,6 @@ export const Store: React.FC = () => {
                   tagsMap[pid].push(name);
                 }
               }
-              // ✅ Direct overwrite — separate fetch is authoritative
               for (const p of mappedProducts) {
                 p.tags = tagsMap[Number(p.id)] ?? [];
               }
@@ -617,13 +719,12 @@ export const Store: React.FC = () => {
             }
           }
 
-          // ✅ setProducts AFTER all enrichment is done
           setProducts(mappedProducts);
           setTotalCount(count ?? 0);
           setFromFallback(false);
           loaded = true;
         } catch (err: any) {
-          console.warn("[InfoFix] Supabase error:", err?.message ?? err);
+          console.warn("[Store] Supabase error:", err?.message ?? err);
           setFetchError(
             "Couldn't reach the database — showing local catalog instead.",
           );
@@ -644,6 +745,8 @@ export const Store: React.FC = () => {
           );
         if (selectedCondition !== "All")
           result = result.filter((p) => p.condition === selectedCondition);
+
+        // FIX 6: also use expandTerms in fallback search
         if (searchQuery.trim()) {
           const terms = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
           result = result.filter((p) => {
@@ -653,6 +756,7 @@ export const Store: React.FC = () => {
               p.brand ?? "",
               p.category ?? "",
               p.subcategory ?? "",
+              p.model ?? "",
               ...(p.specs ?? []),
               ...(p.tags ?? []),
             ]
@@ -714,8 +818,6 @@ export const Store: React.FC = () => {
   );
 
   useEffect(() => {
-    if (headerSearchQuery && headerSearchQuery.trim()) return;
-    if (pendingBridge.current) return;
     load(page);
   }, [page, load]);
 
@@ -857,14 +959,48 @@ export const Store: React.FC = () => {
                   key={cat}
                   onClick={() => {
                     setSelectedCategory(cat);
-                    if (cat === "All") setSelectedSubcategory("");
+                    if (cat === "All") {
+                      setSelectedSubcategory("");
+                      // FIX 7: Also clear search when clicking "All" so
+                      // you don't get double-filtered results
+                      setSearchQuery("");
+                      setHeroSearch("");
+                    }
+                    if (cat !== selectedCategory) setSelectedSubcategory("");
                   }}
-                  className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-200 ${selectedCategory === cat ? "bg-indigo-600 text-white shadow-md shadow-indigo-200" : "bg-gray-100 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 border border-transparent hover:border-indigo-200"}`}
+                  className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-200 ${
+                    selectedCategory === cat
+                      ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
+                      : "bg-gray-100 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 border border-transparent hover:border-indigo-200"
+                  }`}
                 >
-                  {cat === "All" ? "All" : cat}
+                  {cat}
                 </button>
               ))}
             </div>
+
+            {/* Subcategory pills — shown when Laptop is selected */}
+            {selectedCategory === "Laptop" && (
+              <div className="flex flex-wrap items-center gap-2 w-full mt-1">
+                {["Gaming", "Business", "Student", "Refurbished"].map((sub) => (
+                  <button
+                    key={sub}
+                    onClick={() =>
+                      setSelectedSubcategory(
+                        selectedSubcategory === sub ? "" : sub,
+                      )
+                    }
+                    className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-widest transition-all duration-200 ${
+                      selectedSubcategory === sub
+                        ? "bg-indigo-100 text-indigo-700 border border-indigo-300"
+                        : "bg-gray-50 text-gray-400 hover:bg-indigo-50 hover:text-indigo-500 border border-gray-200"
+                    }`}
+                  >
+                    {sub}
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
@@ -910,7 +1046,6 @@ export const Store: React.FC = () => {
         {/* ── Product grid ── */}
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-6 md:gap-x-8 md:gap-y-16">
-            {" "}
             {Array.from({ length: PER_PAGE }).map((_, i) => (
               <SkeletonCard key={`skeleton-${i}`} idx={i} />
             ))}
@@ -918,7 +1053,6 @@ export const Store: React.FC = () => {
         ) : products.length > 0 ? (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-6 md:gap-x-8 md:gap-y-16 items-stretch">
-              {" "}
               {products.map((product, index) => (
                 <ProductCard
                   key={`${product.id}-p${page}`}
@@ -1104,7 +1238,7 @@ export const Store: React.FC = () => {
         <section className="mt-24 app-container">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
             {[
-              { stat: "5000+", label: "Happy Customers" },
+              { stat: "50000+", label: "Happy Customers" },
               { stat: "1 Year", label: "Warranty on All Products" },
               { stat: "Secure", label: "Verified Payments" },
               { stat: "Fast", label: "PAN India Shipping" },

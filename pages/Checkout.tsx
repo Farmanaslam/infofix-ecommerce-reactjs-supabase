@@ -238,7 +238,7 @@ export const Checkout: React.FC = () => {
 
   // ── Main checkout ─────────────────────────────────────────────────────────
   return (
-    <div className="app-container py-20">
+    <div className="app-container py-8 md:py-20">
       {/* Header */}
       <div className="mb-14">
         <h1 className="text-5xl font-black text-gray-900 tracking-tight">
@@ -254,7 +254,7 @@ export const Checkout: React.FC = () => {
         {/* LEFT */}
         <div className="lg:col-span-2 space-y-10">
           {/* SHIPPING ADDRESS */}
-          <div className="bg-white border border-gray-100 p-10 rounded-4xl shadow-xl shadow-gray-100">
+          <div className="bg-white border border-gray-100 p-4 md:p-10 rounded-4xl shadow-xl shadow-gray-100">
             <h2 className="text-2xl font-black text-gray-900 mb-2">
               Shipping Address
             </h2>

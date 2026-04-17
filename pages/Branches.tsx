@@ -31,7 +31,8 @@ export const Branches: React.FC = () => {
   return (
     <div className="pb-32 bg-white selection:bg-indigo-100 selection:text-indigo-900">
       {/* Immersive Header Section */}
-      <section className="relative h-100 flex items-center justify-center overflow-hidden bg-gray-900">
+      <section className="relative min-h-[70vh] md:h-100 flex items-center justify-center overflow-hidden bg-gray-900 pt-16 md:pt-0">
+        {" "}
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2069"
@@ -40,7 +41,6 @@ export const Branches: React.FC = () => {
           />
           <div className="absolute inset-0 bg-linear-to-b from-transparent via-gray-900/50 to-white"></div>
         </div>
-
         <div className="relative z-10 max-w-7xl mx-auto px-4 w-full text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-full text-white text-[10px] font-black uppercase tracking-widest backdrop-blur-md animate-fade-in-up">
             <MapIcon className="w-3 h-3 text-indigo-400" /> Infofix Store
@@ -64,12 +64,12 @@ export const Branches: React.FC = () => {
           </p>
           {/* Floating Search Bar */}
           <div
-            className="max-w-xl mx-auto relative group pt-8 animate-fade-in-up"
+            className="max-w-xl mx-auto relative group mt-6 md:mt-8 px-4 md:px-0 animate-fade-in-up mb-2"
             style={{ animationDelay: "0.3s" }}
           >
             <div className="absolute inset-0 bg-indigo-500/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full"></div>
-            <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center p-1.5 shadow-2xl">
-              <Search className="ml-4 text-indigo-300 w-5 h-5" />
+            <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center p-2 shadow-2xl">
+              <Search className="ml-4 text-indigo-600 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Search city or branch name..."
@@ -78,7 +78,7 @@ export const Branches: React.FC = () => {
                 className="bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus:border-none flex-1 px-4 py-3 text-sm font-semibold text-white placeholder:text-gray-400"
               />
               <div className="hidden sm:flex items-center gap-2 pr-2">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-3 py-2 bg-white/5 rounded-lg border border-white/10">
+                <span className="text-[10px] font-black text-gray-700 uppercase tracking-widest px-3 py-2 bg-white/5 rounded-lg border border-white/10">
                   {filteredBranches.length} Results
                 </span>
               </div>

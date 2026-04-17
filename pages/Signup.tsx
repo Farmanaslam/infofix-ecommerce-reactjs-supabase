@@ -179,10 +179,10 @@ export const Signup = () => {
   };
 
   return (
-    <div className="py-24 app-container">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-start">
+    <div className="min-h-screen flex items-center justify-center py-6 md:py-24 app-container">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-24 items-center text-center lg:text-left">
         {/* LEFT SIDE — matches Login exactly */}
-        <div className="space-y-8 lg:sticky lg:top-32">
+        <div className="space-y-6 flex flex-col items-center lg:items-start lg:sticky lg:top-32">
           <h1 className="text-5xl md:text-6xl font-black text-gray-900 tracking-tighter leading-none">
             JOIN THE <span className="text-indigo-600">INFOFIX</span> FAMILY
           </h1>
@@ -216,7 +216,7 @@ export const Signup = () => {
         </div>
 
         {/* RIGHT SIDE CARD — matches Login card style */}
-        <div className="bg-white border border-gray-100 p-10 rounded-[48px] shadow-2xl shadow-gray-200/50">
+        <div className="bg-white border border-gray-100 p-1 md:p-10 rounded-[48px] shadow-2xl shadow-gray-200/50">
           {/* Step indicator */}
           <div className="flex items-center gap-2 mb-8">
             {STEPS.map((s, i) => (
@@ -329,7 +329,7 @@ export const Signup = () => {
               >
                 Continue <ChevronRight className="w-5 h-5" />
               </button>
-              <p className="text-sm text-gray-500 text-center font-medium">
+              <p className="p-2 md:p-0 text-sm text-gray-500 text-center font-medium">
                 Already have an account?{" "}
                 <button
                   type="button"

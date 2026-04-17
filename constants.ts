@@ -1,4 +1,4 @@
-import { Product, User, Order, Branch } from "./types";
+import { Branch, Order, Product, User } from "./types";
 
 export const CATEGORIES = [
   "Laptop",

@@ -15,6 +15,7 @@ import {
   Phone,
   Zap,
   HardDrive,
+  RefreshCw,
 } from "lucide-react";
 
 export const Services: React.FC = () => {
@@ -52,19 +53,19 @@ export const Services: React.FC = () => {
       action: () => setSelectedCategory("Laptop"),
     },
     {
-      icon: Cpu,
-      title: "Custom PC Builds",
-      tagline: "Your specs. Your budget. Built by us.",
-      color: "#f59e0b",
+      icon: RefreshCw,
+      title: "Refurbished Laptops",
+      tagline: "Certified pre-owned. Infofix tested.",
+      color: "#ec4899",
       dark: false,
       points: [
-        "Share your use case — we pick every component",
-        "Gaming, editing, coding, CAD, or everyday use",
-        "Assembled, stress-tested, and warranty-backed",
-        "Starts from ₹14,999 — any budget welcome",
+        "Grade A refurbished laptops from top brands",
+        "Every unit cleaned, tested & restored in-house",
+        "SSD upgraded for faster performance",
+        "6-month Infofix warranty on all refurb units",
       ],
-      cta: "Request a Custom Build",
-      action: () => setCurrentPage("contact"),
+      cta: "Browse Refurbished",
+      action: () => setSelectedCategory("Laptop"),
     },
   ];
 
@@ -94,10 +95,10 @@ export const Services: React.FC = () => {
       color: "#ef4444",
     },
     {
-      icon: ShieldCheck,
-      title: "Warranty Service",
-      desc: "All our PCs and laptops come with a 1-year hardware warranty. Claim it at any of our 5 branches.",
-      color: "#818cf8",
+      icon: RefreshCw,
+      title: "Certified Refurbished Solutions",
+      desc: "From diagnostics to upgrades, we ensure every refurbished laptop and desktop meets high-quality standards. Enjoy cost-effective systems backed by our service support and reliability guarantee.",
+      color: "#ec4899",
     },
     {
       icon: Zap,
@@ -506,7 +507,7 @@ export const Services: React.FC = () => {
 
           <div className="relative z-10 p-12 md:p-16 text-center space-y-6">
             <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
-              Trusted by 5,000+ Customers.
+              Trusted by 50,000+ Customers.
               <br />
               <span style={{ color: "#818cf8" }}>
                 5 Stores. 8 Years Strong.

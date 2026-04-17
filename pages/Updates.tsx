@@ -43,7 +43,7 @@ export const Updates: React.FC = () => {
   };
 
   return (
-    <div className="py-24 app-container">
+    <div className="p-8 md:py-24 app-container">
       {/* Hero */}
       <div className="mb-16 text-center space-y-6">
         <h1 className="text-5xl font-black text-gray-900">
@@ -173,7 +173,7 @@ export const Updates: React.FC = () => {
       )}
 
       {/* Trust Section */}
-      <div className="mt-32 text-center bg-gray-50 p-12 rounded-3xl">
+      <div className="mt-32 text-center bg-gray-50 p-2 md:p-12 rounded-3xl">
         <h2 className="text-3xl font-black text-gray-900 mb-4">
           Written by Real Technicians
         </h2>

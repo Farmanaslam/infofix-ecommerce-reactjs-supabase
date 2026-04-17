@@ -225,26 +225,26 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
           {/* ── LOGO ── */}
           <button
             onClick={() => setCurrentPage("home")}
-            className="flex items-center gap-2.5 shrink-0 absolute left-1/2 -translate-x-1/2 lg:relative lg:left-0 lg:translate-x-0 group"
+            className="flex items-center justify-center shrink-0 absolute left-1/2 -translate-x-1/2 lg:relative lg:left-0 lg:translate-x-0 group"
           >
-            <div className="relative">
-              <img
-                src="/icons/favicon.svg"
-                alt="Infofix"
-                className="h-10 w-11 lg:h-11 lg:w-14 object-contain"
-              />
-
-              {/* glow on hover */}
-              <div className="absolute inset-0 rounded-xl bg-indigo-400/0 group-hover:bg-indigo-400/10 transition-colors duration-200" />
-            </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-[1.45rem] lg:text-[1.65rem] font-black tracking-tight">
-                <span className="text-indigo-600">Info</span>
-                <span className="text-slate-900">fix</span>
+            <div className="flex flex-col leading-none text-center lg:text-left">
+              {/* MAIN BRAND */}
+              <span className="text-[1.7rem] lg:text-[2rem] font-extrabold tracking-tight">
+                <span className="text-indigo-600 group-hover:text-indigo-700 transition-colors duration-200">
+                  Info
+                </span>
+                <span className="text-slate-900 group-hover:text-black transition-colors duration-200">
+                  fix
+                </span>
               </span>
-              <span className="text-[8.5px] font-bold tracking-[0.2em] text-slate-400 uppercase hidden lg:block">
+
+              {/* SUB BRAND */}
+              <span className="text-[9px] lg:text-[10px] font-semibold tracking-[0.35em] text-slate-400 uppercase group-hover:text-indigo-500 transition-all duration-200">
                 Computers
               </span>
+
+              {/* subtle underline glow */}
+              <span className="h-[2px] w-0 bg-indigo-500 group-hover:w-full transition-all duration-300 rounded-full mt-1"></span>
             </div>
           </button>
 
@@ -1228,9 +1228,6 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-/* ═══════════════════════════════════════════════════════════
-   ADMIN LAYOUT — unchanged
-═══════════════════════════════════════════════════════════ */
 export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {

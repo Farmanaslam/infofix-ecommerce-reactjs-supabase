@@ -495,6 +495,44 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     );
     return () => listener.subscription.unsubscribe();
   }, []);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select(`*, categories(name)`)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        const mapped = data.map((p: any) => ({
+          ...p,
+          id: String(p.id),
+          category: p.categories?.name ?? "",
+          image: p.image_url,
+          price: parseFloat(p.discounted_price ?? p.retail_price),
+          stock: p.stock_quantity,
+          discountPercent: parseFloat(p.discount_percent ?? "0"),
+          rating: parseFloat(p.rating_avg ?? "0"),
+          reviews: p.reviews_count ?? 0,
+          likesCount: p.likes_count ?? 0,
+          // AFTER (fixed)
+          specs: (() => {
+            if (!p.specs) return [];
+            try {
+              const obj =
+                typeof p.specs === "string" ? JSON.parse(p.specs) : p.specs;
+              return Object.entries(obj).map(([k, v]) => `${k}: ${v}`);
+            } catch {
+              return [];
+            }
+          })(),
+          images: p.images ?? [],
+        }));
+        setProducts(mapped);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const addToCart = useCallback(
     async (product: Product) => {

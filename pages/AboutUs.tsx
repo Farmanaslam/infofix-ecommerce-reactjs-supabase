@@ -11,6 +11,7 @@ import {
   MapPin,
   Users,
   Award,
+  RefreshCw,
 } from "lucide-react";
 
 export const AboutUs: React.FC = () => {
@@ -66,7 +67,7 @@ export const AboutUs: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
             {[
               {
-                value: "5,000+",
+                value: "50,000+",
                 label: "Happy Customers",
                 icon: Users,
                 color: "#6366f1",
@@ -232,33 +233,6 @@ export const AboutUs: React.FC = () => {
           <div className="grid md:grid-cols-3 gap-6">
             {[
               {
-                icon: Laptop,
-                title: "New Laptops",
-                badge: "All Brands",
-                badgeColor: "#6366f1",
-                desc: "Handpicked models from top brands across every budget. Student essentials, business ultrabooks, and high-performance gaming laptops — all in stock at our 5 stores.",
-                from: "Starting ₹22,999",
-                dark: false,
-              },
-              {
-                icon: Monitor,
-                title: "Desktop PCs",
-                badge: "In-House Built",
-                badgeColor: "#10b981",
-                desc: "Assembled, configured, and stress-tested by our in-house technicians. Office desktops, workstations, and gaming rigs — ready same-day across our branches.",
-                from: "Starting ₹10,999",
-                dark: true,
-              },
-              {
-                icon: Cpu,
-                title: "Custom PC Builds",
-                badge: "Any Config",
-                badgeColor: "#f59e0b",
-                desc: "Tell us your budget, use case, and workload. We source every component, assemble, and deliver a machine built precisely for you — gaming, editing, coding, or office.",
-                from: "Starting ₹10,999",
-                dark: false,
-              },
-              {
                 icon: Wrench,
                 title: "Repairs & Upgrades",
                 badge: "Fast Turnaround",
@@ -268,12 +242,12 @@ export const AboutUs: React.FC = () => {
                 dark: false,
               },
               {
-                icon: TrendingUp,
-                title: "Warranty & Support",
-                badge: "Trusted Coverage",
-                badgeColor: "#ef4444",
-                desc: "Genuine manufacturer warranty on all products. Dedicated after-sales support for quick help. Assistance with setup, troubleshooting, and replacements. Hassle-free service even after purchase.",
-                from: "Always here to help",
+                icon: RefreshCw,
+                title: "Certified Refurbished Laptops",
+                badge: "Grade A Quality",
+                badgeColor: "#ec4899",
+                desc: "Every refurbished laptop at Infofix is cleaned, tested, and restored by our in-house technicians. We upgrade storage to SSD, verify all hardware, and provide a 6-month warranty — so you get near-new performance at half the price.",
+                from: "Quality Checked • Warranty Backed",
                 dark: false,
               },
               {
@@ -367,7 +341,7 @@ export const AboutUs: React.FC = () => {
                 The Infofix Difference
               </h3>
               <p className="text-indigo-200 font-medium max-w-xl mx-auto">
-                5,000+ customers chose us. Here's why they keep coming back.
+                50,000+ customers chose us. Here's why they keep coming back.
               </p>
             </div>
 

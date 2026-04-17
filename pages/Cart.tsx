@@ -11,9 +11,16 @@ export const Cart: React.FC = () => {
     currentUser,
     updateQuantity,
     removeFromCart,
+    addToCart,
   } = useStore();
 
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+
+  // Scroll to top + set selected product
+  const handleSelectProduct = (product: any) => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setSelectedProduct(product);
+  };
 
   if (selectedProduct) {
     return (
@@ -24,16 +31,25 @@ export const Cart: React.FC = () => {
       />
     );
   }
+
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-  const relatedProducts = products
-    .filter((p) =>
-      cart.some(
-        (item) =>
-          item.category === p.category && String(item.id) !== String(p.id),
-      ),
+  // Normalized category matching — case-insensitive, trimmed
+  const cartCategories = [
+    ...new Set(cart.map((item) => (item.category ?? "").trim().toLowerCase())),
+  ];
+  const cartIds = new Set(cart.map((item) => String(item.id)));
+
+  const similarProducts = products
+    .filter(
+      (p) =>
+        cartCategories.includes((p.category ?? "").trim().toLowerCase()) &&
+        !cartIds.has(String(p.id)),
     )
-    .slice(0, 4);
+    .slice(0, 6);
+
+  // Separate "Recommended" grid (bottom section) — up to 4
+  const recommendedProducts = similarProducts.slice(0, 4);
 
   if (!currentUser) {
     return (
@@ -56,7 +72,7 @@ export const Cart: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-16">
+    <div className="max-w-6xl mx-auto px-4 py-10 md:py-16">
       <div className="mb-12">
         <h1 className="text-4xl font-bold text-indigo-700 mb-3">
           Your Shopping Cart
@@ -98,7 +114,7 @@ export const Cart: React.FC = () => {
               <div
                 key={item.id}
                 className="flex flex-col md:flex-row items-center gap-6 p-6 border border-indigo-100 rounded-2xl bg-white shadow-sm hover:shadow-md hover:border-indigo-300 transition cursor-pointer"
-                onClick={() => setSelectedProduct(item)}
+                onClick={() => handleSelectProduct(item)}
               >
                 <img
                   src={item.image}
@@ -155,6 +171,64 @@ export const Cart: React.FC = () => {
             ))}
           </div>
 
+          {/* Similar Products — Customers Also Bought */}
+          {similarProducts.length > 0 && (
+            <div className="mt-10">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-indigo-700">
+                    Customers Also Bought
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-0.5">
+                    Similar products based on your cart
+                  </p>
+                </div>
+                <button
+                  onClick={() => setCurrentPage("shop")}
+                  className="text-sm text-indigo-600 hover:text-indigo-800 font-medium underline"
+                >
+                  View all →
+                </button>
+              </div>
+
+              <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                {similarProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    onClick={() => handleSelectProduct(product)}
+                    className="min-w-42.5 max-w-42.5 border border-indigo-100 rounded-2xl p-4 bg-white hover:shadow-md hover:border-indigo-300 transition cursor-pointer shrink-0"
+                  >
+                    <div className="relative mb-3">
+                      <img
+                        src={product.image}
+                        className="w-full h-28 object-cover rounded-xl"
+                        alt={product.name}
+                      />
+                      <span className="absolute top-2 left-2 bg-indigo-100 text-indigo-700 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                        {product.category}
+                      </span>
+                    </div>
+                    <h3 className="font-medium text-sm text-gray-800 leading-snug line-clamp-2 mb-1">
+                      {product.name}
+                    </h3>
+                    <p className="text-indigo-600 font-bold text-sm mb-3">
+                      ₹{product.price.toLocaleString("en-IN")}
+                    </p>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart(product); // ✅ directly adds to cart, no redirect
+                      }}
+                      className="w-full text-xs border border-indigo-500 text-indigo-600 rounded-lg py-1.5 hover:bg-indigo-50 transition font-medium"
+                    >
+                      + Add to Cart
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Order Summary */}
           <div className="mt-12 bg-indigo-50 p-6 rounded-xl border border-indigo-100">
             <h3 className="text-xl font-bold text-indigo-700 mb-4">
@@ -199,6 +273,7 @@ export const Cart: React.FC = () => {
               </button>
             </p>
           </div>
+
           <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
             <span className="text-xl">🚚</span>
             <div>
@@ -210,6 +285,7 @@ export const Cart: React.FC = () => {
               </p>
             </div>
           </div>
+
           {/* Actions */}
           <div className="mt-10 flex flex-col md:flex-row justify-between gap-4">
             <button
@@ -226,8 +302,8 @@ export const Cart: React.FC = () => {
             </button>
           </div>
 
-          {/* Related Products */}
-          {relatedProducts.length > 0 && (
+          {/* Recommended for You */}
+          {recommendedProducts.length > 0 && (
             <div className="mt-16">
               <h2 className="text-2xl font-bold text-indigo-700 mb-2">
                 Recommended for You
@@ -237,11 +313,11 @@ export const Cart: React.FC = () => {
                 products.
               </p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {relatedProducts.map((product) => (
+                {recommendedProducts.map((product) => (
                   <div
                     key={product.id}
                     className="border border-indigo-100 rounded-xl p-4 hover:shadow-md transition cursor-pointer bg-white"
-                    onClick={() => setCurrentPage("shop")}
+                    onClick={() => handleSelectProduct(product)}
                   >
                     <img
                       src={product.image}
@@ -252,7 +328,7 @@ export const Cart: React.FC = () => {
                       {product.name}
                     </h3>
                     <p className="text-indigo-600 text-sm font-semibold">
-                      ₹{product.price}
+                      ₹{product.price.toLocaleString("en-IN")}
                     </p>
                   </div>
                 ))}

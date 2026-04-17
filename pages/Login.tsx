@@ -79,14 +79,12 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="py-24">
-      {/* ✅ Container applied here */}
+    <div className="min-h-screen flex items-center justify-center py-6 md:py-24">
       <div className="app-container">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-          
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-24 items-center text-center lg:text-left">
           {/* LEFT SIDE */}
-          <div className="space-y-8">
-            <h1 className="text-5xl md:text-6xl font-black text-gray-900 tracking-tighter leading-none">
+          <div className="space-y-6 flex flex-col items-center lg:items-start">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-gray-900 tracking-tighter leading-none">
               WELCOME BACK TO <span className="text-indigo-600">INFOFIX</span>
             </h1>
 
@@ -95,7 +93,7 @@ export const Login: React.FC = () => {
               computing solutions.
             </p>
 
-            <div className="bg-indigo-50 p-8 rounded-4xl">
+            <div className="bg-indigo-50 p-4 md:p-8 rounded-4xl">
               <p className="text-sm font-semibold text-indigo-900">
                 Secure authentication powered by modern encryption standards.
               </p>
@@ -103,9 +101,8 @@ export const Login: React.FC = () => {
           </div>
 
           {/* RIGHT SIDE CARD */}
-          <div className="bg-white border border-gray-100 p-12 rounded-[48px] shadow-2xl shadow-gray-200/50">
+          <div className="bg-white border border-gray-100 p-6 md:p-12 rounded-[48px] shadow-2xl shadow-gray-200/50">
             <form className="space-y-6" onSubmit={handleSubmit}>
-              
               {/* Email */}
               <div className="space-y-2">
                 <label className="text-xs font-black text-gray-400 uppercase tracking-widest">
@@ -182,10 +179,8 @@ export const Login: React.FC = () => {
                   Sign Up
                 </button>
               </p>
-
             </form>
           </div>
-
         </div>
       </div>
     </div>

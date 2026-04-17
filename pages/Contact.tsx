@@ -5,7 +5,7 @@ import { useStore } from "../context/StoreContext";
 export const Contact: React.FC = () => {
   const { setCurrentPage } = useStore();
   return (
-    <div className="py-24 app-container">
+    <div className="py-8 md:py-24 app-container">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-24">
         <div className="space-y-12">
           <div className="space-y-6">
@@ -94,7 +94,7 @@ export const Contact: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-100 p-12 rounded-[48px] shadow-2xl shadow-gray-200/50">
+        <div className="bg-white border border-gray-100 p-2 md:p-12 rounded-[48px] shadow-2xl shadow-gray-200/50">
           <form
             className="space-y-6"
             onSubmit={(e) => {
@@ -198,7 +198,7 @@ export const Contact: React.FC = () => {
         </div>
       </div>
       {/* Why Choose Section - Premium Styled */}
-      <div className="mt-28 relative">
+      <div className="mt-10 md:mt-28 relative">
         <div className="text-center mb-14">
           <h3 className="text-4xl md:text-5xl font-black tracking-tight">
             <span className="bg-linear-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
@@ -226,9 +226,10 @@ export const Contact: React.FC = () => {
           </div>
 
           <div className="bg-white p-8 rounded-3xl shadow-xl shadow-indigo-100 border border-gray-100 hover:-translate-y-2 transition-all duration-300">
-            <h4 className="font-bold text-gray-900 mb-2">Genuine Products</h4>
+            <h4 className="font-bold text-gray-900 mb-2">Refurbished Deals</h4>
             <p className="text-sm text-gray-500">
-              Authentic accessories and branded components only.
+              Budget-friendly refurbished PCs & laptops, fully tested, cleaned,
+              and backed with warranty.
             </p>
           </div>
 

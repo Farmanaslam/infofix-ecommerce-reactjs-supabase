@@ -172,10 +172,10 @@ export const CareersPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white py-20 px-4">
+    <div className="min-h-screen bg-white py-8 md:py-20 px-4">
       <div className="max-w-5xl mx-auto">
         {/* ── HERO ─────────────────────────────────────────────────────────── */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-12 md:mb-20">
           <h1 className="text-5xl font-black bg-linear-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
             Careers at Infofix Computers
           </h1>
@@ -229,7 +229,7 @@ export const CareersPage = () => {
               ))}
             </div>
           ) : (
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-10 text-center">
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 md:p-10 text-center">
               <h3 className="text-xl font-bold text-gray-900">
                 No Current Openings
               </h3>
