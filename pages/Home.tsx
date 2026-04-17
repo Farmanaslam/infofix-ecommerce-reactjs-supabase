@@ -1103,7 +1103,6 @@ export const Home: React.FC = () => {
           <div className="hidden md:grid md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_320px] gap-4 hero-carousel-wrap">
             <HeroCarousel
               onShop={() => {
-                setSelectedCategory("Desktop");
                 setCurrentPage("shop");
               }}
               onContact={() => setCurrentPage("contact")}
