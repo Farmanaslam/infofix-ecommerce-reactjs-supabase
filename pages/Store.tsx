@@ -546,6 +546,9 @@ export const Store: React.FC = () => {
       setLoading(true);
       setRevealed(false);
       setFetchError(null);
+      const effectiveSearchQuery = (
+        searchQuery.trim() || pendingSearchRef.current.trim()
+      ).trim();
 
       let loaded = false;
       if (IS_SB && supabase) {
@@ -628,8 +631,8 @@ export const Store: React.FC = () => {
 
           // FIX 6: Improved text search — use expandTerms with normalization
           // and search across more fields including subcategory name
-          if (searchQuery.trim()) {
-            const terms = searchQuery
+          if (effectiveSearchQuery) {
+            const terms = effectiveSearchQuery
               .trim()
               .toLowerCase()
               .split(/\s+/)
@@ -747,8 +750,8 @@ export const Store: React.FC = () => {
           result = result.filter((p) => p.condition === selectedCondition);
 
         // FIX 6: also use expandTerms in fallback search
-        if (searchQuery.trim()) {
-          const terms = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+        if (effectiveSearchQuery) {
+          const terms = effectiveSearchQuery.toLowerCase().split(/\s+/).filter(Boolean);
           result = result.filter((p) => {
             const haystack = [
               p.name,
@@ -798,6 +801,9 @@ export const Store: React.FC = () => {
 
       await new Promise((r) => setTimeout(r, 420));
       setLoading(false);
+      if (pendingSearchRef.current && pendingSearchRef.current === searchQuery.trim()) {
+        pendingSearchRef.current = "";
+      }
       requestAnimationFrame(() =>
         requestAnimationFrame(() => setRevealed(true)),
       );
