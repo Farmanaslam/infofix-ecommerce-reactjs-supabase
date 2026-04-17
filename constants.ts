@@ -4,6 +4,7 @@ export const CATEGORIES = [
   "Laptop",
   "Desktop",
   "Custom PC",
+  "Accessories"
 ];
 
 export const SUBCATEGORIES: Record<
@@ -40,6 +41,14 @@ export const SUBCATEGORIES: Record<
       },
     ],
   },
+  Accessories: {
+  groups: [
+    {
+      label: "Components & Peripherals",
+      items: ["RAM", "Motherboard", "Monitor", "Keyboard", "Mouse", "CPU"],
+    },
+  ],
+},
 };
 
 export const OPERATORS: User[] = [

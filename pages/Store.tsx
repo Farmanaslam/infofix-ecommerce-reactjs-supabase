@@ -12,8 +12,6 @@ import {
 import { CATEGORIES, INITIAL_PRODUCTS } from "../constants";
 import { Product } from "../types";
 import { supabase } from "@/lib/supabaseClient";
-
-// ─── Import your new components ───────────────────────────────────────────────
 import { ProductCard } from "./Product";
 import { ProductDetails } from "./ProductDetails";
 
@@ -21,16 +19,40 @@ const PER_PAGE = 12;
 const IS_SB = !!supabase;
 
 // ─── Search aliases ────────────────────────────────────────────────────────────
-// FIX 1: Added plural forms and more variants throughout
+
 const SEARCH_ALIASES: Record<string, string[]> = {
   // Processors
-  processor: ["processor", "processors", "cpu", "intel", "amd", "ryzen", "core i"],
-  processors: ["processor", "processors", "cpu", "intel", "amd", "ryzen", "core i"],
+  processor: [
+    "processor",
+    "processors",
+    "cpu",
+    "intel",
+    "amd",
+    "ryzen",
+    "core i",
+  ],
+  processors: [
+    "processor",
+    "processors",
+    "cpu",
+    "intel",
+    "amd",
+    "ryzen",
+    "core i",
+  ],
   cpu: ["processor", "processors", "cpu", "core"],
   cpus: ["processor", "processors", "cpu", "core"],
 
   // Peripherals
-  peripherals: ["peripherals", "peripheral", "keyboard", "mouse", "headset", "webcam", "speaker"],
+  peripherals: [
+    "peripherals",
+    "peripheral",
+    "keyboard",
+    "mouse",
+    "headset",
+    "webcam",
+    "speaker",
+  ],
   peripheral: ["peripherals", "peripheral"],
 
   // CCTV / Camera
@@ -73,14 +95,30 @@ const SEARCH_ALIASES: Record<string, string[]> = {
   // Custom PC
   "custom pc": ["custom pc", "custom", "build", "gaming pc"],
   custom: ["custom pc", "custom", "build"],
+  // Accessories
+  accessories: [
+    "accessories",
+    "accessory",
+    "ram",
+    "motherboard",
+    "monitor",
+    "keyboard",
+    "mouse",
+    "cpu",
+  ],
+  motherboard: ["motherboard", "motherboards", "mobo", "mainboard"],
+  motherboards: ["motherboard", "motherboards", "mobo", "mainboard"],
+  keyboard: ["keyboard", "keyboards", "mechanical keyboard"],
+  keyboards: ["keyboard", "keyboards"],
+  mouse: ["mouse", "mice", "gaming mouse"],
+  mice: ["mouse", "mice"],
 };
-
-// FIX 2: Normalize term — strip common plural/suffix before alias lookup
 function normalizeTerm(term: string): string {
-  // "laptops" → "laptop", "desktops" → "desktop", "monitors" → "monitor", etc.
-  if (SEARCH_ALIASES[term]) return term; // exact match first
-  if (term.endsWith("es") && SEARCH_ALIASES[term.slice(0, -2)]) return term.slice(0, -2);
-  if (term.endsWith("s") && SEARCH_ALIASES[term.slice(0, -1)]) return term.slice(0, -1);
+  if (SEARCH_ALIASES[term]) return term;
+  if (term.endsWith("es") && SEARCH_ALIASES[term.slice(0, -2)])
+    return term.slice(0, -2);
+  if (term.endsWith("s") && SEARCH_ALIASES[term.slice(0, -1)])
+    return term.slice(0, -1);
   return term;
 }
 
@@ -97,8 +135,6 @@ function expandTerms(terms: string[]): string[] {
   return [...expanded];
 }
 
-// FIX 3: Map search query to a category if it clearly matches one
-// This lets "laptop" / "laptops" typed in hero search auto-select the Laptop category pill
 const CATEGORY_KEYWORDS: Record<string, string> = {
   laptop: "Laptop",
   laptops: "Laptop",
@@ -110,6 +146,13 @@ const CATEGORY_KEYWORDS: Record<string, string> = {
   "custom pc": "Custom PC",
   "custom pcs": "Custom PC",
   "gaming pc": "Custom PC",
+  accessories: "Accessories",
+  ram: "Accessories",
+  motherboard: "Accessories",
+  keyboard: "Accessories",
+  mouse: "Accessories",
+  monitor: "Accessories",
+  cpu: "Accessories",
 };
 
 function inferCategoryFromQuery(query: string): string | null {
@@ -546,6 +589,9 @@ export const Store: React.FC = () => {
       setLoading(true);
       setRevealed(false);
       setFetchError(null);
+      const effectiveSearchQuery = (
+        searchQuery.trim() || pendingSearchRef.current.trim()
+      ).trim();
 
       let loaded = false;
       if (IS_SB && supabase) {
@@ -628,8 +674,8 @@ export const Store: React.FC = () => {
 
           // FIX 6: Improved text search — use expandTerms with normalization
           // and search across more fields including subcategory name
-          if (searchQuery.trim()) {
-            const terms = searchQuery
+          if (effectiveSearchQuery) {
+            const terms = effectiveSearchQuery
               .trim()
               .toLowerCase()
               .split(/\s+/)
@@ -747,8 +793,11 @@ export const Store: React.FC = () => {
           result = result.filter((p) => p.condition === selectedCondition);
 
         // FIX 6: also use expandTerms in fallback search
-        if (searchQuery.trim()) {
-          const terms = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+        if (effectiveSearchQuery) {
+          const terms = effectiveSearchQuery
+            .toLowerCase()
+            .split(/\s+/)
+            .filter(Boolean);
           result = result.filter((p) => {
             const haystack = [
               p.name,
@@ -798,6 +847,12 @@ export const Store: React.FC = () => {
 
       await new Promise((r) => setTimeout(r, 420));
       setLoading(false);
+      if (
+        pendingSearchRef.current &&
+        pendingSearchRef.current === searchQuery.trim()
+      ) {
+        pendingSearchRef.current = "";
+      }
       requestAnimationFrame(() =>
         requestAnimationFrame(() => setRevealed(true)),
       );
@@ -954,29 +1009,29 @@ export const Store: React.FC = () => {
         >
           <div className="flex flex-col gap-4 max-w-7xl mx-auto">
             <div className="flex flex-wrap items-center gap-2 w-full">
-              {["All", "Laptop", "Desktop", "Custom PC"].map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => {
-                    setSelectedCategory(cat);
-                    if (cat === "All") {
-                      setSelectedSubcategory("");
-                      // FIX 7: Also clear search when clicking "All" so
-                      // you don't get double-filtered results
-                      setSearchQuery("");
-                      setHeroSearch("");
-                    }
-                    if (cat !== selectedCategory) setSelectedSubcategory("");
-                  }}
-                  className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-200 ${
-                    selectedCategory === cat
-                      ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
-                      : "bg-gray-100 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 border border-transparent hover:border-indigo-200"
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
+              {["All", "Laptop", "Desktop", "Custom PC", "Accessories"].map(
+                (cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setSelectedCategory(cat);
+                      if (cat === "All") {
+                        setSelectedSubcategory("");
+                        setSearchQuery("");
+                        setHeroSearch("");
+                      }
+                      if (cat !== selectedCategory) setSelectedSubcategory("");
+                    }}
+                    className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-200 ${
+                      selectedCategory === cat
+                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
+                        : "bg-gray-100 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 border border-transparent hover:border-indigo-200"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ),
+              )}
             </div>
 
             {/* Subcategory pills — shown when Laptop is selected */}
@@ -1001,7 +1056,35 @@ export const Store: React.FC = () => {
                 ))}
               </div>
             )}
-
+            {/* Subcategory pills — shown when Accessories is selected */}
+            {selectedCategory === "Accessories" && (
+              <div className="flex flex-wrap items-center gap-2 w-full mt-1">
+                {[
+                  "RAM",
+                  "Motherboard",
+                  "Monitor",
+                  "Keyboard",
+                  "Mouse",
+                  "CPU",
+                ].map((sub) => (
+                  <button
+                    key={sub}
+                    onClick={() =>
+                      setSelectedSubcategory(
+                        selectedSubcategory === sub ? "" : sub,
+                      )
+                    }
+                    className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-widest transition-all duration-200 ${
+                      selectedSubcategory === sub
+                        ? "bg-indigo-100 text-indigo-700 border border-indigo-300"
+                        : "bg-gray-50 text-gray-400 hover:bg-indigo-50 hover:text-indigo-500 border border-gray-200"
+                    }`}
+                  >
+                    {sub}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                 {loading ? (

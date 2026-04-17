@@ -87,6 +87,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
 
   const handleSearch = () => {
     if (!localSearch.trim()) return;
+    setSelectedCategory(null);
+    setSelectedSubcategory(null);
     setHeaderSearchQuery(localSearch.trim());
     setCurrentPage("shop");
   };
