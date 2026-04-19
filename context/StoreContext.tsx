@@ -510,21 +510,29 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
           category: p.categories?.name ?? "",
           image: p.image_url,
           price: parseFloat(p.discounted_price ?? p.retail_price),
+          retailPrice: parseFloat(p.retail_price),
           stock: p.stock_quantity,
           discountPercent: parseFloat(p.discount_percent ?? "0"),
           rating: parseFloat(p.rating_avg ?? "0"),
           reviews: p.reviews_count ?? 0,
           likesCount: p.likes_count ?? 0,
-          // AFTER (fixed)
           specs: (() => {
             if (!p.specs) return [];
-            try {
-              const obj =
-                typeof p.specs === "string" ? JSON.parse(p.specs) : p.specs;
-              return Object.entries(obj).map(([k, v]) => `${k}: ${v}`);
-            } catch {
+            const raw =
+              typeof p.specs === "string"
+                ? (() => {
+                    try {
+                      return JSON.parse(p.specs);
+                    } catch {
+                      return null;
+                    }
+                  })()
+                : p.specs;
+            if (!raw || typeof raw !== "object" || Array.isArray(raw))
               return [];
-            }
+            return Object.entries(raw as Record<string, unknown>)
+              .filter(([k, v]) => k && v != null && String(v).trim() !== "")
+              .map(([k, v]) => `${k}|||${String(v)}`);
           })(),
           images: p.images ?? [],
         }));

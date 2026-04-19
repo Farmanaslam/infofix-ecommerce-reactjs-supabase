@@ -45,22 +45,48 @@ interface Review {
 }
 
 // ─── Spec normaliser ──────────────────────────────────────────────────────────
-function normaliseSpecs(
-  specs: string[] | Record<string, string> | undefined | null,
-): { key: string; value: string }[] {
+function normaliseSpecs(specs: unknown): { key: string; value: string }[] {
   if (!specs) return [];
+
   if (Array.isArray(specs)) {
-    return specs.map((s) => {
-      const idx = s.indexOf(":");
-      return idx > -1
-        ? { key: s.slice(0, idx).trim(), value: s.slice(idx + 1).trim() }
-        : { key: s, value: "" };
-    });
+    const piped = (specs as unknown[]).filter(
+      (s): s is string => typeof s === "string" && s.includes("|||"),
+    );
+    if (piped.length > 0) {
+      return piped.map((s) => ({
+        key: s.slice(0, s.indexOf("|||")),
+        value: s.slice(s.indexOf("|||") + 3),
+      }));
+    }
+
+    if (
+      specs.length > 0 &&
+      typeof specs[0] === "object" &&
+      specs[0] !== null &&
+      "key" in specs[0]
+    ) {
+      return (specs as { key: string; value: string }[]).filter(
+        (s) => s.key && String(s.value ?? "").trim(),
+      );
+    }
+
+    return [];
   }
-  return Object.entries(specs).map(([key, value]) => ({
-    key,
-    value: String(value),
-  }));
+
+  if (typeof specs === "object" && specs !== null) {
+    return Object.entries(specs as Record<string, unknown>)
+      .filter(([k, v]) => k && v != null && String(v).trim() !== "")
+      .map(([k, v]) => ({ key: k, value: String(v) }));
+  }
+  if (typeof specs === "string") {
+    try {
+      return normaliseSpecs(JSON.parse(specs));
+    } catch {
+      return [];
+    }
+  }
+
+  return [];
 }
 
 // Cart Toast
@@ -73,11 +99,11 @@ const CartToast: React.FC<{
 }> = ({ product, qty, visible, onGoToCart, onDismiss }) => (
   <>
     <style>{`
-      @keyframes toastUp   { from{transform:translate(-50%,100px);opacity:0} to{transform:translate(-50%,0);opacity:1} }
-      @keyframes toastDown { from{transform:translate(-50%,0);opacity:1} to{transform:translate(-50%,100px);opacity:0} }
-      @keyframes progressBar { from{width:100%} to{width:0%} }
-      @keyframes checkBounce { 0%{transform:scale(0) rotate(-10deg)} 60%{transform:scale(1.25) rotate(4deg)} 100%{transform:scale(1) rotate(0)} }
-    `}</style>
+        @keyframes toastUp   { from{transform:translate(-50%,100px);opacity:0} to{transform:translate(-50%,0);opacity:1} }
+        @keyframes toastDown { from{transform:translate(-50%,0);opacity:1} to{transform:translate(-50%,100px);opacity:0} }
+        @keyframes progressBar { from{width:100%} to{width:0%} }
+        @keyframes checkBounce { 0%{transform:scale(0) rotate(-10deg)} 60%{transform:scale(1.25) rotate(4deg)} 100%{transform:scale(1) rotate(0)} }
+      `}</style>
     <div
       style={{
         animation: visible
@@ -495,14 +521,46 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
 
     fetchReviews();
   }, [product.id]);
+  const [rawSpecs, setRawSpecs] = useState<{ key: string; value: string }[]>(
+    [],
+  );
 
+  useEffect(() => {
+    const fetchSpecs = async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("specs")
+        .eq("id", Number(product.id))
+        .maybeSingle();
+      if (!error && data?.specs) {
+        const raw =
+          typeof data.specs === "string"
+            ? (() => {
+                try {
+                  return JSON.parse(data.specs);
+                } catch {
+                  return null;
+                }
+              })()
+            : data.specs;
+        if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+          setRawSpecs(
+            Object.entries(raw as Record<string, unknown>)
+              .filter(([k, v]) => k && v != null && String(v).trim() !== "")
+              .map(([k, v]) => ({ key: k, value: String(v) })),
+          );
+        }
+      }
+    };
+    fetchSpecs();
+  }, [product.id]);
   // ── Derived ──
   const galleryImages: string[] =
     Array.isArray(product.images) && product.images.length > 0
       ? product.images
       : [product.image];
-
-  const specEntries = normaliseSpecs(product.specs as any);
+  const specEntries =
+    rawSpecs.length > 0 ? rawSpecs : normaliseSpecs(product.specs);
   const savings = product.retailPrice ? product.retailPrice - product.price : 0;
   const isLow = product.stock > 0 && product.stock < 10;
   const isVeryLow = product.stock > 0 && product.stock <= 5;
@@ -584,12 +642,12 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
   return (
     <>
       <style>{`
-        @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-        .pd-fade { animation: fadeInUp 0.5s ease both; }
-        .scrollbar-hide::-webkit-scrollbar{display:none}
-        .scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none}
-        @keyframes imgFade { from{opacity:0;transform:scale(1.02)} to{opacity:1;transform:scale(1)} }
-      `}</style>
+          @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+          .pd-fade { animation: fadeInUp 0.5s ease both; }
+          .scrollbar-hide::-webkit-scrollbar{display:none}
+          .scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none}
+          @keyframes imgFade { from{opacity:0;transform:scale(1.02)} to{opacity:1;transform:scale(1)} }
+        `}</style>
 
       <div className="min-h-screen bg-white pb-32">
         <div className="app-container pt-6 pb-2">
@@ -700,7 +758,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                       key={i}
                       onClick={() => setActiveImg(i)}
                       className={`relative shrink-0 w-18 h-18 rounded-2xl overflow-hidden transition-all duration-200
-                        ${activeImg === i ? "ring-[2.5px] ring-offset-2 ring-indigo-600 scale-[1.07] shadow-lg shadow-indigo-200/60" : "ring-1 ring-gray-200 opacity-60 hover:opacity-100 hover:ring-gray-300 hover:scale-[1.03]"}`}
+                          ${activeImg === i ? "ring-[2.5px] ring-offset-2 ring-indigo-600 scale-[1.07] shadow-lg shadow-indigo-200/60" : "ring-1 ring-gray-200 opacity-60 hover:opacity-100 hover:ring-gray-300 hover:scale-[1.03]"}`}
                     >
                       <img
                         src={img}
@@ -867,14 +925,14 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                       <div
                         key={i}
                         className={`flex items-start gap-3 px-4 py-3 hover:bg-indigo-50/40 transition-colors
-                          ${i !== specEntries.length - 1 ? "border-b border-gray-100" : ""}`}
+                            ${i !== specEntries.length - 1 ? "border-b border-gray-100" : ""}`}
                       >
                         <span className="w-36 shrink-0 text-[11px] font-black text-gray-400 uppercase tracking-wide leading-snug pt-0.5">
                           {spec.key || "—"}
                         </span>
                         <span className="text-gray-200 shrink-0 mt-0.5">·</span>
                         <span className="flex-1 text-[13px] font-semibold text-gray-800 leading-snug">
-                          {spec.value || spec.key}
+                          {spec.value !== "" ? spec.value : "—"}
                         </span>
                       </div>
                     ))}
@@ -1049,9 +1107,9 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                               onClick={checkPincode}
                               disabled={pincodeStatus === "checking"}
                               className="shrink-0 flex items-center justify-center 
-             w-10 h-10 md:w-auto md:h-auto 
-             rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 
-             text-white transition-colors"
+              w-10 h-10 md:w-auto md:h-auto 
+              rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 
+              text-white transition-colors"
                             >
                               {pincodeStatus === "checking" ? (
                                 <span className="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />

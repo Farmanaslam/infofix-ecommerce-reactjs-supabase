@@ -30,7 +30,7 @@ export interface Product {
   category: string;
   subcategory?: string;
   brand?: string;
-  specs: string[];
+  specs: string[] | Record<string, string> | { key: string; value: string }[];
   rating: number;
   reviews: number;
   likesCount: number;
