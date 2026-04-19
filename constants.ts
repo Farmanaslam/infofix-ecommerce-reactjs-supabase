@@ -4,7 +4,7 @@ export const CATEGORIES = [
   "Laptop",
   "Desktop",
   "Custom PC",
-  "Accessories"
+  "Accessories",
 ];
 
 export const SUBCATEGORIES: Record<
@@ -42,13 +42,13 @@ export const SUBCATEGORIES: Record<
     ],
   },
   Accessories: {
-  groups: [
-    {
-      label: "Components & Peripherals",
-      items: ["RAM", "Motherboard", "Monitor", "Keyboard", "Mouse", "CPU"],
-    },
-  ],
-},
+    groups: [
+      {
+        label: "Components & Peripherals",
+        items: ["RAM", "Motherboard", "Monitor", "Keyboard", "Mouse", "CPU"],
+      },
+    ],
+  },
 };
 
 export const OPERATORS: User[] = [
@@ -201,8 +201,7 @@ export const INITIAL_BRANCHES: Branch[] = [
     hours: "10:00 AM - 9:00 PM",
     phone: "9382979780",
     mapsUrl: "https://maps.app.goo.gl/nLMzieG821pR18rR8",
-    image:
-      "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=2070",
+    image: "/showroom_1.jpeg",
     details:
       "Authorized laptop & desktop repair center providing chip-level servicing and accessories.",
   },
@@ -216,8 +215,7 @@ export const INITIAL_BRANCHES: Branch[] = [
     hours: "10:00 AM - 9:00 PM",
     phone: "8670777330",
     mapsUrl: "https://maps.app.goo.gl/w2VkFS5GedjJna8n6",
-    image:
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=2070",
+    image: "/service_centre.png",
     details:
       "Main Durgapur showroom showcasing the latest laptops, desktops, accessories, and custom PC builds. Experience hands-on product demos, expert guidance, and exclusive in-store deals.",
   },
@@ -231,24 +229,9 @@ export const INITIAL_BRANCHES: Branch[] = [
     hours: "10:00 AM - 9:00 PM",
     phone: "8016872767",
     mapsUrl: "https://maps.app.goo.gl/cw7bUQr1pgap1vf59",
-    image:
-      "https://images.unsplash.com/photo-1597733336794-12d05021d510?auto=format&fit=crop&q=80&w=2074",
+    image: "/shop1.jpeg",
     details:
       "Complete laptop sales, refurbished systems, and upgrade solutions.",
-  },
-  {
-    id: "br-4",
-    title: "Ukhra Shop",
-    address: "Natun Hat-Tala, Near New Post Office, Ukhra - 713363",
-    city: "Ukhra",
-    days: "Monday - Sunday",
-    hours: "10:00 AM - 9:00 PM",
-    phone: "7318621222",
-    mapsUrl: "https://maps.app.goo.gl/Aha3t8RyAmVpfqXFA",
-    image:
-      "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=2070",
-    details:
-      "Sales & service point for laptops, accessories, and hardware components.",
   },
   {
     id: "br-5",
@@ -260,9 +243,21 @@ export const INITIAL_BRANCHES: Branch[] = [
     hours: "10:00 AM - 9:00 PM",
     phone: "8670777086",
     mapsUrl: "https://maps.app.goo.gl/D859wor1oCqRc4LD8",
-    image:
-      "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=2070",
+    image: "/infofix-computers-asansol-computer-dealers-9hb1m4cx6o.jpg",
     details:
       "Flagship branch offering premium laptops, gaming builds & enterprise solutions.",
+  },
+  {
+    id: "br-4",
+    title: "Ukhra Shop",
+    address: "Natun Hat-Tala, Near New Post Office, Ukhra - 713363",
+    city: "Ukhra",
+    days: "Monday - Sunday",
+    hours: "10:00 AM - 9:00 PM",
+    phone: "7318621222",
+    mapsUrl: "https://maps.app.goo.gl/Aha3t8RyAmVpfqXFA",
+    image: "/ukhra_store.jpeg",
+    details:
+      "Sales & service point for laptops, accessories, and hardware components.",
   },
 ];
