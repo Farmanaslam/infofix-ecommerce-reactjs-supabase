@@ -34,14 +34,16 @@ export type CustomerPage =
   | "profile"
   | "orders"
   | "policy"
-  | "careers";
+  | "careers"
+  | "product"
 export type AdminPage =
   | "Dashboard"
   | "Inventory"
   | "Orders"
   | "Customers"
   | "Settings"
-  | "Blogs";
+  | "Blogs"
+  | "Coupons";
 
 interface StoreContextType extends AppState {
   currentPage: CustomerPage;
@@ -51,7 +53,7 @@ interface StoreContextType extends AppState {
   setProducts: (products: Product[]) => void;
   setOrders: (orders: Order[]) => void;
   setCurrentUser: (user: User | null) => void;
-  addToCart: (product: Product) => Promise<void>;
+  addToCart: (product: Product, qty?: number) => Promise<void>;
   removeFromCart: (productId: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -85,6 +87,8 @@ interface StoreContextType extends AppState {
   markAllNotificationsRead: () => void;
   clearNotifications: () => void;
   fetchDashboardData: () => Promise<void>;
+  selectedProductId: string | null;
+  setSelectedProductId: (id: string | null) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -170,13 +174,13 @@ const CartToast: React.FC<{
 async function fetchCartFromSupabase(userId: string): Promise<CartItem[]> {
   const { data, error } = await supabase
     .from("cart_items")
-    .select("*")
+    .select("*, products(min_order_quantity)")
     .eq("user_id", userId)
     .order("created_at", { ascending: true });
   if (error || !data) return [];
   return data.map((row: any) => ({
-    id: row.product_id,
-    product_id: row.product_id,
+    id: String(row.product_id),
+    product_id: String(row.product_id),
     supabase_row_id: row.id,
     name: row.name,
     price: row.price,
@@ -195,9 +199,9 @@ async function fetchCartFromSupabase(userId: string): Promise<CartItem[]> {
     tags: [],
     images: [],
     model: "",
+    min_order_quantity: row.products?.min_order_quantity ?? 1,  // ← from join
   }));
 }
-
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
@@ -231,6 +235,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const [toastVisible, setToastVisible] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const currentUserRef = useRef<User | null>(null);
   // Fetch notifications on mount
   useEffect(() => {
@@ -379,8 +384,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         .from("orders")
         .select(
           "id, order_number, user_id, customer_name, customer_email, customer_phone, " +
-            "total_amount, subtotal, tax, delivery_charge, status, payment_status, " +
-            "payment_method, tracking_id, courier_name, notes, created_at, updated_at",
+          "total_amount, subtotal, tax, delivery_charge, status, payment_status, " +
+          "payment_method, tracking_id, courier_name, notes, created_at, updated_at",
         )
         .order("created_at", { ascending: false })
         .returns<OrderRow[]>();
@@ -516,17 +521,18 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
           rating: parseFloat(p.rating_avg ?? "0"),
           reviews: p.reviews_count ?? 0,
           likesCount: p.likes_count ?? 0,
+          min_order_quantity: p.min_order_quantity ?? 1,
           specs: (() => {
             if (!p.specs) return [];
             const raw =
               typeof p.specs === "string"
                 ? (() => {
-                    try {
-                      return JSON.parse(p.specs);
-                    } catch {
-                      return null;
-                    }
-                  })()
+                  try {
+                    return JSON.parse(p.specs);
+                  } catch {
+                    return null;
+                  }
+                })()
                 : p.specs;
             if (!raw || typeof raw !== "object" || Array.isArray(raw))
               return [];
@@ -541,15 +547,19 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     };
     fetchProducts();
   }, []);
-
   const addToCart = useCallback(
-    async (product: Product) => {
+    async (product: Product, qty?: number) => {
+      const moq = product.min_order_quantity ?? 1;
+      const addQty = qty ?? moq; // use passed qty, fallback to MOQ
+
       setCart((prev) => {
         const existing = prev.find((item) => item.id === String(product.id));
         if (existing) {
+          // If already in cart, increment by addQty (never below MOQ)
+          const newQty = Math.max(existing.quantity + addQty, moq);
           return prev.map((item) =>
             item.id === String(product.id)
-              ? { ...item, quantity: item.quantity + 1 }
+              ? { ...item, quantity: newQty, min_order_quantity: moq }
               : item,
           );
         }
@@ -559,11 +569,13 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
             ...(product as any),
             id: String(product.id),
             product_id: String(product.id),
-            quantity: 1,
+            quantity: addQty,
+            min_order_quantity: moq,
           },
         ];
       });
       showCartToast(product);
+
       if (!currentUser?.id) return;
       try {
         const { data: existing } = await supabase
@@ -575,7 +587,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         if (existing) {
           await supabase
             .from("cart_items")
-            .update({ quantity: existing.quantity + 1 })
+            .update({ quantity: existing.quantity + addQty })
             .eq("id", existing.id);
         } else {
           await supabase.from("cart_items").insert({
@@ -585,7 +597,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
             price: product.price,
             image: product.image ?? "",
             category: product.category ?? "",
-            quantity: 1,
+            quantity: addQty,
           });
         }
       } catch (err) {
@@ -594,7 +606,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     },
     [currentUser?.id, showCartToast],
   );
-
   const removeFromCart = useCallback(
     async (productId: string) => {
       setCart((prev) => prev.filter((item) => item.id !== productId));
@@ -776,6 +787,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         markAllNotificationsRead,
         clearNotifications,
         fetchDashboardData,
+        selectedProductId,
+        setSelectedProductId,
       }}
     >
       {loading && (

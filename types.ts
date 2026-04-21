@@ -36,6 +36,7 @@ export interface Product {
   likesCount: number;
   tags: string[];
   model: string;
+  min_order_quantity?: number;
 }
 
 export interface Branch {
@@ -103,10 +104,10 @@ export interface DBProduct {
   category_id: number;
   subcategory_id: number | null;
   created_at: string;
-  // joined relations (present when fetched with select)
   categories?: { name: string; slug: string };
   subcategories?: { name: string; slug: string } | null;
   product_tags?: { tags: { id: number; name: string } }[];
+  min_order_quantity?: number;
 }
 
 export interface DBProductFormState {
@@ -126,6 +127,7 @@ export interface DBProductFormState {
   is_active: boolean;
   specs: { key: string; value: string }[];
   tag_ids: number[];
+  min_order_quantity?: string;
 }
 export interface UpdatePost {
   id: string;
@@ -264,5 +266,17 @@ export type AppNotification = {
   user_name: string;
   user_role: string;
   read_by: string[];
+  created_at: string;
+};
+export type Coupon = {
+  id: string;
+  code: string;
+  description: string | null;
+  discount_amount: number;
+  min_order_amount: number;
+  max_uses: number | null;
+  used_count: number;
+  is_active: boolean;
+  expires_at: string | null;
   created_at: string;
 };

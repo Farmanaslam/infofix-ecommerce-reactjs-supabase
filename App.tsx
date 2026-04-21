@@ -24,6 +24,7 @@ import { CareersPage } from "./pages/CareersPage";
 import { ContentManager } from "./pages/ContentManager";
 import { Orders } from "./pages/Orders";
 import { Customers } from "./pages/Customers";
+import { AdminCoupons } from "./pages/Coupons";
 const Main: React.FC = () => {
   const {
     currentUser,
@@ -192,6 +193,7 @@ const Main: React.FC = () => {
         {currentPage === "policy" && <Policy />}
         {currentPage === "checkout" && <Checkout />}
         {currentPage === "careers" && <CareersPage />}
+
       </CustomerLayout>
     );
   }
@@ -204,6 +206,7 @@ const Main: React.FC = () => {
       {adminPage === "Blogs" && <ContentManager />}
       {adminPage === "Orders" && <Orders />}
       {adminPage === "Customers" && <Customers />}
+      {adminPage === "Coupons" && <AdminCoupons />}
     </AdminLayout>
   );
 };

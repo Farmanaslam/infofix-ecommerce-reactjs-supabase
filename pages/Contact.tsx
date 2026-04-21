@@ -1,5 +1,5 @@
 import React from "react";
-import { Mail, Phone, MapPin, Send, MessageCircle, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Send, MessageCircle, Clock,ShoppingCart } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 
 export const Contact: React.FC = () => {
@@ -70,7 +70,7 @@ export const Contact: React.FC = () => {
                 <h4 className="text-lg font-bold text-gray-900">Call Us</h4>
                 <p className="text-gray-500 font-medium">+91 8293295257</p>
                 <p className="text-xs text-indigo-600 font-bold mt-1">
-                  Available Mon-Sat, 10am - 8pm
+                  Available Mon-Sun, 10am - 8pm
                 </p>
               </div>
             </div>
@@ -84,10 +84,7 @@ export const Contact: React.FC = () => {
                   Service Hours
                 </h4>
                 <p className="text-gray-500 font-medium">
-                  Monday – Saturday: 10:00 AM – 8:30 PM
-                </p>
-                <p className="text-gray-500 font-medium">
-                  Sunday: Closed / Limited Support
+                  Monday – Sunday: 10:00 AM – 8:00 PM
                 </p>
               </div>
             </div>
@@ -242,35 +239,134 @@ export const Contact: React.FC = () => {
         </div>
       </div>
       {/* Bottom CTA */}
-      <div className="mt-24 bg-indigo-600 text-white rounded-3xl p-12 text-center space-y-6">
-        <h3 className="text-3xl font-black">
-          Need Immediate Help or Looking for the Right Product?
-        </h3>
-        <div className="flex flex-col md:flex-row justify-center gap-6">
-          <button
-            onClick={() => setCurrentPage("shop")}
-            className="bg-white text-indigo-600 px-6 py-3 rounded-2xl cursor-pointer font-bold hover:scale-105 transition"
-          >
-            🛒 Shop Now
-          </button>
+    {/* Bottom CTA */}
+{/* Bottom CTA */}
+<div className="mt-24 relative overflow-hidden rounded-3xl" style={{ background: "#0a0a0f" }}>
+  {/* Grid pattern */}
+  <div
+    className="absolute inset-0"
+    style={{
+      backgroundImage:
+        "linear-gradient(rgba(99,102,241,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.07) 1px,transparent 1px)",
+      backgroundSize: "40px 40px",
+    }}
+  />
+  {/* Glow blob */}
+  <div
+    className="absolute -top-24 -left-24 w-96 h-96 rounded-full pointer-events-none"
+    style={{
+      background: "radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)",
+    }}
+  />
 
-          <button
-            onClick={() => setCurrentPage("branches")}
-            className="bg-white/20 backdrop-blur-md border cursor-pointer border-white/30 px-6 py-3 rounded-2xl font-bold hover:bg-white/30 transition"
-          >
-            📍 Visit Our Store
-          </button>
+  {/* Header */}
+  <div className="relative px-8 md:px-16 pt-12 pb-8 text-center border-b" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+    <div
+      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-4"
+      style={{
+        background: "rgba(99,102,241,0.12)",
+        border: "1px solid rgba(99,102,241,0.25)",
+        color: "#818cf8",
+      }}
+    >
+      <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 pulse-dot" />
+      Need Help or the Right Product?
+    </div>
+    <h3 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-3">
+      We're here every day, 10am – 8pm.
+    </h3>
+    <p className="font-medium max-w-md mx-auto leading-relaxed" style={{ color: "#6b7280" }}>
+      Browse our store, visit us in person, or just drop a message — our team responds fast.
+    </p>
+  </div>
 
-          <a
-            href="https://wa.me/8293295257?text=Hi%20Infofix%20Computers,%20I%20need%20help"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-green-500 px-6 py-3 rounded-2xl font-bold cursor-pointer hover:bg-green-400 transition text-white text-center"
-          >
-            📲 Message on WhatsApp
-          </a>
-        </div>
+  {/* Three columns */}
+  <div className="relative grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+
+    {/* Shop */}
+    <div className="p-8 flex flex-col gap-4">
+      <div
+        className="w-11 h-11 rounded-xl flex items-center justify-center"
+        style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.2)" }}
+      >
+        <ShoppingCart className="w-5 h-5" style={{ color: "#818cf8" }} />
       </div>
+      <div className="flex-1">
+        <h4 className="font-black text-white mb-1">Shop Online</h4>
+        <p className="text-sm font-medium leading-relaxed" style={{ color: "#6b7280" }}>
+          Browse PCs, laptops, accessories & refurbished deals.
+        </p>
+      </div>
+      <button
+        onClick={() => setCurrentPage("shop")}
+        className="mt-auto w-fit flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm text-white uppercase tracking-wider transition-all hover:opacity-90 cursor-pointer"
+        style={{ background: "#6366f1" }}
+      >
+        Browse Store →
+      </button>
+    </div>
+
+    {/* Visit */}
+    <div className="p-8 flex flex-col gap-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+      <div
+        className="w-11 h-11 rounded-xl flex items-center justify-center"
+        style={{ background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.2)" }}
+      >
+        <MapPin className="w-5 h-5" style={{ color: "#10b981" }} />
+      </div>
+      <div className="flex-1">
+        <h4 className="font-black text-white mb-1">Visit Our Store</h4>
+        <p className="text-sm font-medium leading-relaxed" style={{ color: "#6b7280" }}>
+          Benachity, Durgapur. Open every day 10am – 8pm.
+        </p>
+      </div>
+      <button
+        onClick={() => setCurrentPage("branches")}
+        className="mt-auto w-fit flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm uppercase tracking-wider transition-all hover:bg-white/10 cursor-pointer"
+        style={{ border: "1px solid rgba(255,255,255,0.15)", color: "#9ca3af" }}
+      >
+        Get Directions →
+      </button>
+    </div>
+
+    {/* WhatsApp */}
+    <div className="p-8 flex flex-col gap-4">
+      <div
+        className="w-11 h-11 rounded-xl flex items-center justify-center"
+        style={{ background: "rgba(236,72,153,0.12)", border: "1px solid rgba(236,72,153,0.2)" }}
+      >
+        <MessageCircle className="w-5 h-5" style={{ color: "#ec4899" }} />
+      </div>
+      <div className="flex-1">
+        <h4 className="font-black text-white mb-1">Message on WhatsApp</h4>
+        <p className="text-sm font-medium leading-relaxed" style={{ color: "#6b7280" }}>
+          Fastest way to reach us. We reply within minutes.
+        </p>
+      </div>
+      <a
+        href="https://wa.me/8293295257?text=Hi%20Infofix%20Computers,%20I%20need%20help"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-auto w-fit flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm text-white uppercase tracking-wider transition-all hover:opacity-90"
+        style={{ background: "#16a34a" }}
+      >
+        Chat Now →
+      </a>
+    </div>
+
+  </div>
+
+  {/* Footer bar */}
+  <div
+    className="relative px-8 py-4 flex items-center justify-center gap-2 flex-wrap border-t"
+    style={{ background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.07)" }}
+  >
+    <Clock className="w-3.5 h-3.5" style={{ color: "#4b5563" }} />
+    <p className="text-xs font-medium" style={{ color: "#4b5563" }}>
+      Mon – Sun &nbsp;·&nbsp; 10:00 AM – 8:00 PM &nbsp;·&nbsp; +91 82932 95257 &nbsp;·&nbsp; infofixcomputers1@gmail.com
+    </p>
+  </div>
+</div>
     </div>
   );
 };

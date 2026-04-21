@@ -10,6 +10,7 @@ import {
   ChevronDown,
   ChevronUp,
   RefreshCw,
+  Tag,
 } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { supabase } from "../lib/supabaseClient";
@@ -63,16 +64,45 @@ const StatusBadge = ({ status }: { status: string }) => {
   );
 };
 
+// ─── Extended Order type with coupon fields ──────────────────────────────────
+// These fields are added via migration; we cast safely with fallback to 0/null
+interface OrderWithCoupon extends Order {
+  coupon_code?: string | null;
+  discount_amount?: number;
+}
+
 // ─── Order Card ─────────────────────────────────────────────────────────────────
 
 const OrderCard: React.FC<{
-  order: Order;
+  order: OrderWithCoupon;
   onRefresh: () => void;
   onReorder: (item: OrderItem) => void;
 }> = ({ order, onRefresh, onReorder }) => {
   const [expanded, setExpanded] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [showTracking, setShowTracking] = useState(false);
+
+  // Resolve coupon data:
+  // 1. Prefer dedicated DB columns (coupon_code / discount_amount)
+  // 2. Fall back to parsing the notes field for older orders
+  const resolvedCouponCode: string | null = (() => {
+    if (order.coupon_code) return order.coupon_code;
+    if (order.notes) {
+      const match = order.notes.match(/Coupon:\s*([A-Z0-9_\-]+)/i);
+      return match ? match[1] : null;
+    }
+    return null;
+  })();
+
+  const resolvedDiscountAmount: number = (() => {
+    if (order.discount_amount && order.discount_amount > 0) return order.discount_amount;
+    if (order.notes) {
+      const match = order.notes.match(/₹([\d,]+)\s*off/i);
+      return match ? parseInt(match[1].replace(/,/g, ""), 10) : 0;
+    }
+    return 0;
+  })();
+
   const handleCancel = async () => {
     const confirmed = window.confirm(
       "Are you sure you want to cancel this order?",
@@ -84,7 +114,7 @@ const OrderCard: React.FC<{
       .from("orders")
       .update({ status: "Cancelled" })
       .eq("id", order.id)
-      .eq("user_id", order.user_id); // extra safety filter
+      .eq("user_id", order.user_id);
 
     if (error) {
       console.error("Cancel error:", error.message, error.details, error.hint);
@@ -94,6 +124,7 @@ const OrderCard: React.FC<{
     }
     setCancelling(false);
   };
+
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString("en-IN", {
       day: "numeric",
@@ -115,17 +146,17 @@ const OrderCard: React.FC<{
               {(order.status === "Processing" ||
                 order.status === "Shipped" ||
                 order.status === "Out for Delivery") && (
-                <p className="text-xs text-green-600 font-semibold mt-1 flex items-center gap-1">
-                  🚚 Estimated Delivery:{" "}
-                  {(() => {
-                    const d = new Date(order.created_at);
-                    d.setDate(d.getDate() + 7);
-                    const d2 = new Date(order.created_at);
-                    d2.setDate(d2.getDate() + 5);
-                    return `${d2.toLocaleDateString("en-IN", { day: "numeric", month: "short" })} – ${d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`;
-                  })()}
-                </p>
-              )}
+                  <p className="text-xs text-green-600 font-semibold mt-1 flex items-center gap-1">
+                    🚚 Estimated Delivery:{" "}
+                    {(() => {
+                      const d = new Date(order.created_at);
+                      d.setDate(d.getDate() + 7);
+                      const d2 = new Date(order.created_at);
+                      d2.setDate(d2.getDate() + 5);
+                      return `${d2.toLocaleDateString("en-IN", { day: "numeric", month: "short" })} – ${d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`;
+                    })()}
+                  </p>
+                )}
             </div>
           </div>
           <StatusBadge status={order.status} />
@@ -180,6 +211,14 @@ const OrderCard: React.FC<{
             <p className="font-bold text-gray-800 text-lg">
               Total: ₹{order.total_amount.toLocaleString()}
             </p>
+            {/* Coupon savings badge — shown in header for quick visibility */}
+            {resolvedCouponCode && resolvedDiscountAmount > 0 && (
+              <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                <Tag className="w-3 h-3" />
+                Saved ₹{resolvedDiscountAmount.toLocaleString()} with{" "}
+                <span className="font-black tracking-wide">{resolvedCouponCode}</span>
+              </p>
+            )}
             <p className="text-sm text-gray-500 flex items-center gap-1">
               <CreditCard className="w-3.5 h-3.5" />
               {order.payment_method} ·{" "}
@@ -409,12 +448,39 @@ const OrderCard: React.FC<{
                     : `₹${order.delivery_charge.toLocaleString()}`}
                 </span>
               </div>
+
+              {/* ── COUPON DISCOUNT ROW ── */}
+              {resolvedCouponCode && resolvedDiscountAmount > 0 && (
+                <div
+                  className="flex justify-between font-bold px-3 py-2 rounded-xl mt-1"
+                  style={{
+                    background: "linear-gradient(135deg, #ecfdf5, #d1fae5)",
+                    border: "1px solid #a7f3d0",
+                  }}
+                >
+                  <span className="text-emerald-700 flex items-center gap-1.5">
+                    <Tag className="w-3 h-3" />
+                    Coupon: {resolvedCouponCode}
+                  </span>
+                  <span className="text-emerald-700">
+                    − ₹{resolvedDiscountAmount.toLocaleString()}
+                  </span>
+                </div>
+              )}
+
               <div className="flex justify-between font-bold border-t border-gray-200 pt-1.5 mt-1.5">
                 <span>Total</span>
                 <span className="text-indigo-600">
                   ₹{order.total_amount.toLocaleString()}
                 </span>
               </div>
+
+              {/* Savings summary */}
+              {resolvedCouponCode && resolvedDiscountAmount > 0 && (
+                <p className="text-xs text-emerald-600 font-semibold pt-1 flex items-center gap-1">
+                  🎉 You saved ₹{resolvedDiscountAmount.toLocaleString()} on this order!
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -427,7 +493,7 @@ const OrderCard: React.FC<{
 
 export const MyOrders: React.FC = () => {
   const { setCurrentPage, currentUser, setHeaderSearchQuery } = useStore();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<OrderWithCoupon[]>([]);
   const [activeFilter, setActiveFilter] = useState("All");
   const [loading, setLoading] = useState(true);
 
@@ -439,7 +505,7 @@ export const MyOrders: React.FC = () => {
       .select("*")
       .eq("user_id", currentUser.id)
       .order("created_at", { ascending: false });
-    if (!error && data) setOrders(data as Order[]);
+    if (!error && data) setOrders(data as OrderWithCoupon[]);
     setLoading(false);
   }, [currentUser?.id]);
 
@@ -455,7 +521,7 @@ export const MyOrders: React.FC = () => {
     [setHeaderSearchQuery, setCurrentPage],
   );
 
-  // Real-time updates: if staff changes status, customer sees it live
+  // Real-time updates
   useEffect(() => {
     if (!currentUser?.id) return;
     const channel = supabase
@@ -471,7 +537,7 @@ export const MyOrders: React.FC = () => {
         (payload) => {
           setOrders((prev) =>
             prev.map((o) =>
-              o.id === payload.new.id ? (payload.new as Order) : o,
+              o.id === payload.new.id ? (payload.new as OrderWithCoupon) : o,
             ),
           );
         },
@@ -487,6 +553,7 @@ export const MyOrders: React.FC = () => {
     window.addEventListener("order-cancelled", handler);
     return () => window.removeEventListener("order-cancelled", handler);
   }, [fetchOrders]);
+
   const filteredOrders =
     activeFilter === "All"
       ? orders
@@ -532,11 +599,10 @@ export const MyOrders: React.FC = () => {
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-5 py-2 rounded-2xl font-semibold transition cursor-pointer text-sm ${
-                activeFilter === filter
+              className={`px-5 py-2 rounded-2xl font-semibold transition cursor-pointer text-sm ${activeFilter === filter
                   ? "bg-indigo-600 text-white shadow-md"
                   : "bg-white border border-gray-200 hover:bg-gray-100"
-              }`}
+                }`}
             >
               {filter}
               {filter !== "All" && (

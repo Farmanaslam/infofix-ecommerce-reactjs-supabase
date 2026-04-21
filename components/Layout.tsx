@@ -25,10 +25,13 @@ import {
   MessageSquare,
   Download,
   Zap,
+  Tag
 } from "lucide-react";
 import { CATEGORIES, SUBCATEGORIES } from "../constants";
 import { NotificationPanel } from "@/pages/NotificationPanel";
 import { InstallPWA } from "./InstallPWA";
+import { CouponDealsStrip } from "@/pages/CouponDealsStrip";
+import { supabase } from "@/lib/supabaseClient";
 
 export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -45,7 +48,13 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     setSelectedSubcategory,
     isMessageModalOpen,
     setIsMessageModalOpen,
+    setSelectedProductId
   } = useStore();
+
+  const handleDealProductClick = (productId: string) => {
+    setSelectedProductId(productId);
+    setCurrentPage("shop");
+  };
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -93,7 +102,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     setCurrentPage("shop");
   };
 
-  const cartCount = cart.reduce((a, i) => a + i.quantity, 0);
+
+  const cartCount = cart.length;
   const userInitials = currentUser?.name
     ?.split(" ")
     .map((w: string) => w[0])
@@ -362,8 +372,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             {/* Staff / Logout */}
             <div className="hidden md:flex">
               {currentUser?.role === "MANAGER" ||
-              currentUser?.role === "INVENTORY" ||
-              currentUser?.role === "ADMIN" ? (
+                currentUser?.role === "INVENTORY" ||
+                currentUser?.role === "ADMIN" ? (
                 <button
                   onClick={() => setViewMode("ADMIN")}
                   className="text-xs font-bold px-4 py-2 bg-slate-900 hover:bg-slate-700 text-white rounded-full transition-all duration-150"
@@ -721,16 +731,16 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                   {(currentUser?.role === "MANAGER" ||
                     currentUser?.role === "INVENTORY" ||
                     currentUser?.role === "ADMIN") && (
-                    <button
-                      onClick={() => {
-                        setViewMode("ADMIN");
-                        setIsMenuOpen(false);
-                      }}
-                      className="w-full py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold mt-1"
-                    >
-                      Staff Portal
-                    </button>
-                  )}
+                      <button
+                        onClick={() => {
+                          setViewMode("ADMIN");
+                          setIsMenuOpen(false);
+                        }}
+                        className="w-full py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold mt-1"
+                      >
+                        Staff Portal
+                      </button>
+                    )}
 
                   {/* mobile socials */}
                   <div className="h-px bg-slate-100 my-2" />
@@ -828,6 +838,47 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
         </div>
       </header>
 
+      {currentPage === "home" && (
+       <CouponDealsStrip onProductClick={async (productId) => {
+  try {
+    const { data } = await supabase
+      .from("products")
+      .select(`id, name, description, image_url, images, retail_price,
+               discount_percent, discounted_price, stock_quantity, condition,
+               brand, specs, rating_avg, rating_count, reviews_count,
+               likes_count, categories(name,slug), subcategories(name,slug), model`)
+      .eq("id", Number(productId))
+      .single();
+    if (data) {
+      const disc = data.discount_percent ?? 0;
+      const imageUrl = data.image_url ?? "";
+      sessionStorage.setItem("selectedProduct", JSON.stringify({
+        id: String(data.id),
+        name: data.name ?? "",
+        description: data.description ?? "",
+        image: imageUrl,
+        images: Array.isArray(data.images) && data.images.length > 0 ? data.images : [imageUrl],
+        price: Number(data.discounted_price ?? data.retail_price ?? 0),
+        retailPrice: disc > 0 ? Number(data.retail_price) : undefined,
+        discountPercent: disc,
+        stock: data.stock_quantity ?? 99,
+        condition: data.condition ?? "New",
+        category: data.categories?.[0]?.name ?? "",
+        brand: data.brand ?? "",
+        specs: data.specs ? Object.values(data.specs as Record<string, unknown>).map(String) : [],
+        rating: Number(data.rating_avg ?? 0),
+        reviews: data.reviews_count ?? data.rating_count ?? 0,
+        likesCount: data.likes_count ?? 0,
+        tags: [],
+        model: data.model ?? "",
+      }));
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  setCurrentPage("shop"); // or however you navigate to product
+}} />
+      )}
       {/* ═══════════════════════════════════════════
           MAIN CONTENT
       ═══════════════════════════════════════════ */}
@@ -1273,6 +1324,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
       role: ["MANAGER", "INVENTORY", "ADMIN"],
     },
     { name: "Settings", icon: Settings, role: ["MANAGER", "ADMIN"] },
+    { name: "Coupons", icon: Tag, role: ["MANAGER", "ADMIN"] },
   ];
 
   const visibleNav = navItems.filter((i) => i.role.includes(currentUser.role));

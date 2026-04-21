@@ -60,6 +60,7 @@ const EMPTY_FORM: DBProductFormState = {
   is_active: true,
   specs: [{ key: "", value: "" }],
   tag_ids: [],
+  min_order_quantity: "1",
 };
 
 const PLACEHOLDER_IMAGES: Record<string, string> = {
@@ -230,7 +231,7 @@ export const Inventory: React.FC = () => {
           `
         id, name, description, image_url,images, brand, model, specs,
         retail_price, discounted_price, discount_percent,
-        stock_quantity, condition, is_active,
+        stock_quantity, condition, is_active, min_order_quantity,
         category_id, subcategory_id, created_at,
         categories(name,slug), subcategories(name,slug),
         product_tags(tags(id,name))
@@ -384,9 +385,9 @@ export const Inventory: React.FC = () => {
     setEditingId(p.id);
     const specs = p.specs
       ? Object.entries(p.specs).map(([key, value]) => ({
-          key,
-          value: String(value),
-        }))
+        key,
+        value: String(value),
+      }))
       : [{ key: "", value: "" }];
     const existingImages: string[] =
       Array.isArray((p as any).images) && (p as any).images.length > 0
@@ -410,6 +411,7 @@ export const Inventory: React.FC = () => {
       image_urls: existingImages,
       is_active: p.is_active ?? true,
       specs: specs.length ? specs : [{ key: "", value: "" }],
+      min_order_quantity: String(p.min_order_quantity ?? "1"),
       tag_ids: (p.product_tags ?? [])
         .map((pt: any) => pt.tags?.id)
         .filter(Boolean),
@@ -427,6 +429,7 @@ export const Inventory: React.FC = () => {
     }));
     setFormTab("basic");
     setModalOpen(true);
+
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -479,6 +482,7 @@ export const Inventory: React.FC = () => {
         retail_price: retailPrice,
         discount_percent: discPercent,
         discounted_price: discPrice,
+        min_order_quantity: parseInt(form.min_order_quantity ?? "1") || 1,
         stock_quantity: parseInt(form.stock_quantity) || 0,
         condition: form.condition,
         category_id: parseInt(form.category_id),
@@ -930,8 +934,8 @@ export const Inventory: React.FC = () => {
               filterCondition ||
               filterStatus ||
               filterStock) && (
-              <span className="w-2 h-2 rounded-full bg-orange-500" />
-            )}
+                <span className="w-2 h-2 rounded-full bg-orange-500" />
+              )}
           </button>
         </div>
         {showFilters && (
@@ -998,18 +1002,18 @@ export const Inventory: React.FC = () => {
               filterCondition ||
               filterStatus ||
               filterStock) && (
-              <button
-                onClick={() => {
-                  setFilterCategory("");
-                  setFilterCondition("");
-                  setFilterStatus("");
-                  setFilterStock("");
-                }}
-                className="col-span-2 md:col-span-4 text-xs text-red-500 font-bold flex items-center gap-1 hover:text-red-700"
-              >
-                <X className="w-3 h-3" /> Clear all filters
-              </button>
-            )}
+                <button
+                  onClick={() => {
+                    setFilterCategory("");
+                    setFilterCondition("");
+                    setFilterStatus("");
+                    setFilterStock("");
+                  }}
+                  className="col-span-2 md:col-span-4 text-xs text-red-500 font-bold flex items-center gap-1 hover:text-red-700"
+                >
+                  <X className="w-3 h-3" /> Clear all filters
+                </button>
+              )}
           </div>
         )}
       </div>
@@ -1026,7 +1030,7 @@ export const Inventory: React.FC = () => {
                     className="text-gray-400 hover:text-gray-600"
                   >
                     {selected.size === products.length &&
-                    products.length > 0 ? (
+                      products.length > 0 ? (
                       <CheckSquare className="w-4 h-4 text-indigo-600" />
                     ) : (
                       <Square className="w-4 h-4" />
@@ -1399,12 +1403,11 @@ export const Inventory: React.FC = () => {
                               setPricePreview([]);
                             }}
                             className={`flex-1 py-2.5 rounded-xl text-xs font-black border transition-all capitalize
-                              ${
-                                priceDir === dir
-                                  ? dir === "increase"
-                                    ? "bg-emerald-600 text-white border-emerald-600"
-                                    : "bg-red-600 text-white border-red-600"
-                                  : "bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-400"
+                              ${priceDir === dir
+                                ? dir === "increase"
+                                  ? "bg-emerald-600 text-white border-emerald-600"
+                                  : "bg-red-600 text-white border-red-600"
+                                : "bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-400"
                               }`}
                           >
                             {dir === "increase" ? "▲" : "▼"} {dir}
@@ -1773,6 +1776,21 @@ export const Inventory: React.FC = () => {
                         className="input font-bold"
                       />
                     </Field>
+                    <Field label="Minimum Order Quantity">
+                      <input
+                        type="number"
+                        min="1"
+                        value={form.min_order_quantity}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, min_order_quantity: e.target.value }))
+                        }
+                        placeholder="1"
+                        className="input font-bold"
+                      />
+                      <p className="text-[10px] text-gray-400 mt-1">
+                        Customer must order at least this many units.
+                      </p>
+                    </Field>
                     <Field label="Description">
                       <textarea
                         rows={4}
@@ -2038,16 +2056,16 @@ export const Inventory: React.FC = () => {
                     {(form.image_urls ?? []).filter((url) =>
                       url.startsWith("http"),
                     ).length > 0 && (
-                      <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1 -mt-2">
-                        <Check className="w-3 h-3" />
-                        {
-                          (form.image_urls ?? []).filter((url) =>
-                            url.startsWith("http"),
-                          ).length
-                        }{" "}
-                        URL(s) added — press Enter or click away to confirm
-                      </p>
-                    )}
+                        <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1 -mt-2">
+                          <Check className="w-3 h-3" />
+                          {
+                            (form.image_urls ?? []).filter((url) =>
+                              url.startsWith("http"),
+                            ).length
+                          }{" "}
+                          URL(s) added — press Enter or click away to confirm
+                        </p>
+                      )}
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">
                         Quick Placeholder

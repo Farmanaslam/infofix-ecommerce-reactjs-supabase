@@ -164,11 +164,30 @@ export const Login: React.FC = () => {
               <button
                 type="button"
                 onClick={handleGoogleSignIn}
-                className="w-full bg-white hover:bg-gray-50 active:scale-[0.98] border border-gray-200 hover:border-gray-300 text-gray-700 py-4 rounded-2xl font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-3"
+                className="w-full bg-white hover:bg-gray-50 text-gray-900 py-5 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-gray-200 flex items-center justify-center gap-3 active:scale-[0.98]"
               >
+                {/* Google Logo */}
+                <svg width="22" height="22" viewBox="0 0 48 48">
+                  <path
+                    fill="#4285F4"
+                    d="M24 9.5c3.54 0 6.36 1.22 8.3 3.2l6.2-6.2C34.5 2.6 29.7 0 24 0 14.7 0 6.7 5.7 2.7 14l7.4 5.7C12.1 13.3 17.6 9.5 24 9.5z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M46.1 24.5c0-1.6-.1-2.8-.4-4.1H24v7.7h12.6c-.3 2-1.5 5-4.1 7l6.3 4.9c3.7-3.4 5.9-8.4 5.9-15.5z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M10.1 28.7c-.5-1.5-.8-3.1-.8-4.7s.3-3.2.8-4.7L2.7 13.6C1 17 0 20.4 0 24s1 7 2.7 10.4l7.4-5.7z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M24 48c6.5 0 12-2.1 16-5.7l-6.3-4.9c-1.8 1.2-4.3 2-9.7 2-6.4 0-11.9-3.8-13.9-9.2l-7.4 5.7C6.7 42.3 14.7 48 24 48z"
+                  />
+                </svg>
+
                 Continue with Google
               </button>
-
               <p className="text-sm text-gray-500 text-center font-medium">
                 Don’t have an account?{" "}
                 <button

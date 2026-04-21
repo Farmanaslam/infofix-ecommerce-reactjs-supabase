@@ -4,7 +4,7 @@ import {
   TrendingUp,
   Users,
   ShoppingBag,
-  DollarSign,
+  IndianRupee,
   ArrowUpRight,
   ArrowDownRight,
   Zap,
@@ -70,7 +70,7 @@ export const Dashboard: React.FC = () => {
         label: "Total Revenue",
         value: revenueDisplay,
         change: `${orders.length} orders`,
-        icon: DollarSign,
+        icon: IndianRupee,
         trend: "up" as const,
       },
       {
@@ -132,11 +132,10 @@ export const Dashboard: React.FC = () => {
                 <stat.icon className="w-6 h-6" />
               </div>
               <div
-                className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${
-                  stat.trend === "up"
+                className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${stat.trend === "up"
                     ? "bg-green-50 text-green-600"
                     : "bg-red-50 text-red-600"
-                }`}
+                  }`}
               >
                 {stat.trend === "up" ? (
                   <ArrowUpRight className="w-3 h-3" />
@@ -278,15 +277,14 @@ export const Dashboard: React.FC = () => {
                         ₹{total.toLocaleString("en-IN")}
                       </p>
                       <span
-                        className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                          order.status === "Delivered"
+                        className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${order.status === "Delivered"
                             ? "bg-green-50 text-green-600"
                             : order.status === "Cancelled"
                               ? "bg-red-50 text-red-500"
                               : order.status === "Shipped"
                                 ? "bg-violet-50 text-violet-600"
                                 : "bg-yellow-50 text-yellow-600"
-                        }`}
+                          }`}
                       >
                         {order.status}
                       </span>
