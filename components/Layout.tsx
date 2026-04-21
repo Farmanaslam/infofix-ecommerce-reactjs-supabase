@@ -256,7 +256,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               </span>
 
               {/* subtle underline glow */}
-              <span className="h-[2px] w-0 bg-indigo-500 group-hover:w-full transition-all duration-300 rounded-full mt-1"></span>
+              <span className="h-0.5 w-0 bg-indigo-500 group-hover:w-full transition-all duration-300 rounded-full mt-1"></span>
             </div>
           </button>
 
@@ -839,45 +839,45 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
       </header>
 
       {currentPage === "home" && (
-       <CouponDealsStrip onProductClick={async (productId) => {
-  try {
-    const { data } = await supabase
-      .from("products")
-      .select(`id, name, description, image_url, images, retail_price,
+        <CouponDealsStrip onProductClick={async (productId) => {
+          try {
+            const { data } = await supabase
+              .from("products")
+              .select(`id, name, description, image_url, images, retail_price,
                discount_percent, discounted_price, stock_quantity, condition,
                brand, specs, rating_avg, rating_count, reviews_count,
                likes_count, categories(name,slug), subcategories(name,slug), model`)
-      .eq("id", Number(productId))
-      .single();
-    if (data) {
-      const disc = data.discount_percent ?? 0;
-      const imageUrl = data.image_url ?? "";
-      sessionStorage.setItem("selectedProduct", JSON.stringify({
-        id: String(data.id),
-        name: data.name ?? "",
-        description: data.description ?? "",
-        image: imageUrl,
-        images: Array.isArray(data.images) && data.images.length > 0 ? data.images : [imageUrl],
-        price: Number(data.discounted_price ?? data.retail_price ?? 0),
-        retailPrice: disc > 0 ? Number(data.retail_price) : undefined,
-        discountPercent: disc,
-        stock: data.stock_quantity ?? 99,
-        condition: data.condition ?? "New",
-        category: data.categories?.[0]?.name ?? "",
-        brand: data.brand ?? "",
-        specs: data.specs ? Object.values(data.specs as Record<string, unknown>).map(String) : [],
-        rating: Number(data.rating_avg ?? 0),
-        reviews: data.reviews_count ?? data.rating_count ?? 0,
-        likesCount: data.likes_count ?? 0,
-        tags: [],
-        model: data.model ?? "",
-      }));
-    }
-  } catch (e) {
-    console.error(e);
-  }
-  setCurrentPage("shop"); // or however you navigate to product
-}} />
+              .eq("id", Number(productId))
+              .single();
+            if (data) {
+              const disc = data.discount_percent ?? 0;
+              const imageUrl = data.image_url ?? "";
+              sessionStorage.setItem("selectedProduct", JSON.stringify({
+                id: String(data.id),
+                name: data.name ?? "",
+                description: data.description ?? "",
+                image: imageUrl,
+                images: Array.isArray(data.images) && data.images.length > 0 ? data.images : [imageUrl],
+                price: Number(data.discounted_price ?? data.retail_price ?? 0),
+                retailPrice: disc > 0 ? Number(data.retail_price) : undefined,
+                discountPercent: disc,
+                stock: data.stock_quantity ?? 99,
+                condition: data.condition ?? "New",
+                category: data.categories?.[0]?.name ?? "",
+                brand: data.brand ?? "",
+                specs: data.specs ? Object.values(data.specs as Record<string, unknown>).map(String) : [],
+                rating: Number(data.rating_avg ?? 0),
+                reviews: data.reviews_count ?? data.rating_count ?? 0,
+                likesCount: data.likes_count ?? 0,
+                tags: [],
+                model: data.model ?? "",
+              }));
+            }
+          } catch (e) {
+            console.error(e);
+          }
+          setCurrentPage("shop"); // or however you navigate to product
+        }} />
       )}
       {/* ═══════════════════════════════════════════
           MAIN CONTENT

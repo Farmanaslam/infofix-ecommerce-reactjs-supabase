@@ -116,7 +116,7 @@ export const CouponDealsStrip: React.FC<Props> = ({ onProductClick }) => {
     };
 
     return (
-        <div className="w-full bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-700 relative overflow-hidden">
+        <div className="w-full bg-linear-to-r from-indigo-600 via-violet-600 to-indigo-700 relative overflow-hidden">
             {/* Animated background shimmer */}
             <div
                 className="absolute inset-0 opacity-20"
@@ -281,7 +281,7 @@ const MobileDealsCarousel = ({ deals, onProductClick, onDismiss }: any) => {
 
     return (
         <div
-            className="relative px-4 pt-6 pb-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white"
+            className="relative px-4 pt-6 pb-3 bg-linear-to-r from-indigo-600 to-violet-600 text-white"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
         >

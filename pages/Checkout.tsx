@@ -662,7 +662,7 @@ export const Checkout: React.FC = () => {
         />
       )}
 
-      <div className="app-container py-8 md:py-20">
+      <div className="app-container px-4 sm:px-6 py-6 md:py-20 overflow-x-hidden">
         {/* Header */}
         <div className="mb-14">
           <h1 className="text-5xl font-black text-gray-900 tracking-tight">
@@ -673,11 +673,11 @@ export const Checkout: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-12 items-stretch">
           {/* LEFT COLUMN */}
-          <div className="lg:col-span-2 space-y-10">
+          <div className="lg:col-span-2 space-y-6 md:space-y-10">
             {/* SHIPPING ADDRESS */}
-            <div className="bg-white border border-gray-100 p-4 md:p-10 rounded-4xl shadow-xl shadow-gray-100">
+            <div className="bg-white border border-gray-100 p-4 sm:p-6 md:p-10 rounded-4xl shadow-xl shadow-gray-100">
               <h2 className="text-2xl font-black text-gray-900 mb-2">Shipping Address</h2>
               <p className="text-gray-500 font-medium mb-6">
                 {hasMultipleAddresses
@@ -812,7 +812,7 @@ export const Checkout: React.FC = () => {
             </div>
 
             {/* PAYMENT METHOD */}
-            <div className="bg-white border border-gray-100 p-10 rounded-4xl shadow-xl shadow-gray-100">
+            <div className="bg-white border border-gray-100 p-4 sm:p-6 md:p-10 rounded-4xl shadow-xl shadow-gray-100">
               <h2 className="text-2xl font-black text-gray-900 mb-6">Choose Payment Method</h2>
               <div className="space-y-4">
                 {PAYMENT_OPTIONS.map((opt) => {
@@ -872,7 +872,7 @@ export const Checkout: React.FC = () => {
           </div>
 
           {/* RIGHT COLUMN — ORDER SUMMARY */}
-          <div className="bg-white border border-gray-100 p-8 md:p-10 rounded-4xl shadow-xl shadow-gray-100 h-fit sticky top-10 space-y-6">
+          <div className="bg-white border border-gray-100 p-8 sm:p-6 md:p-10 rounded-4xl shadow-xl shadow-gray-100 h-full lg:sticky lg:top-4 space-y-6">
             <h2 className="text-2xl font-black text-gray-900">Order Summary</h2>
 
             {/* Cart items */}
@@ -1058,7 +1058,7 @@ export const Checkout: React.FC = () => {
                 onClick={() => setShowAddressDrawer(true)}
               >
                 <span className="text-amber-500 text-lg">📍</span>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <p className="text-xs font-black text-amber-700">Delivery address needed</p>
                   <p className="text-xs text-amber-600 font-medium">Tap to add address & phone</p>
                 </div>

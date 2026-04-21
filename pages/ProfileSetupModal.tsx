@@ -89,13 +89,13 @@ export const ProfileSetupModal: React.FC<Props> = ({
                     backdropFilter: "blur(4px)",
                     WebkitBackdropFilter: "blur(4px)",
                     display: "flex",
-                    alignItems: "flex-end",
+                    alignItems: "center",
                     justifyContent: "center",
-                    padding: "16px",
+                    padding: "12px",
                 }}
                 onClick={(e) => e.target === e.currentTarget && onClose()}
             >
-                <div className="profile-modal bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+                <div className="profile-modal bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
                     {/* Done state */}
                     {done ? (
                         <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
@@ -169,7 +169,7 @@ export const ProfileSetupModal: React.FC<Props> = ({
                             </div>
 
                             {/* Form */}
-                            <div className="px-6 py-5 space-y-4 max-h-[60vh] overflow-y-auto">
+                            <div className="px-6 py-5 space-y-4 flex-1 overflow-y-auto">
                                 {/* Phone */}
                                 <div>
                                     <label className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1.5 block">
@@ -290,7 +290,7 @@ export const ProfileSetupModal: React.FC<Props> = ({
                             </div>
 
                             {/* Footer */}
-                            <div className="px-6 pb-6 space-y-3">
+                            <div className="px-6 pb-6 pt-3 space-y-3 border-t border-gray-100 bg-white">
                                 <button
                                     onClick={handleSave}
                                     disabled={saving}
