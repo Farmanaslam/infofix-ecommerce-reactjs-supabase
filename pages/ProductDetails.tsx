@@ -390,8 +390,9 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                   </div>
                 )}
 
-                <ProductCouponBadge productId={product.id} />
-
+                <div className="overflow-visible">
+                  <ProductCouponBadge productId={product.id} />
+                </div>
                 {/* Qty */}
                 {!isOut && (
                   <div className="pd-fade" style={{ animationDelay: "220ms" }}>

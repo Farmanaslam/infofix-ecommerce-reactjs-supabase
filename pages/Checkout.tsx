@@ -334,6 +334,13 @@ export const Checkout: React.FC = () => {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [finalDiscount, setFinalDiscount] = useState(0);
+  const [allCoupons, setAllCoupons] = useState<{
+    code: string;
+    discount_amount: number;
+    min_order_amount: number;
+    description: string | null;
+    product_ids: number[] | null;
+  }[]>([]);
 
   // Load address
   useEffect(() => {
@@ -348,7 +355,6 @@ export const Checkout: React.FC = () => {
       setAddressLoaded(true);
 
       if (!data) {
-        // Auto-open drawer for new users
         setShowAddressDrawer(true);
         return;
       }
@@ -384,7 +390,6 @@ export const Checkout: React.FC = () => {
       setAddressOptions(options);
 
       if (options.length === 0) {
-        // Has customer row but no address — open drawer
         setShowAddressDrawer(true);
         return;
       }
@@ -397,13 +402,24 @@ export const Checkout: React.FC = () => {
         setSelectedAddressIndex(0);
       }
 
-      // If phone missing on selected address — open drawer
       if (!data.phone?.trim()) {
         setShowAddressDrawer(true);
       }
     };
     loadAddress();
   }, [currentUser?.id]);
+
+  useEffect(() => {
+    const fetchCoupons = async () => {
+      const { data } = await supabase
+        .from("coupons")
+        .select("code, discount_amount, min_order_amount, description, product_ids")
+        .eq("is_active", true)
+        .limit(20);
+      if (data) setAllCoupons(data);
+    };
+    fetchCoupons();
+  }, []);
 
   const handleAddressSaved = (address: Address) => {
     const newOption = { label: "Primary Address", address };
@@ -438,10 +454,10 @@ export const Checkout: React.FC = () => {
   const hasPhone = !!selectedAddress?.phone?.trim();
   const canPlaceOrder = selectedPayment && addressConfirmed && cart.length > 0 && hasPhone;
 
-  // Coupon logic
-  const applyCoupon = async () => {
+  // Shared coupon apply logic
+  const applyCouponByCode = async (code: string) => {
     setCouponError(null);
-    if (!couponCode.trim()) return;
+    if (!code.trim()) return;
     setCouponLoading(true);
 
     const { data, error: fetchError } = await supabase
@@ -449,7 +465,7 @@ export const Checkout: React.FC = () => {
       .select(
         "id, code, discount_amount, min_order_amount, max_uses, used_count, is_active, expires_at, description, product_ids"
       )
-      .eq("code", couponCode.trim().toUpperCase())
+      .eq("code", code.trim().toUpperCase())
       .single();
 
     if (fetchError || !data) {
@@ -483,6 +499,8 @@ export const Checkout: React.FC = () => {
     }
     setCouponLoading(false);
   };
+
+  const applyCoupon = () => applyCouponByCode(couponCode);
 
   const removeCoupon = () => {
     setAppliedCoupon(null);
@@ -605,14 +623,14 @@ export const Checkout: React.FC = () => {
         )}
         {appliedCoupon && finalDiscount > 0 && (
           <p className="text-emerald-600 font-semibold text-sm mb-4">
-            🎉 You saved ₹{finalDiscount.toLocaleString()} with coupon {appliedCoupon.code}!
+            You saved ₹{finalDiscount.toLocaleString()} with coupon {appliedCoupon.code}!
           </p>
         )}
         <p className="text-gray-500 mb-6">
           Your order has been received and is now being reviewed by our team.
         </p>
         <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-6 py-5 text-left mb-10 space-y-2">
-          <p className="text-indigo-800 font-black text-sm">📞 What happens next?</p>
+          <p className="text-indigo-800 font-black text-sm">What happens next?</p>
           <p className="text-indigo-700 text-sm leading-relaxed">
             Our team will reach out to you shortly to confirm your order and collect a{" "}
             <span className="font-bold">minimal advance shipping amount</span> to secure
@@ -727,7 +745,7 @@ export const Checkout: React.FC = () => {
                           </p>
                           {opt.address.phone && (
                             <p className="text-gray-600 pl-6 font-semibold">
-                              📞 {opt.address.phone}
+                              {opt.address.phone}
                             </p>
                           )}
                         </div>
@@ -772,13 +790,12 @@ export const Checkout: React.FC = () => {
                       </p>
                       {selectedAddress?.phone && (
                         <p className="text-gray-600 pl-6 font-semibold">
-                          📞 {selectedAddress.phone}
+                          {selectedAddress.phone}
                         </p>
                       )}
                     </div>
                   )}
 
-                  {/* Edit address button — opens drawer, not profile */}
                   <button
                     onClick={() => setShowAddressDrawer(true)}
                     className="mt-2 text-sm text-indigo-600 font-bold hover:underline flex items-center gap-1"
@@ -787,7 +804,6 @@ export const Checkout: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                /* No address — prompt inline, not redirect */
                 <div
                   className="border-2 border-dashed border-indigo-200 bg-indigo-50/50 rounded-2xl p-8 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-all"
                   onClick={() => setShowAddressDrawer(true)}
@@ -935,6 +951,38 @@ export const Checkout: React.FC = () => {
                       </p>
                     </div>
                   )}
+
+                  {/* Available Coupons */}
+                  {(() => {
+                    const applicable = allCoupons.filter((c) => {
+                      if (!c.product_ids || c.product_ids.length === 0) return true;
+                      return c.product_ids.some((pid) => cartProductIds.includes(pid));
+                    });
+                    if (applicable.length === 0) return null;
+                    return (
+                      <div className="mt-2 space-y-1.5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                          Available Coupons
+                        </p>
+                        {applicable.map((c) => (
+                          <div
+                            key={c.code}
+                            className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 cursor-pointer hover:bg-indigo-50 hover:border-indigo-200 transition-all group"
+                            onClick={() => applyCouponByCode(c.code)}
+                          >
+                            <span className="font-black text-indigo-700 text-[11px] tracking-widest border border-indigo-200 bg-white rounded-lg px-2 py-0.5 shrink-0 group-hover:border-indigo-400 transition-all">
+                              {c.code}
+                            </span>
+                            <div className="flex-1 min-w-0 flex items-center gap-2">
+                              <span className="text-xs font-bold text-gray-700 shrink-0">
+                                ₹{c.discount_amount} off
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </>
               ) : (
                 <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5">
@@ -954,11 +1002,11 @@ export const Checkout: React.FC = () => {
                       {appliedCoupon.code}
                     </p>
                     <p className="text-xs text-emerald-600 font-semibold">
-                      ₹{discountAmount.toLocaleString()} off applied!
+                      ₹{discountAmount.toLocaleString()} off applied
                     </p>
                     {appliedCoupon.product_ids && appliedCoupon.product_ids.length > 0 && (
                       <p className="text-[10px] text-emerald-500 font-semibold mt-0.5">
-                        🎯 Applied to qualifying products in cart
+                        Applied to qualifying products in cart
                       </p>
                     )}
                   </div>
@@ -1005,7 +1053,7 @@ export const Checkout: React.FC = () => {
               )}
 
               <div className="flex justify-between text-xs text-green-600 font-semibold">
-                <span>🚚 Estimated Delivery</span>
+                <span>Estimated Delivery</span>
                 <span>
                   {(() => {
                     const d1 = new Date();
@@ -1047,7 +1095,7 @@ export const Checkout: React.FC = () => {
                   animation: "couponFadeIn 0.35s ease forwards",
                 }}
               >
-                🎉 You're saving ₹{discountAmount.toLocaleString()} on this order!
+                You're saving ₹{discountAmount.toLocaleString()} on this order
               </div>
             )}
 
@@ -1067,12 +1115,12 @@ export const Checkout: React.FC = () => {
             )}
             {!addressConfirmed && addressOptions.length > 0 && hasMultipleAddresses && (
               <p className="text-xs text-amber-600 font-semibold bg-amber-50 px-4 py-2 rounded-xl">
-                ⚠ Please confirm your delivery address above.
+                Please confirm your delivery address above.
               </p>
             )}
             {!selectedPayment && (
               <p className="text-xs text-amber-600 font-semibold bg-amber-50 px-4 py-2 rounded-xl">
-                ⚠ Please select a payment method.
+                Please select a payment method.
               </p>
             )}
             {error && (
@@ -1096,7 +1144,7 @@ export const Checkout: React.FC = () => {
                 }`}
             >
               {addressOptions.length === 0
-                ? "📍 Add Address to Continue"
+                ? "Add Address to Continue"
                 : placing
                   ? "Placing Order…"
                   : isDigital
@@ -1110,8 +1158,8 @@ export const Checkout: React.FC = () => {
 
             <div className="text-sm text-gray-500 space-y-1 pt-2 border-t border-gray-100">
               <p className="font-semibold text-gray-700">Need Help?</p>
-              <p>📧 infofixcomputers1@gmail.com</p>
-              <p>📞 +91 8293295257</p>
+              <p>infofixcomputers1@gmail.com</p>
+              <p>+91 8293295257</p>
             </div>
           </div>
         </div>

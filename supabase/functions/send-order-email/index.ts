@@ -21,11 +21,11 @@ function customerEmailTemplate(order: any): string {
         <td style="padding:12px 16px;border-bottom:1px solid #f0f0f0;">
           <div style="display:flex;align-items:center;gap:12px;">
             ${
-              item.image
-                ? `<img src="${item.image}" alt="${item.name}" width="56" height="56"
+        item.image
+          ? `<img src="${item.image}" alt="${item.name}" width="56" height="56"
                     style="border-radius:10px;object-fit:cover;border:1px solid #eee;" />`
-                : ""
-            }
+          : ""
+      }
             <div>
               <p style="margin:0;font-weight:700;color:#111;font-size:14px;">${item.name}</p>
               <p style="margin:4px 0 0;color:#888;font-size:12px;">Qty: ${item.quantity}</p>
@@ -43,7 +43,9 @@ function customerEmailTemplate(order: any): string {
   d1.setDate(d1.getDate() + 5);
   const d2 = new Date();
   d2.setDate(d2.getDate() + 7);
-  const deliveryRange = `${d1.toLocaleDateString("en-IN", { day: "numeric", month: "short" })} - ${d2.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`;
+  const deliveryRange = `${
+    d1.toLocaleDateString("en-IN", { day: "numeric", month: "short" })
+  } - ${d2.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`;
 
   return `
 <!DOCTYPE html>
@@ -90,7 +92,13 @@ function customerEmailTemplate(order: any): string {
                 <td style="padding:16px 20px;text-align:right;">
                   <p style="margin:0;font-size:11px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:1px;">Order Date</p>
                   <p style="margin:4px 0 0;font-size:14px;font-weight:700;color:#374151;">
-                    ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
+                    ${
+    new Date().toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    })
+  }
                   </p>
                 </td>
               </tr>
@@ -118,19 +126,36 @@ function customerEmailTemplate(order: any): string {
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td style="padding:6px 0;font-size:13px;color:#6b7280;">Subtotal</td>
-                <td style="padding:6px 0;font-size:13px;color:#374151;text-align:right;">&#8377;${order.subtotal?.toLocaleString("en-IN") ?? "0"}</td>
+                <td style="padding:6px 0;font-size:13px;color:#374151;text-align:right;">&#8377;${
+    order.subtotal?.toLocaleString("en-IN") ?? "0"
+  }</td>
               </tr>
               <tr>
                 <td style="padding:6px 0;font-size:13px;color:#6b7280;">GST / Taxes</td>
-                <td style="padding:6px 0;font-size:13px;color:#374151;text-align:right;">&#8377;${order.tax ?? 0}</td>
+                <td style="padding:6px 0;font-size:13px;color:#374151;text-align:right;">&#8377;${
+    order.tax ?? 0
+  }</td>
               </tr>
-              <tr>
+   <tr>
                 <td style="padding:6px 0;font-size:13px;color:#16a34a;font-weight:600;">Delivery</td>
                 <td style="padding:6px 0;font-size:13px;color:#16a34a;font-weight:600;text-align:right;">FREE</td>
               </tr>
+              ${
+    order.coupon_code
+      ? `
+              <tr>
+                <td style="padding:6px 0;font-size:13px;color:#16a34a;font-weight:600;">Coupon (${order.coupon_code})</td>
+                <td style="padding:6px 0;font-size:13px;color:#16a34a;font-weight:600;text-align:right;">-&#8377;${
+        Number(order.discount_amount).toLocaleString("en-IN")
+      }</td>
+              </tr>`
+      : ""
+  }
               <tr>
                 <td style="padding:12px 0 4px;font-size:17px;font-weight:900;color:#111;border-top:2px solid #f0f0f0;">Total</td>
-                <td style="padding:12px 0 4px;font-size:17px;font-weight:900;color:#4f46e5;text-align:right;border-top:2px solid #f0f0f0;">&#8377;${order.total_amount?.toLocaleString("en-IN") ?? "0"}</td>
+                <td style="padding:12px 0 4px;font-size:17px;font-weight:900;color:#4f46e5;text-align:right;border-top:2px solid #f0f0f0;">&#8377;${
+    order.total_amount?.toLocaleString("en-IN") ?? "0"
+  }</td>
               </tr>
             </table>
           </td>
@@ -151,6 +176,7 @@ function customerEmailTemplate(order: any): string {
                   <p style="margin:2px 0 0;font-size:11px;color:#8b5cf6;">${order.payment_status}</p>
                 </td>
               </tr>
+              
             </table>
           </td>
         </tr>
@@ -196,7 +222,9 @@ function customerEmailTemplate(order: any): string {
               <a href="mailto:infofixcomputers1@gmail.com?subject=unsubscribe" style="color:#9ca3af;">click here</a>.
             </p>
             <p style="margin:12px 0 0;font-size:11px;color:#d1d5db;">
-              &copy; ${new Date().getFullYear()} Infofix Computers. All rights reserved.<br/>
+              &copy; ${
+    new Date().getFullYear()
+  } Infofix Computers. All rights reserved.<br/>
               Durgapur, West Bengal, India
             </p>
           </td>
@@ -218,7 +246,11 @@ function staffEmailTemplate(order: any): string {
       <tr>
         <td style="padding:10px 14px;border-bottom:1px solid #f0f0f0;font-size:13px;color:#374151;">
           ${item.name}
-          ${item.image ? `<br/><img src="${item.image}" width="40" height="40" style="border-radius:6px;object-fit:cover;margin-top:4px;" />` : ""}
+          ${
+        item.image
+          ? `<br/><img src="${item.image}" width="40" height="40" style="border-radius:6px;object-fit:cover;margin-top:4px;" />`
+          : ""
+      }
         </td>
         <td style="padding:10px 14px;border-bottom:1px solid #f0f0f0;font-size:13px;color:#374151;text-align:center;">${item.quantity}</td>
         <td style="padding:10px 14px;border-bottom:1px solid #f0f0f0;font-size:13px;font-weight:700;color:#4f46e5;text-align:right;">
@@ -258,7 +290,12 @@ function staffEmailTemplate(order: any): string {
                 <td style="padding:14px 20px;text-align:right;">
                   <p style="margin:0;font-size:11px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:1px;">Placed At</p>
                   <p style="margin:4px 0 0;font-size:13px;font-weight:700;color:#374151;">
-                    ${new Date().toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}
+                    ${
+    new Date().toLocaleString("en-GB", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    })
+  }
                   </p>
                 </td>
               </tr>
@@ -302,9 +339,17 @@ function staffEmailTemplate(order: any): string {
                   <p style="margin:0;font-size:14px;font-weight:700;color:#5b21b6;">${order.payment_method}</p>
                 </td>
                 <td width="2%"></td>
-                <td width="49%" style="background:${order.payment_status === "Paid" ? "#f0fdf4" : "#fffbeb"};border:1px solid ${order.payment_status === "Paid" ? "#bbf7d0" : "#fde68a"};border-radius:12px;padding:14px 16px;">
-                  <p style="margin:0 0 4px;font-size:11px;font-weight:800;color:${order.payment_status === "Paid" ? "#16a34a" : "#d97706"};text-transform:uppercase;letter-spacing:0.8px;">Payment Status</p>
-                  <p style="margin:0;font-size:14px;font-weight:700;color:${order.payment_status === "Paid" ? "#166534" : "#92400e"};">${order.payment_status}</p>
+                <td width="49%" style="background:${
+    order.payment_status === "Paid" ? "#f0fdf4" : "#fffbeb"
+  };border:1px solid ${
+    order.payment_status === "Paid" ? "#bbf7d0" : "#fde68a"
+  };border-radius:12px;padding:14px 16px;">
+                  <p style="margin:0 0 4px;font-size:11px;font-weight:800;color:${
+    order.payment_status === "Paid" ? "#16a34a" : "#d97706"
+  };text-transform:uppercase;letter-spacing:0.8px;">Payment Status</p>
+                  <p style="margin:0;font-size:14px;font-weight:700;color:${
+    order.payment_status === "Paid" ? "#166534" : "#92400e"
+  };">${order.payment_status}</p>
                 </td>
               </tr>
             </table>
@@ -332,15 +377,32 @@ function staffEmailTemplate(order: any): string {
             <table width="100%" cellpadding="0" cellspacing="0" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;overflow:hidden;">
               <tr>
                 <td style="padding:10px 16px;font-size:13px;color:#6b7280;border-bottom:1px solid #fee2e2;">Subtotal</td>
-                <td style="padding:10px 16px;font-size:13px;color:#374151;text-align:right;border-bottom:1px solid #fee2e2;">&#8377;${order.subtotal?.toLocaleString("en-IN")}</td>
+                <td style="padding:10px 16px;font-size:13px;color:#374151;text-align:right;border-bottom:1px solid #fee2e2;">&#8377;${
+    order.subtotal?.toLocaleString("en-IN")
+  }</td>
               </tr>
-              <tr>
+             <tr>
                 <td style="padding:10px 16px;font-size:13px;color:#6b7280;border-bottom:1px solid #fee2e2;">Taxes</td>
-                <td style="padding:10px 16px;font-size:13px;color:#374151;text-align:right;border-bottom:1px solid #fee2e2;">&#8377;${order.tax ?? 0}</td>
+                <td style="padding:10px 16px;font-size:13px;color:#374151;text-align:right;border-bottom:1px solid #fee2e2;">&#8377;${
+    order.tax ?? 0
+  }</td>
               </tr>
+              ${
+    order.coupon_code
+      ? `
+              <tr>
+                <td style="padding:10px 16px;font-size:13px;color:#16a34a;font-weight:600;border-bottom:1px solid #fee2e2;">Coupon (${order.coupon_code})</td>
+                <td style="padding:10px 16px;font-size:13px;color:#16a34a;font-weight:600;text-align:right;border-bottom:1px solid #fee2e2;">-&#8377;${
+        Number(order.discount_amount).toLocaleString("en-IN")
+      }</td>
+              </tr>`
+      : ""
+  }
               <tr>
                 <td style="padding:12px 16px;font-size:16px;font-weight:900;color:#b91c1c;">TOTAL</td>
-                <td style="padding:12px 16px;font-size:16px;font-weight:900;color:#b91c1c;text-align:right;">&#8377;${order.total_amount?.toLocaleString("en-IN")}</td>
+                <td style="padding:12px 16px;font-size:16px;font-weight:900;color:#b91c1c;text-align:right;">&#8377;${
+    order.total_amount?.toLocaleString("en-IN")
+  }</td>
               </tr>
             </table>
           </td>
@@ -374,7 +436,8 @@ serve(async (req) => {
     return new Response("ok", {
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+        "Access-Control-Allow-Headers":
+          "authorization, x-client-info, apikey, content-type",
       },
     });
   }
@@ -394,7 +457,7 @@ serve(async (req) => {
       to: string | string[],
       subject: string,
       html: string,
-      text: string,         // ← parameter added here
+      text: string, // ← parameter added here
     ) => {
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -407,9 +470,10 @@ serve(async (req) => {
           to: Array.isArray(to) ? to : [to],
           subject,
           html,
-          text,             // ← passed to Resend here
+          text, // ← passed to Resend here
           headers: {
-            "List-Unsubscribe": "<mailto:infofixcomputers1@gmail.com?subject=unsubscribe>",
+            "List-Unsubscribe":
+              "<mailto:infofixcomputers1@gmail.com?subject=unsubscribe>",
             "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
           },
         }),

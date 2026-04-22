@@ -1,7 +1,3 @@
-// ─── ProductCouponBadge.tsx ───────────────────────────────────────────────────
-// Drop this component into ProductDetails just above the CTA buttons.
-// It fetches coupons that apply to the given product and shows them.
-
 import React, { useState, useEffect } from "react";
 import { Tag } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
@@ -58,26 +54,17 @@ export const ProductCouponBadge: React.FC<{ productId: number | string }> = ({
       </div>
       <div className="divide-y divide-emerald-100">
         {coupons.map((c) => (
-          <div key={c.code} className="flex items-center gap-3 px-4 py-3">
-            <div className="shrink-0 border-2 border-dashed border-emerald-400 rounded-lg px-2.5 py-1">
-              <span className="font-black text-emerald-700 text-xs tracking-widest">
-                {c.code}
-              </span>
+          <div key={c.code} className="px-4 py-2.5">
+            <div className="flex items-center gap-2">
+              <div className="shrink-0 border-2 border-dashed border-emerald-400 rounded-md px-2 py-0.5">
+                <span className="font-black text-emerald-700 text-[11px] tracking-widest">{c.code}</span>
+              </div>
+              <span className="text-xs font-bold text-slate-800">Save ₹{c.discount_amount}</span>
+              <span className="ml-auto shrink-0 text-[10px] font-black text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Use at Checkout</span>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-slate-800">
-                Save ₹{c.discount_amount}
-              </p>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                {c.description ||
-                  (c.min_order_amount > 0
-                    ? `On orders above ₹${c.min_order_amount}`
-                    : "No minimum order required")}
-              </p>
-            </div>
-            <span className="shrink-0 text-[10px] font-black text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
-              Use at Checkout
-            </span>
+            <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+              {c.description || (c.min_order_amount > 0 ? `On orders above ₹${c.min_order_amount}` : "No minimum order required")}
+            </p>
           </div>
         ))}
       </div>
