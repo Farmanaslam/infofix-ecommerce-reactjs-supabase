@@ -203,7 +203,8 @@ export const Cart: React.FC = () => {
                           e.stopPropagation();
                           updateQuantity(String(item.id), item.quantity + 1);
                         }}
-                        className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-indigo-50"
+                        disabled={item.quantity >= (item.stock ?? Infinity)}
+                        className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-indigo-50 disabled:opacity-40"
                       >
                         <Plus size={16} />
                       </button>

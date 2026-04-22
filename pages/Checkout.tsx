@@ -450,10 +450,21 @@ export const Checkout: React.FC = () => {
     return coupon.product_ids.some((pid) => cartProductIds.includes(pid));
   };
 
-  const discountAmount =
-    appliedCoupon && isCouponApplicableToCart(appliedCoupon)
-      ? Math.min(appliedCoupon.discount_amount, subtotal)
-      : 0;
+  const discountAmount = (() => {
+    if (!appliedCoupon) return 0;
+    if (!isCouponApplicableToCart(appliedCoupon)) return 0;
+
+    // product-specific coupon → multiply discount by total qty of matching items
+    if (appliedCoupon.product_ids && appliedCoupon.product_ids.length > 0) {
+      const matchingQty = cart
+        .filter(item => appliedCoupon.product_ids!.includes(Number(item.id)))
+        .reduce((sum, item) => sum + item.quantity, 0);
+      return Math.min(appliedCoupon.discount_amount * matchingQty, subtotal);
+    }
+
+    // global coupon → flat discount (not per-unit)
+    return Math.min(appliedCoupon.discount_amount, subtotal);
+  })();
   const total = subtotal + tax + delivery - discountAmount;
 
   const isDigital = selectedPayment && selectedPayment !== "COD";
@@ -464,13 +475,12 @@ export const Checkout: React.FC = () => {
   const applyCouponByCode = async (code: string) => {
     setCouponError(null);
     if (!code.trim()) return;
+    if (!currentUser?.id) return;
     setCouponLoading(true);
 
     const { data, error: fetchError } = await supabase
       .from("coupons")
-      .select(
-        "id, code, discount_amount, min_order_amount, max_uses, used_count, is_active, expires_at, description, product_ids"
-      )
+      .select("id, code, discount_amount, min_order_amount, is_active, expires_at, description, product_ids")
       .eq("code", code.trim().toUpperCase())
       .single();
 
@@ -480,28 +490,35 @@ export const Checkout: React.FC = () => {
       setCouponError("This coupon is no longer active.");
     } else if (data.expires_at && new Date(data.expires_at) < new Date()) {
       setCouponError("This coupon has expired.");
-    } else if (data.max_uses !== null && data.used_count >= data.max_uses) {
-      setCouponError("This coupon has reached its usage limit.");
     } else if (data.min_order_amount > 0 && subtotal < data.min_order_amount) {
-      setCouponError(
-        `Minimum order of ₹${data.min_order_amount.toLocaleString()} required for this coupon.`
-      );
+      setCouponError(`Minimum order of ₹${data.min_order_amount.toLocaleString()} required.`);
     } else if (
-      data.product_ids &&
-      data.product_ids.length > 0 &&
+      data.product_ids?.length > 0 &&
       !data.product_ids.some((pid: number) => cartProductIds.includes(pid))
     ) {
       setCouponError("This coupon is not applicable to the products in your cart.");
     } else {
-      setAppliedCoupon({
-        id: data.id,
-        code: data.code,
-        discount_amount: data.discount_amount,
-        description: data.description,
-        product_ids: data.product_ids ?? null,
-      });
-      setCouponCode("");
-      setCouponError(null);
+      // ✅ Check per-user usage (not global used_count)
+      const { data: existingUsage } = await supabase
+        .from("coupon_usages")
+        .select("id")
+        .eq("coupon_id", data.id)
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
+
+      if (existingUsage) {
+        setCouponError("You've already used this coupon.");
+      } else {
+        setAppliedCoupon({
+          id: data.id,
+          code: data.code,
+          discount_amount: data.discount_amount,
+          description: data.description,
+          product_ids: data.product_ids ?? null,
+        });
+        setCouponCode("");
+        setCouponError(null);
+      }
     }
     setCouponLoading(false);
   };
@@ -559,11 +576,32 @@ export const Checkout: React.FC = () => {
         .single();
 
       if (insertError) throw insertError;
-
+      // Decrement stock for each ordered item
+      await Promise.all(
+        orderItems.map(async (item) => {
+          // fetch current stock first
+          const { data: prod } = await supabase
+            .from("products")
+            .select("stock_quantity")
+            .eq("id", item.product_id)
+            .single();
+          if (prod) {
+            const newStock = Math.max(0, prod.stock_quantity - item.quantity);
+            await supabase
+              .from("products")
+              .update({ stock_quantity: newStock })
+              .eq("id", item.product_id);
+          }
+        })
+      );
       if (appliedCoupon) {
-        await supabase.rpc("increment_coupon_usage", {
+        // Record per-user usage
+        await supabase.from("coupon_usages").insert({
           coupon_id: appliedCoupon.id,
+          user_id: currentUser.id,
         });
+        // Increment global counter (analytics only)
+        await supabase.rpc("increment_coupon_usage", { coupon_id: appliedCoupon.id });
       }
       setFinalDiscount(discountAmount);
       await clearCart();

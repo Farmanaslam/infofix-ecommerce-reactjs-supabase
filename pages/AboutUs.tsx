@@ -262,11 +262,10 @@ export const AboutUs: React.FC = () => {
             ].map((svc, i) => (
               <div
                 key={i}
-                className={`card-lift group relative rounded-3xl p-8 border transition-all duration-300 ${
-                  svc.dark
-                    ? "bg-gray-900 border-gray-800"
-                    : "bg-white border-gray-100 hover:border-indigo-100"
-                }`}
+                className={`card-lift group relative rounded-3xl p-8 border transition-all duration-300 ${svc.dark
+                  ? "bg-gray-900 border-gray-800"
+                  : "bg-white border-gray-100 hover:border-indigo-100"
+                  }`}
               >
                 {svc.dark && (
                   <div

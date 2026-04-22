@@ -176,7 +176,7 @@ const CartToast: React.FC<{
 async function fetchCartFromSupabase(userId: string): Promise<CartItem[]> {
   const { data, error } = await supabase
     .from("cart_items")
-    .select("*, products(min_order_quantity)")
+    .select("*, products(min_order_quantity, stock_quantity)")
     .eq("user_id", userId)
     .order("created_at", { ascending: true });
   if (error || !data) return [];
@@ -190,7 +190,6 @@ async function fetchCartFromSupabase(userId: string): Promise<CartItem[]> {
     category: row.category,
     quantity: row.quantity,
     description: "",
-    stock: 0,
     condition: "New",
     brand: "",
     specs: [],
@@ -201,7 +200,8 @@ async function fetchCartFromSupabase(userId: string): Promise<CartItem[]> {
     tags: [],
     images: [],
     model: "",
-    min_order_quantity: row.products?.min_order_quantity ?? 1,  // ← from join
+    min_order_quantity: row.products?.min_order_quantity ?? 1,
+    stock: row.products?.stock_quantity ?? 0,
   }));
 }
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({
