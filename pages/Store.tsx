@@ -465,6 +465,9 @@ export const Store: React.FC = () => {
     setSelectedCategory: ctxSetCategory,
     selectedSubcategory: ctxSubcategory,
     setSelectedSubcategory: ctxSetSubcategory,
+    currentUser,
+    pendingRedirectAfterLogin,
+    setPendingRedirectAfterLogin
   } = useStore();
 
   // ── Navigation state ──────────────────────────────────────────────────────
@@ -560,8 +563,16 @@ export const Store: React.FC = () => {
   };
 
   const handleBuyNow = (product: Product) => {
+    if (!currentUser) {
+      // Save product for post-login add-to-cart
+      sessionStorage.setItem("pendingBuyNowProduct", JSON.stringify(product));
+      setPendingRedirectAfterLogin("checkout");
+      setCurrentPage("login");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     addToCart(product as any);
-    setCurrentPage("checkout");           // ← goes to checkout directly
+    setCurrentPage("checkout");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -1057,8 +1068,8 @@ export const Store: React.FC = () => {
                       if (cat !== selectedCategory) setSelectedSubcategory("");
                     }}
                     className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-200 ${selectedCategory === cat
-                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
-                        : "bg-gray-100 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 border border-transparent hover:border-indigo-200"
+                      ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
+                      : "bg-gray-100 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 border border-transparent hover:border-indigo-200"
                       }`}
                   >
                     {cat}
@@ -1079,8 +1090,8 @@ export const Store: React.FC = () => {
                       )
                     }
                     className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-widest transition-all duration-200 ${selectedSubcategory === sub
-                        ? "bg-indigo-100 text-indigo-700 border border-indigo-300"
-                        : "bg-gray-50 text-gray-400 hover:bg-indigo-50 hover:text-indigo-500 border border-gray-200"
+                      ? "bg-indigo-100 text-indigo-700 border border-indigo-300"
+                      : "bg-gray-50 text-gray-400 hover:bg-indigo-50 hover:text-indigo-500 border border-gray-200"
                       }`}
                   >
                     {sub}
@@ -1107,8 +1118,8 @@ export const Store: React.FC = () => {
                       )
                     }
                     className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-widest transition-all duration-200 ${selectedSubcategory === sub
-                        ? "bg-indigo-100 text-indigo-700 border border-indigo-300"
-                        : "bg-gray-50 text-gray-400 hover:bg-indigo-50 hover:text-indigo-500 border border-gray-200"
+                      ? "bg-indigo-100 text-indigo-700 border border-indigo-300"
+                      : "bg-gray-50 text-gray-400 hover:bg-indigo-50 hover:text-indigo-500 border border-gray-200"
                       }`}
                   >
                     {sub}

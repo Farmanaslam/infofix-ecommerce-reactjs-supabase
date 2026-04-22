@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Lock, Mail, Eye, EyeOff, LogIn } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { supabase } from "@/lib/supabaseClient";
 
 export const Login: React.FC = () => {
-  const { setCurrentUser, setCurrentPage, setViewMode } = useStore();
-
+  const { setCurrentUser, setCurrentPage, setViewMode, pendingRedirectAfterLogin, setPendingRedirectAfterLogin, currentUser } = useStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -43,15 +42,10 @@ export const Login: React.FC = () => {
       .single();
 
     if (customerProfile) {
-      setCurrentUser({
-        id: user.id,
-        name: customerProfile.full_name,
-        email: customerProfile.email,
-        role: "CUSTOMER",
-        avatar: `https://i.pravatar.cc/150?u=${user.id}`,
-      });
-
-      setCurrentPage("home");
+      setCurrentUser({ id: user.id, name: customerProfile.full_name, email: customerProfile.email, role: "CUSTOMER", avatar: `https://i.pravatar.cc/150?u=${user.id}` });
+      const redirect = pendingRedirectAfterLogin ?? "home";
+      setPendingRedirectAfterLogin(null);
+      setCurrentPage(redirect);
       return;
     }
 
@@ -78,6 +72,13 @@ export const Login: React.FC = () => {
     alert("Profile not found in system");
   };
 
+  useEffect(() => {
+    if (currentUser && pendingRedirectAfterLogin) {
+      const redirect = pendingRedirectAfterLogin;
+      setPendingRedirectAfterLogin(null);
+      setCurrentPage(redirect);
+    }
+  }, [currentUser]);
   return (
     <div className="min-h-screen flex items-center justify-center py-6 md:py-24">
       <div className="app-container">
@@ -102,6 +103,7 @@ export const Login: React.FC = () => {
 
           {/* RIGHT SIDE CARD */}
           <div className="bg-white border border-gray-100 p-6 md:p-12 rounded-[48px] shadow-2xl shadow-gray-200/50">
+
             <form className="space-y-6" onSubmit={handleSubmit}>
               {/* Email */}
               <div className="space-y-2">

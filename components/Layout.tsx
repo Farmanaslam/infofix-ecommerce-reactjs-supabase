@@ -32,6 +32,7 @@ import { NotificationPanel } from "@/pages/NotificationPanel";
 import { InstallPWA } from "./InstallPWA";
 import { CouponDealsStrip } from "@/pages/CouponDealsStrip";
 import { supabase } from "@/lib/supabaseClient";
+import { GuestPromoBanner } from "@/pages/GuestPromoBanner";
 
 export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -123,6 +124,10 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
       {/* ═══════════════════════════════════════════
           HEADER
       ═══════════════════════════════════════════ */}
+      {/* Guest promo — only show when not logged in */}
+      {!currentUser && (
+        <GuestPromoBanner onSignup={() => setCurrentPage("signup")} />
+      )}
       <header
         className="w-full sticky top-0 z-50 bg-white transition-all duration-300"
         style={{

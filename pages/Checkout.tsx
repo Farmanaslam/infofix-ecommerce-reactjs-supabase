@@ -303,7 +303,7 @@ const AddressDrawer: React.FC<{
 };
 
 export const Checkout: React.FC = () => {
-  const { cart, currentUser, setCurrentPage, clearCart } = useStore();
+  const { cart, currentUser, setCurrentPage, clearCart, setPendingRedirectAfterLogin } = useStore();
 
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
 
@@ -342,6 +342,12 @@ export const Checkout: React.FC = () => {
     product_ids: number[] | null;
   }[]>([]);
 
+  useEffect(() => {
+    if (!currentUser) {
+      setPendingRedirectAfterLogin("checkout");
+      setCurrentPage("login");
+    }
+  }, []);
   // Load address
   useEffect(() => {
     const loadAddress = async () => {

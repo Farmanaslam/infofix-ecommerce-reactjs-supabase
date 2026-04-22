@@ -228,7 +228,7 @@ export const INITIAL_BRANCHES: Branch[] = [
     days: "Monday - Sunday",
     hours: "10:00 AM - 8:00 PM",
     phone: "8016872767",
-    mapsUrl: "https://maps.app.goo.gl/cw7bUQr1pgap1vf59",
+    mapsUrl: "https://maps.app.goo.gl/nLMzieG821pR18rR8",
     image: "/shop1.jpeg",
     details:
       "Complete laptop sales, refurbished systems, and upgrade solutions.",

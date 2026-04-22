@@ -89,6 +89,8 @@ interface StoreContextType extends AppState {
   fetchDashboardData: () => Promise<void>;
   selectedProductId: string | null;
   setSelectedProductId: (id: string | null) => void;
+  pendingRedirectAfterLogin: CustomerPage | null;
+  setPendingRedirectAfterLogin: (page: CustomerPage | null) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -236,7 +238,18 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+
+  const [pendingRedirectAfterLogin, setPendingRedirectAfterLoginState] = useState<CustomerPage | null>(
+    () => (localStorage.getItem("pendingRedirect") as CustomerPage) ?? null
+  );
+
+  const setPendingRedirectAfterLogin = useCallback((page: CustomerPage | null) => {
+    if (page) localStorage.setItem("pendingRedirect", page);
+    else localStorage.removeItem("pendingRedirect");
+    setPendingRedirectAfterLoginState(page);
+  }, []);
   const currentUserRef = useRef<User | null>(null);
+  const isMergingRef = useRef(false);
   // Fetch notifications on mount
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -473,8 +486,78 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     setCurrentUserState(user);
     currentUserRef.current = user;
     if (user?.id && user.role === "CUSTOMER") {
+      // Merge guest cart first
+      try {
+        const guestCart = JSON.parse(localStorage.getItem("guest_cart") ?? "[]");
+        if (guestCart.length > 0 && !isMergingRef.current) {
+          isMergingRef.current = true;
+          localStorage.removeItem("guest_cart"); // ← moved UP, before async
+          try {
+            for (const item of guestCart) {
+              const { data: existing } = await supabase
+                .from("cart_items")
+                .select("id, quantity")
+                .eq("user_id", user.id)
+                .eq("product_id", item.id)
+                .maybeSingle();
+              if (existing) {
+                await supabase
+                  .from("cart_items")
+                  .update({ quantity: existing.quantity + item.quantity })
+                  .eq("id", existing.id);
+              } else {
+                await supabase.from("cart_items").insert({
+                  user_id: user.id,
+                  product_id: item.id,
+                  name: item.name,
+                  price: item.price,
+                  image: item.image ?? "",
+                  category: item.category ?? "",
+                  quantity: item.quantity,
+                });
+              }
+            }
+          } finally {
+            isMergingRef.current = false;
+          }
+        }
+      } catch { }
       const items = await fetchCartFromSupabase(user.id);
       setCart(items);
+      try {
+        const pendingProduct = sessionStorage.getItem("pendingBuyNowProduct");
+        if (pendingProduct) {
+          sessionStorage.removeItem("pendingBuyNowProduct");
+          const product = JSON.parse(pendingProduct);
+          // Insert directly to Supabase (cart state just set above)
+          const { data: existing } = await supabase
+            .from("cart_items")
+            .select("id, quantity")
+            .eq("user_id", user.id)
+            .eq("product_id", product.id)
+            .maybeSingle();
+          const moq = product.min_order_quantity ?? 1;
+          if (existing) {
+            await supabase
+              .from("cart_items")
+              .update({ quantity: existing.quantity + moq })
+              .eq("id", existing.id);
+          } else {
+            await supabase.from("cart_items").insert({
+              user_id: user.id,
+              product_id: product.id,
+              name: product.name,
+              price: product.price,
+              image: product.image ?? "",
+              category: product.category ?? "",
+              quantity: moq,
+            });
+          }
+          // Re-fetch cart to include new item
+          const updatedItems = await fetchCartFromSupabase(user.id);
+          setCart(updatedItems);
+        }
+      } catch { }
     } else if (!user) {
       setCart([]);
     }
@@ -576,8 +659,20 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       });
       showCartToast(product);
 
-      if (!currentUser?.id) return;
-      try {
+      // Persist guest cart to localStorage for merge after login
+      if (!currentUser?.id) {
+        try {
+          const guestCart = JSON.parse(localStorage.getItem("guest_cart") ?? "[]");
+          const existingIdx = guestCart.findIndex((i: any) => String(i.id) === String(product.id));
+          if (existingIdx >= 0) {
+            guestCart[existingIdx].quantity = Math.max(guestCart[existingIdx].quantity + addQty, moq);
+          } else {
+            guestCart.push({ id: String(product.id), name: product.name, price: product.price, image: product.image ?? "", category: product.category ?? "", quantity: addQty, min_order_quantity: moq });
+          }
+          localStorage.setItem("guest_cart", JSON.stringify(guestCart));
+        } catch { }
+        return;
+      } try {
         const { data: existing } = await supabase
           .from("cart_items")
           .select("id, quantity")
@@ -789,6 +884,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         fetchDashboardData,
         selectedProductId,
         setSelectedProductId,
+        pendingRedirectAfterLogin,
+        setPendingRedirectAfterLogin,
       }}
     >
       {loading && (
