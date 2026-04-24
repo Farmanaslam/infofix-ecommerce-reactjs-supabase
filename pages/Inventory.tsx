@@ -61,6 +61,7 @@ const EMPTY_FORM: DBProductFormState = {
   specs: [{ key: "", value: "" }],
   tag_ids: [],
   min_order_quantity: "1",
+  store_section: 'Infofix' as 'Infofix' | 'Refurbished' | 'Wholesale',
 };
 
 const PLACEHOLDER_IMAGES: Record<string, string> = {
@@ -230,7 +231,7 @@ export const Inventory: React.FC = () => {
         let q = supabase.from("products").select(
           `
         id, name, description, image_url,images, brand, model, specs,
-        retail_price, discounted_price, discount_percent,
+       store_section, retail_price, discounted_price, discount_percent,
         stock_quantity, condition, is_active, min_order_quantity,
         category_id, subcategory_id, created_at,
         categories(name,slug), subcategories(name,slug),
@@ -389,17 +390,26 @@ export const Inventory: React.FC = () => {
         value: String(value),
       }))
       : [{ key: "", value: "" }];
+
     const existingImages: string[] =
       Array.isArray((p as any).images) && (p as any).images.length > 0
         ? (p as any).images
         : p.image_url
           ? [p.image_url]
           : [];
+
+    const sectionMap: Record<string, 'Infofix' | 'Refurbished' | 'Wholesale'> = {
+      infofix: 'Infofix', refurbished: 'Refurbished', wholesale: 'Wholesale',
+      Infofix: 'Infofix', Refurbished: 'Refurbished', Wholesale: 'Wholesale',
+    };
+    const store_section = sectionMap[(p as any).store_section ?? ''] ?? 'Infofix';
+
     setForm({
       name: p.name ?? "",
       description: p.description ?? "",
       brand: p.brand ?? "",
       model: p.model ?? "",
+      store_section,
       retail_price: String(p.retail_price ?? ""),
       discounted_price: String(p.discounted_price ?? ""),
       discount_percent: String(p.discount_percent ?? ""),
@@ -407,7 +417,7 @@ export const Inventory: React.FC = () => {
       condition: p.condition ?? "New",
       category_id: String(p.category_id ?? ""),
       subcategory_id: p.subcategory_id ? String(p.subcategory_id) : "",
-      image_url: p.image_url ?? "",
+      image_url: existingImages[0] ?? p.image_url ?? "",
       image_urls: existingImages,
       is_active: p.is_active ?? true,
       specs: specs.length ? specs : [{ key: "", value: "" }],
@@ -416,20 +426,11 @@ export const Inventory: React.FC = () => {
         .map((pt: any) => pt.tags?.id)
         .filter(Boolean),
     });
-    setImagePreview(p.image_url ?? "");
+
+    setImagePreview(existingImages[0] ?? p.image_url ?? "");
     setImagePreviews(existingImages);
-    setImagePreview(p.image_url ?? "");
-    setForm((f) => ({
-      ...f,
-      image_urls: Array.isArray((p as any).images)
-        ? (p as any).images
-        : p.image_url
-          ? [p.image_url]
-          : [],
-    }));
     setFormTab("basic");
     setModalOpen(true);
-
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -478,6 +479,7 @@ export const Inventory: React.FC = () => {
         description: form.description.trim(),
         brand: form.brand.trim(),
         model: form.model.trim(),
+        store_section: ((form as any).store_section ?? 'infofix').toLowerCase(),
         sku: `SKU-${Date.now().toString(36).toUpperCase()}`,
         retail_price: retailPrice,
         discount_percent: discPercent,
@@ -1804,6 +1806,32 @@ export const Inventory: React.FC = () => {
                         placeholder="Condition details, what's included, warranty info..."
                         className="input resize-none"
                       />
+                    </Field>
+                    <Field label="Store Section *">
+                      <div className="flex gap-2">
+                        {([
+                          { id: 'Infofix', label: '🖥️ Infofix', color: '#6366f1' },
+                          { id: 'Refurbished', label: '♻️ Refurbished', color: '#059669' },
+                          { id: 'Wholesale', label: '📦 Wholesale', color: '#db2777' },
+                        ] as const).map((sec) => (
+                          <button
+                            key={sec.id}
+                            type="button"
+                            onClick={() => setForm(f => ({ ...f, store_section: sec.id }))}
+                            className="flex-1 py-2.5 rounded-xl text-xs font-black border transition-all"
+                            style={
+                              (form as any).store_section === sec.id
+                                ? { background: sec.color, color: 'white', border: `1px solid ${sec.color}`, boxShadow: `0 4px 12px ${sec.color}44` }
+                                : { background: '#f9fafb', color: '#64748b', border: '1px solid #e2e8f0' }
+                            }
+                          >
+                            {sec.label}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-[10px] text-gray-400 mt-1">
+                        Controls which store section this product appears in.
+                      </p>
                     </Field>
                   </div>
                 )}

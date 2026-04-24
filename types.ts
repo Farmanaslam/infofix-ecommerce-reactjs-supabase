@@ -54,6 +54,7 @@ export interface Branch {
 
 export interface CartItem extends Product {
   quantity: number;
+  min_order_quantity?: number;
 }
 export interface AppState {
   products: Product[];
@@ -128,6 +129,7 @@ export interface DBProductFormState {
   specs: { key: string; value: string }[];
   tag_ids: number[];
   min_order_quantity?: string;
+  store_section?: "Infofix" | "Refurbished" | "Wholesale";
 }
 export interface UpdatePost {
   id: string;
@@ -179,6 +181,7 @@ export interface CartItem {
   image: string;
   category: string;
   quantity: number;
+  min_order_quantity?: number;
 }
 
 export interface OrderItem {

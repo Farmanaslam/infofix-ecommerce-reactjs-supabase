@@ -19,7 +19,7 @@ export const SUBCATEGORIES: Record<
       },
       {
         label: "Usage",
-        items: ["Gaming", "Business", "Student", "Refurbished"],
+        items: ["Gaming", "Business", "Student"],
       },
     ],
   },

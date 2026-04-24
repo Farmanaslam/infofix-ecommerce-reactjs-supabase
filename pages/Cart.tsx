@@ -21,7 +21,10 @@ export const Cart: React.FC = () => {
     updateQuantity,
     removeFromCart,
     addToCart,
+    cartLoading,
   } = useStore();
+
+
 
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [allCoupons, setAllCoupons] = useState<AvailableCoupon[]>([]);
@@ -66,6 +69,14 @@ export const Cart: React.FC = () => {
     setSelectedProduct(product);
   };
 
+
+  if (cartLoading) {
+    return (
+      <div className="flex justify-center items-center py-24">
+        <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
   if (selectedProduct) {
     return (
       <ProductDetails

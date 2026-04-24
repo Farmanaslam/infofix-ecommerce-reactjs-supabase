@@ -231,6 +231,7 @@ function fromSupabase(row: any): Product {
     likesCount: row.likes_count ?? 0,
     tags: [],
     model: row.model ?? "",
+    min_order_quantity: row.min_order_quantity ?? 1,
   };
 }
 
@@ -467,8 +468,87 @@ export const Store: React.FC = () => {
     setSelectedSubcategory: ctxSetSubcategory,
     currentUser,
     pendingRedirectAfterLogin,
-    setPendingRedirectAfterLogin
+    setPendingRedirectAfterLogin,
+    selectedStoreSection
   } = useStore();
+
+  // Theme config per section
+  const SECTION_THEMES = {
+    Infofix: {
+      accent: '#6366f1',
+      accentHover: '#4f46e5',
+      accentLight: '#eff6ff',
+      accentText: '#4338ca',
+      pill: 'bg-indigo-600 text-white shadow-md shadow-indigo-200',
+      pillInactive: 'bg-gray-100 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600',
+      subPill: 'bg-indigo-100 text-indigo-700 border-indigo-300',
+      subPillInactive: 'bg-gray-50 text-gray-400 hover:bg-indigo-50 hover:text-indigo-500 border-gray-200',
+      heroHeadline: 'text-gray-900',
+      heroAccent: 'text-indigo-600',
+      heroSubtext: 'text-gray-500',
+      heroBg: 'bg-white',
+      heroLabel: 'bg-indigo-600/5 border-indigo-600/10 text-indigo-600',
+      searchBtn: 'bg-indigo-600 hover:bg-indigo-700',
+      label: 'Infofix Store',
+      eyebrow: 'Curated Technology',
+      headline1: 'Explore Our',
+      headline2: 'Products.',
+      subtext: 'Discover new and certified refurbished laptops, desktops, PCs, and accessories curated for students, professionals, and businesses. Backed by Infofix warranty.',
+    },
+    Refurbished: {
+      accent: '#059669',
+      accentHover: '#047857',
+      accentLight: '#f0fdf4',
+      accentText: '#065f46',
+      pill: 'text-white shadow-md',
+      pillStyle: { background: '#059669' },
+      pillInactive: 'bg-gray-100 text-gray-500',
+      pillInactiveHover: { hover: '#f0fdf4', hoverText: '#059669' },
+      subPill: 'border',
+      subPillStyle: { background: '#d1fae5', color: '#065f46', borderColor: '#6ee7b7' },
+      subPillInactive: 'bg-gray-50 text-gray-400 border-gray-200',
+      heroHeadline: 'text-gray-900',
+      heroAccent: 'text-emerald-600',
+      heroSubtext: 'text-gray-500',
+      heroBg: 'bg-white',
+      heroLabel: 'border text-emerald-700',
+      heroLabelStyle: { background: '#ecfdf5', borderColor: '#6ee7b7' },
+      searchBtn: '',
+      searchBtnStyle: { background: '#059669' },
+      label: 'Refurbished',
+      eyebrow: '♻️ Certified Refurbished',
+      headline1: 'Quality Tech,',
+      headline2: 'Smart Price.',
+      subtext: 'Grade-A certified refurbished laptops, desktops, and accessories. Each device professionally tested, cleaned, and backed by our warranty. Reliable performance at half the price.',
+    },
+    Wholesale: {
+      accent: '#db2777',
+      accentHover: '#be185d',
+      accentLight: '#fdf2f8',
+      accentText: '#9d174d',
+      pill: 'text-white shadow-md',
+      pillStyle: { background: '#db2777' },
+      pillInactive: 'bg-gray-100 text-gray-500',
+      subPill: 'border',
+      subPillStyle: { background: '#fce7f3', color: '#9d174d', borderColor: '#f9a8d4' },
+      subPillInactive: 'bg-gray-50 text-gray-400 border-gray-200',
+      heroHeadline: 'text-gray-900',
+      heroAccent: 'text-pink-600',
+      heroSubtext: 'text-gray-500',
+      heroBg: 'bg-white',
+      heroLabel: 'border text-pink-700',
+      heroLabelStyle: { background: '#fdf2f8', borderColor: '#f9a8d4' },
+      searchBtn: '',
+      searchBtnStyle: { background: '#db2777' },
+      label: 'Wholesale',
+      eyebrow: '📦 Bulk & Wholesale Deals',
+      headline1: 'Buy More,',
+      headline2: 'Save More.',
+      subtext: 'Wholesale pricing for businesses, resellers, and bulk buyers. Get the best rates on laptops, desktops, components, and accessories when you order in volume.',
+    },
+  } as const;
+
+  const theme = SECTION_THEMES[selectedStoreSection];
 
   // ── Navigation state ──────────────────────────────────────────────────────
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(() => {
@@ -523,6 +603,8 @@ export const Store: React.FC = () => {
   // ── Bridge: context category → local state ──────────────────────────────
   useEffect(() => {
     if (ctxCategory) {
+      setSelectedProduct(null);
+      sessionStorage.removeItem("selectedProduct");
       setSelectedCategory(ctxCategory);
       setSelectedSubcategory(ctxSubcategory || "");
       setPage(1);
@@ -550,10 +632,18 @@ export const Store: React.FC = () => {
         setSelectedSubcategory("");
       }
       setPage(1);
-      setHeaderSearchQuery("");
+      setHeaderSearchQuery("")
+      setSelectedProduct(null);
+      sessionStorage.removeItem("selectedProduct");
     }
   }, [headerSearchQuery]);
-
+  // When category/subcategory selected from nav while in ProductDetails, go back to grid
+  useEffect(() => {
+    if (ctxCategory && selectedProduct) {
+      setSelectedProduct(null);
+      sessionStorage.removeItem("selectedProduct");
+    }
+  }, [ctxCategory]);
   // ── Handlers ─────────────────────────────────────────────────────────────
   const handleViewDetails = (product: Product) => {
     const enriched = products.find((p) => p.id === product.id) ?? product;
@@ -577,21 +667,7 @@ export const Store: React.FC = () => {
   };
 
   const handleAddToCart = (product: Product) => {
-    addToCart({
-      id: product.id,
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      retailPrice: product.retailPrice,
-      category: product.category,
-      stock: product.stock,
-      image: product.image,
-      rating: product.rating,
-      reviews: product.reviews,
-      condition: product.condition,
-      brand: product.brand,
-      specs: product.specs,
-    } as any);
+    addToCart(product);
   };
 
   const handleNavigateToCart = () => {
@@ -634,15 +710,15 @@ export const Store: React.FC = () => {
             .from("products")
             .select(
               `id, name, description, image_url, images,
-               retail_price, discount_percent, discounted_price,
+               retail_price,min_order_quantity,  discount_percent, discounted_price,
                stock_quantity, condition, brand, specs,
                rating_avg, rating_count, reviews_count, likes_count, created_at,
                categories ( name, slug ),
                subcategories ( name, slug ),model`,
               { count: "exact" },
             )
-            .eq("is_active", true);
-
+            .eq("is_active", true)
+            .eq("store_section", selectedStoreSection.toLowerCase());
           if (selectedCategory !== "All") {
             const { data: cats } = await supabase
               .from("categories")
@@ -914,6 +990,7 @@ export const Store: React.FC = () => {
       selectedProcessors,
       selectedRam,
       selectedStorage,
+      selectedStoreSection,
     ],
   );
 
@@ -935,6 +1012,7 @@ export const Store: React.FC = () => {
     selectedProcessors,
     selectedRam,
     selectedStorage,
+    selectedStoreSection,
   ]);
 
   const handlePageChange = (newPage: number) => {
@@ -985,58 +1063,58 @@ export const Store: React.FC = () => {
       `}</style>
 
       {/* ── Hero ── */}
-      <section className="relative flex items-center justify-center overflow-hidden h-auto py-2 px-2 md:h-80 md:py-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[60%] bg-indigo-100 rounded-full blur-[120px] opacity-60 pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[50%] bg-blue-100 rounded-full blur-[100px] opacity-50 pointer-events-none" />
+      <section className="relative flex items-center justify-center overflow-hidden h-auto py-2 px-2 md:h-80 md:py-0" style={{ background: 'white' }}>
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[60%] rounded-full blur-[120px] opacity-40 pointer-events-none"
+          style={{ background: theme.accent + '22' }} />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[50%] rounded-full blur-[100px] opacity-30 pointer-events-none"
+          style={{ background: theme.accent + '18' }} />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 w-full text-center space-y-5">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600/5 border border-indigo-600/10 rounded-full text-indigo-600 text-xs font-black uppercase tracking-widest anim-fade-in-up">
-            <Sparkles className="w-3 h-3" /> Curated Technology
+          <div
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest anim-fade-in-up"
+            style={
+              selectedStoreSection === 'Infofix'
+                ? { background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.1)', color: '#6366f1' }
+                : { background: (theme as any).heroLabelStyle?.background, border: `1px solid ${(theme as any).heroLabelStyle?.borderColor}`, color: theme.accentText }
+            }
+          >
+            <Sparkles className="w-3 h-3" /> {theme.eyebrow}
           </div>
-          <h1
-            className="text-5xl md:text-7xl font-black text-gray-900 tracking-tighter anim-fade-in-up"
-            style={{ animationDelay: "0.08s" }}
-          >
-            Explore Our <span className="text-indigo-600">Products.</span>
+          <h1 className="text-5xl md:text-7xl font-black text-gray-900 tracking-tighter anim-fade-in-up" style={{ animationDelay: "0.08s" }}>
+            {theme.headline1}{' '}
+            <span style={{ color: theme.accent }}>{theme.headline2}</span>
           </h1>
-          <p
-            className="text-gray-500 text-lg max-w-2xl mx-auto font-medium anim-fade-in-up"
-            style={{ animationDelay: "0.16s" }}
-          >
-            Discover new and certified refurbished laptops, desktops, PCs, and
-            accessories curated for students, professionals, and businesses.
-            Backed by Infofix warranty.
+          <p className="text-gray-500 text-lg max-w-2xl mx-auto font-medium anim-fade-in-up" style={{ animationDelay: "0.16s" }}>
+            {theme.subtext}
           </p>
 
-          <div
-            className="w-[90%] sm:w-full max-w-2xl mx-auto relative group anim-fade-in-up"
-            style={{ animationDelay: "0.24s" }}
-          >
-            <div className="absolute inset-0 bg-indigo-600/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
+          <div className="w-[90%] sm:w-full max-w-2xl mx-auto relative group anim-fade-in-up" style={{ animationDelay: "0.24s" }}>
             <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl flex items-center p-2 shadow-2xl shadow-gray-200/50 border border-gray-100">
               <Search className="w-5 h-5 text-gray-400 shrink-0" />
               <input
                 type="text"
-                placeholder="Find your next upgrade..."
+                placeholder={
+                  selectedStoreSection === 'Refurbished' ? 'Search refurbished laptops, desktops...'
+                    : selectedStoreSection === 'Wholesale' ? 'Search bulk products...'
+                      : 'Find your next upgrade...'
+                }
                 value={heroSearch}
                 onChange={(e) => setHeroSearch(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleHeroSearch()}
                 className="bg-transparent border-none outline-none flex-1 px-2 py-3 text-sm font-semibold text-gray-900 placeholder-gray-400"
               />
               {heroSearch && (
-                <button
-                  onClick={() => {
-                    setHeroSearch("");
-                    setSearchQuery("");
-                  }}
-                  className="mr-2 w-7 h-7 flex items-center justify-center rounded-xl hover:bg-gray-100 text-gray-400"
-                >
+                <button onClick={() => { setHeroSearch(""); setSearchQuery(""); }}
+                  className="mr-2 w-7 h-7 flex items-center justify-center rounded-xl hover:bg-gray-100 text-gray-400">
                   <X className="w-4 h-4" />
                 </button>
               )}
               <button
                 onClick={handleHeroSearch}
-                className="bg-indigo-600 text-white px-3 py-3 sm:px-6 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shrink-0"
+                className="text-white px-3 py-3 sm:px-6 rounded-xl font-bold text-sm transition-colors shrink-0"
+                style={{ background: theme.accent }}
+                onMouseEnter={e => (e.currentTarget.style.background = theme.accentHover)}
+                onMouseLeave={e => (e.currentTarget.style.background = theme.accent)}
               >
                 <span className="hidden sm:inline">Search</span>
                 <Search className="w-4 h-4 sm:hidden" />
@@ -1068,9 +1146,10 @@ export const Store: React.FC = () => {
                       if (cat !== selectedCategory) setSelectedSubcategory("");
                     }}
                     className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-200 ${selectedCategory === cat
-                      ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
-                      : "bg-gray-100 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 border border-transparent hover:border-indigo-200"
+                      ? 'text-white shadow-md'
+                      : 'bg-gray-100 text-gray-500'
                       }`}
+                    style={selectedCategory === cat ? { background: theme.accent, boxShadow: `0 4px 12px ${theme.accent}44` } : {}}
                   >
                     {cat}
                   </button>
@@ -1081,7 +1160,7 @@ export const Store: React.FC = () => {
             {/* Subcategory pills — shown when Laptop is selected */}
             {selectedCategory === "Laptop" && (
               <div className="flex flex-wrap items-center gap-2 w-full mt-1">
-                {["Gaming", "Business", "Student", "Refurbished"].map((sub) => (
+                {["Gaming", "Business", "Student"].map((sub) => (
                   <button
                     key={sub}
                     onClick={() =>
@@ -1089,10 +1168,12 @@ export const Store: React.FC = () => {
                         selectedSubcategory === sub ? "" : sub,
                       )
                     }
-                    className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-widest transition-all duration-200 ${selectedSubcategory === sub
-                      ? "bg-indigo-100 text-indigo-700 border border-indigo-300"
-                      : "bg-gray-50 text-gray-400 hover:bg-indigo-50 hover:text-indigo-500 border border-gray-200"
+                    className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-widest transition-all duration-200 border ${selectedSubcategory === sub ? "" : "bg-gray-50 text-gray-400 border-gray-200"
                       }`}
+                    style={selectedSubcategory === sub
+                      ? { background: theme.accentLight, color: theme.accentText, borderColor: theme.accent + '88' }
+                      : {}
+                    }
                   >
                     {sub}
                   </button>
@@ -1117,10 +1198,12 @@ export const Store: React.FC = () => {
                         selectedSubcategory === sub ? "" : sub,
                       )
                     }
-                    className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-widest transition-all duration-200 ${selectedSubcategory === sub
-                      ? "bg-indigo-100 text-indigo-700 border border-indigo-300"
-                      : "bg-gray-50 text-gray-400 hover:bg-indigo-50 hover:text-indigo-500 border border-gray-200"
+                    className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-widest transition-all duration-200 border ${selectedSubcategory === sub ? "" : "bg-gray-50 text-gray-400 border-gray-200"
                       }`}
+                    style={selectedSubcategory === sub
+                      ? { background: theme.accentLight, color: theme.accentText, borderColor: theme.accent + '88' }
+                      : {}
+                    }
                   >
                     {sub}
                   </button>

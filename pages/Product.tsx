@@ -61,7 +61,7 @@ export const ProductCard: React.FC<ProductProps> = ({
         ? localStorage.setItem(storageKey, "1")
         : localStorage.removeItem(storageKey);
       localStorage.setItem(countKey, String(newCount));
-    } catch {}
+    } catch { }
     if (supabase) {
       await supabase.rpc(nowLiked ? "increment_likes" : "decrement_likes", {
         product_id: Number(product.id),
@@ -133,10 +133,9 @@ export const ProductCard: React.FC<ProductProps> = ({
             aria-label={liked ? "Liked" : "Like this product"}
             aria-pressed={liked}
             className={`w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl flex items-center justify-center backdrop-blur-md border shadow-lg transition-all duration-250
-              ${
-                liked
-                  ? "bg-red-500 border-red-400 text-white scale-110 shadow-red-200/60"
-                  : "bg-white/90 border-white/60 text-gray-500 hover:bg-red-50 hover:text-red-500 hover:border-red-200"
+              ${liked
+                ? "bg-red-500 border-red-400 text-white scale-110 shadow-red-200/60"
+                : "bg-white/90 border-white/60 text-gray-500 hover:bg-red-50 hover:text-red-500 hover:border-red-200"
               }`}
           >
             <Heart

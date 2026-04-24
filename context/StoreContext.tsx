@@ -91,6 +91,9 @@ interface StoreContextType extends AppState {
   setSelectedProductId: (id: string | null) => void;
   pendingRedirectAfterLogin: CustomerPage | null;
   setPendingRedirectAfterLogin: (page: CustomerPage | null) => void;
+  selectedStoreSection: 'Infofix' | 'Refurbished' | 'Wholesale';
+  setSelectedStoreSection: (s: 'Infofix' | 'Refurbished' | 'Wholesale') => void;
+  cartLoading: boolean;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -180,29 +183,37 @@ async function fetchCartFromSupabase(userId: string): Promise<CartItem[]> {
     .eq("user_id", userId)
     .order("created_at", { ascending: true });
   if (error || !data) return [];
-  return data.map((row: any) => ({
-    id: String(row.product_id),
-    product_id: String(row.product_id),
-    supabase_row_id: row.id,
-    name: row.name,
-    price: row.price,
-    image: row.image,
-    category: row.category,
-    quantity: row.quantity,
-    description: "",
-    condition: "New",
-    brand: "",
-    specs: [],
-    rating: 0,
-    reviews: 0,
-    discountPercent: 0,
-    likesCount: 0,
-    tags: [],
-    images: [],
-    model: "",
-    min_order_quantity: row.products?.min_order_quantity ?? 1,
-    stock: row.products?.stock_quantity ?? 0,
-  }));
+  return data.map((row: any) => {
+    const moq = row.products?.min_order_quantity ?? 1;
+    const stock = row.products?.stock_quantity ?? 0;
+
+    // ✅ FIX: ensure quantity is always valid
+    const safeQty = Math.max(moq, Math.min(row.quantity, stock));
+
+    return {
+      id: String(row.product_id),
+      product_id: String(row.product_id),
+      supabase_row_id: row.id,
+      name: row.name,
+      price: row.price,
+      image: row.image,
+      category: row.category,
+      quantity: safeQty,
+      description: "",
+      condition: "New",
+      brand: "",
+      specs: [],
+      rating: 0,
+      reviews: 0,
+      discountPercent: 0,
+      likesCount: 0,
+      tags: [],
+      images: [],
+      model: "",
+      min_order_quantity: moq,
+      stock: stock,
+    };
+  });
 }
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -232,13 +243,13 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const [loading, setLoading] = useState(false);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [activeCustomersCount, setActiveCustomersCount] = useState(0);
-
+  const [selectedStoreSection, setSelectedStoreSection] = useState<'Infofix' | 'Refurbished' | 'Wholesale'>('Infofix');
   const [toastProduct, setToastProduct] = useState<Product | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-
+  const [cartLoading, setCartLoading] = useState(false);
   const [pendingRedirectAfterLogin, setPendingRedirectAfterLoginState] = useState<CustomerPage | null>(
     () => (localStorage.getItem("pendingRedirect") as CustomerPage) ?? null
   );
@@ -450,10 +461,24 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
     // Wait for Supabase to restore session, THEN fetch
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         if (event === "INITIAL_SESSION") {
-          // Auth is now ready (session may be null for logged-out users)
           fetchDashboardData();
+          // ✅ Hydrate cart for CUSTOMER sessions on page load/refresh
+          if (session?.user) {
+            // Check if customer (not staff) by querying customers table
+            const { data: customerRow } = await supabase
+              .from("customers")
+              .select("id")
+              .eq("id", session.user.id)
+              .maybeSingle();
+            if (customerRow) {
+              setCartLoading(true);
+              const items = await fetchCartFromSupabase(session.user.id);
+              setCart(items);
+              setCartLoading(false);
+            }
+          }
         } else if (event === "SIGNED_IN") {
           fetchDashboardData();
         }
@@ -522,9 +547,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
           }
         }
       } catch { }
-      const items = await fetchCartFromSupabase(user.id);
-      setCart(items);
+      setCartLoading(true);
       try {
+        const items = await fetchCartFromSupabase(user.id);
+        setCart(items);
+
+
         const pendingProduct = sessionStorage.getItem("pendingBuyNowProduct");
         if (pendingProduct) {
           sessionStorage.removeItem("pendingBuyNowProduct");
@@ -557,7 +585,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
           const updatedItems = await fetchCartFromSupabase(user.id);
           setCart(updatedItems);
         }
-      } catch { }
+      }
+      catch { }
+      finally {
+        setCartLoading(false);
+      }
     } else if (!user) {
       setCart([]);
     }
@@ -630,6 +662,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     };
     fetchProducts();
   }, []);
+
   const addToCart = useCallback(
     async (product: Product, qty?: number) => {
       const moq = product.min_order_quantity ?? 1;
@@ -723,16 +756,33 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const updateQuantity = useCallback(
     async (id: string, quantity: number) => {
       setCart((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
+        prev.map((item) => {
+          if (item.id !== id) return item;
+
+          const moq = item.min_order_quantity ?? 1;
+          const stock = item.stock ?? Infinity;
+
+          const safeQty = Math.max(moq, Math.min(quantity, stock));
+
+          return { ...item, quantity: safeQty };
+        }),
       );
+
       if (!currentUser?.id) return;
+
+      const item = cart.find((i) => i.id === id);
+      const moq = item?.min_order_quantity ?? 1;
+      const stock = item?.stock ?? Infinity;
+
+      const safeQty = Math.max(moq, Math.min(quantity, stock));
+
       await supabase
         .from("cart_items")
-        .update({ quantity })
+        .update({ quantity: safeQty })
         .eq("user_id", currentUser.id)
         .eq("product_id", id);
     },
-    [currentUser?.id],
+    [currentUser?.id, cart],
   );
 
   const addProduct = useCallback(
@@ -886,6 +936,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         setSelectedProductId,
         pendingRedirectAfterLogin,
         setPendingRedirectAfterLogin,
+        selectedStoreSection,
+        setSelectedStoreSection,
+        cartLoading,
       }}
     >
       {loading && (

@@ -208,8 +208,13 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
   const avgRating = reviews.length ? reviews.reduce((s, r) => s + r.stars, 0) / reviews.length : product.rating;
   const ratingDist = [5, 4, 3, 2, 1].map((s) => ({ star: s, count: reviews.filter((r) => r.stars === s).length, pct: reviews.length ? Math.round((reviews.filter((r) => r.stars === s).length / reviews.length) * 100) : 0 }));
 
-  const handleAddToCart = () => { addToCart(product as any, qty); };
-  const handleBuyNow = () => { addToCart(product as any, qty); onNavigateToCart(); };
+  const handleAddToCart = () => {
+    addToCart({ ...product, min_order_quantity: moq } as any, qty);
+  };
+  const handleBuyNow = () => {
+    addToCart({ ...product, min_order_quantity: moq } as any, qty);
+    onNavigateToCart();
+  };
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
     const nowLiked = !liked; const newCount = nowLiked ? likes + 1 : Math.max(0, likes - 1);

@@ -49,7 +49,9 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     setSelectedSubcategory,
     isMessageModalOpen,
     setIsMessageModalOpen,
-    setSelectedProductId
+    setSelectedProductId,
+    selectedStoreSection,
+    setSelectedStoreSection,
   } = useStore();
 
   const handleDealProductClick = (productId: string) => {
@@ -94,7 +96,11 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     { label: "Careers", id: "careers" },
     { label: "Contact", id: "contact" },
   ];
-
+  const sectionTabs = [
+    { id: 'Infofix' as const, label: 'Infofix', emoji: '🖥️', accent: '#6366f1', bg: '#eff6ff' },
+    { id: 'Refurbished' as const, label: 'Refurbished', emoji: '♻️', accent: '#059669', bg: '#f0fdf4' },
+    { id: 'Wholesale' as const, label: 'Wholesale', emoji: '📦', accent: '#db2777', bg: '#fdf2f8' },
+  ] as const;
   const handleSearch = () => {
     if (!localSearch.trim()) return;
     setSelectedCategory(null);
@@ -227,17 +233,69 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             </div>
           </div>
         </div>
-
+        {/* ── SECTION CARDS STRIP (desktop) ── */}
+        <div className={`bg-white border-b border-slate-100 ${(currentPage === 'home' || currentPage === 'shop') ? 'hidden lg:block' : 'hidden'}`}
+        >
+          <div className="px-20 py-2 flex items-center gap-3">
+            {[
+              {
+                id: 'Infofix' as const,
+                label: 'Infofix Store', sub: 'New & Latest Tech',
+                gradient: 'linear-gradient(135deg,#1e1b4b,#4f46e5)',
+                iconStroke: '#a5b4fc', titleColor: '#e0e7ff', subColor: '#a5b4fc', dotColor: '#818cf8',
+                icon: <svg viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" strokeWidth="2.2" style={{ width: 16, height: 16 }}><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></svg>,
+              },
+              {
+                id: 'Refurbished' as const,
+                label: 'Refurbished', sub: 'Certified Pre-owned',
+                gradient: 'linear-gradient(135deg,#052e16,#065f46)',
+                iconStroke: '#6ee7b7', titleColor: '#d1fae5', subColor: '#6ee7b7', dotColor: '#34d399',
+                icon: <svg viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" strokeWidth="2.2" style={{ width: 16, height: 16 }}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>,
+              },
+              {
+                id: 'Wholesale' as const,
+                label: 'Wholesale', sub: 'Bulk & B2B Deals',
+                gradient: 'linear-gradient(135deg,#500724,#9d174d)',
+                iconStroke: '#f9a8d4', titleColor: '#fce7f3', subColor: '#f9a8d4', dotColor: '#f472b6',
+                icon: <svg viewBox="0 0 24 24" fill="none" stroke="#f9a8d4" strokeWidth="2.2" style={{ width: 16, height: 16 }}><path d="M5 8h14M5 8a2 2 0 1 0 0-4h14a2 2 0 1 0 0 4M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M10 12h4" /></svg>,
+              },
+            ].map((tab) => {
+              const isActive = selectedStoreSection === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => { setSelectedStoreSection(tab.id); setSelectedCategory(null); setSelectedSubcategory(null); setCurrentPage('shop'); }}
+                  className="group relative flex items-center gap-2 px-3.5 py-1.5 rounded-[14px] overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[.97]"
+                  style={{
+                    background: tab.gradient,
+                    border: isActive ? `2px solid ${tab.dotColor}` : '1.5px solid rgba(255,255,255,.08)',
+                    boxShadow: isActive ? `0 0 0 1px ${tab.dotColor}55, 0 4px 14px ${tab.dotColor}44` : '0 2px 8px rgba(0,0,0,.28)',
+                  }}
+                >
+                  {/* shine */}
+                  <span className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(135deg,rgba(255,255,255,.2) 0%,transparent 55%)' }} />
+                  {/* shimmer */}
+                  <span className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(105deg,transparent 38%,rgba(255,255,255,.16) 50%,transparent 62%)', backgroundSize: '200% 100%', animation: 'shimmer-sweep 3.5s ease-in-out infinite' }} />
+                  {/* icon */}
+                  <span className="relative shrink-0 w-7 h-7 rounded-[9px] flex items-center justify-center" style={{ background: 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)' }}>
+                    <span className="absolute inset-0 rounded-xl opacity-40 blur-md" style={{ background: tab.dotColor }} />
+                    {tab.icon}
+                  </span>
+                  {/* text */}
+                  <span className="flex flex-col leading-none">
+                    <span className="text-[12px] font-black tracking-tight" style={{ color: tab.titleColor }}>{tab.label}</span>
+                    <span className="text-[9.5px] font-semibold mt-0.5" style={{ color: tab.subColor }}>{tab.sub}</span>
+                  </span>
+                  {/* live dot */}
+                  <span className="w-1.25 h-1.25 rounded-full ml-1 shrink-0 animate-pulse" style={{ background: tab.dotColor }} />
+                </button>
+              );
+            })}
+          </div>
+        </div>
         {/* ── MAIN ROW ──────────────────────────── */}
         <div className="h-16 lg:h-20 flex items-center px-4 lg:px-20 bg-white gap-3 lg:gap-8 relative">
-          {/* Hamburger (mobile) */}
-          <button
-            onClick={() => setIsMenuOpen(true)}
-            aria-label="Open menu"
-            className="lg:hidden shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-150"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+
 
           {/* ── LOGO ── */}
           <button
@@ -286,6 +344,22 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               </button>
             </div>
           </div>
+
+          {/* Cart (mobile left, desktop right) */}
+          <button
+            onClick={() => setCurrentPage("cart")}
+            className="relative lg:hidden w-10 h-10 flex items-center justify-center rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-150 group"
+          >
+            <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-150" />
+            {cartCount > 0 && (
+              <span
+                className="absolute -top-0.5 -right-0.5 bg-indigo-600 text-white text-[9px] min-w-4.5 h-4.5 flex items-center justify-center rounded-full font-black border-2 border-white"
+                style={{ boxShadow: "0 2px 6px rgba(99,102,241,0.5)" }}
+              >
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
+          </button>
 
           {/* ── RIGHT ACTIONS ── */}
           <div className="flex items-center gap-1.5 lg:gap-3 ml-auto lg:ml-0">
@@ -400,7 +474,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             {/* Cart */}
             <button
               onClick={() => setCurrentPage("cart")}
-              className="relative w-10 h-10 flex items-center justify-center rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-150 group"
+              className="relative hidden lg:flex w-10 h-10 items-center justify-center rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-150 group"
             >
               <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-150" />
               {cartCount > 0 && (
@@ -413,11 +487,66 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               )}
             </button>
           </div>
+          <button
+            onClick={() => setIsMenuOpen(true)}
+            aria-label="Open menu"
+            className="lg:hidden shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-150"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
         </div>
-
         {/* ── MOBILE SEARCH ─────────────────────── */}
-        <div className="lg:hidden px-4 pb-3 pt-0.5 bg-white border-b border-slate-100">
-          <div className="search-pill flex w-full bg-slate-50 border border-slate-200 rounded-full overflow-hidden transition-all duration-200">
+        <div className="lg:hidden px-4 pb-2 pt-0.5 bg-white">
+          {(currentPage === 'home' || currentPage === 'shop') && (
+            <div className="grid grid-cols-3 gap-2 mb-2">
+              {[
+                {
+                  id: 'Infofix' as const, label: 'Infofix', sub: 'New Tech',
+                  gradient: 'linear-gradient(145deg,#1e1b4b,#3730a3)',
+                  titleColor: '#e0e7ff', subColor: '#a5b4fc', dotColor: '#818cf8',
+                  icon: <svg viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" strokeWidth="2.5" style={{ width: 18, height: 18 }}><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></svg>,
+                },
+                {
+                  id: 'Refurbished' as const, label: 'Refurb', sub: 'Pre-owned',
+                  gradient: 'linear-gradient(145deg,#052e16,#065f46)',
+                  titleColor: '#d1fae5', subColor: '#6ee7b7', dotColor: '#34d399',
+                  icon: <svg viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" strokeWidth="2.5" style={{ width: 18, height: 18 }}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>,
+                },
+                {
+                  id: 'Wholesale' as const, label: 'Wholesale', sub: 'Bulk B2B',
+                  gradient: 'linear-gradient(145deg,#500724,#9d174d)',
+                  titleColor: '#fce7f3', subColor: '#f9a8d4', dotColor: '#f472b6',
+                  icon: <svg viewBox="0 0 24 24" fill="none" stroke="#f9a8d4" strokeWidth="2.5" style={{ width: 18, height: 18 }}><path d="M5 8h14M5 8a2 2 0 1 0 0-4h14a2 2 0 1 0 0 4M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M10 12h4" /></svg>,
+                },
+              ].map((tab) => {
+                const isActive = selectedStoreSection === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => { setSelectedStoreSection(tab.id); setSelectedCategory(null); setSelectedSubcategory(null); setCurrentPage('shop'); }}
+                    className="relative flex flex-col items-center justify-center py-2.5 rounded-2xl overflow-hidden transition-all duration-200 active:scale-95"
+                    style={{
+                      background: tab.gradient,
+                      border: isActive ? `2px solid ${tab.dotColor}` : '1.5px solid rgba(255,255,255,.08)',
+                      boxShadow: isActive ? `0 0 0 1px ${tab.dotColor}44, 0 4px 12px ${tab.dotColor}33` : '0 2px 6px rgba(0,0,0,.22)',
+                    }}
+                  >
+                    <span className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(135deg,rgba(255,255,255,.18) 0%,transparent 55%)' }} />
+                    <span className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(105deg,transparent 38%,rgba(255,255,255,.13) 50%,transparent 62%)', backgroundSize: '200% 100%', animation: 'shimmer-sweep 3.5s ease-in-out infinite' }} />
+                    {tab.icon}
+                    <span className="text-[10px] font-black mt-1 tracking-tight" style={{ color: tab.titleColor }}>{tab.label}</span>
+                    <span className="text-[8px] font-semibold" style={{ color: tab.subColor }}>{tab.sub}</span>
+                    {isActive && <span className="w-[5px] h-[5px] rounded-full mt-1 animate-pulse" style={{ background: tab.dotColor }} />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {/* Search */}
+          <div
+            className="search-pill flex w-full border rounded-full overflow-hidden transition-all duration-200"
+            style={{ background: '#f8fafc', borderColor: '#e2e8f0' }}
+          >
             <input
               type="text"
               placeholder="Search products…"
@@ -428,16 +557,18 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             />
             <button
               onClick={handleSearch}
-              className="m-1 px-4 bg-indigo-600 text-white rounded-full flex items-center justify-center"
+              className="m-1 px-4 text-white rounded-full flex items-center justify-center"
+              style={{ background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1' }}
             >
               <Search className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
-
         {/* ── NAV ROW (desktop) ─────────────────── */}
         <div className="hidden lg:block border-t border-slate-100 bg-white">
           <div className="flex h-11 items-center px-20">
+
+
             {/* ── CATEGORIES mega-button ── */}
             <div
               className="relative h-full shrink-0"
@@ -448,14 +579,15 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               }}
             >
               <button
-                className="h-full px-6 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold flex items-center gap-2 transition-colors duration-150 rounded-b-xl"
-                style={{ boxShadow: "0 6px 20px rgba(99,102,241,0.3)" }}
+                className="h-full px-5 text-white text-sm font-bold flex items-center gap-2 transition-colors duration-150 rounded-b-xl"
+                style={{
+                  background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1',
+                  boxShadow: `0 6px 20px ${sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'}44`,
+                }}
               >
                 <Menu className="w-3.5 h-3.5" />
                 ALL CATEGORIES
-                <ChevronRight
-                  className={`w-3 h-3 transition-transform duration-200 ${isCategoryOpen ? "rotate-90" : "rotate-0"}`}
-                />
+                <ChevronRight className={`w-3 h-3 transition-transform duration-200 ${isCategoryOpen ? "rotate-90" : "rotate-0"}`} />
               </button>
 
               {isCategoryOpen && (
@@ -474,12 +606,16 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                           setCurrentPage("shop");
                           setIsCategoryOpen(false);
                         }}
-                        className={`flex items-center justify-between px-5 py-2.5 text-sm font-medium cursor-pointer transition-all duration-150 ${hoveredCategory === cat ? "bg-indigo-50 text-indigo-600 pl-6" : "text-slate-700 hover:bg-indigo-50/60 hover:text-indigo-600 hover:pl-6"}`}
+                        className={`flex items-center justify-between px-5 py-2.5 text-sm font-medium cursor-pointer transition-all duration-150 ${hoveredCategory === cat ? "pl-6" : "hover:pl-6"}`}
+                        style={{
+                          color: hoveredCategory === cat
+                            ? sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'
+                            : '#334155',
+                          background: hoveredCategory === cat ? '#f8faff' : 'white',
+                        }}
                       >
                         {cat}
-                        {SUBCATEGORIES[cat] && (
-                          <ChevronRight className="w-3 h-3 opacity-40" />
-                        )}
+                        {SUBCATEGORIES[cat] && <ChevronRight className="w-3 h-3 opacity-40" />}
                       </li>
                     ))}
                   </ul>
@@ -487,9 +623,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                     <div className="bg-white border-l border-slate-100 w-64 p-4 overflow-y-auto">
                       {SUBCATEGORIES[hoveredCategory].groups.map((group) => (
                         <div key={group.label} className="mb-4">
-                          <p className="text-[9.5px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">
-                            {group.label}
-                          </p>
+                          <p className="text-[9.5px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">{group.label}</p>
                           <ul className="space-y-0.5">
                             {group.items.map((sub) => (
                               <li
@@ -500,7 +634,10 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                                   setCurrentPage("shop");
                                   setIsCategoryOpen(false);
                                 }}
-                                className="text-sm text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-150"
+                                className="text-sm text-slate-600 hover:bg-indigo-50 px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-150"
+                                style={{ ['--hover-color' as any]: sectionTabs.find(t => t.id === selectedStoreSection)?.accent }}
+                                onMouseEnter={e => (e.currentTarget.style.color = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1')}
+                                onMouseLeave={e => (e.currentTarget.style.color = '#475569')}
                               >
                                 {sub}
                               </li>
@@ -518,16 +655,17 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <nav className="flex items-center h-full px-5 text-sm font-semibold text-slate-600 gap-0.5">
               {navLinks.map((link) =>
                 link.id === "shop" ? (
-                  <div
-                    key={link.id}
-                    className="relative h-full flex items-center group"
-                  >
+                  <div key={link.id} className="relative h-full flex items-center group">
                     <button
                       onClick={() => setCurrentPage("shop")}
-                      className={`relative px-3.5 h-full flex items-center gap-1 transition-colors duration-150 ${currentPage === "shop" ? "text-indigo-600" : "hover:text-indigo-600"}`}
+                      className={`relative px-3.5 h-full flex items-center gap-1 transition-colors duration-150 ${currentPage === "shop" ? "" : "hover:text-indigo-600"}`}
+                      style={{ color: currentPage === "shop" ? sectionTabs.find(t => t.id === selectedStoreSection)?.accent : undefined }}
                     >
                       {currentPage === "shop" && (
-                        <span className="absolute bottom-0 inset-x-2 h-0.5 bg-linear-to-r from-indigo-500 to-violet-500 rounded-full" />
+                        <span
+                          className="absolute bottom-0 inset-x-2 h-0.5 rounded-full"
+                          style={{ background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1' }}
+                        />
                       )}
                       Shop
                       <ChevronRight className="w-3 h-3 rotate-90 group-hover:rotate-270 transition-transform duration-200 opacity-60" />
@@ -546,29 +684,30 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                                 setSelectedSubcategory(null);
                                 setCurrentPage("shop");
                               }}
-                              className="text-[10px] font-black text-slate-800 uppercase tracking-wider mb-2.5 hover:text-indigo-600 transition-colors duration-150 text-left w-full"
+                              className="text-[10px] font-black text-slate-800 uppercase tracking-wider mb-2.5 transition-colors duration-150 text-left w-full"
+                              onMouseEnter={e => (e.currentTarget.style.color = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1')}
+                              onMouseLeave={e => (e.currentTarget.style.color = '#1e293b')}
                             >
                               {cat}
                             </button>
                             {SUBCATEGORIES[cat] && (
                               <ul className="space-y-0.5">
-                                {SUBCATEGORIES[cat].groups
-                                  .flatMap((g) => g.items)
-                                  .slice(0, 4)
-                                  .map((sub) => (
-                                    <li key={sub}>
-                                      <button
-                                        onClick={() => {
-                                          setSelectedCategory(cat);
-                                          setSelectedSubcategory(sub);
-                                          setCurrentPage("shop");
-                                        }}
-                                        className="text-xs text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 px-2 py-1 rounded-lg transition-all duration-150 text-left w-full"
-                                      >
-                                        {sub}
-                                      </button>
-                                    </li>
-                                  ))}
+                                {SUBCATEGORIES[cat].groups.flatMap((g) => g.items).slice(0, 4).map((sub) => (
+                                  <li key={sub}>
+                                    <button
+                                      onClick={() => {
+                                        setSelectedCategory(cat);
+                                        setSelectedSubcategory(sub);
+                                        setCurrentPage("shop");
+                                      }}
+                                      className="text-xs text-slate-500 hover:bg-indigo-50 px-2 py-1 rounded-lg transition-all duration-150 text-left w-full"
+                                      onMouseEnter={e => (e.currentTarget.style.color = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1')}
+                                      onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}
+                                    >
+                                      {sub}
+                                    </button>
+                                  </li>
+                                ))}
                               </ul>
                             )}
                           </div>
@@ -580,20 +719,31 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                   <button
                     key={link.id}
                     onClick={() => setCurrentPage(link.id)}
-                    className={`relative px-3.5 h-full flex items-center transition-colors duration-150 ${currentPage === link.id ? "text-indigo-600" : "hover:text-indigo-600"}`}
+                    className={`relative px-3.5 h-full flex items-center transition-colors duration-150 ${currentPage === link.id ? "" : "hover:text-indigo-600"}`}
+                    style={{ color: currentPage === link.id ? sectionTabs.find(t => t.id === selectedStoreSection)?.accent : undefined }}
                   >
                     {currentPage === link.id && (
-                      <span className="absolute bottom-0 inset-x-2 h-0.5 bg-linear-to-r from-indigo-500 to-violet-500 rounded-full" />
+                      <span
+                        className="absolute bottom-0 inset-x-2 h-0.5 rounded-full"
+                        style={{ background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1' }}
+                      />
                     )}
                     {link.label}
                   </button>
-                ),
+                )
               )}
             </nav>
 
             {/* store open badge */}
-            <div className="ml-auto flex items-center gap-2 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <div
+              className="ml-auto flex items-center gap-2 text-[11px] font-bold px-3 py-1.5 rounded-full border"
+              style={{
+                color: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#059669',
+                background: sectionTabs.find(t => t.id === selectedStoreSection)?.bg ?? '#f0fdf4',
+                borderColor: `${sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#059669'}44`,
+              }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent }} />
               Store Open
             </div>
           </div>
