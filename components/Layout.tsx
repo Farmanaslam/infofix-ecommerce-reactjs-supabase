@@ -264,7 +264,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               return (
                 <button
                   key={tab.id}
-                  onClick={() => { setSelectedStoreSection(tab.id); setSelectedCategory(null); setSelectedSubcategory(null); setCurrentPage('shop'); }}
+                  onClick={() => { setSelectedStoreSection(tab.id); setSelectedCategory(null); setSelectedSubcategory(null); }}
                   className="group relative flex items-center gap-2 px-3.5 py-1.5 rounded-[14px] overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[.97]"
                   style={{
                     background: tab.gradient,
@@ -305,7 +305,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <div className="flex flex-col leading-none text-center lg:text-left">
               {/* MAIN BRAND */}
               <span className="text-[1.7rem] lg:text-[2rem] font-extrabold tracking-tight">
-                <span className="text-indigo-600 group-hover:text-indigo-700 transition-colors duration-200">
+                <span className="transition-colors duration-200" style={{ color: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1' }}>
                   Info
                 </span>
                 <span className="text-slate-900 group-hover:text-black transition-colors duration-200">
@@ -329,7 +329,13 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <div className="search-pill flex w-full bg-slate-50 border border-slate-200 rounded-full overflow-hidden transition-all duration-200 hover:border-indigo-300">
               <input
                 type="text"
-                placeholder="Search for PCs, laptops & custom builds..."
+                placeholder={
+                  selectedStoreSection === 'Refurbished'
+                    ? 'Search refurbished PCs, laptops...'
+                    : selectedStoreSection === 'Wholesale'
+                      ? 'Search bulk components & B2B deals...'
+                      : 'Search PCs, laptops & custom builds...'
+                }
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -337,7 +343,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               />
               <button
                 onClick={handleSearch}
-                className="m-1 px-5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-full flex items-center gap-1.5 text-xs font-bold transition-colors duration-150"
+                className="m-1 px-5 text-white rounded-full flex items-center gap-1.5 text-xs font-bold transition-all duration-150"
+                style={{ background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1' }}
               >
                 <Search className="w-3.5 h-3.5" />
                 <span className="hidden xl:inline">Search</span>
@@ -366,9 +373,9 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             {/* Phone info (xl+) */}
             <div className="hidden xl:flex flex-col text-xs leading-tight pr-4 mr-1 border-r border-slate-100">
               <span className="font-bold text-slate-700">
-                📞 <span className="text-indigo-600">8293295257</span>
+                📞 <span style={{ color: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1' }}>8293295257</span>
               </span>
-              <span className="text-slate-400 text-[10px]">
+              <span className="text-[10px]" style={{ color: (sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1') + '99' }}>
                 infofixcomputers1@gmail.com
               </span>
             </div>
@@ -398,7 +405,13 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               ) : (
                 <>
                   <button className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/60 transition-all duration-150 text-sm font-semibold text-slate-700">
-                    <div className="w-6 h-6 rounded-full bg-linear-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center text-[10px] font-black">
+                    <div
+                      className="w-6 h-6 rounded-full text-white flex items-center justify-center text-[10px] font-black"
+                      style={{
+                        background: `linear-gradient(135deg, ${sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'}, ${sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'}bb)`,
+                        boxShadow: `0 2px 8px ${sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'}66`,
+                      }}
+                    >
                       {userInitials}
                     </div>
                     <span>My Account</span>
@@ -523,7 +536,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => { setSelectedStoreSection(tab.id); setSelectedCategory(null); setSelectedSubcategory(null); setCurrentPage('shop'); }}
+                    onClick={() => { setSelectedStoreSection(tab.id); setSelectedCategory(null); setSelectedSubcategory(null); }}
                     className="relative flex flex-col items-center justify-center py-2.5 rounded-2xl overflow-hidden transition-all duration-200 active:scale-95"
                     style={{
                       background: tab.gradient,
@@ -658,7 +671,9 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                   <div key={link.id} className="relative h-full flex items-center group">
                     <button
                       onClick={() => setCurrentPage("shop")}
-                      className={`relative px-3.5 h-full flex items-center gap-1 transition-colors duration-150 ${currentPage === "shop" ? "" : "hover:text-indigo-600"}`}
+                      className={`relative px-3.5 h-full flex items-center gap-1 transition-colors duration-150`}
+                      onMouseEnter={e => { if (currentPage !== "shop") (e.currentTarget as HTMLElement).style.color = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'; }}
+                      onMouseLeave={e => { if (currentPage !== "shop") (e.currentTarget as HTMLElement).style.color = ''; }}
                       style={{ color: currentPage === "shop" ? sectionTabs.find(t => t.id === selectedStoreSection)?.accent : undefined }}
                     >
                       {currentPage === "shop" && (
@@ -719,7 +734,9 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                   <button
                     key={link.id}
                     onClick={() => setCurrentPage(link.id)}
-                    className={`relative px-3.5 h-full flex items-center transition-colors duration-150 ${currentPage === link.id ? "" : "hover:text-indigo-600"}`}
+                    className={`relative px-3.5 h-full flex items-center transition-colors duration-150 ${currentPage === link.id ? "" : ""}`}
+                    onMouseEnter={e => { if (currentPage !== link.id) (e.currentTarget as HTMLElement).style.color = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'; }}
+                    onMouseLeave={e => { if (currentPage !== link.id) (e.currentTarget as HTMLElement).style.color = ''; }}
                     style={{ color: currentPage === link.id ? sectionTabs.find(t => t.id === selectedStoreSection)?.accent : undefined }}
                   >
                     {currentPage === link.id && (
@@ -775,7 +792,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
 
                 <div className="flex flex-col leading-none">
                   <span className="text-[1.35rem] font-black tracking-tight">
-                    <span className="text-indigo-600">Info</span>
+                    <span style={{ color: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1' }}>Info</span>
                     <span className="text-slate-900">fix</span>
                   </span>
                   <span className="text-[8px] font-bold tracking-[0.2em] text-slate-400 uppercase">
@@ -797,8 +814,12 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 <button
                   key={tab}
                   onClick={() => setMobileTab(tab)}
-                  className={`flex-1 py-3 text-sm font-bold capitalize border-b-2 transition-colors duration-150 ${mobileTab === tab ? "border-indigo-600 text-indigo-600" : "border-transparent text-slate-400 hover:text-slate-600"}`}
-                >
+                  className={`flex-1 py-3 text-sm font-bold capitalize transition-colors duration-150 border-b-2`}
+                  style={
+                    mobileTab === tab
+                      ? { borderBottomColor: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1', color: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1' }
+                      : { borderBottomColor: 'transparent', color: '#94a3b8' }
+                  }              >
                   {tab}
                 </button>
               ))}
@@ -815,10 +836,13 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                         setCurrentPage(link.id);
                         setIsMenuOpen(false);
                       }}
-                      className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${currentPage === link.id ? "bg-indigo-600 text-white" : "text-slate-700 hover:bg-slate-50"}`}
+                      className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${currentPage === link.id ? "text-white" : "text-slate-700 hover:bg-slate-50"}`}
                       style={
                         currentPage === link.id
-                          ? { boxShadow: "0 4px 12px rgba(99,102,241,0.35)" }
+                          ? {
+                            background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1',
+                            boxShadow: `0 4px 12px ${sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'}55`
+                          }
                           : {}
                       }
                     >
@@ -994,45 +1018,48 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
       </header>
 
       {currentPage === "home" && (
-        <CouponDealsStrip onProductClick={async (productId) => {
-          try {
-            const { data } = await supabase
-              .from("products")
-              .select(`id, name, description, image_url, images, retail_price,
+        <CouponDealsStrip
+          storeSection={selectedStoreSection.toLowerCase()}
+          accent={sectionTabs.find(t => t.id === selectedStoreSection)?.accent}
+          onProductClick={async (productId) => {
+            try {
+              const { data } = await supabase
+                .from("products")
+                .select(`id, name, description, image_url, images, retail_price,
                discount_percent, discounted_price, stock_quantity, condition,
                brand, specs, rating_avg, rating_count, reviews_count,
                likes_count, categories(name,slug), subcategories(name,slug), model`)
-              .eq("id", Number(productId))
-              .single();
-            if (data) {
-              const disc = data.discount_percent ?? 0;
-              const imageUrl = data.image_url ?? "";
-              sessionStorage.setItem("selectedProduct", JSON.stringify({
-                id: String(data.id),
-                name: data.name ?? "",
-                description: data.description ?? "",
-                image: imageUrl,
-                images: Array.isArray(data.images) && data.images.length > 0 ? data.images : [imageUrl],
-                price: Number(data.discounted_price ?? data.retail_price ?? 0),
-                retailPrice: disc > 0 ? Number(data.retail_price) : undefined,
-                discountPercent: disc,
-                stock: data.stock_quantity ?? 99,
-                condition: data.condition ?? "New",
-                category: data.categories?.[0]?.name ?? "",
-                brand: data.brand ?? "",
-                specs: data.specs ? Object.values(data.specs as Record<string, unknown>).map(String) : [],
-                rating: Number(data.rating_avg ?? 0),
-                reviews: data.reviews_count ?? data.rating_count ?? 0,
-                likesCount: data.likes_count ?? 0,
-                tags: [],
-                model: data.model ?? "",
-              }));
+                .eq("id", Number(productId))
+                .single();
+              if (data) {
+                const disc = data.discount_percent ?? 0;
+                const imageUrl = data.image_url ?? "";
+                sessionStorage.setItem("selectedProduct", JSON.stringify({
+                  id: String(data.id),
+                  name: data.name ?? "",
+                  description: data.description ?? "",
+                  image: imageUrl,
+                  images: Array.isArray(data.images) && data.images.length > 0 ? data.images : [imageUrl],
+                  price: Number(data.discounted_price ?? data.retail_price ?? 0),
+                  retailPrice: disc > 0 ? Number(data.retail_price) : undefined,
+                  discountPercent: disc,
+                  stock: data.stock_quantity ?? 99,
+                  condition: data.condition ?? "New",
+                  category: data.categories?.[0]?.name ?? "",
+                  brand: data.brand ?? "",
+                  specs: data.specs ? Object.values(data.specs as Record<string, unknown>).map(String) : [],
+                  rating: Number(data.rating_avg ?? 0),
+                  reviews: data.reviews_count ?? data.rating_count ?? 0,
+                  likesCount: data.likes_count ?? 0,
+                  tags: [],
+                  model: data.model ?? "",
+                }));
+              }
+            } catch (e) {
+              console.error(e);
             }
-          } catch (e) {
-            console.error(e);
-          }
-          setCurrentPage("shop"); // or however you navigate to product
-        }} />
+            setCurrentPage("shop"); // or however you navigate to product
+          }} />
       )}
       {/* ═══════════════════════════════════════════
           MAIN CONTENT
@@ -1292,8 +1319,12 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
         onClick={() => setIsMessageModalOpen(true)}
         className="fixed bottom-6 right-6 z-60 text-white px-5 py-3 rounded-full flex items-center gap-2.5 transition-all duration-300 hover:scale-105 active:scale-95 animate-fab-pulse"
         style={{
-          background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-          boxShadow: "0 8px 30px rgba(99,102,241,0.5)",
+          background: selectedStoreSection === 'Refurbished'
+            ? 'linear-gradient(135deg, #059669, #10b981)'
+            : selectedStoreSection === 'Wholesale'
+              ? 'linear-gradient(135deg, #db2777, #f472b6)'
+              : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+          boxShadow: `0 8px 30px ${sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'}80`,
         }}
       >
         <div className="relative">

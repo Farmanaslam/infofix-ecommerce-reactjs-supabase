@@ -18,6 +18,8 @@ interface ProductProps {
   onViewDetails: (p: ProductType) => void;
   cardIdx?: number;
   revealed?: boolean;
+  accent?: string;
+  accentHover?: string;
 }
 
 const PER_PAGE = 12;
@@ -29,6 +31,8 @@ export const ProductCard: React.FC<ProductProps> = ({
   onViewDetails,
   cardIdx = 0,
   revealed = true,
+  accent,
+  accentHover,
 }) => {
   const storageKey = `liked_product_${product.id}`;
   const countKey = `likes_count_${product.id}`;
@@ -167,9 +171,9 @@ export const ProductCard: React.FC<ProductProps> = ({
           >
             <button
               onClick={() => onAddToCart(product)}
-              className="w-full bg-gray-900 hover:bg-indigo-600 text-white
-                         py-3 rounded-2xl font-black text-[9px] uppercase tracking-[0.18em]
-                         flex items-center justify-center gap-2 shadow-2xl transition-colors duration-200"
+              className="w-full bg-gray-900 text-white py-3 rounded-2xl font-black text-[9px] uppercase tracking-[0.18em] flex items-center justify-center gap-2 shadow-2xl transition-colors duration-200"
+              onMouseEnter={e => (e.currentTarget.style.background = accent ?? '#6366f1')}
+              onMouseLeave={e => (e.currentTarget.style.background = '#111827')}
             >
               <ShoppingBag className="w-3 h-3" />
               Add to Cart
@@ -232,7 +236,7 @@ export const ProductCard: React.FC<ProductProps> = ({
       <div className="flex flex-col flex-1 gap-1 md:gap-1.5 px-1 md:px-2 transition-transform duration-500 group-hover:translate-x-0.5">
         {/* Category + Rating */}
         <div className="flex items-center justify-between">
-          <span className="text-[9px] md:text-[10px] text-indigo-600 font-black uppercase tracking-[0.15em] truncate max-w-[60%]">
+          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.15em] truncate max-w-[60%]" style={{ color: accent ?? '#6366f1' }}>
             {product.category}
             {product.subcategory && (
               <span className="text-gray-400 font-medium normal-case ml-1 tracking-normal hidden md:inline">
@@ -249,7 +253,10 @@ export const ProductCard: React.FC<ProductProps> = ({
         </div>
 
         {/* Product Name */}
-        <h3 className="font-bold text-[13px] md:text-[18px] text-gray-900 leading-snug line-clamp-2 md:min-h-12 group-hover:text-indigo-600 transition-colors duration-200">
+        <h3 className="font-bold text-[13px] md:text-[18px] text-gray-900 leading-snug line-clamp-2 md:min-h-12 transition-colors duration-200"
+          style={{ ['--tw-text-opacity' as any]: 1 }}
+          onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.color = accent ?? '#6366f1'; }}
+          onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.color = ''; }}>
           {product.name}
         </h3>
 
@@ -338,11 +345,10 @@ export const ProductCard: React.FC<ProductProps> = ({
                 e.stopPropagation();
                 onBuyNow(product);
               }}
-              className="w-full flex items-center justify-center gap-1.5 md:gap-2
-                         bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98]
-                         text-white py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black
-                         text-[9px] md:text-[11px] uppercase tracking-[0.15em] md:tracking-[0.18em]
-                         shadow-lg shadow-indigo-200/70 transition-all duration-200 group/btn"
+              className="w-full flex items-center justify-center gap-1.5 md:gap-2 active:scale-[0.98] text-white py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[11px] uppercase tracking-[0.15em] md:tracking-[0.18em] shadow-lg transition-all duration-200 group/btn"
+              style={{ background: accent ?? '#6366f1' }}
+              onMouseEnter={e => (e.currentTarget.style.background = accentHover ?? '#4f46e5')}
+              onMouseLeave={e => (e.currentTarget.style.background = accent ?? '#6366f1')}
             >
               Buy Now
               <ArrowRight className="w-3 h-3 md:w-3.5 md:h-3.5 transition-transform duration-200 group-hover/btn:translate-x-0.5" />

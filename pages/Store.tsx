@@ -1270,6 +1270,8 @@ export const Store: React.FC = () => {
                   onViewDetails={handleViewDetails}
                   cardIdx={index}
                   revealed={revealed}
+                  accent={theme.accent}
+                  accentHover={theme.accentHover}
                 />
               ))}
             </div>
@@ -1413,7 +1415,10 @@ export const Store: React.FC = () => {
               </div>
               <button
                 onClick={() => setIsFilterOpen(false)}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-100"
+                className="w-full text-white py-4 rounded-2xl font-black uppercase tracking-widest transition-all"
+                style={{ background: theme.accent, boxShadow: `0 4px 14px ${theme.accent}33` }}
+                onMouseEnter={e => (e.currentTarget.style.background = theme.accentHover)}
+                onMouseLeave={e => (e.currentTarget.style.background = theme.accent)}
               >
                 Apply Filters
               </button>
@@ -1445,22 +1450,31 @@ export const Store: React.FC = () => {
       {!loading && products.length > 0 && (
         <section className="mt-24 app-container">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
-            {[
+            {(selectedStoreSection === 'Refurbished' ? [
+              { stat: "Grade A", label: "Certified Condition" },
+              { stat: "6 Month", label: "Warranty on Refurb Units" },
+              { stat: "SSD", label: "Upgraded Before Dispatch" },
+              { stat: "Tested", label: "Multi-Point Quality Check" },
+            ] : selectedStoreSection === 'Wholesale' ? [
+              { stat: "500+", label: "SKUs Available" },
+              { stat: "GST", label: "Invoice on All Orders" },
+              { stat: "Bulk", label: "Volume Pricing Available" },
+              { stat: "B2B", label: "Dedicated Account Support" },
+            ] : [
               { stat: "50000+", label: "Happy Customers" },
               { stat: "1 Year", label: "Warranty on All Products" },
               { stat: "Secure", label: "Verified Payments" },
               { stat: "Fast", label: "PAN India Shipping" },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm hover:border-indigo-100 hover:shadow-md transition-all"
+            ]).map((item) => (
+              <div key={item.label} className="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-md transition-all"
+                style={{ ['--hover-border' as any]: theme.accent }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = theme.accent + '44')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = '')}
               >
-                <h3 className="font-black text-3xl text-indigo-600">
+                <h3 className="font-black text-3xl" style={{ color: theme.accent }}>
                   {item.stat}
                 </h3>
-                <p className="text-gray-500 font-semibold text-sm mt-2">
-                  {item.label}
-                </p>
+                <p className="text-gray-500 font-semibold text-sm mt-2">{item.label}</p>
               </div>
             ))}
           </div>

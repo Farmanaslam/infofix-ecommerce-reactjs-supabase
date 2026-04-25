@@ -18,9 +18,11 @@ interface DealItem {
 interface Props {
     /** Called when user clicks a deal pill — navigate to product */
     onProductClick: (productId: string) => void;
+    storeSection: string;
+    accent?: string;
 }
 
-export const CouponDealsStrip: React.FC<Props> = ({ onProductClick }) => {
+export const CouponDealsStrip: React.FC<Props> = ({ onProductClick, storeSection = 'Infofix', accent = '#6366f1' }) => {
     const [deals, setDeals] = useState<DealItem[]>([]);
     const [dismissed, setDismissed] = useState(false);
     const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
@@ -56,8 +58,9 @@ export const CouponDealsStrip: React.FC<Props> = ({ onProductClick }) => {
             const allProductIds: number[] = [];
             validCoupons.forEach((c: any) => {
                 if (Array.isArray(c.product_ids)) {
-                    c.product_ids.forEach((id: number) => {
-                        if (!allProductIds.includes(id)) allProductIds.push(id);
+                    c.product_ids.forEach((id: any) => {
+                        const numId = Number(id);
+                        if (!allProductIds.includes(numId)) allProductIds.push(numId);
                     });
                 }
             });
@@ -69,7 +72,8 @@ export const CouponDealsStrip: React.FC<Props> = ({ onProductClick }) => {
                 .from("products")
                 .select("id, name, image_url, model, brand")
                 .in("id", allProductIds)
-                .eq("is_active", true);
+                .eq("is_active", true)
+                .eq("store_section", storeSection);
 
             if (!productRows) return;
 
@@ -98,7 +102,7 @@ export const CouponDealsStrip: React.FC<Props> = ({ onProductClick }) => {
         };
 
         fetchDeals();
-    }, []);
+    }, [storeSection]);
 
     if (deals.length === 0 || dismissed) return null;
     if (isMobile) {
@@ -107,6 +111,7 @@ export const CouponDealsStrip: React.FC<Props> = ({ onProductClick }) => {
                 deals={deals}
                 onProductClick={onProductClick}
                 onDismiss={() => setDismissed(true)}
+                accent={accent}
             />
         );
     }
@@ -116,7 +121,7 @@ export const CouponDealsStrip: React.FC<Props> = ({ onProductClick }) => {
     };
 
     return (
-        <div className="w-full bg-linear-to-r from-indigo-600 via-violet-600 to-indigo-700 relative overflow-hidden">
+        <div className="w-full relative overflow-hidden" style={{ background: `linear-gradient(to right, ${accent}ee, ${accent}cc, ${accent}ee)` }}>
             {/* Animated background shimmer */}
             <div
                 className="absolute inset-0 opacity-20"
@@ -254,7 +259,7 @@ export const CouponDealsStrip: React.FC<Props> = ({ onProductClick }) => {
     );
 };
 // AFTER
-const MobileDealsCarousel = ({ deals, onProductClick, onDismiss }: any) => {
+const MobileDealsCarousel = ({ deals, onProductClick, onDismiss, accent = '#6366f1' }: any) => {
     const [index, setIndex] = useState(0);
     const touchStartX = useRef<number>(0);  // ADD useRef to imports if not there
 
@@ -281,7 +286,8 @@ const MobileDealsCarousel = ({ deals, onProductClick, onDismiss }: any) => {
 
     return (
         <div
-            className="relative px-4 pt-6 pb-3 bg-linear-to-r from-indigo-600 to-violet-600 text-white"
+            className="relative px-4 pt-6 pb-3 text-white"
+            style={{ background: `linear-gradient(to right, ${accent}ee, ${accent}bb)` }}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
         >

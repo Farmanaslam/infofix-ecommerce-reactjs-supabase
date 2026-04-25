@@ -27,7 +27,90 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { ProfileSetupModal } from "./ProfileSetupModal";
-// ─────────────────────────────────────────────────────────
+
+const HOME_THEMES = {
+  Infofix: {
+    accent: '#6366f1',
+    accentHover: '#4f46e5',
+    accentLight: '#eef2ff',
+    accentText: '#4338ca',
+    accentGlow: 'rgba(99,102,241,0.18)',
+    pill: { background: '#6366f1', color: '#fff' },
+    badge: { background: '#eef2ff', color: '#4338ca' },
+    trustGradient: 'linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)',
+    eyebrow: "Durgapur's Most Trusted Tech Store",
+    aboutHeadline1: 'Not just a store.',
+    aboutHeadline2: 'Your tech partner.',
+    aboutSub: "Infofix Computers has been West Bengal's go-to destination for desktops, laptops, and computer components since 2017. With 5 physical stores, an expert in-house service team, and prices that no one can beat — we don't just sell technology, we back it up.",
+    ctaHeadline: 'Confused what to buy?',
+    ctaSub: "Tell us your budget and use-case — gaming, office, editing or study. Our experts will suggest the best option for you.",
+    storeHeadline1: "We're closer", storeHeadline2: 'than you think.',
+    storeSub: 'No waiting for couriers. Walk into any of our 5 stores, see the hardware in person, and walk out same day.',
+    trustCards: [
+      { count: 'customers', suffix: '+', label: 'Happy Customers', color: '#6366f1' },
+      { count: 'stores', suffix: ' Stores', label: 'Across West Bengal', color: '#10b981' },
+      { count: 'products', suffix: '+', label: 'Products Available', color: '#f59e0b' },
+      { count: 'years', suffix: ' Years', label: 'Trusted Since 2017', color: '#ef4444' },
+    ],
+    categorySection: { eyebrow: 'What Are You Looking For?', title: 'Browse by Category', sub: 'Every device, every budget, in stock now across our 5 stores.' },
+    whyEyebrow: 'Why 50,000+ Customers Choose Us',
+    whyTitle: 'The Infofix Difference',
+  },
+  Refurbished: {
+    accent: '#059669',
+    accentHover: '#047857',
+    accentLight: '#ecfdf5',
+    accentText: '#065f46',
+    accentGlow: 'rgba(5,150,105,0.18)',
+    pill: { background: '#059669', color: '#fff' },
+    badge: { background: '#ecfdf5', color: '#065f46' },
+    trustGradient: 'linear-gradient(135deg,#052e16 0%,#064e3b 100%)',
+    eyebrow: "West Bengal's #1 Refurbished Tech Store",
+    aboutHeadline1: 'Certified quality.',
+    aboutHeadline2: 'Half the price.',
+    aboutSub: "Every refurbished laptop and desktop at Infofix is professionally tested, cleaned, and SSD-upgraded by our in-house technicians. Grade-A quality backed by warranty — reliable performance without the premium price tag.",
+    ctaHeadline: 'Not sure which refurb to pick?',
+    ctaSub: "Tell us your use-case — study, office, light gaming. Our experts will find you the best certified refurbished device within your budget.",
+    storeHeadline1: "Try before", storeHeadline2: 'you buy.',
+    storeSub: 'Walk into any of our 5 stores and physically inspect our certified refurbished stock. Every device tested in-house, every warranty backed by us.',
+    trustCards: [
+      { count: 'customers', suffix: '+', label: 'Satisfied Buyers', color: '#059669' },
+      { count: 'stores', suffix: ' Stores', label: 'Refurb Stock Available', color: '#6366f1' },
+      { count: 'products', suffix: '+', label: 'Refurb Units Sold', color: '#f59e0b' },
+      { count: 'years', suffix: ' Years', label: 'Refurb Expertise', color: '#ec4899' },
+    ],
+    categorySection: { eyebrow: 'Shop Certified Refurbished', title: 'Find Your Perfect Device', sub: 'All units tested, upgraded, and backed by Infofix warranty.' },
+    whyEyebrow: 'Why Buyers Trust Our Refurb Stock',
+    whyTitle: 'The Certified Difference',
+  },
+  Wholesale: {
+    accent: '#db2777',
+    accentHover: '#be185d',
+    accentLight: '#fdf2f8',
+    accentText: '#9d174d',
+    accentGlow: 'rgba(219,39,119,0.18)',
+    pill: { background: '#db2777', color: '#fff' },
+    badge: { background: '#fdf2f8', color: '#9d174d' },
+    trustGradient: 'linear-gradient(135deg,#500724 0%,#831843 100%)',
+    eyebrow: "West Bengal's Bulk Tech Supplier",
+    aboutHeadline1: 'Scale your business.',
+    aboutHeadline2: 'Lower your costs.',
+    aboutSub: "Infofix Wholesale supplies businesses, resellers, and institutions across West Bengal with bulk laptops, desktops, components, and accessories. Volume pricing, dedicated account management, and same-day dispatch.",
+    ctaHeadline: 'Ready to place a bulk order?',
+    ctaSub: "Share your requirements — product type, quantity, budget. Our B2B team will get back with the best wholesale quote within 24 hours.",
+    storeHeadline1: "Visit our", storeHeadline2: 'B2B showroom.',
+    storeSub: 'Inspect bulk stock in person at our Durgapur warehouse. Dedicated B2B counter, volume pricing on the spot, and same-day dispatch for large orders.',
+    trustCards: [
+      { count: 'customers', suffix: '+', label: 'B2B Clients Served', color: '#db2777' },
+      { count: 'stores', suffix: ' Stores', label: 'Wholesale Counters', color: '#6366f1' },
+      { count: 'products', suffix: '+', label: 'SKUs Available', color: '#f59e0b' },
+      { count: 'years', suffix: ' Years', label: 'B2B Experience', color: '#059669' },
+    ],
+    categorySection: { eyebrow: 'Bulk Categories Available', title: 'What We Supply in Volume', sub: 'Laptops, desktops, components, and accessories — all at wholesale rates.' },
+    whyEyebrow: 'Why Businesses Choose Infofix Wholesale',
+    whyTitle: 'The Wholesale Advantage',
+  },
+} as const;
 // HERO CAROUSEL
 // ─────────────────────────────────────────────────────────
 const heroSlides = [
@@ -172,14 +255,14 @@ const SpecIcon: React.FC<{ type: string; color: string }> = ({
   );
 };
 
-const HeroCarousel: React.FC<{ onShop: () => void; onContact: () => void }> = ({
+const HeroCarousel: React.FC<{ onShop: () => void; onContact: () => void; slides: typeof heroSlides }> = ({
   onShop,
   onContact,
+  slides,
 }) => {
   const [current, setCurrent] = useState(0);
   const [animating, setAnimating] = useState(false);
-  const slide = heroSlides[current];
-
+  const slide = slides[current];
   const goTo = useCallback(
     (idx: number) => {
       if (animating || idx === current) return;
@@ -193,7 +276,7 @@ const HeroCarousel: React.FC<{ onShop: () => void; onContact: () => void }> = ({
   );
 
   useEffect(() => {
-    const t = setInterval(() => goTo((current + 1) % heroSlides.length), 3000);
+    const t = setInterval(() => goTo((current + 1) % slides.length), 3000);
     return () => clearInterval(t);
   }, [current, goTo]);
 
@@ -298,7 +381,7 @@ const HeroCarousel: React.FC<{ onShop: () => void; onContact: () => void }> = ({
 
           {/* Dots */}
           <div className="flex gap-2">
-            {heroSlides.map((_, i) => (
+            {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
@@ -615,7 +698,7 @@ const HeroCarousel: React.FC<{ onShop: () => void; onContact: () => void }> = ({
               </div>
             </div>
             <div className="flex gap-2 mt-4 relative z-10">
-              {heroSlides.map((_, i) => (
+              {slides.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => goTo(i)}
@@ -701,8 +784,128 @@ export const Home: React.FC = () => {
     setSelectedCategory,
     setHeaderSearchQuery,
     addToCart,
-    currentUser
+    currentUser,
+    selectedStoreSection,
   } = useStore();
+
+  const ht = HOME_THEMES[selectedStoreSection];
+  const heroSlidesBySection = {
+    Infofix: heroSlides,
+    Refurbished: [
+      {
+        eyebrow: "Grade A Certified",
+        headline: "Like New,",
+        accent: "Half the Price",
+        accentColor: "#059669",
+        glowColor: "rgba(5,150,105,0.18)",
+        sub: "Every refurbished laptop professionally tested, SSD-upgraded, and backed by Infofix warranty. Premium performance at budget prices.",
+        price: "₹14,999",
+        oldPrice: "₹28,000",
+        specs: [
+          { label: "Grade A Condition", icon: "cpu" },
+          { label: "SSD Upgraded", icon: "storage" },
+          { label: "6 Month Warranty", icon: "memory" },
+          { label: "All Brands", icon: "os" },
+        ],
+        productName: "Infofix Certified Refurb",
+        productSpec: "i3–i5 / 8GB / SSD / Warranted",
+      },
+      {
+        eyebrow: "Business Laptops",
+        headline: "ThinkPad, HP,",
+        accent: "Dell — Tested",
+        accentColor: "#10b981",
+        glowColor: "rgba(16,185,129,0.18)",
+        sub: "Refurbished business laptops from top brands. Durable builds, fast SSDs, and reliable performance for office and study work.",
+        price: "₹18,999",
+        oldPrice: "₹35,000",
+        specs: [
+          { label: "Intel Core i5/i7", icon: "cpu" },
+          { label: "8GB DDR4 RAM", icon: "memory" },
+          { label: "256GB SSD", icon: "storage" },
+          { label: "Business Grade", icon: "os" },
+        ],
+        productName: "Infofix Business Refurb",
+        productSpec: "i5/i7 / 8GB / Business Grade",
+      },
+      {
+        eyebrow: "Student Budget Pick",
+        headline: "Study Smart,",
+        accent: "Spend Less",
+        accentColor: "#6366f1",
+        glowColor: "rgba(99,102,241,0.18)",
+        sub: "Affordable certified refurbished laptops perfect for students. Fast SSD boot, long battery, and Infofix warranty included.",
+        price: "₹11,999",
+        oldPrice: "₹22,000",
+        specs: [
+          { label: "Intel Core i3/i5", icon: "cpu" },
+          { label: "4–8GB RAM", icon: "memory" },
+          { label: "SSD Storage", icon: "storage" },
+          { label: "Warranty Included", icon: "os" },
+        ],
+        productName: "Infofix Student Refurb",
+        productSpec: "i3/i5 / 4–8GB / SSD / Budget",
+      },
+    ],
+    Wholesale: [
+      {
+        eyebrow: "B2B Bulk Supply",
+        headline: "Scale Your",
+        accent: "Business Now",
+        accentColor: "#db2777",
+        glowColor: "rgba(219,39,119,0.18)",
+        sub: "Bulk desktops, laptops, and accessories for businesses, resellers, and institutions. Volume pricing with dedicated account management.",
+        price: "₹12,999",
+        oldPrice: "₹18,000",
+        specs: [
+          { label: "Min Order: 5 Units", icon: "cpu" },
+          { label: "Volume Discounts", icon: "memory" },
+          { label: "Same-Day Dispatch", icon: "storage" },
+          { label: "Invoice + GST", icon: "os" },
+        ],
+        productName: "Infofix Wholesale Desktops",
+        productSpec: "Bulk · Volume Pricing · GST",
+      },
+      {
+        eyebrow: "Laptop Bulk Orders",
+        headline: "Equip Your",
+        accent: "Entire Team",
+        accentColor: "#8b5cf6",
+        glowColor: "rgba(139,92,246,0.18)",
+        sub: "Supply laptops for your office, school, or institution. All brands available with institutional pricing and bulk warranty coverage.",
+        price: "₹19,999",
+        oldPrice: "₹28,000",
+        specs: [
+          { label: "All Major Brands", icon: "cpu" },
+          { label: "Bulk Warranty", icon: "memory" },
+          { label: "Institutional Pricing", icon: "storage" },
+          { label: "Delivery PAN India", icon: "os" },
+        ],
+        productName: "Infofix Wholesale Laptops",
+        productSpec: "All Brands · Bulk · Warranted",
+      },
+      {
+        eyebrow: "Accessories Wholesale",
+        headline: "Keyboards,",
+        accent: "Mice & More",
+        accentColor: "#f59e0b",
+        glowColor: "rgba(245,158,11,0.18)",
+        sub: "Wholesale peripherals and accessories — keyboards, mice, headphones, hubs, adapters, and networking gear at trade prices.",
+        price: "₹299",
+        oldPrice: "₹599",
+        specs: [
+          { label: "500+ SKUs", icon: "cpu" },
+          { label: "All Brands", icon: "memory" },
+          { label: "Trade Pricing", icon: "storage" },
+          { label: "Bulk Pack Available", icon: "os" },
+        ],
+        productName: "Infofix Wholesale Accessories",
+        productSpec: "500+ SKUs · Trade Price · Bulk",
+      },
+    ],
+  };
+
+  const activeSlides = heroSlidesBySection[selectedStoreSection];
   const [featured, setFeatured] = useState<any[]>([]);
   const [currentReview, setCurrentReview] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -763,19 +966,25 @@ export const Home: React.FC = () => {
 
   useEffect(() => {
     const fetchDeals = async () => {
+      const sectionMap: Record<string, string> = {
+        Infofix: 'infofix',
+        Refurbished: 'refurbished',
+        Wholesale: 'wholesale',
+      };
       const { data } = await supabase
         .from("products")
         .select(
           "id, name, image_url, discounted_price, retail_price, discount_percent, category_id, categories(name)",
         )
         .eq("is_active", true)
+        .eq("store_section", sectionMap[selectedStoreSection])
         .gt("discount_percent", 0)
         .order("discount_percent", { ascending: false })
         .limit(3);
       if (data) setFeatured(data);
     };
     fetchDeals();
-  }, []);
+  }, [selectedStoreSection]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -889,61 +1098,78 @@ export const Home: React.FC = () => {
     setIsDragging(false);
   };
 
-  const buildTiers = [
-    {
-      tier: "Smart Price",
-      tagline: "Best Budget Desktop for Everyday Use",
-      price: "₹10,999",
-      oldPrice: "₹14,999",
-      color: "#f59e0b",
-      bg: "linear-gradient(135deg,#fff7ed 0%,#ffedd5 100%)",
-      dark: false,
-      featured: false,
-      specs: [
-        "Intel Core i3 (3rd Gen)",
-        "4GB RAM + 128GB SSD",
-        '19" Monitor Full Set',
-        "Keyboard + Mouse Included",
-      ],
-      ideal: "Students, Home Use, Basic Work",
-    },
-
-    {
-      tier: "Balanced Performance",
-      tagline: "Smooth Multitasking & Office Work",
-      price: "₹24,999",
-      oldPrice: "₹33,999",
-      color: "#6366f1",
-      bg: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)",
-      dark: true,
-      featured: true,
-      specs: [
-        "Intel Core i5 (6th Gen)",
-        "8GB DDR4 RAM",
-        "512GB SSD Storage",
-        '22" Monitor + Full Setup',
-      ],
-      ideal: "Office Work, Students, Business Use",
-    },
-
-    {
-      tier: "Refurbished Pick",
-      tagline: "Certified Refurbished Laptops",
-      price: "₹14,999",
-      oldPrice: "₹28,000",
-      color: "#ec4899",
-      bg: "linear-gradient(135deg,#fdf2f8 0%,#fce7f3 100%)",
-      dark: false,
-      featured: false,
-      specs: [
-        "Grade A Refurbished Laptops",
-        "Intel i3–i5 / 4–8GB RAM",
-        "SSD Upgraded Storage",
-        "6-Month Infofix Warranty",
-      ],
-      ideal: "Students, Budget Buyers, First Laptop",
-    },
-  ];
+  const buildTiersBySection = {
+    Infofix: [
+      {
+        tier: "Smart Price", tagline: "Best Budget Desktop for Everyday Use",
+        price: "₹10,999", oldPrice: "₹14,999", color: "#f59e0b",
+        bg: "linear-gradient(135deg,#fff7ed 0%,#ffedd5 100%)", dark: false, featured: false,
+        specs: ["Intel Core i3 (3rd Gen)", "4GB RAM + 128GB SSD", '19" Monitor Full Set', "Keyboard + Mouse Included"],
+        ideal: "Students, Home Use, Basic Work",
+      },
+      {
+        tier: "Balanced Performance", tagline: "Smooth Multitasking & Office Work",
+        price: "₹24,999", oldPrice: "₹33,999", color: "#6366f1",
+        bg: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)", dark: true, featured: true,
+        specs: ["Intel Core i5 (6th Gen)", "8GB DDR4 RAM", "512GB SSD Storage", '22" Monitor + Full Setup'],
+        ideal: "Office Work, Students, Business Use",
+      },
+      {
+        tier: "Gaming Beast", tagline: "High FPS · RGB · RTX Ready",
+        price: "₹52,999", oldPrice: "₹64,999", color: "#ef4444",
+        bg: "linear-gradient(135deg,#fff1f2 0%,#ffe4e6 100%)", dark: false, featured: false,
+        specs: ["Ryzen 5 / i5 14th Gen", "16GB DDR4 RAM", "512GB NVMe SSD", "Dedicated GPU Included"],
+        ideal: "Gamers, Streamers, Creators",
+      },
+    ],
+    Refurbished: [
+      {
+        tier: "Student Pick", tagline: "Affordable Refurb Laptop for Study",
+        price: "₹11,999", oldPrice: "₹22,000", color: "#059669",
+        bg: "linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%)", dark: false, featured: false,
+        specs: ["Intel Core i3/i5", "4–8GB DDR4 RAM", "SSD Upgraded", "6-Month Warranty"],
+        ideal: "Students, First Laptop, Budget Buyers",
+      },
+      {
+        tier: "Business Grade", tagline: "Certified Business Laptop — Best Value",
+        price: "₹18,999", oldPrice: "₹35,000", color: "#059669",
+        bg: "linear-gradient(135deg,#052e16 0%,#064e3b 100%)", dark: true, featured: true,
+        specs: ["Intel Core i5/i7", "8GB DDR4 RAM", "256GB SSD", "Grade A · Warranted"],
+        ideal: "Office, WFH, Business Use",
+      },
+      {
+        tier: "Power Refurb", tagline: "High-RAM Refurb for Heavy Work",
+        price: "₹28,999", oldPrice: "₹55,000", color: "#6366f1",
+        bg: "linear-gradient(135deg,#eef2ff 0%,#e0e7ff 100%)", dark: false, featured: false,
+        specs: ["Intel Core i7 / Xeon", "16GB+ DDR4 RAM", "512GB SSD", "Editing & Dev Ready"],
+        ideal: "Developers, Editors, Power Users",
+      },
+    ],
+    Wholesale: [
+      {
+        tier: "Office Bulk", tagline: "Desktop PCs for Office & Institutional Use",
+        price: "₹12,999", oldPrice: "₹18,000", color: "#db2777",
+        bg: "linear-gradient(135deg,#fdf2f8 0%,#fce7f3 100%)", dark: false, featured: false,
+        specs: ["Intel i3/i5 Configs", "Min Order: 5 Units", "GST Invoice Included", "Bulk Warranty"],
+        ideal: "Offices, Schools, Institutions",
+      },
+      {
+        tier: "Laptop Wholesale", tagline: "Volume Laptop Supply — All Brands",
+        price: "₹19,999", oldPrice: "₹28,000", color: "#8b5cf6",
+        bg: "linear-gradient(135deg,#2e1065 0%,#4c1d95 100%)", dark: true, featured: true,
+        specs: ["HP · Dell · Lenovo · Asus", "Bulk Warranty Coverage", "Institutional Pricing", "PAN India Delivery"],
+        ideal: "Resellers, Corporate Buyers",
+      },
+      {
+        tier: "Accessories Trade", tagline: "Peripherals & Networking at Trade Price",
+        price: "₹299", oldPrice: "₹599", color: "#f59e0b",
+        bg: "linear-gradient(135deg,#fff7ed 0%,#ffedd5 100%)", dark: false, featured: false,
+        specs: ["500+ SKUs Available", "Keyboards, Mice, Headphones", "Hubs, Adapters, Routers", "Bulk Pack Pricing"],
+        ideal: "Resellers, IT Suppliers",
+      },
+    ],
+  };
+  const buildTiers = buildTiersBySection[selectedStoreSection];
   const whyUs = [
     {
       icon: TrendingUp,
@@ -976,6 +1202,27 @@ export const Home: React.FC = () => {
       desc: "Most configurations available same-day. Pre-orders built and delivered within 48 hours.",
     },
   ];
+  const servicesBySection = {
+    Infofix: [
+      { title: "New PCs & Laptops", desc: "All configs, all budgets. Built & tested in-house.", icon: Monitor, color: "#6366f1" },
+      { title: "PC & Laptop Repair", desc: "Hardware faults, OS reinstall — fast turnaround.", icon: Wrench, color: "#10b981" },
+      { title: "Custom PC Builds", desc: "We pick the best parts for your money.", icon: Cpu, color: "#f59e0b" },
+      { title: "Certified Refurbished", desc: "Tested, upgraded, and warranty-backed laptops at affordable prices.", icon: RefreshCw, color: "#ec4899" },
+    ],
+    Refurbished: [
+      { title: "Certified Refurb Laptops", desc: "Grade A laptops tested, SSD-upgraded, and warranted by our technicians.", icon: Laptop, color: "#059669" },
+      { title: "6-Month Warranty", desc: "Every refurb sold with Infofix-backed warranty and 15-day replacement guarantee.", icon: Shield, color: "#10b981" },
+      { title: "In-House Testing", desc: "Each device passes our multi-point quality check before it reaches you.", icon: ShieldCheck, color: "#6366f1" },
+      { title: "Repair & Upgrade", desc: "Need more RAM or bigger SSD? We upgrade while you wait.", icon: Wrench, color: "#f59e0b" },
+    ],
+    Wholesale: [
+      { title: "Bulk Desktop Supply", desc: "Office-ready desktop PCs with GST invoice and bulk warranty for institutions.", icon: Monitor, color: "#db2777" },
+      { title: "Laptop Wholesale", desc: "All major brands available in volume. Dedicated B2B pricing and account management.", icon: Laptop, color: "#8b5cf6" },
+      { title: "Accessories & Peripherals", desc: "Keyboards, mice, headphones, hubs, routers — all brands at trade prices.", icon: MemoryStick, color: "#f59e0b" },
+      { title: "B2B Account Support", desc: "Dedicated wholesale team for quotes, delivery, and after-sales support.", icon: Users, color: "#10b981" },
+    ],
+  };
+  const activeServices = servicesBySection[selectedStoreSection];
 
   return (
     <>
@@ -1153,6 +1400,10 @@ export const Home: React.FC = () => {
 .card-hover:hover { transform: translateY(-10px) scale(1.02) !important; }
   .pulse-dot { animation: pulseGlobal 2s ease infinite; }
   .sidebar-scroll::-webkit-scrollbar { display: none; }
+  @keyframes shimmer-sweep {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 `}</style>
 
         {/* ══════════ HERO ══════════ */}
@@ -1161,159 +1412,160 @@ export const Home: React.FC = () => {
             {/* Desktop */}
             <div className="hidden md:grid md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_320px] gap-4 hero-carousel-wrap">
               <HeroCarousel
+                key={selectedStoreSection}
                 onShop={() => {
                   setCurrentPage("shop");
                 }}
                 onContact={() => setCurrentPage("contact")}
+                slides={activeSlides}
               />
               <div className="flex flex-col gap-3 hero-promo-stack">
-                <div
-                  onClick={() => setCurrentPage("shop")}
-                  className="cursor-pointer group relative flex-1 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02]"
-                  style={{
-                    background: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)",
-                    border: "1px solid #3730a3",
-                  }}
-                >
+                {(selectedStoreSection === 'Refurbished' ? [
+                  {
+                    badge: "Grade A", badgeBg: "bg-emerald-500",
+                    title: "CERTIFIED\nREFURB",
+                    sub: "Tested · SSD · Warranted",
+                    btnLabel: "Shop Refurb",
+                    btnBg: "bg-emerald-500", btnHover: "hover:bg-emerald-400",
+                    grad: "linear-gradient(135deg,#052e16 0%,#064e3b 100%)",
+                    border: "#047857",
+                    action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
+                  },
+                  {
+                    badge: "Business", badgeBg: "bg-indigo-500",
+                    title: "THINKPAD\n& HP DEALS",
+                    sub: "From ₹18,999 · Tested",
+                    btnLabel: "Explore",
+                    btnBg: "bg-indigo-500", btnHover: "hover:bg-indigo-400",
+                    grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)",
+                    border: "#3730a3",
+                    action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
+                  },
+                  {
+                    badge: "Students", badgeBg: "bg-pink-500",
+                    title: "BUDGET\nLAPTOPS",
+                    sub: "From ₹11,999 · Warranty",
+                    btnLabel: "Shop",
+                    btnBg: "bg-pink-500", btnHover: "hover:bg-pink-400",
+                    grad: "linear-gradient(135deg,#500724 0%,#881337 100%)",
+                    border: "#9f1239",
+                    action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
+                  },
+                ] : selectedStoreSection === 'Wholesale' ? [
+                  {
+                    badge: "Bulk", badgeBg: "bg-pink-600",
+                    title: "DESKTOP\nBULK DEALS",
+                    sub: "Min 5 units · GST invoice",
+                    btnLabel: "Get Quote",
+                    btnBg: "bg-pink-600", btnHover: "hover:bg-pink-500",
+                    grad: "linear-gradient(135deg,#500724 0%,#831843 100%)",
+                    border: "#9f1239",
+                    action: () => setCurrentPage("contact"),
+                  },
+                  {
+                    badge: "B2B", badgeBg: "bg-violet-500",
+                    title: "LAPTOP\nWHOLESALE",
+                    sub: "All brands · Volume price",
+                    btnLabel: "Explore",
+                    btnBg: "bg-violet-500", btnHover: "hover:bg-violet-400",
+                    grad: "linear-gradient(135deg,#2e1065 0%,#4c1d95 100%)",
+                    border: "#6d28d9",
+                    action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
+                  },
+                  {
+                    badge: "Trade", badgeBg: "bg-amber-500",
+                    title: "ACCESSORIES\nWHOLESALE",
+                    sub: "500+ SKUs · Trade price",
+                    btnLabel: "Browse",
+                    btnBg: "bg-amber-500", btnHover: "hover:bg-amber-400",
+                    grad: "linear-gradient(135deg,#1c1007 0%,#2d1a00 100%)",
+                    border: "#b45309",
+                    action: () => setCurrentPage("shop"),
+                  },
+                ] : [
+                  {
+                    badge: "Limited Time", badgeBg: "bg-red-500",
+                    title: "OFFER\nZONE",
+                    sub: "Up to 40% off on select devices",
+                    btnLabel: "Shop Now",
+                    btnBg: "bg-white text-indigo-700", btnHover: "hover:bg-indigo-50",
+                    grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)",
+                    border: "#3730a3",
+                    action: () => setCurrentPage("shop"),
+                  },
+                  {
+                    badge: "New Stock", badgeBg: "bg-emerald-500",
+                    title: "LAPTOPS\nARE HERE",
+                    sub: "Latest models · All budgets",
+                    btnLabel: "Explore",
+                    btnBg: "bg-emerald-500", btnHover: "hover:bg-emerald-400",
+                    grad: "linear-gradient(135deg,#064e3b 0%,#065f46 100%)",
+                    border: "#047857",
+                    action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
+                  },
+                  {
+                    badge: "Custom", badgeBg: "bg-violet-500",
+                    title: "CUSTOM\nPC BUILDS",
+                    sub: "Built to your specs & budget",
+                    btnLabel: "Build Now",
+                    btnBg: "bg-violet-500", btnHover: "hover:bg-violet-400",
+                    grad: "linear-gradient(135deg,#2e1065 0%,#4c1d95 100%)",
+                    border: "#6d28d9",
+                    action: () => setCurrentPage("contact"),
+                  },
+                ]).map((card, i) => (
                   <div
-                    className="absolute inset-0 opacity-10"
-                    style={{
-                      backgroundImage:
-                        "linear-gradient(rgba(255,255,255,0.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.1) 1px,transparent 1px)",
-                      backgroundSize: "20px 20px",
-                    }}
-                  />
-                  <div className="relative z-10 p-5 h-full flex flex-col justify-between">
-                    <div>
-                      <span className="inline-block bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest mb-2">
-                        Limited Time
-                      </span>
-                      <h3 className="text-white font-black text-xl leading-tight">
-                        OFFER
-                        <br />
-                        ZONE
-                      </h3>
-                      <p className="text-indigo-200 text-xs mt-1 font-medium">
-                        Up to 40% off on select devices
-                      </p>
+                    key={i}
+                    onClick={card.action}
+                    className="cursor-pointer group relative flex-1 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02]"
+                    style={{ background: card.grad, border: `1px solid ${card.border}` }}
+                  >
+                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.1) 1px,transparent 1px)", backgroundSize: "20px 20px" }} />
+                    <div className="relative z-10 p-5 h-full flex flex-col justify-between">
+                      <div>
+                        <span className={`inline-block ${card.badgeBg} text-white text-[10px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest mb-2`}>
+                          {card.badge}
+                        </span>
+                        <h3 className="text-white font-black text-xl leading-tight whitespace-pre-line">
+                          {card.title}
+                        </h3>
+                        <p className="text-white/60 text-xs mt-1 font-medium">{card.sub}</p>
+                      </div>
+                      <button className={`mt-3 self-start ${card.btnBg} text-xs font-black px-4 py-1.5 rounded-xl uppercase tracking-wider ${card.btnHover} transition-colors flex items-center gap-1`}>
+                        {card.btnLabel} <ArrowRight className="w-3 h-3" />
+                      </button>
                     </div>
-                    <button className="mt-3 self-start bg-white text-indigo-700 text-xs font-black px-4 py-1.5 rounded-xl uppercase tracking-wider hover:bg-indigo-50 transition-colors flex items-center gap-1">
-                      Shop Now <ArrowRight className="w-3 h-3" />
-                    </button>
                   </div>
-                </div>
-                <div
-                  onClick={() => {
-                    setSelectedCategory("Laptop");
-                    setCurrentPage("shop");
-                  }}
-                  className="cursor-pointer group relative flex-1 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02]"
-                  style={{
-                    background: "linear-gradient(135deg,#064e3b 0%,#065f46 100%)",
-                    border: "1px solid #047857",
-                  }}
-                >
-                  <div className="relative z-10 p-5 h-full flex flex-col justify-between">
-                    <div>
-                      <span className="inline-block bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest mb-2">
-                        New Stock
-                      </span>
-                      <h3 className="text-white font-black text-xl leading-tight">
-                        LAPTOPS
-                        <br />
-                        ARE HERE
-                      </h3>
-                      <p className="text-emerald-200 text-xs mt-1 font-medium">
-                        Latest models · All budgets
-                      </p>
-                    </div>
-                    <button className="mt-3 self-start bg-emerald-500 text-white text-xs font-black px-4 py-1.5 rounded-xl uppercase tracking-wider hover:bg-emerald-400 transition-colors flex items-center gap-1">
-                      Explore <ArrowRight className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
-                <div
-                  onClick={() => {
-                    setSelectedCategory("Laptop");
-                    setCurrentPage("shop");
-                  }}
-                  className="cursor-pointer group relative flex-1 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02]"
-                  style={{
-                    background: "linear-gradient(135deg,#500724 0%,#881337 100%)",
-                    border: "1px solid #9f1239",
-                  }}
-                >
-                  <div className="relative z-10 p-5 h-full flex flex-col justify-between">
-                    <div>
-                      <span className="inline-block bg-pink-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest mb-2">
-                        Best Value
-                      </span>
-                      <h3 className="text-white font-black text-xl leading-tight">
-                        REFURB
-                        <br />
-                        LAPTOPS
-                      </h3>
-                      <p className="text-pink-200 text-xs mt-1 font-medium">
-                        From ₹14,999 · Warranted
-                      </p>
-                    </div>
-                    <button className="mt-3 self-start bg-pink-500 text-white text-xs font-black px-4 py-1.5 rounded-xl uppercase tracking-wider hover:bg-pink-400 transition-colors flex items-center gap-1">
-                      Shop <ArrowRight className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
             {/* Mobile */}
             <div className="md:hidden flex flex-col gap-2 hero-carousel-mobile">
               <HeroCarousel
+                key={selectedStoreSection}
                 onShop={() => {
                   setSelectedCategory("Desktop");
                   setCurrentPage("shop");
                 }}
                 onContact={() => setCurrentPage("contact")}
+                slides={activeSlides}
               />
               {/* Mobile promo — 3 horizontal compact cards */}
               <div className="grid grid-cols-3 gap-2 hero-mobile-promos">
-                {[
-                  {
-                    badge: "Sale",
-                    badgeBg: "bg-red-500",
-                    title: "Offer Zone",
-                    sub: "Up to 40% off",
-                    btnLabel: "Shop",
-                    grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)",
-                    border: "#3730a3",
-                    action: () => setCurrentPage("shop"),
-                  },
-                  {
-                    badge: "New",
-                    badgeBg: "bg-emerald-500",
-                    title: "Laptops",
-                    sub: "All budgets",
-                    btnLabel: "View",
-                    grad: "linear-gradient(135deg,#064e3b 0%,#065f46 100%)",
-                    border: "#047857",
-                    action: () => {
-                      setSelectedCategory("Laptop");
-                      setCurrentPage("shop");
-                    },
-                  },
-                  {
-                    badge: "Value",
-                    badgeBg: "bg-pink-500",
-                    title: "Refurbished",
-                    sub: "From ₹14,999",
-                    btnLabel: "Shop",
-                    grad: "linear-gradient(135deg,#500724 0%,#881337 100%)",
-                    border: "#9f1239",
-                    action: () => {
-                      setSelectedCategory("Laptop");
-                      setCurrentPage("shop");
-                    },
-                  },
-                ].map((card, i) => (
+                {(selectedStoreSection === 'Refurbished' ? [
+                  { badge: "Grade A", badgeBg: "bg-emerald-500", title: "Certified Refurb", sub: "Tested · Warranted", btnLabel: "Shop", grad: "linear-gradient(135deg,#052e16 0%,#064e3b 100%)", border: "#047857", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
+                  { badge: "Business", badgeBg: "bg-indigo-500", title: "ThinkPad & HP", sub: "From ₹18,999", btnLabel: "View", grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)", border: "#3730a3", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
+                  { badge: "Budget", badgeBg: "bg-pink-500", title: "Student Laptops", sub: "From ₹11,999", btnLabel: "Shop", grad: "linear-gradient(135deg,#500724 0%,#881337 100%)", border: "#9f1239", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
+                ] : selectedStoreSection === 'Wholesale' ? [
+                  { badge: "Bulk", badgeBg: "bg-pink-600", title: "Desktop Bulk", sub: "Min 5 units", btnLabel: "Quote", grad: "linear-gradient(135deg,#500724 0%,#831843 100%)", border: "#9f1239", action: () => setCurrentPage("contact") },
+                  { badge: "B2B", badgeBg: "bg-violet-500", title: "Laptops Bulk", sub: "Volume price", btnLabel: "View", grad: "linear-gradient(135deg,#2e1065 0%,#4c1d95 100%)", border: "#6d28d9", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
+                  { badge: "Trade", badgeBg: "bg-amber-500", title: "Accessories", sub: "500+ SKUs", btnLabel: "Browse", grad: "linear-gradient(135deg,#1c1007 0%,#2d1a00 100%)", border: "#b45309", action: () => setCurrentPage("shop") },
+                ] : [
+                  { badge: "Sale", badgeBg: "bg-red-500", title: "Offer Zone", sub: "Up to 40% off", btnLabel: "Shop", grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)", border: "#3730a3", action: () => setCurrentPage("shop") },
+                  { badge: "New", badgeBg: "bg-emerald-500", title: "Laptops", sub: "All budgets", btnLabel: "View", grad: "linear-gradient(135deg,#064e3b 0%,#065f46 100%)", border: "#047857", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
+                  { badge: "Custom", badgeBg: "bg-violet-500", title: "Custom PC", sub: "Your specs", btnLabel: "Build", grad: "linear-gradient(135deg,#2e1065 0%,#4c1d95 100%)", border: "#6d28d9", action: () => setCurrentPage("contact") },
+                ]).map((card, i) => (
                   <div
                     key={i}
                     onClick={card.action}
@@ -1355,34 +1607,10 @@ export const Home: React.FC = () => {
           <div className="app-container">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 stagger-children">
               {[
-                {
-                  count: counts.customers,
-                  suffix: "+",
-                  label: "Happy Customers",
-                  icon: Users,
-                  color: "#6366f1",
-                },
-                {
-                  count: counts.stores,
-                  suffix: " Stores",
-                  label: "Across West Bengal",
-                  icon: MapPin,
-                  color: "#10b981",
-                },
-                {
-                  count: counts.products,
-                  suffix: "+",
-                  label: "Products Available",
-                  icon: Package,
-                  color: "#f59e0b",
-                },
-                {
-                  count: counts.years,
-                  suffix: " Years",
-                  label: "Trusted Since 2017",
-                  icon: Award,
-                  color: "#ef4444",
-                },
+                { count: counts.customers, suffix: ht.trustCards[0].suffix, label: ht.trustCards[0].label, icon: Users, color: ht.trustCards[0].color },
+                { count: counts.stores, suffix: ht.trustCards[1].suffix, label: ht.trustCards[1].label, icon: MapPin, color: ht.trustCards[1].color },
+                { count: counts.products, suffix: ht.trustCards[2].suffix, label: ht.trustCards[2].label, icon: Package, color: ht.trustCards[2].color },
+                { count: counts.years, suffix: ht.trustCards[3].suffix, label: ht.trustCards[3].label, icon: Award, color: ht.trustCards[3].color },
               ].map((item, i) => (
                 <div
                   key={i}
@@ -1414,30 +1642,150 @@ export const Home: React.FC = () => {
         <section className="py-10 md:py-24 bg-gray-50">
           <div className="app-container">
             <div className="text-center mb-6 md:mb-14 reveal">
-              <p className="text-[10px] md:text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-1 md:mb-3">
-                What Are You Looking For?
+              <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mb-1 md:mb-3" style={{ color: ht.accent }}>
+                {ht.categorySection.eyebrow}
               </p>
               <h2 className="text-2xl md:text-4xl font-black text-gray-900">
-                Browse by Category
+                {ht.categorySection.title}
               </h2>
               <p className="text-gray-500 font-medium mt-1.5 md:mt-3 text-sm md:text-base max-w-xl mx-auto hidden md:block">
-                Every device, every budget, in stock now across our 5 stores.
+                {ht.categorySection.sub}
               </p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 stagger-children">
-              {[
+              {(selectedStoreSection === 'Refurbished' ? [
+                {
+                  label: "Refurbished Laptops",
+                  sub: "Grade A · Tested · Warranted",
+                  badge: "Best Value",
+                  badgeColor: "#ec4899",
+                  from: "₹14,999",
+                  dark: false,
+                  icon: <Laptop className="w-6 h-6 md:w-8 md:h-8" />,
+                  action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
+                },
+                {
+                  label: "Refurbished Desktops",
+                  sub: "Restored · SSD Upgraded · Fast",
+                  badge: "Budget Pick",
+                  badgeColor: "#6366f1",
+                  from: "₹9,999",
+                  dark: false,
+                  icon: <Monitor className="w-6 h-6 md:w-8 md:h-8" />,
+                  action: () => { setSelectedCategory("Desktop"); setCurrentPage("shop"); },
+                },
+                {
+                  label: "Gaming Refurb Desktops",
+                  sub: "GPU-Ready · Tested · Value",
+                  badge: "Top Pick",
+                  badgeColor: "#ef4444",
+                  from: "₹24,999",
+                  dark: true,
+                  icon: <Zap className="w-6 h-6 md:w-8 md:h-8" />,
+                  action: () => { setSelectedCategory("Desktop"); setHeaderSearchQuery("gaming"); setCurrentPage("shop"); },
+                },
+                {
+                  label: "Business Laptops",
+                  sub: "Dell · HP · Lenovo · ThinkPad",
+                  badge: "Office Ready",
+                  badgeColor: "#10b981",
+                  from: "₹18,999",
+                  dark: false,
+                  icon: <Cpu className="w-6 h-6 md:w-8 md:h-8" />,
+                  action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
+                },
+                {
+                  label: "Student Laptops",
+                  sub: "Light · Long battery · Affordable",
+                  badge: "Study Pick",
+                  badgeColor: "#f59e0b",
+                  from: "₹12,999",
+                  dark: false,
+                  icon: <ShoppingBag className="w-6 h-6 md:w-8 md:h-8" />,
+                  action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
+                },
+                {
+                  label: "Workstation Refurb",
+                  sub: "i7/Xeon · High RAM · Editing",
+                  badge: "Power User",
+                  badgeColor: "#8b5cf6",
+                  from: "₹32,999",
+                  dark: false,
+                  icon: <HardDrive className="w-6 h-6 md:w-8 md:h-8" />,
+                  action: () => { setSelectedCategory("Desktop"); setCurrentPage("shop"); },
+                },
+              ] : selectedStoreSection === 'Wholesale' ? [
+                {
+                  label: "Bulk Desktops",
+                  sub: "Office · Institutional · Volume",
+                  badge: "Bulk Deal",
+                  badgeColor: "#db2777",
+                  from: "₹12,999",
+                  dark: false,
+                  icon: <Monitor className="w-6 h-6 md:w-8 md:h-8" />,
+                  action: () => { setSelectedCategory("Desktop"); setCurrentPage("shop"); },
+                },
+                {
+                  label: "Laptops Wholesale",
+                  sub: "All brands · Volume pricing",
+                  badge: "B2B Stock",
+                  badgeColor: "#6366f1",
+                  from: "₹19,999",
+                  dark: false,
+                  icon: <Laptop className="w-6 h-6 md:w-8 md:h-8" />,
+                  action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
+                },
+                {
+                  label: "Keyboards & Mice",
+                  sub: "Mechanical · Wireless · Bulk",
+                  badge: "Accessories",
+                  badgeColor: "#10b981",
+                  from: "₹299",
+                  dark: false,
+                  icon: <MemoryStick className="w-6 h-6 md:w-8 md:h-8" />,
+                  action: () => { setHeaderSearchQuery("keyboard"); setCurrentPage("shop"); },
+                },
+                {
+                  label: "Headphones & Audio",
+                  sub: "Gaming · Office · Earphones",
+                  badge: "Bulk Available",
+                  badgeColor: "#f59e0b",
+                  from: "₹499",
+                  dark: false,
+                  icon: <Phone className="w-6 h-6 md:w-8 md:h-8" />,
+                  action: () => { setHeaderSearchQuery("headphone"); setCurrentPage("shop"); },
+                },
+                {
+                  label: "Hubs, Adapters & Routers",
+                  sub: "USB Hub · HDMI · WiFi Routers",
+                  badge: "Networking",
+                  badgeColor: "#06b6d4",
+                  from: "₹399",
+                  dark: true,
+                  icon: <Globe className="w-6 h-6 md:w-8 md:h-8" />,
+                  action: () => { setHeaderSearchQuery("router"); setCurrentPage("shop"); },
+                },
+                {
+                  label: "Monitor Stands & Desks",
+                  sub: "Ergonomic · Adjustable · Bulk",
+                  badge: "Furniture",
+                  badgeColor: "#8b5cf6",
+                  from: "₹999",
+                  dark: false,
+                  icon: <HardDrive className="w-6 h-6 md:w-8 md:h-8" />,
+                  action: () => { setHeaderSearchQuery("stand"); setCurrentPage("shop"); },
+                },
+              ] : [
+                // INFOFIX MAIN — original 6 but swap Refurbished Laptops → Printers & Accessories
                 {
                   label: "Desktop PCs",
                   sub: "Daily computing, study & work",
                   badge: "Most Popular",
-                  badgeColor: "#6366f1",
+                  badgeColor: ht.accent,
                   from: "10,999",
                   dark: false,
                   icon: <Monitor className="w-6 h-6 md:w-8 md:h-8" />,
-                  action: () => {
-                    setSelectedCategory("Desktop");
-                    setCurrentPage("shop");
-                  },
+                  action: () => { setSelectedCategory("Desktop"); setCurrentPage("shop"); },
                 },
                 {
                   label: "Laptops",
@@ -1447,10 +1795,7 @@ export const Home: React.FC = () => {
                   from: "₹22,999",
                   dark: false,
                   icon: <Laptop className="w-6 h-6 md:w-8 md:h-8" />,
-                  action: () => {
-                    setSelectedCategory("Laptop");
-                    setCurrentPage("shop");
-                  },
+                  action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
                 },
                 {
                   label: "Gaming Desktops",
@@ -1460,24 +1805,7 @@ export const Home: React.FC = () => {
                   from: "14,999",
                   dark: true,
                   icon: <Zap className="w-6 h-6 md:w-8 md:h-8" />,
-                  action: () => {
-                    setSelectedCategory("Desktop");
-                    setHeaderSearchQuery("gaming");
-                    setCurrentPage("shop");
-                  },
-                },
-                {
-                  label: "Refurbished Laptops",
-                  sub: "Tested · Restored · Warranted",
-                  badge: "Best Value",
-                  badgeColor: "#ec4899",
-                  from: "₹14,999",
-                  dark: false,
-                  icon: <RefreshCw className="w-6 h-6 md:w-8 md:h-8" />,
-                  action: () => {
-                    setSelectedCategory("Laptop");
-                    setCurrentPage("shop");
-                  },
+                  action: () => { setSelectedCategory("Desktop"); setHeaderSearchQuery("gaming"); setCurrentPage("shop"); },
                 },
                 {
                   label: "Custom PC Builds",
@@ -1490,6 +1818,16 @@ export const Home: React.FC = () => {
                   action: () => setCurrentPage("contact"),
                 },
                 {
+                  label: "Monitors",
+                  sub: "1080p · 144Hz · All sizes",
+                  badge: "New Arrivals",
+                  badgeColor: "#ec4899",
+                  from: "₹7,999",
+                  dark: false,
+                  icon: <Monitor className="w-6 h-6 md:w-8 md:h-8" />,
+                  action: () => { setHeaderSearchQuery("monitor"); setCurrentPage("shop"); },
+                },
+                {
                   label: "Components",
                   sub: "RAM · SSD · GPU · CPU",
                   badge: "All Brands",
@@ -1497,13 +1835,9 @@ export const Home: React.FC = () => {
                   from: "₹999",
                   dark: true,
                   icon: <MemoryStick className="w-6 h-6 md:w-8 md:h-8" />,
-                  action: () => {
-                    setSelectedCategory(null);
-                    setHeaderSearchQuery("components");
-                    setCurrentPage("shop");
-                  },
+                  action: () => { setSelectedCategory(null); setHeaderSearchQuery("components"); setCurrentPage("shop"); },
                 },
-              ].map((cat, i) => (
+              ]).map((cat, i) => (
                 <div
                   key={i}
                   onClick={cat.action}
@@ -1577,7 +1911,7 @@ export const Home: React.FC = () => {
         </section>
 
         {/* ══════════ ABOUT — */}
-        <section className="py-10 md:py-24 bg-gray-900 text-white relative overflow-hidden">
+        <section className="py-10 md:py-24 bg-gray-900 relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-30"
             style={{
@@ -1588,31 +1922,32 @@ export const Home: React.FC = () => {
           />
           <div className="relative app-container grid md:grid-cols-2 gap-6 md:gap-12 items-center">
             <div className="space-y-4 md:space-y-5 reveal from-left">
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-indigo-400 text-[10px] font-black uppercase tracking-widest"
-                style={{
-                  background: "rgba(99,102,241,0.1)",
-                  border: "1px solid rgba(99,102,241,0.2)",
-                }}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 pulse-dot" />{" "}
-                Durgapur's Most Trusted Tech Store
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest"
+                style={{ background: ht.accentGlow, border: `1px solid ${ht.accent}33`, color: ht.accent }}>
+                <span className="w-1.5 h-1.5 rounded-full pulse-dot" style={{ background: ht.accent }} /> {ht.eyebrow}
               </div>
-              <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
-                Not just a store.
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-tight" style={{ color: 'white' }}>
+                <span style={{ WebkitTextFillColor: 'white', color: 'white' }}>{ht.aboutHeadline1}</span>
                 <br />
-                <span className="shimmer-text">Your tech partner.</span>
+                <span style={{
+                  background: `linear-gradient(90deg,${ht.accent},${ht.accentHover})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  color: 'transparent',
+                  display: 'inline-block',
+                }}>
+                  {ht.aboutHeadline2}
+                </span>
               </h2>
               <p className="text-gray-400 leading-relaxed font-medium text-sm md:text-base">
-                Infofix Computers has been West Bengal's go-to destination for
-                desktops, laptops, and computer components since 2017. With 5
-                physical stores, an expert in-house service team, and prices that
-                no one can beat — we don't just sell technology, we back it up.
+                {ht.aboutSub}
               </p>
               <div className="flex gap-3 pt-1 flex-wrap">
                 <button
                   onClick={() => setCurrentPage("about")}
-                  className="cursor-pointer bg-indigo-600 hover:bg-indigo-500 text-white px-5 md:px-7 py-3 md:py-3.5 rounded-2xl font-black text-sm transition-all"
+                  className="cursor-pointer text-white px-5 md:px-7 py-3 md:py-3.5 rounded-2xl font-black text-sm transition-all"
+                  style={{ background: ht.accent }}
                 >
                   Our Story →
                 </button>
@@ -1946,7 +2281,7 @@ export const Home: React.FC = () => {
                 Pick Your Power
               </p>
               <h2 className="text-2xl md:text-5xl font-black text-gray-900 tracking-tight">
-                PCs & Laptops for Every Need
+                {selectedStoreSection === 'Refurbished' ? 'Certified Refurb for Every Need' : selectedStoreSection === 'Wholesale' ? 'Bulk Supply for Every Business' : 'PCs & Laptops for Every Need'}
               </h2>
               <p className="text-gray-500 font-medium mt-1.5 md:mt-3 text-sm hidden md:block">
                 Every tier built, tested, and ready to ship from our warehouse.
@@ -2117,11 +2452,11 @@ export const Home: React.FC = () => {
         <section className="py-10 md:py-24 bg-white">
           <div className="app-container">
             <div className="text-center mb-6 md:mb-14 reveal">
-              <p className="text-[10px] md:text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-1 md:mb-2">
-                Why 50,000+ Customers Choose Us
+              <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mb-1 md:mb-2" style={{ color: ht.accent }}>
+                {ht.whyEyebrow}
               </p>
               <h2 className="text-2xl md:text-5xl font-black text-gray-900 tracking-tight">
-                The Infofix Difference
+                {ht.whyTitle}
               </h2>
             </div>
             {/* Mobile: 2-col compact grid */}
@@ -2131,7 +2466,8 @@ export const Home: React.FC = () => {
                   key={i}
                   className="group p-4 md:p-7 rounded-2xl md:rounded-3xl border border-gray-100 bg-gray-50 hover:bg-white hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300"
                 >
-                  <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-indigo-600 text-white flex items-center justify-center mb-3 md:mb-5 group-hover:scale-110 transition-transform">
+                  <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl text-white flex items-center justify-center mb-3 md:mb-5 group-hover:scale-110 transition-transform"
+                    style={{ background: ht.accent }}>
                     <item.icon className="w-4 h-4 md:w-5 md:h-5" />
                   </div>
                   <h4 className="font-black text-gray-900 text-xs md:text-lg mb-1 md:mb-2 leading-snug">
@@ -2276,13 +2612,12 @@ export const Home: React.FC = () => {
                 5 Stores · Durgapur &amp; nearby
               </div>
               <h2 className="text-3xl md:text-5xl font-black text-white leading-tight tracking-tight">
-                We're closer
+                {ht.storeHeadline1}
                 <br />
-                than you think.
+                <span style={{ color: ht.accent }}>{ht.storeHeadline2}</span>
               </h2>
               <p className="text-gray-400 leading-relaxed font-medium text-sm md:text-base max-w-md">
-                No waiting for couriers. Walk into any of our 5 stores, see the
-                hardware in person, and walk out same day.
+                {ht.storeSub}
               </p>
               <div className="grid grid-cols-2 gap-2 md:gap-3">
                 {[
@@ -2324,7 +2659,7 @@ export const Home: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage("branches")}
                   className="cursor-pointer flex items-center gap-2 px-5 md:px-6 py-3 md:py-3.5 rounded-2xl font-black text-sm text-white uppercase tracking-wider transition-all hover:opacity-90"
-                  style={{ background: "#6366f1" }}
+                  style={{ background: ht.accent }}
                 >
                   <MapPin className="w-4 h-4" /> View All Stores
                 </button>
@@ -2409,40 +2744,15 @@ export const Home: React.FC = () => {
         {/* ══════════ SERVICES ══════════ */}
         <section className="py-10 md:py-24 app-container text-center">
           <div className="mb-6 md:mb-12 reveal">
-            <p className="text-[10px] md:text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-1 md:mb-2">
-              What We Offer
+            <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mb-1 md:mb-2" style={{ color: ht.accent }}>
+              {selectedStoreSection === 'Wholesale' ? 'B2B Services' : selectedStoreSection === 'Refurbished' ? 'Refurb Services' : 'What We Offer'}
             </p>
             <h2 className="text-2xl md:text-4xl font-black text-gray-900">
-              Complete Tech Solutions
+              {selectedStoreSection === 'Refurbished' ? 'What We Offer for Refurb' : selectedStoreSection === 'Wholesale' ? 'Our Wholesale Services' : 'Complete Tech Solutions'}
             </h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5 stagger-children">
-            {[
-              {
-                title: "New PCs & Laptops",
-                desc: "All configs, all budgets. Built & tested in-house.",
-                icon: Monitor,
-                color: "#6366f1",
-              },
-              {
-                title: "PC & Laptop Repair",
-                desc: "Hardware faults, OS reinstall — fast turnaround.",
-                icon: Wrench,
-                color: "#10b981",
-              },
-              {
-                title: "Custom PC Builds",
-                desc: "We pick the best parts for your money.",
-                icon: Cpu,
-                color: "#f59e0b",
-              },
-              {
-                title: "Certified Refurbished",
-                desc: "Tested, upgraded, and warranty-backed laptops at affordable prices.",
-                icon: RefreshCw,
-                color: "#ec4899",
-              },
-            ].map((svc, i) => (
+            {activeServices.map((svc, i) => (
               <div
                 key={i}
                 onClick={() => setCurrentPage("services")}
@@ -2472,7 +2782,8 @@ export const Home: React.FC = () => {
           </div>
           <button
             onClick={() => setCurrentPage("services")}
-            className="mt-6 md:mt-12 bg-indigo-600 hover:bg-indigo-500 text-white px-7 md:px-8 py-3 md:py-4 rounded-2xl font-bold cursor-pointer transition-all text-sm"
+            className="mt-6 md:mt-12 text-white px-7 md:px-8 py-3 md:py-4 rounded-2xl font-bold cursor-pointer transition-all text-sm"
+            style={{ background: ht.accent }}
           >
             View All Services
           </button>
@@ -2512,17 +2823,16 @@ export const Home: React.FC = () => {
                 Need Help Choosing?
               </div>
               <h2 className="text-3xl md:text-5xl font-black text-white leading-tight tracking-tight">
-                Confused what to buy?
+                {ht.ctaHeadline}
               </h2>
               <p className="text-gray-400 leading-relaxed font-medium text-sm md:text-base max-w-md">
-                Tell us your budget and use-case — gaming, office, editing or
-                study. Our experts will suggest the best option for you.
+                {ht.ctaSub}
               </p>
               <div className="flex gap-3 flex-wrap">
                 <button
                   onClick={() => setCurrentPage("contact")}
                   className="cursor-pointer flex items-center gap-2 px-5 md:px-6 py-3 md:py-3.5 rounded-2xl font-black text-sm text-white uppercase tracking-wider transition-all hover:opacity-90"
-                  style={{ background: "#6366f1" }}
+                  style={{ background: ht.accent }}
                 >
                   Get Expert Help →
                 </button>
