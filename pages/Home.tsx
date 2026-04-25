@@ -58,7 +58,7 @@ const HOME_THEMES = {
   },
   Refurbished: {
     accent: '#059669',
-    accentHover: '#047857',
+    accentHover: '#34d399',
     accentLight: '#ecfdf5',
     accentText: '#065f46',
     accentGlow: 'rgba(5,150,105,0.18)',
@@ -1930,11 +1930,7 @@ export const Home: React.FC = () => {
                 <span style={{ WebkitTextFillColor: 'white', color: 'white' }}>{ht.aboutHeadline1}</span>
                 <br />
                 <span style={{
-                  background: `linear-gradient(90deg,${ht.accent},${ht.accentHover})`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  color: 'transparent',
+                  color: ht.accentHover,
                   display: 'inline-block',
                 }}>
                   {ht.aboutHeadline2}
