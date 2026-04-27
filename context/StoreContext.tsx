@@ -464,11 +464,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     // Wait for Supabase to restore session, THEN fetch
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        // ✅ Skip dashboard fetch during password recovery flow
+        if (event === "PASSWORD_RECOVERY") return;
+
         if (event === "INITIAL_SESSION") {
+          const params = new URLSearchParams(window.location.search);
+          if (params.get("page") === "reset-password") return;
+
           fetchDashboardData();
-          // ✅ Hydrate cart for CUSTOMER sessions on page load/refresh
           if (session?.user) {
-            // Check if customer (not staff) by querying customers table
             const { data: customerRow } = await supabase
               .from("customers")
               .select("id")
@@ -482,7 +486,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
             }
           }
         } else if (event === "SIGNED_IN") {
-          fetchDashboardData();
+          // ✅ Only fetch if NOT coming from password recovery
+          const params = new URLSearchParams(window.location.search);
+          if (!params.get("page")?.includes("reset")) {
+            fetchDashboardData();
+          }
         }
       },
     );
@@ -827,30 +835,18 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     localStorage.setItem("adminPage", page);
     setAdminPageState(page);
   }, []);
-  const setCurrentPage = useCallback(
-    (page: CustomerPage) => {
-      // If already on same page → force scroll to top
-      if (currentPage === page) {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-        return;
-      }
-
+  const setCurrentPage = useCallback((page: CustomerPage) => {
+    if (currentPage === page) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    // ✅ Don't persist reset-password — it's a transient auth page
+    if (page !== "reset-password") {
       localStorage.setItem("currentPage", page);
-      setCurrentPageState(page);
-
-      // Also scroll to top after navigation
-      setTimeout(() => {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-      }, 0);
-    },
-    [currentPage],
-  );
+    }
+    setCurrentPageState(page);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+  }, [currentPage]);
 
   const logout = useCallback(async () => {
     if (currentUser) {

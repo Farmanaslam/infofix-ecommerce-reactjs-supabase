@@ -46,8 +46,17 @@ const Main: React.FC = () => {
       try {
         // ✅ Check if this is a password recovery redirect FIRST
         const params = new URLSearchParams(window.location.search);
-        if (params.get("page") === "reset-password") {
-          setAuthReady(true);
+        const isReset = params.get("page") === "reset-password";
+
+        if (isReset) {
+          const code = new URLSearchParams(window.location.search).get("code");
+          if (code) {
+            await supabase.auth.exchangeCodeForSession(code);
+          } else {
+            await supabase.auth.getSession();
+          }
+          window.history.replaceState({}, document.title, window.location.pathname);
+          setCurrentPage("reset-password");
           return;
         }
         const { data } = await supabase.auth.getSession();
@@ -172,12 +181,6 @@ const Main: React.FC = () => {
     }
   }, [currentPage]);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("page") === "reset-password") {
-      setCurrentPage("reset-password");
-    }
-  }, []);
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {

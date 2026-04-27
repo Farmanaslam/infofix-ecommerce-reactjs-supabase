@@ -13,38 +13,47 @@ export const ResetPassword: React.FC = () => {
   const [sessionReady, setSessionReady] = useState(false);
 
   useEffect(() => {
-    // Supabase puts tokens in URL hash after redirect
+    let settled = false;
+
+    const resolve = () => {
+      if (!settled) { settled = true; setSessionReady(true); }
+    };
+
+    // Listen FIRST (before getSession), so PASSWORD_RECOVERY not missed
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session && (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN")) {
+        resolve();
+      }
+    });
+
+    // Then check existing session
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setSessionReady(true);
+      if (data.session) resolve();
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") setSessionReady(true);
-    });
+    // 5s fallback
+    const timer = setTimeout(resolve, 5000);
 
-    return () => listener.subscription.unsubscribe();
+    return () => { listener.subscription.unsubscribe(); clearTimeout(timer); };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirm) {
-      alert("Passwords don't match");
-      return;
-    }
-    if (password.length < 6) {
-      alert("Minimum 6 characters");
-      return;
-    }
+    if (password !== confirm) { alert("Passwords don't match"); return; }
+    if (password.length < 6) { alert("Minimum 6 characters"); return; }
+
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
-    if (error) {
-      alert(error.message);
-      return;
-    }
+
+    if (error) { alert(error.message); return; }
+
+    localStorage.removeItem("currentPage");
+    localStorage.setItem("currentPage", "login");
+    window.history.replaceState({}, document.title, window.location.pathname);
+    await supabase.auth.signOut();
     setDone(true);
   };
-
   if (done) {
     return (
       <div className="min-h-screen flex items-center justify-center py-6 md:py-24">
