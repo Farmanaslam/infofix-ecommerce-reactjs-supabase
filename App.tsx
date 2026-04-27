@@ -25,6 +25,9 @@ import { ContentManager } from "./pages/ContentManager";
 import { Orders } from "./pages/Orders";
 import { Customers } from "./pages/Customers";
 import { AdminCoupons } from "./pages/Coupons";
+import { ForgotPassword } from "./pages/ForgotPassword";
+import { ResetPassword } from "./pages/ResetPassword";
+
 const Main: React.FC = () => {
   const {
     currentUser,
@@ -35,11 +38,18 @@ const Main: React.FC = () => {
     setViewMode,
     setAdminPage,
     fetchDashboardData,
+    setCurrentPage,
   } = useStore();
   const [authReady, setAuthReady] = useState(false);
   useEffect(() => {
     const restoreSession = async () => {
       try {
+        // ✅ Check if this is a password recovery redirect FIRST
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("page") === "reset-password") {
+          setAuthReady(true);
+          return;
+        }
         const { data } = await supabase.auth.getSession();
 
         if (data.session?.user) {
@@ -162,6 +172,20 @@ const Main: React.FC = () => {
     }
   }, [currentPage]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("page") === "reset-password") {
+      setCurrentPage("reset-password");
+    }
+  }, []);
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setCurrentPage("reset-password");
+      }
+    });
+    return () => listener.subscription.unsubscribe();
+  }, []);
   if (!authReady) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white">
@@ -193,7 +217,8 @@ const Main: React.FC = () => {
         {currentPage === "policy" && <Policy />}
         {currentPage === "checkout" && <Checkout />}
         {currentPage === "careers" && <CareersPage />}
-
+        {currentPage === "forgot-password" && <ForgotPassword />}
+        {currentPage === "reset-password" && <ResetPassword />}
       </CustomerLayout>
     );
   }

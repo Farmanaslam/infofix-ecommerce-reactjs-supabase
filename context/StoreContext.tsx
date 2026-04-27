@@ -36,6 +36,8 @@ export type CustomerPage =
   | "policy"
   | "careers"
   | "product"
+  | "forgot-password"
+  | "reset-password";
 export type AdminPage =
   | "Dashboard"
   | "Inventory"
@@ -226,7 +228,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const [branches, setBranches] = useState<Branch[]>(INITIAL_BRANCHES);
   const savedPage = localStorage.getItem("currentPage") as CustomerPage;
   const safePage: CustomerPage =
-    savedPage && !["login", "signup"].includes(savedPage) ? savedPage : "home";
+    savedPage && !["login", "signup", "reset-password"].includes(savedPage) ? savedPage : "home";
   const [currentPage, setCurrentPageState] = useState<CustomerPage>(safePage);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);

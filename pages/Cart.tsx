@@ -177,7 +177,7 @@ export const Cart: React.FC = () => {
                   />
                   <div className="flex-1 w-full">
                     <h3 className="font-semibold text-lg text-gray-800">{item.name}</h3>
-                    <p className="text-gray-500 text-sm mt-1">₹{item.price} per unit</p>
+                    <p className="text-gray-500 text-sm mt-1">₹{item.price.toLocaleString("en-IN")} per unit</p>
 
                     {/* Per-item coupon badge */}
                     {itemCoupons.length > 0 && (
@@ -223,7 +223,7 @@ export const Cart: React.FC = () => {
                   </div>
                   <div className="flex flex-col items-end gap-4">
                     <p className="font-bold text-indigo-600 text-lg">
-                      ₹{(item.price * item.quantity).toFixed(2)}
+                      ₹{(item.price * item.quantity).toLocaleString("en-IN")}
                     </p>
                     {(item.min_order_quantity ?? 1) > 1 && (
                       <p className="text-[11px] text-amber-600 font-semibold">
@@ -366,7 +366,7 @@ export const Cart: React.FC = () => {
             <div className="space-y-2 text-gray-700">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>₹{total.toFixed(2)}</span>
+                <span>₹{total.toLocaleString("en-IN")}</span>
               </div>
               <div className="flex justify-between text-sm text-gray-500">
                 <span>Taxes</span>
@@ -379,7 +379,7 @@ export const Cart: React.FC = () => {
             </div>
             <div className="border-t mt-4 pt-4 flex justify-between text-lg font-bold">
               <span>Total Payable Amount</span>
-              <span className="text-indigo-600">₹{total.toFixed(2)}</span>
+              <span className="text-indigo-600">₹{total.toLocaleString("en-IN")}</span>
             </div>
             <p className="text-xs text-gray-500 mt-2">
               Final amount will be confirmed before payment.

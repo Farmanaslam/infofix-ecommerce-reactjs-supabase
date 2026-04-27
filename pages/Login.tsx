@@ -148,6 +148,17 @@ export const Login: React.FC = () => {
                 </div>
               </div>
 
+              {/* Forgot Password */}
+              <div className="text-right -mt-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage("forgot-password")}
+                  className="text-sm text-indigo-500 hover:text-indigo-700 font-semibold hover:underline transition-colors"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+
               {/* Login Button */}
               <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-[0.98]">
                 Login <LogIn className="w-5 h-5" />
