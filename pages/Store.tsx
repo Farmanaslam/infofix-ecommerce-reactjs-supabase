@@ -329,11 +329,13 @@ const Pagination = ({
   totalPages,
   total,
   onPageChange,
+  accent = '#6366f1',
 }: {
   page: number;
   totalPages: number;
   total: number;
   onPageChange: (p: number) => void;
+  accent?: string;
 }) => {
   if (totalPages <= 1) return null;
   const from = (page - 1) * PER_PAGE + 1;
@@ -372,7 +374,9 @@ const Pagination = ({
           disabled={page === 1}
           onClick={() => onPageChange(page - 1)}
           aria-label="Previous page"
-          className="w-10 h-10 rounded-xl flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-600 disabled:opacity-35 disabled:cursor-not-allowed transition-all duration-200"
+          className="w-10 h-10 rounded-xl flex items-center justify-center border border-gray-200 text-gray-500 disabled:opacity-35 disabled:cursor-not-allowed transition-all duration-200"
+          onMouseEnter={e => { e.currentTarget.style.borderColor = accent; e.currentTarget.style.color = accent; e.currentTarget.style.background = accent + '12'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.color = ''; e.currentTarget.style.background = ''; }}
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -389,8 +393,8 @@ const Pagination = ({
               key={p}
               onClick={() => onPageChange(p as number)}
               aria-current={p === page ? "page" : undefined}
-              className={`w-10 h-10 rounded-xl text-sm font-bold transition-all duration-200 ${p === page ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200 scale-105" : "border border-gray-200 text-gray-600 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-600"}`}
-            >
+              className={`w-10 h-10 rounded-xl text-sm font-bold transition-all duration-200 ${p === page ? "text-white shadow-lg scale-105" : "border border-gray-200 text-gray-600 hover:border-gray-300"}`}
+              style={p === page ? { background: accent, boxShadow: `0 4px 12px ${accent}44` } : {}} >
               {p}
             </button>
           ),
@@ -399,7 +403,9 @@ const Pagination = ({
           disabled={page === totalPages}
           onClick={() => onPageChange(page + 1)}
           aria-label="Next page"
-          className="w-10 h-10 rounded-xl flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-600 disabled:opacity-35 disabled:cursor-not-allowed transition-all duration-200"
+          className="w-10 h-10 rounded-xl flex items-center justify-center border border-gray-200 text-gray-500 disabled:opacity-35 disabled:cursor-not-allowed transition-all duration-200"
+          onMouseEnter={e => { e.currentTarget.style.borderColor = accent; e.currentTarget.style.color = accent; e.currentTarget.style.background = accent + '12'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.color = ''; e.currentTarget.style.background = ''; }}
         >
           <ChevronRight className="w-4 h-4" />
         </button>
@@ -415,12 +421,14 @@ const FilterSection = ({
   selected,
   onChange,
   single = false,
+  accent = '#6366f1',
 }: {
   title: string;
   options: string[];
   selected: string[];
   onChange: (v: any) => void;
   single?: boolean;
+  accent?: string;
 }) => {
   const toggle = (value: string) => {
     if (single) {
@@ -443,8 +451,8 @@ const FilterSection = ({
           <button
             key={option}
             onClick={() => toggle(option)}
-            className={`px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${selected.includes(option) ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
-          >
+            className={`px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${selected.includes(option) ? "text-white shadow-lg" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+            style={selected.includes(option) ? { background: accent, boxShadow: `0 4px 12px ${accent}44` } : {}}>
             {option}
           </button>
         ))}
@@ -1063,7 +1071,7 @@ export const Store: React.FC = () => {
       `}</style>
 
       {/* ── Hero ── */}
-      <section className="relative flex items-center justify-center overflow-hidden h-auto py-2 px-2 md:h-80 md:py-0" style={{ background: 'white' }}>
+      <section ref={gridRef} className="relative flex items-center justify-center overflow-hidden h-auto py-2 px-2 md:h-80 md:py-0" style={{ background: 'white' }}>
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[60%] rounded-full blur-[120px] opacity-40 pointer-events-none"
           style={{ background: theme.accent + '22' }} />
         <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[50%] rounded-full blur-[100px] opacity-30 pointer-events-none"
@@ -1127,7 +1135,6 @@ export const Store: React.FC = () => {
       <div className="app-container mt-4">
         {/* ── Filter Bar ── */}
         <div
-          ref={gridRef}
           className="sticky top-0 z-30 -mx-4 px-4 py-4 bg-white/96 backdrop-blur-sm border-b border-gray-100 mb-6"
         >
           <div className="flex flex-col gap-4 max-w-7xl mx-auto">
@@ -1243,7 +1250,9 @@ export const Store: React.FC = () => {
               </p>
               <button
                 onClick={() => setIsFilterOpen(true)}
-                className="flex items-center gap-2 text-xs font-black text-gray-900 uppercase tracking-widest hover:text-indigo-600 transition-colors"
+                className="flex items-center gap-2 text-xs font-black text-gray-900 uppercase tracking-widest transition-colors"
+                onMouseEnter={e => { e.currentTarget.style.color = theme.accent; }}
+                onMouseLeave={e => { e.currentTarget.style.color = ''; }}
               >
                 <SlidersHorizontal className="w-4 h-4" /> Filter & Sort
               </button>
@@ -1280,6 +1289,7 @@ export const Store: React.FC = () => {
               totalPages={totalPages}
               total={totalCount}
               onPageChange={handlePageChange}
+              accent={theme.accent}
             />
           </>
         ) : (
@@ -1355,6 +1365,7 @@ export const Store: React.FC = () => {
                 selected={selectedCategory === "All" ? [] : [selectedCategory]}
                 single
                 onChange={(v) => setSelectedCategory(v || "All")}
+                accent={theme.accent}
               />
               <FilterSection
                 title="Brand"
@@ -1373,12 +1384,14 @@ export const Store: React.FC = () => {
                 ]}
                 selected={selectedBrands}
                 onChange={setSelectedBrands}
+                accent={theme.accent}
               />
               <FilterSection
                 title="RAM"
                 options={["4GB", "8GB", "16GB", "32GB", "64GB"]}
                 selected={selectedRam}
                 onChange={setSelectedRam}
+                accent={theme.accent}
               />
               <FilterSection
                 title="Storage"
@@ -1391,6 +1404,7 @@ export const Store: React.FC = () => {
                 ]}
                 selected={selectedStorage}
                 onChange={setSelectedStorage}
+                accent={theme.accent}
               />
               <div>
                 <h3 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-4">

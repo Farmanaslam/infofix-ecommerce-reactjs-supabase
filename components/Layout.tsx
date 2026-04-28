@@ -71,7 +71,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentPage]);
+  }, [currentPage, selectedStoreSection]);
 
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "";
@@ -225,7 +225,9 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 <button
                   key={id}
                   onClick={() => setCurrentPage(id as CustomerPage)}
-                  className="px-3 hover:text-indigo-600 transition-colors duration-150"
+                  className="px-3 transition-colors duration-150"
+                  onMouseEnter={e => (e.currentTarget.style.color = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '')}
                 >
                   {label}
                 </button>
@@ -264,7 +266,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               return (
                 <button
                   key={tab.id}
-                  onClick={() => { setSelectedStoreSection(tab.id); setSelectedCategory(null); setSelectedSubcategory(null); }}
+                  onClick={() => { setSelectedStoreSection(tab.id); setSelectedCategory(null); setSelectedSubcategory(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   className="group relative flex items-center gap-2 px-3.5 py-1.5 rounded-[14px] overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[.97]"
                   style={{
                     background: tab.gradient,
@@ -314,19 +316,29 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               </span>
 
               {/* SUB BRAND */}
-              <span className="text-[9px] lg:text-[10px] font-semibold tracking-[0.35em] text-slate-400 uppercase group-hover:text-indigo-500 transition-all duration-200">
+              <span
+                className="text-[9px] lg:text-[10px] font-semibold tracking-[0.35em] text-slate-400 uppercase transition-all duration-200"
+                style={{ ['--hover-color' as any]: sectionTabs.find(t => t.id === selectedStoreSection)?.accent }}
+                onMouseEnter={e => (e.currentTarget.style.color = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1')}
+                onMouseLeave={e => (e.currentTarget.style.color = '')}
+              >
                 Computers
               </span>
 
               {/* subtle underline glow */}
-              <span className="h-0.5 w-0 bg-indigo-500 group-hover:w-full transition-all duration-300 rounded-full mt-1"></span>
+              <span
+                className="h-0.5 w-0 group-hover:w-full transition-all duration-300 rounded-full mt-1"
+                style={{ background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1' }}
+              ></span>
             </div>
           </button>
 
           {/* ── SEARCH (desktop) ── */}
           <div className="hidden lg:flex flex-1 max-w-2xl mx-auto">
             {/* pill container with focus glow via CSS below */}
-            <div className="search-pill flex w-full bg-slate-50 border border-slate-200 rounded-full overflow-hidden transition-all duration-200 hover:border-indigo-300">
+            <div className="search-pill flex w-full bg-slate-50 border border-slate-200 rounded-full overflow-hidden transition-all duration-200"
+              onMouseEnter={e => (e.currentTarget.style.borderColor = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = '')}>
               <input
                 type="text"
                 placeholder={
@@ -1440,10 +1452,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
 
       <style>{`
         /* Search pill focus glow — Tailwind v4 compatible */
-        .search-pill:focus-within {
-          border-color: #6366f1;
-          box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
-        }
+       
 
         /* FAB pulse */
         @keyframes fab-pulse {

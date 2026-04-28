@@ -974,7 +974,7 @@ export const Home: React.FC = () => {
       const { data } = await supabase
         .from("products")
         .select(
-          "id, name, image_url, discounted_price, retail_price, discount_percent, category_id, categories(name)",
+          "id, name, image_url, discounted_price, retail_price, discount_percent, category_id, min_order_quantity, stock_quantity, categories(name)",
         )
         .eq("is_active", true)
         .eq("store_section", sectionMap[selectedStoreSection])
@@ -2205,7 +2205,7 @@ export const Home: React.FC = () => {
                           ),
                           category: product.categories?.name ?? "",
                           description: "",
-                          stock: 99,
+                          stock: product.stock_quantity ?? 99,
                           condition: "New",
                           brand: "",
                           specs: [],
@@ -2216,6 +2216,7 @@ export const Home: React.FC = () => {
                           discountPercent: Number(
                             product.discount_percent ?? 0,
                           ),
+                          min_order_quantity: product.min_order_quantity ?? 1,
                         } as any);
                       }}
                       className="mt-1 w-full bg-gray-900 text-white py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-[0.15em] md:tracking-[0.2em] flex items-center justify-center gap-1.5 md:gap-2 hover:bg-indigo-600 transition-colors"

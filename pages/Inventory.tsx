@@ -465,7 +465,7 @@ export const Inventory: React.FC = () => {
       const discPercent = parseFloat(form.discount_percent) || 0;
       const discPrice =
         form.discounted_price !== ""
-          ? parseFloat(form.discounted_price)
+          ? Math.ceil(parseFloat(form.discounted_price))
           : retailPrice;
       const allImages = form.image_urls?.length
         ? form.image_urls
@@ -717,7 +717,7 @@ export const Inventory: React.FC = () => {
         if (priceType === "percent") {
           const factor =
             priceDir === "increase" ? 1 + adjVal / 100 : 1 - adjVal / 100;
-          after = Math.round(src * factor);
+          after = Math.ceil(src * factor);
         } else {
           after = priceDir === "increase" ? src + adjVal : src - adjVal;
         }
@@ -835,15 +835,26 @@ export const Inventory: React.FC = () => {
 
     const retail = parseFloat(updated.retail_price) || 0;
     const disc = parseFloat(updated.discounted_price) || 0;
+    const pct = parseFloat(updated.discount_percent) || 0;
 
-    // ✅ ONLY calculate percentage
-    if (retail > 0 && disc > 0 && disc < retail) {
-      updated.discount_percent = ((1 - disc / retail) * 100).toFixed(0);
+    if (field === "discount_percent" && retail > 0 && pct > 0) {
+      // percent typed → recalc selling price, always ceil
+      updated.discounted_price = String(Math.ceil(retail * (1 - pct / 100)));
+    } else if (field === "retail_price" && retail > 0 && disc > 0 && disc < retail) {
+      // retail typed → recalc percent only, leave selling price alone
+      updated.discount_percent = Math.round((1 - disc / retail) * 100).toString();
+    } else if (field === "discounted_price") {
+      // selling price typed → ceil it, recalc percent only
+      const ceiled = val === "" ? "" : String(Math.ceil(parseFloat(val) || 0));
+      updated.discounted_price = ceiled;
+      const ceiledNum = parseFloat(ceiled) || 0;
+      if (retail > 0 && ceiledNum > 0 && ceiledNum < retail) {
+        updated.discount_percent = Math.round((1 - ceiledNum / retail) * 100).toString();
+      }
     }
 
     setForm(updated);
   };
-
   // ═══════════════════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════════════════
