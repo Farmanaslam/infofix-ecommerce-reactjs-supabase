@@ -477,7 +477,8 @@ export const Store: React.FC = () => {
     currentUser,
     pendingRedirectAfterLogin,
     setPendingRedirectAfterLogin,
-    selectedStoreSection
+    selectedStoreSection,
+    currentPage
   } = useStore();
 
   // Theme config per section
@@ -1022,12 +1023,28 @@ export const Store: React.FC = () => {
     selectedStorage,
     selectedStoreSection,
   ]);
+  const prevSectionRef = useRef(selectedStoreSection);
   useEffect(() => {
-    if (selectedProduct) {
+    if (prevSectionRef.current !== selectedStoreSection) {
+      prevSectionRef.current = selectedStoreSection;
       setSelectedProduct(null);
       sessionStorage.removeItem("selectedProduct");
     }
   }, [selectedStoreSection]);
+
+  useEffect(() => {
+    if (currentPage === 'shop') {
+      const saved = sessionStorage.getItem("selectedProduct");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setSelectedProduct(parsed);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch { }
+      }
+    }
+  }, [currentPage]);
+
   const handlePageChange = (newPage: number) => {
     setRevealed(false);
     setPage(newPage);
