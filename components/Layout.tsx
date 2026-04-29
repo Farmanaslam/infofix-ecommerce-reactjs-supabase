@@ -266,7 +266,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               return (
                 <button
                   key={tab.id}
-                  onClick={() => { setSelectedStoreSection(tab.id); setSelectedCategory(null); setSelectedSubcategory(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  onClick={() => { setSelectedStoreSection(tab.id); setSelectedCategory(null); setSelectedSubcategory(null); window.scrollTo({ top: 0, behavior: 'smooth' }); setCurrentPage('shop'); }}
                   className="group relative flex items-center gap-2 px-3.5 py-1.5 rounded-[14px] overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[.97]"
                   style={{
                     background: tab.gradient,
@@ -548,7 +548,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => { setSelectedStoreSection(tab.id); setSelectedCategory(null); setSelectedSubcategory(null); }}
+                    onClick={() => { setSelectedStoreSection(tab.id); setSelectedCategory(null); setSelectedSubcategory(null); setCurrentPage('shop'); }}
                     className="relative flex flex-col items-center justify-center py-2.5 rounded-2xl overflow-hidden transition-all duration-200 active:scale-95"
                     style={{
                       background: tab.gradient,

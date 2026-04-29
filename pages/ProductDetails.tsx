@@ -305,6 +305,14 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                 </div>
               )}
               {galleryImages.length > 1 && <p className="text-center text-[10px] font-black uppercase tracking-widest text-gray-400 mt-2.5">{activeImg + 1} / {galleryImages.length}</p>}
+              {product.condition === "Refurbished" && (
+                <div className="mt-3 flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
+                  <span className="text-amber-500 shrink-0 mt-0.5 text-base">⚠️</span>
+                  <p className="text-[11px] text-amber-700 font-semibold leading-relaxed">
+                    <span className="font-black">Images are for reference only.</span> Actual product appearance, may vary from what's shown. All units are inspected and tested before dispatch.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/*

@@ -1022,7 +1022,12 @@ export const Store: React.FC = () => {
     selectedStorage,
     selectedStoreSection,
   ]);
-
+  useEffect(() => {
+    if (selectedProduct) {
+      setSelectedProduct(null);
+      sessionStorage.removeItem("selectedProduct");
+    }
+  }, [selectedStoreSection]);
   const handlePageChange = (newPage: number) => {
     setRevealed(false);
     setPage(newPage);
