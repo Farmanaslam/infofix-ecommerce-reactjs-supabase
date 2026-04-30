@@ -45,7 +45,7 @@ export const SUBCATEGORIES: Record<
     groups: [
       {
         label: "Components & Peripherals",
-        items: ["RAM", "Motherboard", "Monitor", "Keyboard", "Mouse", "CPU"],
+        items: ["Keyboard", "Mouse", "Headphones", "Hub", "Stand", "WIFI Adapter", "Router"],
       },
     ],
   },

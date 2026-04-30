@@ -147,12 +147,12 @@ const CATEGORY_KEYWORDS: Record<string, string> = {
   "custom pcs": "Custom PC",
   "gaming pc": "Custom PC",
   accessories: "Accessories",
-  ram: "Accessories",
-  motherboard: "Accessories",
   keyboard: "Accessories",
   mouse: "Accessories",
-  monitor: "Accessories",
-  cpu: "Accessories",
+  headphones: "Accessories",
+  hub: "Accessories",
+  stand: "Accessories",
+  router: "Accessories",
 };
 
 // AFTER
@@ -161,16 +161,18 @@ const SUBCATEGORY_KEYWORDS: Record<
   string,
   { category: string; subcategory: string }
 > = {
-  ram: { category: "Accessories", subcategory: "RAM" },
-  motherboard: { category: "Accessories", subcategory: "Motherboard" },
-  motherboards: { category: "Accessories", subcategory: "Motherboard" },
   keyboard: { category: "Accessories", subcategory: "Keyboard" },
   keyboards: { category: "Accessories", subcategory: "Keyboard" },
   mouse: { category: "Accessories", subcategory: "Mouse" },
   mice: { category: "Accessories", subcategory: "Mouse" },
-  monitor: { category: "Accessories", subcategory: "Monitor" },
-  monitors: { category: "Accessories", subcategory: "Monitor" },
-  cpu: { category: "Accessories", subcategory: "CPU" },
+  headphones: { category: "Accessories", subcategory: "Headphones" },
+  headphone: { category: "Accessories", subcategory: "Headphones" },
+  hub: { category: "Accessories", subcategory: "Hub" },
+  stand: { category: "Accessories", subcategory: "Stand" },
+  "wifi adapter": { category: "Accessories", subcategory: "WIFI Adapter" },
+  "wifi adapters": { category: "Accessories", subcategory: "WIFI Adapter" },
+  router: { category: "Accessories", subcategory: "Router" },
+  routers: { category: "Accessories", subcategory: "Router" },
   gaming: { category: "Laptop", subcategory: "Gaming" },
   "gaming laptop": { category: "Laptop", subcategory: "Gaming" },
   "gaming laptops": { category: "Laptop", subcategory: "Gaming" },
@@ -1213,14 +1215,7 @@ export const Store: React.FC = () => {
             {/* Subcategory pills — shown when Accessories is selected */}
             {selectedCategory === "Accessories" && (
               <div className="flex flex-wrap items-center gap-2 w-full mt-1">
-                {[
-                  "RAM",
-                  "Motherboard",
-                  "Monitor",
-                  "Keyboard",
-                  "Mouse",
-                  "CPU",
-                ].map((sub) => (
+                {["Keyboard", "Mouse", "Headphones", "Hub", "Stand", "WIFI Adapter", "Router"].map((sub) => (
                   <button
                     key={sub}
                     onClick={() =>
@@ -1254,12 +1249,12 @@ export const Store: React.FC = () => {
                     </span>{" "}
                     Products
                     {selectedCategory !== "All" && (
-                      <span className="text-indigo-500 ml-1.5">
+                      <span className="ml-1.5" style={{ color: theme.accent }}>
                         · {selectedCategory}
                       </span>
                     )}
                     {searchQuery && (
-                      <span className="text-indigo-500 ml-1.5">
+                      <span className="ml-1.5" style={{ color: theme.accent }}>
                         · "{searchQuery}"
                       </span>
                     )}
