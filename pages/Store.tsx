@@ -1064,6 +1064,7 @@ export const Store: React.FC = () => {
           window.scrollTo({ top: 0, behavior: "smooth" });
         }}
         onNavigateToCart={handleNavigateToCart}
+        accent={theme.accent}
       />
     );
   }

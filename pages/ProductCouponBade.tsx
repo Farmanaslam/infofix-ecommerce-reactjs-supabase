@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Tag } from "lucide-react";
+import { Check, Copy, Tag } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 
 interface ProductCoupon {
@@ -69,5 +69,91 @@ export const ProductCouponBadge: React.FC<{ productId: number | string }> = ({
         ))}
       </div>
     </div>
+  );
+};
+export const ProductCouponInline: React.FC<{
+  productId: number | string;
+  productPrice: number;
+  variant?: "card" | "details";
+}> = ({ productId, productPrice, variant = "card" }) => {
+  const [best, setBest] = useState<ProductCoupon | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const fetchCoupon = async () => {
+      const { data } = await supabase
+        .from("coupons")
+        .select("code, discount_amount, min_order_amount, description, expires_at, product_ids")
+        .eq("is_active", true);
+      if (!data) return;
+      const numId = Number(productId);
+      const now = new Date();
+      const valid = data.filter(
+        (c: any) =>
+          (!c.product_ids || c.product_ids.length === 0 || c.product_ids.includes(numId)) &&
+          (!c.expires_at || new Date(c.expires_at) > now) &&
+          (c.min_order_amount === 0 || productPrice >= c.min_order_amount)
+      );
+      const top = valid.sort((a: any, b: any) => b.discount_amount - a.discount_amount)[0] ?? null;
+      setBest(top);
+    };
+    fetchCoupon();
+  }, [productId, productPrice]);
+
+  if (!best) return null;
+  const finalPrice = productPrice - best.discount_amount;
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard?.writeText(best.code).catch(() => { });
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // ── DETAILS variant: always full scissors row, mobile + desktop same ──
+  if (variant === "details") {
+    return (
+      <>
+        <style>{`
+          @keyframes couponIn { from { opacity:0; } to { opacity:1; } }
+          .coupon-details { animation: couponIn 0.3s ease both; }
+        `}</style>
+        <div className="coupon-details mt-2 flex items-center gap-2 flex-wrap">
+          <span className="text-emerald-400 text-[13px] select-none shrink-0">✂︎</span>
+          <span className="text-[15px] font-black text-emerald-700 tracking-tight whitespace-nowrap">
+            Get at ₹{finalPrice.toLocaleString("en-IN")}
+          </span>
+          <span className="text-[11px] text-gray-400 font-medium">with</span>
+          <span className="font-black text-[12px] text-emerald-800 bg-emerald-50 border border-dashed border-emerald-300 px-2 py-0.5 rounded-md tracking-widest leading-none whitespace-nowrap">
+            {best.code}
+          </span>
+        </div>
+      </>
+    );
+  }
+
+  // ── CARD variant: mobile = tiny text, desktop = scissors row ──
+  return (
+    <>
+      <style>{`
+        @keyframes couponIn { from { opacity:0; } to { opacity:1; } }
+        .coupon-wrap { animation: couponIn 0.3s ease both; }
+      `}</style>
+
+      {/* mobile card — single text line, zero overflow */}
+      <div className="coupon-wrap  md:hidden">
+        <span className="text-[8px] font-bold text-emerald-700 leading-none whitespace-nowrap">
+          🏷 Get at ₹{finalPrice.toLocaleString("en-IN")} with offers
+        </span>
+      </div>
+
+      {/* desktop card — scissors row, no wrap */}
+      <div className="coupon-wrap  hidden md:flex items-center gap-1.5 flex-nowrap overflow-hidden">
+        <span className="text-emerald-400 text-[11px] select-none shrink-0">✂︎</span>
+        <span className="text-[13px] font-black text-emerald-700 tracking-tight whitespace-nowrap shrink-0">
+          Get at ₹{finalPrice.toLocaleString("en-IN")}
+        </span>
+      </div>
+    </>
   );
 };

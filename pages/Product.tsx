@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Star,
   Heart,
@@ -10,6 +10,75 @@ import {
 } from "lucide-react";
 import { Product as ProductType } from "../types";
 import { supabase } from "@/lib/supabaseClient";
+import { ProductCouponInline } from "./ProductCouponBade";
+
+// ─── Compact savings + coupon summary for card ────────────────────────────────
+const ProductCouponCardSummary: React.FC<{
+  savings: number;
+  productId: string | number;
+  productPrice: number;
+}> = ({ savings, productId, productPrice }) => {
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponCode, setCouponCode] = useState("");
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase
+        .from("coupons")
+        .select("code, discount_amount, min_order_amount, expires_at, product_ids")
+        .eq("is_active", true);
+      if (!data) return;
+      const numId = Number(productId);
+      const now = new Date();
+      const valid = data.filter(
+        (c: any) =>
+          (!c.product_ids || c.product_ids.length === 0 || c.product_ids.includes(numId)) &&
+          (!c.expires_at || new Date(c.expires_at) > now) &&
+          (c.min_order_amount === 0 || productPrice >= c.min_order_amount)
+      );
+      const top = valid.sort((a: any, b: any) => b.discount_amount - a.discount_amount)[0];
+      if (top) { setCouponDiscount(top.discount_amount); setCouponCode(top.code); }
+    };
+    load();
+  }, [productId, productPrice]);
+
+  const totalSave = savings + couponDiscount;
+  const finalPrice = productPrice - couponDiscount;
+  const hasCoupon = couponDiscount > 0;
+
+  if (totalSave === 0 && !hasCoupon) return null;
+
+  return (
+    <div className="mt-2 space-y-0.5">
+      {/* "Get at ₹X" — only if coupon exists */}
+      {hasCoupon && (
+        <div className="flex items-center gap-1 flex-nowrap overflow-hidden">
+          <span className="text-[8px] md:text-[9px] font-black text-emerald-700 uppercase tracking-tight whitespace-nowrap leading-none shrink-0">
+            Get at
+          </span>
+          <span className="text-[11px] md:text-[13px] font-black text-emerald-700 tracking-tight whitespace-nowrap leading-none shrink-0">
+            ₹{finalPrice.toLocaleString("en-IN")}
+          </span>
+          <span className="text-[7px] md:text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1 py-px rounded tracking-widest whitespace-nowrap leading-none truncate max-w-15 md:max-w-20">
+            {couponCode}
+          </span>
+        </div>
+      )}
+      {/* Save total */}
+      {totalSave > 0 && (
+        <div className="mt-1.5 flex items-center gap-1 flex-nowrap overflow-hidden">
+          <span className="text-[7px] md:text-[8px] font-black text-emerald-500 uppercase tracking-tight whitespace-nowrap leading-none shrink-0">
+            Save
+          </span>
+          <span className="text-[9px] md:text-[10px] font-black text-emerald-600 whitespace-nowrap leading-none shrink-0">
+            ₹{totalSave.toLocaleString("en-IN")}
+          </span>
+
+        </div>
+      )}
+    </div>
+  );
+};
 
 interface ProductProps {
   product: ProductType;
@@ -301,11 +370,11 @@ export const ProductCard: React.FC<ProductProps> = ({
                 </span>
               )}
             </div>
-            {savings > 0 && (
-              <span className="text-[9px] md:text-[10px] text-emerald-600 font-bold mt-0.5 block">
-                Save ₹{savings.toLocaleString("en-IN")}
-              </span>
-            )}
+            <ProductCouponCardSummary
+              savings={savings}
+              productId={product.id}
+              productPrice={product.price}
+            />
           </div>
           <div className="hidden md:block text-right">
             <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">
@@ -322,11 +391,12 @@ export const ProductCard: React.FC<ProductProps> = ({
               </div>
             )}
           </div>
+
         </div>
 
         {/* ── CTA Buttons ── */}
         {!isOut && (
-          <div className="mt-2 md:mt-3 flex flex-col gap-1.5 md:gap-2">
+          <div className="mt-2 md:mt-3 flex flex-col gap-1.5 md:gap-2 -mx-1 md:-mx-2">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -358,7 +428,7 @@ export const ProductCard: React.FC<ProductProps> = ({
         {isOut && (
           <button
             disabled
-            className="mt-2 md:mt-3 w-full py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black
+            className="mt-2 md:mt-3 -mx-1 md:-mx-2 w-[calc(100%+0.5rem)] md:w-[calc(100%+1rem)] py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black
                        text-[9px] md:text-[11px] uppercase tracking-[0.15em] bg-gray-100 text-gray-400 cursor-not-allowed"
           >
             Out of Stock

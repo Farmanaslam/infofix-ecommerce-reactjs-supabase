@@ -7,12 +7,13 @@ import {
 import { Product } from "../types";
 import { useStore } from "../context/StoreContext";
 import { supabase } from "@/lib/supabaseClient";
-import { ProductCouponBadge } from "./ProductCouponBade";
+import { ProductCouponBadge, ProductCouponInline } from "./ProductCouponBade";
 
 interface ProductDetailsProps {
   product: Product;
   onBack: () => void;
   onNavigateToCart: () => void;
+  accent?: string;
 }
 interface Review {
   id: string; name: string; stars: number; title: string;
@@ -142,7 +143,7 @@ const AddReviewForm: React.FC<{ productId: string; onSubmit: (r: Review) => void
   );
 };
 
-export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack, onNavigateToCart }) => {
+export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack, onNavigateToCart, accent = '#6366f1' }) => {
   const { addToCart, currentUser } = useStore();
   const storageKey = `liked_product_${product.id}`;
   const countKey = `likes_count_${product.id}`;
@@ -259,7 +260,12 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
 
       <div className="min-h-screen bg-white pb-32">
         <div className="app-container pt-6 pb-2">
-          <button onClick={onBack} className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-indigo-600 transition-colors group">
+          <button
+            onClick={onBack}
+            className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 transition-colors group"
+            onMouseEnter={e => { e.currentTarget.style.color = accent; }}
+            onMouseLeave={e => { e.currentTarget.style.color = ''; }}
+          >
             <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" /> Back to Store
           </button>
         </div>
@@ -365,6 +371,9 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                   </div>
                   {moq > 1 && <div className="flex flex-col gap-1 mt-2 bg-amber-50 border border-amber-100 rounded-2xl px-4 py-3"><p className="text-xs font-black text-amber-700 uppercase tracking-wide">Minimum Order: {moq} units</p></div>}
                   {savings > 0 && <span className="inline-flex mt-2 text-sm text-emerald-700 font-bold bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100">You save ₹{savings.toLocaleString("en-IN")} ({product.discountPercent}% off)</span>}
+                  <div className="mt-3">
+                    <ProductCouponInline productId={product.id} productPrice={product.price} variant="details" />
+                  </div>
                   {isVeryLow && !isOut && <div className="flex items-center gap-1.5 mt-2 text-red-600 font-bold text-sm"><AlertTriangle className="w-4 h-4 shrink-0" />{stockUrgencyLabel()}</div>}
                   {isLow && !isVeryLow && !isOut && <div className="flex items-center gap-1.5 mt-2 text-orange-500 font-bold text-xs"><Zap className="w-3.5 h-3.5" /> Only {product.stock} left — order soon!</div>}
                 </div>
