@@ -23,6 +23,34 @@ export const Cart: React.FC = () => {
   const [showFixedCheckout, setShowFixedCheckout] = useState(true);
   const checkoutBtnRef = useRef<HTMLButtonElement>(null);
 
+  // Drag-scroll refs
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    isDragging.current = true;
+    startX.current = e.pageX - (scrollRef.current?.offsetLeft ?? 0);
+    scrollLeft.current = scrollRef.current?.scrollLeft ?? 0;
+    if (scrollRef.current) scrollRef.current.style.cursor = "grabbing";
+  };
+  const onMouseLeave = () => {
+    isDragging.current = false;
+    if (scrollRef.current) scrollRef.current.style.cursor = "grab";
+  };
+  const onMouseUp = () => {
+    isDragging.current = false;
+    if (scrollRef.current) scrollRef.current.style.cursor = "grab";
+  };
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.2;
+    scrollRef.current.scrollLeft = scrollLeft.current - walk;
+  };
+
   useEffect(() => {
     const fetchCoupons = async () => {
       const { data } = await supabase
@@ -52,7 +80,6 @@ export const Cart: React.FC = () => {
       const footer = document.querySelector("footer");
       const footerRect = footer?.getBoundingClientRect();
 
-      // Hide fixed bar if actual button OR footer is visible in viewport
       const btnVisible = btnRect.top < window.innerHeight && btnRect.bottom > 0;
       const footerVisible = footerRect ? footerRect.top < window.innerHeight : false;
 
@@ -60,9 +87,10 @@ export const Cart: React.FC = () => {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // run once on mount
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, [cart.length]);
+
   const cartProductIds = cart.map((item) => Number(item.id));
   const applicableCoupons = allCoupons.filter((c) => {
     if (!c.product_ids || c.product_ids.length === 0) return true;
@@ -130,7 +158,7 @@ export const Cart: React.FC = () => {
 
   return (
     <>
-      {/* Fixed bottom checkout bar — mobile only, hidden when actual button visible */}
+      {/* Fixed bottom checkout bar — mobile only */}
       {showFixedCheckout && (
         <div
           className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-100 px-4 py-3"
@@ -153,13 +181,11 @@ export const Cart: React.FC = () => {
 
       <div className="max-w-6xl mx-auto px-4 py-6 md:py-10 pb-28 lg:pb-10">
 
-        {/* Page title */}
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">Shopping Cart</h1>
           <p className="text-sm text-gray-400 mt-1">{cart.length} {cart.length === 1 ? "item" : "items"} in your cart</p>
         </div>
 
-        {/* ── MAIN LAYOUT: Left + Right ── */}
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-start">
 
           {/* ── LEFT COLUMN ── */}
@@ -182,12 +208,10 @@ export const Cart: React.FC = () => {
                       className="flex gap-4 p-4 md:p-5 hover:bg-gray-50/50 transition-colors cursor-pointer"
                       onClick={() => handleSelectProduct(item)}
                     >
-                      {/* Image */}
                       <div className="shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
                         <img src={item.image} className="w-full h-full object-cover" alt={item.name} />
                       </div>
 
-                      {/* Details */}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-sm md:text-base text-gray-900 leading-snug line-clamp-2">{item.name}</h3>
                         <p className="text-xs text-gray-400 mt-0.5">₹{item.price.toLocaleString("en-IN")} per unit</p>
@@ -208,7 +232,6 @@ export const Cart: React.FC = () => {
                           </div>
                         )}
 
-                        {/* Qty + Price row */}
                         <div className="flex items-center justify-between gap-3 mt-3">
                           <div className="flex items-center bg-gray-100 rounded-xl overflow-hidden" onClick={e => e.stopPropagation()}>
                             <button
@@ -291,15 +314,36 @@ export const Cart: React.FC = () => {
                     View all <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                <div className="p-4">
-                  <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
+                <div className="p-4 overflow-hidden">
+                  {/* Drag-scrollable on desktop, touch-scroll on mobile, no scrollbar */}
+                  <div
+                    ref={scrollRef}
+                    className="flex gap-3 overflow-x-auto pb-1"
+                    style={{
+                      scrollbarWidth: "none",
+                      msOverflowStyle: "none",
+                      cursor: "grab",
+                      userSelect: "none",
+                      WebkitOverflowScrolling: "touch",
+                    }}
+                    onMouseDown={onMouseDown}
+                    onMouseLeave={onMouseLeave}
+                    onMouseUp={onMouseUp}
+                    onMouseMove={onMouseMove}
+                  >
                     {similarProducts.map((product) => (
                       <div
                         key={product.id}
                         onClick={() => handleSelectProduct(product)}
                         className="shrink-0 w-36 border border-gray-100 rounded-2xl p-3 bg-white hover:shadow-md hover:border-indigo-200 transition-all cursor-pointer"
+                        style={{ pointerEvents: "auto" }}
                       >
-                        <img src={product.image} className="w-full h-24 object-cover rounded-xl mb-2" alt={product.name} />
+                        <img
+                          src={product.image}
+                          className="w-full h-24 object-cover rounded-xl mb-2"
+                          alt={product.name}
+                          draggable={false}
+                        />
                         <h3 className="font-semibold text-xs text-gray-800 leading-snug line-clamp-2 mb-1.5">{product.name}</h3>
                         <p className="text-indigo-600 font-black text-sm mb-2">₹{product.price.toLocaleString("en-IN")}</p>
                         <button
@@ -339,7 +383,7 @@ export const Cart: React.FC = () => {
               ))}
             </div>
 
-          </div>{/* end left */}
+          </div>
 
           {/* ── RIGHT COLUMN: Order Summary ── */}
           <div className="w-full lg:w-80 xl:w-96 shrink-0 lg:sticky lg:top-6">
@@ -387,7 +431,7 @@ export const Cart: React.FC = () => {
             </div>
           </div>
 
-        </div>{/* end main layout */}
+        </div>
       </div>
     </>
   );
