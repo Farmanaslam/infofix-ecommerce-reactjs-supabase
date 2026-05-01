@@ -554,9 +554,22 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
               } catch { }
             }
 
-            const { data: customerRow } = await supabase
+            let { data: customerRow } = await supabase
               .from("customers").select("id, full_name, email")
               .eq("id", session.user.id).maybeSingle();
+
+            // New Google user — create customer row
+            if (!customerRow) {
+              const googleName = session.user.user_metadata?.full_name ?? session.user.user_metadata?.name ?? "";
+              const googleEmail = session.user.email ?? "";
+              await supabase.from("customers").insert({
+                id: session.user.id,
+                full_name: googleName,
+                email: googleEmail,
+                role: "CUSTOMER",
+              });
+              customerRow = { id: session.user.id, full_name: googleName, email: googleEmail };
+            }
 
             if (customerRow) {
               setCartLoading(true);

@@ -943,8 +943,8 @@ export const Home: React.FC = () => {
         if (!mounted) return;
 
         // Show modal if address or phone missing
-        if (!data?.address1?.trim() || !data?.phone?.trim()) {
-          // Small delay so homepage renders fully first
+        const hasPendingRedirect = !!localStorage.getItem("pendingRedirect");
+        if (!hasPendingRedirect && (!data?.address1?.trim() || !data?.phone?.trim())) {
           setTimeout(() => {
             if (mounted) setShowProfileModal(true);
           }, 800);

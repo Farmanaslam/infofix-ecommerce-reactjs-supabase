@@ -372,8 +372,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-150" />
             {cartCount > 0 && (
               <span
-                className="absolute -top-0.5 -right-0.5 bg-indigo-600 text-white text-[9px] min-w-4.5 h-4.5 flex items-center justify-center rounded-full font-black border-2 border-white"
-                style={{ boxShadow: "0 2px 6px rgba(99,102,241,0.5)" }}
+                className="absolute -top-0.5 -right-0.5 text-white text-[9px] min-w-4.5 h-4.5 flex items-center justify-center rounded-full font-black border-2 border-white"
+                style={{ background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1', boxShadow: `0 2px 6px ${sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'}80` }}
               >
                 {cartCount > 99 ? "99+" : cartCount}
               </span>
@@ -408,8 +408,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                   </button>
                   <button
                     onClick={() => setCurrentPage("signup")}
-                    className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-full text-sm font-bold transition-all duration-150"
-                    style={{ boxShadow: "0 4px 12px rgba(99,102,241,0.35)" }}
+                    className="px-4 py-1.5 active:scale-95 text-white rounded-full text-sm font-bold transition-all duration-150"
+                    style={{ background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1', boxShadow: `0 4px 12px ${sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'}55` }}
                   >
                     Register
                   </button>
@@ -504,8 +504,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-150" />
               {cartCount > 0 && (
                 <span
-                  className="absolute -top-0.5 -right-0.5 bg-indigo-600 text-white text-[9px] min-w-4.5 h-4.5 flex items-center justify-center rounded-full font-black border-2 border-white"
-                  style={{ boxShadow: "0 2px 6px rgba(99,102,241,0.5)" }}
+                  className="absolute -top-0.5 -right-0.5 text-white text-[9px] min-w-4.5 h-4.5 flex items-center justify-center rounded-full font-black border-2 border-white"
+                  style={{ background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1', boxShadow: `0 2px 6px ${sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'}80` }}
                 >
                   {cartCount > 99 ? "99+" : cartCount}
                 </span>
