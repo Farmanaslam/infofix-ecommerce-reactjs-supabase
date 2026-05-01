@@ -135,7 +135,7 @@ const OrderCard: React.FC<{
   return (
     <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100 border border-gray-100 overflow-hidden">
       {/* Header */}
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         <div className="flex flex-col md:flex-row md:justify-between gap-4">
           <div>
             <p className="font-bold text-gray-900 text-lg">
@@ -396,7 +396,7 @@ const OrderCard: React.FC<{
 
       {/* Expanded Details */}
       {expanded && (
-        <div className="border-t border-gray-100 px-8 py-6 space-y-5 bg-gray-50/50">
+        <div className="border-t border-gray-100 px-4 md:px-8 py-4 md:py-6 space-y-4 md:space-y-5 bg-gray-50/50">
           {/* Address */}
           <div>
             <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2">
@@ -579,29 +579,29 @@ export const MyOrders: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50 py-16">
+    <div className="min-h-screen bg-gray-50/50 py-6 md:py-16">
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-5xl font-black tracking-tight">
+        <div className="mb-6 md:mb-12">
+          <h1 className="text-3xl md:text-5xl font-black tracking-tight">
             <span className="bg-linear-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
               My Orders
             </span>
           </h1>
-          <p className="text-gray-500 mt-3 font-medium text-lg">
+          <p className="text-gray-500 mt-2 font-medium text-sm md:text-lg">
             View, track, and manage all your orders in one place.
           </p>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-3 mb-10">
+        <div className="flex flex-wrap gap-2 mb-5 md:mb-10">
           {STATUS_FILTERS.map((filter) => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
               className={`px-5 py-2 rounded-2xl font-semibold transition cursor-pointer text-sm ${activeFilter === filter
-                  ? "bg-indigo-600 text-white shadow-md"
-                  : "bg-white border border-gray-200 hover:bg-gray-100"
+                ? "bg-indigo-600 text-white shadow-md"
+                : "bg-white border border-gray-200 hover:bg-gray-100"
                 }`}
             >
               {filter}
@@ -644,7 +644,7 @@ export const MyOrders: React.FC = () => {
             )}
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-4 md:space-y-8">
             {filteredOrders.map((order) => (
               <OrderCard
                 key={order.id}
@@ -657,8 +657,8 @@ export const MyOrders: React.FC = () => {
         )}
 
         {/* Support Section */}
-        <div className="mt-20 bg-indigo-600 text-white rounded-3xl p-12 text-center space-y-6">
-          <h3 className="text-3xl font-black">Need Help with an Order?</h3>
+        <div className="mt-10 md:mt-20 bg-indigo-600 text-white rounded-3xl p-6 md:p-12 text-center space-y-4 md:space-y-6">
+          <h3 className="text-xl md:text-3xl font-black">Need Help with an Order?</h3>
           <p className="opacity-90">
             If you have questions about delivery, invoice, or order issues, our
             support team is here to help.

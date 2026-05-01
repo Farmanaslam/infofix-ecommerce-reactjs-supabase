@@ -228,7 +228,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const [branches, setBranches] = useState<Branch[]>(INITIAL_BRANCHES);
   const savedPage = localStorage.getItem("currentPage") as CustomerPage;
   const safePage: CustomerPage =
-    savedPage && !["login", "signup", "reset-password"].includes(savedPage) ? savedPage : "home";
+    savedPage && !["login", "signup", "reset-password", "checkout"].includes(savedPage)
+      ? savedPage : "home";
   const [currentPage, setCurrentPageState] = useState<CustomerPage>(safePage);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -263,6 +264,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
   const currentUserRef = useRef<User | null>(null);
   const isMergingRef = useRef(false);
+  const initialSessionDoneRef = useRef(false);
   // Fetch notifications on mount
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -485,11 +487,104 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
               setCartLoading(false);
             }
           }
+          initialSessionDoneRef.current = true;
         } else if (event === "SIGNED_IN") {
-          // ✅ Only fetch if NOT coming from password recovery
           const params = new URLSearchParams(window.location.search);
           if (!params.get("page")?.includes("reset")) {
             fetchDashboardData();
+          }
+
+          const provider = session?.user?.app_metadata?.provider;
+
+          // Only handle OAuth (Google etc) — email handled by Login.tsx
+          // Use sessionStorage flag to detect true new OAuth login vs session restore
+          if (session?.user && provider && provider !== "email") {
+            // On OAuth redirect, supabase sets a hash/param — check if this is fresh redirect
+            // sessionStorage survives same-tab redirect but not new tabs
+            const oauthHandledKey = `oauth_handled_${session.user.id}`;
+            if (sessionStorage.getItem(oauthHandledKey)) return; // already handled
+            sessionStorage.setItem(oauthHandledKey, "1");
+
+            // Guest cart merge
+            try {
+              const guestCart = JSON.parse(localStorage.getItem("guest_cart") ?? "[]");
+              if (guestCart.length > 0 && !isMergingRef.current) {
+                isMergingRef.current = true;
+                localStorage.removeItem("guest_cart");
+                try {
+                  for (const item of guestCart) {
+                    const { data: existing } = await supabase
+                      .from("cart_items").select("id, quantity")
+                      .eq("user_id", session.user.id).eq("product_id", item.id).maybeSingle();
+                    if (existing) {
+                      await supabase.from("cart_items")
+                        .update({ quantity: existing.quantity + item.quantity }).eq("id", existing.id);
+                    } else {
+                      await supabase.from("cart_items").insert({
+                        user_id: session.user.id, product_id: item.id,
+                        name: item.name, price: item.price,
+                        image: item.image ?? "", category: item.category ?? "", quantity: item.quantity,
+                      });
+                    }
+                  }
+                } finally { isMergingRef.current = false; }
+              }
+            } catch { }
+
+            // pendingBuyNowProduct
+            const pendingProductStr = sessionStorage.getItem("pendingBuyNowProduct");
+            if (pendingProductStr) {
+              sessionStorage.removeItem("pendingBuyNowProduct");
+              try {
+                const product = JSON.parse(pendingProductStr);
+                const moq = product.min_order_quantity ?? 1;
+                const { data: existing } = await supabase
+                  .from("cart_items").select("id, quantity")
+                  .eq("user_id", session.user.id).eq("product_id", product.id).maybeSingle();
+                if (existing) {
+                  await supabase.from("cart_items")
+                    .update({ quantity: existing.quantity + moq }).eq("id", existing.id);
+                } else {
+                  await supabase.from("cart_items").insert({
+                    user_id: session.user.id, product_id: product.id,
+                    name: product.name, price: product.price,
+                    image: product.image ?? "", category: product.category ?? "", quantity: moq,
+                  });
+                }
+              } catch { }
+            }
+
+            const { data: customerRow } = await supabase
+              .from("customers").select("id, full_name, email")
+              .eq("id", session.user.id).maybeSingle();
+
+            if (customerRow) {
+              setCartLoading(true);
+              const items = await fetchCartFromSupabase(session.user.id);
+              setCart(items);
+              setCartLoading(false);
+
+              setCurrentUserState({
+                id: session.user.id,
+                name: customerRow.full_name,
+                email: customerRow.email,
+                role: "CUSTOMER",
+                avatar: `https://i.pravatar.cc/150?u=${session.user.id}`,
+              } as any);
+              currentUserRef.current = {
+                id: session.user.id,
+                name: customerRow.full_name,
+                email: customerRow.email,
+                role: "CUSTOMER",
+              } as any;
+
+              const pendingRedirect = localStorage.getItem("pendingRedirect") as CustomerPage | null;
+              const target = pendingRedirect ?? "home";
+              localStorage.removeItem("pendingRedirect");
+              setPendingRedirectAfterLoginState(null);
+              localStorage.setItem("currentPage", target);
+              setCurrentPageState(target);
+            }
           }
         }
       },
@@ -620,6 +715,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         if (event === "SIGNED_OUT") {
           setCurrentUserState(null);
           setCart([]);
+          // Clear OAuth handled flags so next Google login works fresh
+          const keys = Object.keys(sessionStorage);
+          keys.forEach(k => { if (k.startsWith("oauth_handled_")) sessionStorage.removeItem(k); });
         }
       },
     );
@@ -866,6 +964,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         created_at: new Date().toISOString(),
       });
     }
+    const keys = Object.keys(sessionStorage);
+    keys.forEach(k => { if (k.startsWith("oauth_handled_")) sessionStorage.removeItem(k); });
     await supabase.auth.signOut();
     setCurrentUserState(null);
     setCart([]);

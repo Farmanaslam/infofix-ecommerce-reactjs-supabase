@@ -10,6 +10,9 @@ export const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleGoogleSignIn = async () => {
+    const keys = Object.keys(sessionStorage);
+    keys.forEach(k => { if (k.startsWith("oauth_handled_")) sessionStorage.removeItem(k); });
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {

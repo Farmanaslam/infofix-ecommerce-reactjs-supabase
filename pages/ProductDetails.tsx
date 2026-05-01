@@ -144,7 +144,7 @@ const AddReviewForm: React.FC<{ productId: string; onSubmit: (r: Review) => void
 };
 
 export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack, onNavigateToCart, accent = '#6366f1' }) => {
-  const { addToCart, currentUser } = useStore();
+  const { addToCart, currentUser, setCurrentPage, setPendingRedirectAfterLogin } = useStore();
   const storageKey = `liked_product_${product.id}`;
   const countKey = `likes_count_${product.id}`;
   const [liked, setLiked] = useState(() => { try { return localStorage.getItem(storageKey) === "1"; } catch { return false; } });
@@ -213,8 +213,16 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
     addToCart({ ...product, min_order_quantity: moq } as any, qty);
   };
   const handleBuyNow = () => {
+    if (!currentUser) {
+      sessionStorage.setItem("pendingBuyNowProduct", JSON.stringify({ ...product, min_order_quantity: moq }));
+      setPendingRedirectAfterLogin("checkout"); // need this from context
+      setCurrentPage("login");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     addToCart({ ...product, min_order_quantity: moq } as any, qty);
-    onNavigateToCart();
+    setCurrentPage("checkout");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -431,15 +439,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                   </div>
                 )}
 
-                {/* Mobile-only CTA (inline, hidden on desktop) */}
-                {!isOut ? (
-                  <div className="lg:hidden pd-fade flex gap-3" style={{ animationDelay: "230ms" }}>
-                    <button onClick={handleBuyNow} className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white py-4 rounded-2xl font-black text-sm uppercase tracking-[0.12em] shadow-xl shadow-indigo-200/80 transition-all duration-200 group/b">Buy Now <ArrowRight className="w-4 h-4 group-hover/b:translate-x-0.5 transition-transform" /></button>
-                    <button onClick={handleAddToCart} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-sm uppercase tracking-[0.12em] border-2 border-gray-200 text-gray-900 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 active:scale-[0.98] transition-all duration-200"><ShoppingBag className="w-4 h-4" /> Add to Cart</button>
-                  </div>
-                ) : (
-                  <button disabled className="lg:hidden w-full py-4 rounded-2xl bg-gray-100 text-gray-400 font-black text-sm uppercase tracking-widest cursor-not-allowed pd-fade" style={{ animationDelay: "230ms" }}>Out of Stock</button>
-                )}
+
 
                 {/* Delivery */}
                 {!isOut && (
@@ -509,9 +509,32 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
 
             </div>{/* end right col */}
           </div>
+          {/* Mobile fixed bottom CTA */}
+          {!isOut ? (
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-100 px-4 py-3 safe-area-pb"
+              style={{ boxShadow: "0 -8px 32px -4px rgba(99,102,241,0.15)" }}>
+              <div className="flex gap-3 max-w-lg mx-auto">
+                <button onClick={handleBuyNow}
+                  className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.97] text-white py-3.5 rounded-2xl font-black text-sm uppercase tracking-[0.12em] shadow-lg shadow-indigo-200/80 transition-all duration-200">
+                  Buy Now <ArrowRight className="w-4 h-4" />
+                </button>
+                <button onClick={handleAddToCart}
+                  className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-black text-sm uppercase tracking-[0.12em] border-2 border-gray-200 text-gray-900 active:scale-[0.97] transition-all duration-200">
+                  <ShoppingBag className="w-4 h-4" /> Add to Cart
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-100 px-4 py-3"
+              style={{ boxShadow: "0 -8px 32px -4px rgba(0,0,0,0.08)" }}>
+              <button disabled className="w-full py-3.5 rounded-2xl bg-gray-100 text-gray-400 font-black text-sm uppercase tracking-widest cursor-not-allowed">
+                Out of Stock
+              </button>
+            </div>
+          )}
 
           {/* Reviews — unchanged */}
-          <div className="mt-20 pt-12 border-t border-gray-100">
+          <div className="mt-8 lg:mt-20 pt-8 lg:pt-12 border-t border-gray-100">
             <div className="flex items-center justify-between mb-8">
               <div><h2 className="text-2xl font-black text-gray-900 tracking-tight">Customer Reviews</h2><p className="text-sm text-gray-400 font-semibold mt-0.5">{reviews.length} verified reviews</p></div>
               <div className="flex items-center gap-2.5 bg-amber-50 border border-amber-100 px-5 py-3 rounded-2xl"><Star className="w-5 h-5 text-amber-500 fill-amber-500" /><span className="font-black text-amber-700 text-xl">{avgRating.toFixed(1)}</span><span className="text-amber-500 text-sm font-semibold">/ 5</span></div>

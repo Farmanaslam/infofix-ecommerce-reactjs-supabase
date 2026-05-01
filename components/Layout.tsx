@@ -1329,7 +1329,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
       {/* MESSAGE US FAB */}
       <button
         onClick={() => setIsMessageModalOpen(true)}
-        className="fixed bottom-6 right-6 z-60 text-white px-5 py-3 rounded-full flex items-center gap-2.5 transition-all duration-300 hover:scale-105 active:scale-95 animate-fab-pulse"
+        className="fixed bottom-6 right-6 z-60 text-white px-5 py-3 rounded-full hidden lg:flex items-center gap-2.5 transition-all duration-300 hover:scale-105 active:scale-95 animate-fab-pulse"
         style={{
           background: selectedStoreSection === 'Refurbished'
             ? 'linear-gradient(135deg, #059669, #10b981)'

@@ -175,7 +175,9 @@ export const Signup = () => {
       avatar: `https://i.pravatar.cc/150?u=${user.id}`,
     });
 
-    setCurrentPage("home");
+    const redirect = localStorage.getItem("pendingRedirect") as any ?? "home";
+    localStorage.removeItem("pendingRedirect");
+    setCurrentPage(redirect);
   };
 
   return (
@@ -223,24 +225,22 @@ export const Signup = () => {
               <React.Fragment key={s}>
                 <div className="flex items-center gap-2">
                   <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-all ${
-                      i < step
-                        ? "bg-green-500 text-white"
-                        : i === step
-                          ? "bg-indigo-600 text-white"
-                          : "bg-gray-100 text-gray-400"
-                    }`}
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-all ${i < step
+                      ? "bg-green-500 text-white"
+                      : i === step
+                        ? "bg-indigo-600 text-white"
+                        : "bg-gray-100 text-gray-400"
+                      }`}
                   >
                     {i < step ? <Check size={13} /> : i + 1}
                   </div>
                   <span
-                    className={`text-xs font-bold hidden sm:block ${
-                      i === step
-                        ? "text-indigo-600"
-                        : i < step
-                          ? "text-green-600"
-                          : "text-gray-400"
-                    }`}
+                    className={`text-xs font-bold hidden sm:block ${i === step
+                      ? "text-indigo-600"
+                      : i < step
+                        ? "text-green-600"
+                        : "text-gray-400"
+                      }`}
                   >
                     {s}
                   </span>
@@ -463,11 +463,10 @@ export const Signup = () => {
                     className="sr-only"
                   />
                   <div
-                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                      formData.acceptTerms
-                        ? "bg-indigo-600 border-indigo-600"
-                        : "border-gray-300 group-hover:border-indigo-400"
-                    }`}
+                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${formData.acceptTerms
+                      ? "bg-indigo-600 border-indigo-600"
+                      : "border-gray-300 group-hover:border-indigo-400"
+                      }`}
                   >
                     {formData.acceptTerms && (
                       <Check size={12} className="text-white" strokeWidth={3} />
