@@ -79,7 +79,7 @@ export const AboutUs: React.FC = () => {
                 color: "#10b981",
               },
               {
-                value: "500+",
+                value: "5,000+",
                 label: "Devices Sold",
                 icon: Monitor,
                 color: "#f59e0b",

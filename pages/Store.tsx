@@ -480,7 +480,9 @@ export const Store: React.FC = () => {
     pendingRedirectAfterLogin,
     setPendingRedirectAfterLogin,
     selectedStoreSection,
-    currentPage
+    currentPage,
+    shopNavKey,
+    pendingProductId, setPendingProductId
   } = useStore();
 
   // Theme config per section
@@ -605,10 +607,6 @@ export const Store: React.FC = () => {
   const gridRef = useRef<HTMLDivElement>(null);
   const totalPages = Math.ceil(totalCount / PER_PAGE);
 
-  // FIX 4: Use a ref to hold the "pending search" from home page so `load()`
-  // can read it synchronously without waiting for state to settle.
-  // This fixes the race condition where headerSearchQuery bridge fires
-  // setSearchQuery but load() still sees the old empty string.
   const pendingSearchRef = useRef<string>("");
 
   // ── Bridge: context category → local state ──────────────────────────────
@@ -1027,26 +1025,23 @@ export const Store: React.FC = () => {
   ]);
   const prevSectionRef = useRef(selectedStoreSection);
   useEffect(() => {
-    if (prevSectionRef.current !== selectedStoreSection) {
-      prevSectionRef.current = selectedStoreSection;
-      setSelectedProduct(null);
-      sessionStorage.removeItem("selectedProduct");
-    }
+    prevSectionRef.current = selectedStoreSection;
+    setSelectedProduct(null);
+    sessionStorage.removeItem("selectedProduct");
   }, [selectedStoreSection]);
+
 
   useEffect(() => {
     if (currentPage === 'shop') {
       const saved = sessionStorage.getItem("selectedProduct");
       if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          setSelectedProduct(parsed);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        } catch { }
+        try { setSelectedProduct(JSON.parse(saved)); }
+        catch { setSelectedProduct(null); sessionStorage.removeItem("selectedProduct"); }
+      } else {
+        setSelectedProduct(null);
       }
     }
   }, [currentPage]);
-
   const handlePageChange = (newPage: number) => {
     setRevealed(false);
     setPage(newPage);
@@ -1054,6 +1049,35 @@ export const Store: React.FC = () => {
       gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 50);
   };
+  useEffect(() => {
+    setSelectedProduct(null);
+    sessionStorage.removeItem("selectedProduct");
+    setSearchQuery("");
+    setHeroSearch("");
+  }, [shopNavKey]);
+
+
+  useEffect(() => {
+    if (!pendingProductId || !supabase) return;
+    const fetchAndOpen = async () => {
+      const { data } = await supabase
+        .from("products")
+        .select(`id, name, description, image_url, images,
+        retail_price, discount_percent, discounted_price, min_order_quantity,
+        stock_quantity, condition, brand, specs,
+        rating_avg, rating_count, reviews_count, likes_count,
+        categories(name,slug), subcategories(name,slug), model`)
+        .eq("id", Number(pendingProductId))
+        .single();
+      if (data) {
+        const product = fromSupabase(data);
+        sessionStorage.setItem("selectedProduct", JSON.stringify(product));
+        setSelectedProduct(product);  // set AFTER sessionStorage
+      }
+      setPendingProductId(null);
+    };
+    fetchAndOpen();
+  }, [pendingProductId]);
 
   // ── If a product is selected, render ProductDetails ───────────────────────
   if (selectedProduct) {

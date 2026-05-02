@@ -33,6 +33,7 @@ import { InstallPWA } from "./InstallPWA";
 import { CouponDealsStrip } from "@/pages/CouponDealsStrip";
 import { supabase } from "@/lib/supabaseClient";
 import { GuestPromoBanner } from "@/pages/GuestPromoBanner";
+import { CareerPortal } from "@/pages/Careerportal";
 
 export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -52,6 +53,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     setSelectedProductId,
     selectedStoreSection,
     setSelectedStoreSection,
+    bumpShopNav,
+    setPendingProductId
   } = useStore();
 
   const handleDealProductClick = (productId: string) => {
@@ -266,7 +269,15 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               return (
                 <button
                   key={tab.id}
-                  onClick={() => { setSelectedStoreSection(tab.id); setSelectedCategory(null); setSelectedSubcategory(null); window.scrollTo({ top: 0, behavior: 'smooth' }); setCurrentPage('shop'); }}
+                  onClick={() => {
+                    setSelectedStoreSection(tab.id);
+                    setSelectedCategory(null);
+                    setSelectedSubcategory(null);
+                    bumpShopNav();
+                    setCurrentPage('shop');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+
                   className="group relative flex items-center gap-2 px-3.5 py-1.5 rounded-[14px] overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[.97]"
                   style={{
                     background: tab.gradient,
@@ -548,7 +559,14 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => { setSelectedStoreSection(tab.id); setSelectedCategory(null); setSelectedSubcategory(null); setCurrentPage('shop'); }}
+                    onClick={() => {
+                      setSelectedStoreSection(tab.id);
+                      setSelectedCategory(null);
+                      setSelectedSubcategory(null);
+                      bumpShopNav();
+                      setCurrentPage('shop');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                     className="relative flex flex-col items-center justify-center py-2.5 rounded-2xl overflow-hidden transition-all duration-200 active:scale-95"
                     style={{
                       background: tab.gradient,
@@ -561,7 +579,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                     {tab.icon}
                     <span className="text-[10px] font-black mt-1 tracking-tight" style={{ color: tab.titleColor }}>{tab.label}</span>
                     <span className="text-[8px] font-semibold" style={{ color: tab.subColor }}>{tab.sub}</span>
-                    {isActive && <span className="w-[5px] h-[5px] rounded-full mt-1 animate-pulse" style={{ background: tab.dotColor }} />}
+                    {isActive && <span className="w-1.25 h-1.25 rounded-full mt-1 animate-pulse" style={{ background: tab.dotColor }} />}
                   </button>
                 );
               })}
@@ -1033,45 +1051,11 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
         <CouponDealsStrip
           storeSection={selectedStoreSection.toLowerCase()}
           accent={sectionTabs.find(t => t.id === selectedStoreSection)?.accent}
-          onProductClick={async (productId) => {
-            try {
-              const { data } = await supabase
-                .from("products")
-                .select(`id, name, description, image_url, images, retail_price,
-               discount_percent, discounted_price, stock_quantity, condition,
-               brand, specs, rating_avg, rating_count, reviews_count,
-               likes_count, categories(name,slug), subcategories(name,slug), model`)
-                .eq("id", Number(productId))
-                .single();
-              if (data) {
-                const disc = data.discount_percent ?? 0;
-                const imageUrl = data.image_url ?? "";
-                sessionStorage.setItem("selectedProduct", JSON.stringify({
-                  id: String(data.id),
-                  name: data.name ?? "",
-                  description: data.description ?? "",
-                  image: imageUrl,
-                  images: Array.isArray(data.images) && data.images.length > 0 ? data.images : [imageUrl],
-                  price: Number(data.discounted_price ?? data.retail_price ?? 0),
-                  retailPrice: disc > 0 ? Number(data.retail_price) : undefined,
-                  discountPercent: disc,
-                  stock: data.stock_quantity ?? 99,
-                  condition: data.condition ?? "New",
-                  category: data.categories?.[0]?.name ?? "",
-                  brand: data.brand ?? "",
-                  specs: data.specs ? Object.values(data.specs as Record<string, unknown>).map(String) : [],
-                  rating: Number(data.rating_avg ?? 0),
-                  reviews: data.reviews_count ?? data.rating_count ?? 0,
-                  likesCount: data.likes_count ?? 0,
-                  tags: [],
-                  model: data.model ?? "",
-                }));
-              }
-            } catch (e) {
-              console.error(e);
-            }
-            setCurrentPage("shop"); // or however you navigate to product
-          }} />
+          onProductClick={(productId) => {
+            setPendingProductId(productId);
+            setCurrentPage("shop");
+          }}
+        />
       )}
       {/* ═══════════════════════════════════════════
           MAIN CONTENT
@@ -1488,6 +1472,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
     setCurrentPage,
     notifications,
     pushNotification,
+
   } = useStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -1518,8 +1503,9 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
       icon: MessageSquare,
       role: ["MANAGER", "INVENTORY", "ADMIN"],
     },
-    { name: "Settings", icon: Settings, role: ["MANAGER", "ADMIN"] },
     { name: "Coupons", icon: Tag, role: ["MANAGER", "ADMIN"] },
+    { name: "Careers", icon: Briefcase, role: ["MANAGER", "ADMIN"] },
+    { name: "Settings", icon: Settings, role: ["MANAGER", "ADMIN"] },
   ];
 
   const visibleNav = navItems.filter((i) => i.role.includes(currentUser.role));

@@ -5,18 +5,8 @@ import { Tag, Zap, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useStore } from "../context/StoreContext";
 
-interface DealItem {
-    couponCode: string;
-    discountAmount: number;
-    productId: number;
-    productName: string;
-    productImage: string | null;
-    model: string | null;
-    brand: string | null;
-}
-
+import { DealItem } from "@/types";
 interface Props {
-    /** Called when user clicks a deal pill — navigate to product */
     onProductClick: (productId: string) => void;
     storeSection: string;
     accent?: string;
@@ -28,7 +18,9 @@ export const CouponDealsStrip: React.FC<Props> = ({ onProductClick, storeSection
     const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isMobile, setIsMobile] = useState(false);
-
+    const isDraggingRef = useRef(false);
+    const dragStartXRef = useRef(0);
+    const scrollStartRef = useRef(0);
     useEffect(() => {
         const check = () => setIsMobile(window.innerWidth < 768);
         check();
@@ -119,7 +111,6 @@ export const CouponDealsStrip: React.FC<Props> = ({ onProductClick, storeSection
         if (!scrollRef.current) return;
         scrollRef.current.scrollBy({ left: dir === "left" ? -200 : 200, behavior: "smooth" });
     };
-
     return (
         <div className="w-full relative overflow-hidden" style={{ background: `linear-gradient(to right, ${accent}ee, ${accent}cc, ${accent}ee)` }}>
             {/* Animated background shimmer */}
@@ -152,8 +143,24 @@ export const CouponDealsStrip: React.FC<Props> = ({ onProductClick, storeSection
                 {/* Scrollable pills */}
                 <div
                     ref={scrollRef}
-                    className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1"
+                    className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1 cursor-grab active:cursor-grabbing select-none"
                     style={{ scrollbarWidth: "none" }}
+                    onWheel={(e) => {
+                        e.preventDefault();
+                        scrollRef.current?.scrollBy({ left: e.deltaY * 2, behavior: "smooth" });
+                    }}
+                    onMouseDown={(e) => {
+                        isDraggingRef.current = true;
+                        dragStartXRef.current = e.clientX;
+                        scrollStartRef.current = scrollRef.current?.scrollLeft ?? 0;
+                    }}
+                    onMouseMove={(e) => {
+                        if (!isDraggingRef.current) return;
+                        const diff = dragStartXRef.current - e.clientX;
+                        if (scrollRef.current) scrollRef.current.scrollLeft = scrollStartRef.current + diff;
+                    }}
+                    onMouseUp={() => { isDraggingRef.current = false; }}
+                    onMouseLeave={() => { isDraggingRef.current = false; }}
                 >
                     {deals.map((deal, idx) => (
                         <div

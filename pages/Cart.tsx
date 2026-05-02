@@ -15,7 +15,7 @@ interface AvailableCoupon {
 export const Cart: React.FC = () => {
   const {
     cart, products, setCurrentPage, currentUser,
-    updateQuantity, removeFromCart, addToCart, cartLoading,
+    updateQuantity, removeFromCart, addToCart, cartLoading, setPendingRedirectAfterLogin
   } = useStore();
 
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
@@ -136,7 +136,7 @@ export const Cart: React.FC = () => {
         <ShoppingCart size={56} className="mx-auto text-indigo-300 mb-4" />
         <h2 className="text-2xl font-semibold text-gray-700 mb-3">Please log in to view your cart</h2>
         <p className="text-gray-500 mb-6">Your cart is saved to your account so you never lose your items.</p>
-        <button onClick={() => setCurrentPage("login")} className="bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700 transition">
+        <button onClick={() => { setPendingRedirectAfterLogin("cart"); setCurrentPage("login"); }} className="bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700 transition">
           Log In
         </button>
       </div>

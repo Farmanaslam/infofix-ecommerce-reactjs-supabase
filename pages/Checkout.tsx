@@ -363,7 +363,7 @@ export const Checkout: React.FC = () => {
                             </div>
                           </div>
                         ))}
-                        <div className="flex gap-3 pt-1">
+                        <div className="flex gap-3 pt-1 items-center flex-wrap">
                           <button onClick={() => setAddressConfirmed(true)} disabled={addressConfirmed}
                             className={`px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${addressConfirmed ? "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-not-allowed" : "bg-indigo-600 text-white hover:bg-indigo-700"}`}>
                             {addressConfirmed ? "✓ Confirmed" : "Deliver Here"}
@@ -386,6 +386,11 @@ export const Checkout: React.FC = () => {
                     <button onClick={() => setShowAddressDrawer(true)} className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:underline">
                       <Plus className="w-3.5 h-3.5" /> Add / Change Address
                     </button>
+                    {!addressConfirmed && (
+                      <p className="w-full flex items-center gap-1.5 text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-100 px-3 py-2 rounded-xl mt-1">
+                        <span>⚠️</span> Tap <strong>"Deliver Here"</strong> to confirm your address before placing order.
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="border-2 border-dashed border-indigo-200 bg-indigo-50/30 rounded-2xl p-6 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-all" onClick={() => setShowAddressDrawer(true)}>

@@ -292,7 +292,7 @@ export const GuestPromoBanner: React.FC<GuestPromoBannerProps> = ({ onSignup }) 
                                         fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.7)",
                                         letterSpacing: "0.05em", textTransform: "uppercase",
                                     }}>
-                                        OFF your first order
+                                        OFF your first refurbished laptop order
                                     </span>
                                 </div>
 
@@ -430,7 +430,7 @@ export const GuestPromoBanner: React.FC<GuestPromoBannerProps> = ({ onSignup }) 
                                     <p className="text-xs md:text-sm font-bold text-white leading-tight truncate">
                                         Create account & get{" "}
                                         <span className="promo-shimmer-text font-black">₹4,000 OFF</span>
-                                        {" "}your first order
+                                        {" "}on your first refurbished laptop
                                     </p>
                                 </div>
                             </div>

@@ -45,7 +45,8 @@ export type AdminPage =
   | "Customers"
   | "Settings"
   | "Blogs"
-  | "Coupons";
+  | "Coupons"
+  | "Careers";
 
 interface StoreContextType extends AppState {
   currentPage: CustomerPage;
@@ -96,6 +97,10 @@ interface StoreContextType extends AppState {
   selectedStoreSection: 'Infofix' | 'Refurbished' | 'Wholesale';
   setSelectedStoreSection: (s: 'Infofix' | 'Refurbished' | 'Wholesale') => void;
   cartLoading: boolean;
+  shopNavKey: number;
+  bumpShopNav: () => void;
+  pendingProductId: string | null;
+  setPendingProductId: (id: string | null) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -188,8 +193,6 @@ async function fetchCartFromSupabase(userId: string): Promise<CartItem[]> {
   return data.map((row: any) => {
     const moq = row.products?.min_order_quantity ?? 1;
     const stock = row.products?.stock_quantity ?? 0;
-
-    // ✅ FIX: ensure quantity is always valid
     const safeQty = Math.max(moq, Math.min(row.quantity, stock));
 
     return {
@@ -221,7 +224,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
-  // Start empty — populated from Supabase, not mock data
   const [orders, setOrders] = useState<Order[]>([]);
   const [currentUser, setCurrentUserState] = useState<User | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -236,6 +238,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
     null,
   );
+  const [pendingProductId, setPendingProductId] = useState<string | null>(null);
+
   const [viewMode, setViewModeState] = useState<"STORE" | "ADMIN">(
     (localStorage.getItem("viewMode") as "STORE" | "ADMIN") || "STORE",
   );
@@ -265,6 +269,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const currentUserRef = useRef<User | null>(null);
   const isMergingRef = useRef(false);
   const initialSessionDoneRef = useRef(false);
+
+  const [shopNavKey, setShopNavKey] = useState(0);
+  const bumpShopNav = () => setShopNavKey(k => k + 1);
+
   // Fetch notifications on mount
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -342,8 +350,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const markAllNotificationsRead = useCallback(async () => {
     const user = currentUserRef.current;
     if (!user) return;
-
-    // Optimistically update local state immediately
     setNotifications((prev) =>
       prev.map((n) =>
         n.read_by.includes(user.id)
@@ -351,8 +357,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
           : { ...n, read_by: [...n.read_by, user.id] },
       ),
     );
-
-    // Fetch ALL notifications, filter unread in JS (avoids broken jsonb filter)
     const { data } = await supabase.from("notifications").select("id, read_by");
 
     if (data && data.length > 0) {
@@ -375,15 +379,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
 
   const clearNotifications = useCallback(async () => {
     setNotifications([]);
-    // Only ADMIN should truly delete; others just clear local view
     if (currentUser?.role === "ADMIN") {
       await supabase.from("notifications").delete().neq("id", "no-op");
     }
   }, [currentUser]);
-  // 1. Add this ref to track if already fetching (prevents duplicate calls)
   const isFetchingRef = useRef(false);
 
-  // 2. Replace the entire dashboard useEffect with this:
   const fetchDashboardData = useCallback(async () => {
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
@@ -463,10 +464,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
 
   // TO:
   useEffect(() => {
-    // Wait for Supabase to restore session, THEN fetch
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        // ✅ Skip dashboard fetch during password recovery flow
         if (event === "PASSWORD_RECOVERY") return;
 
         if (event === "INITIAL_SESSION") {
@@ -496,13 +495,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
 
           const provider = session?.user?.app_metadata?.provider;
 
-          // Only handle OAuth (Google etc) — email handled by Login.tsx
-          // Use sessionStorage flag to detect true new OAuth login vs session restore
           if (session?.user && provider && provider !== "email") {
-            // On OAuth redirect, supabase sets a hash/param — check if this is fresh redirect
-            // sessionStorage survives same-tab redirect but not new tabs
             const oauthHandledKey = `oauth_handled_${session.user.id}`;
-            if (sessionStorage.getItem(oauthHandledKey)) return; // already handled
+            if (sessionStorage.getItem(oauthHandledKey)) return;
             sessionStorage.setItem(oauthHandledKey, "1");
 
             // Guest cart merge
@@ -728,7 +723,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         if (event === "SIGNED_OUT") {
           setCurrentUserState(null);
           setCart([]);
-          // Clear OAuth handled flags so next Google login works fresh
           const keys = Object.keys(sessionStorage);
           keys.forEach(k => { if (k.startsWith("oauth_handled_")) sessionStorage.removeItem(k); });
         }
@@ -787,7 +781,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const addToCart = useCallback(
     async (product: Product, qty?: number) => {
       const moq = product.min_order_quantity ?? 1;
-      const addQty = qty ?? moq; // use passed qty, fallback to MOQ
+      const addQty = qty ?? moq;
 
       setCart((prev) => {
         const existing = prev.find((item) => item.id === String(product.id));
@@ -951,7 +945,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    // ✅ Don't persist reset-password — it's a transient auth page
     if (page !== "reset-password") {
       localStorage.setItem("currentPage", page);
     }
@@ -1050,6 +1043,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         selectedStoreSection,
         setSelectedStoreSection,
         cartLoading,
+        shopNavKey,
+        bumpShopNav,
+        pendingProductId,
+        setPendingProductId,
       }}
     >
       {loading && (

@@ -48,7 +48,7 @@ export interface Branch {
   days: string;
   phone: string;
   mapsUrl: string;
-  image: string;
+  images: string[];
   details: string;
 }
 
@@ -283,3 +283,33 @@ export type Coupon = {
   expires_at: string | null;
   created_at: string;
 };
+// ─── Types ────────────────────────────────────────────────────────────────────
+export interface Job {
+  id: string;
+  title: string;
+  type: string;
+  location: string;
+  department: string;
+  description: string;
+  qualifications: string;
+  responsibilities: string;
+  benefits: string;
+  salary_range: string;
+  experience_level: string;
+  skills_required: string[];
+  is_active: boolean;
+  is_featured: boolean;
+  openings_count: number;
+  deadline: string | null;
+  created_at: string;
+  updated_at: string;
+}
+export interface DealItem {
+  couponCode: string;
+  discountAmount: number;
+  productId: number;
+  productName: string;
+  productImage: string | null;
+  model: string | null;
+  brand: string | null;
+}

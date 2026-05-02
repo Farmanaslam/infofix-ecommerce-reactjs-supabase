@@ -11,6 +11,7 @@ import {
   Sparkles,
   Map as MapIcon,
 } from "lucide-react";
+import { BranchCarousel } from "./BranchCarousel";
 
 export const Branches: React.FC = () => {
   const { branches } = useStore();
@@ -113,16 +114,14 @@ export const Branches: React.FC = () => {
                 }}
               >
                 {/* Visual Header */}
-                <div className="relative h-72 overflow-hidden">
-                  <img
-                    src={branch.image}
-                    alt={branch.title}
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                <div className="relative overflow-hidden">
+                  <BranchCarousel
+                    images={branch.images ?? []}
+                    title={branch.title}
+                    fallback={branch.images?.[0] ?? ""}
                   />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent"></div>
-
-                  {/* Floating Labels */}
-                  <div className="absolute top-6 left-6 right-6 flex justify-between items-start">
+                  {/* Keep city badge + title overlay */}
+                  <div className="absolute top-6 left-6 right-6 flex justify-between items-start z-10">
                     <span className="bg-indigo-600/90 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-400/30">
                       {branch.city}
                     </span>
@@ -130,8 +129,7 @@ export const Branches: React.FC = () => {
                       <Navigation className="w-4 h-4" />
                     </div>
                   </div>
-
-                  <div className="absolute bottom-8 left-8 right-8">
+                  <div className="absolute bottom-8 left-8 right-8 z-10">
                     <h3 className="text-3xl font-black text-white tracking-tight drop-shadow-lg">
                       {branch.title}
                     </h3>

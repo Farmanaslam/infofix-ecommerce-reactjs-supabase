@@ -786,6 +786,7 @@ export const Home: React.FC = () => {
     addToCart,
     currentUser,
     selectedStoreSection,
+    setPendingProductId,
   } = useStore();
 
   const ht = HOME_THEMES[selectedStoreSection];
@@ -2023,140 +2024,8 @@ export const Home: React.FC = () => {
               ? featured.map((product) => (
                 <div
                   key={product.id}
-                  onClick={async () => {
-                    try {
-                      const { data } = await supabase
-                        .from("products")
-                        .select(
-                          `
-                         id, name, description, image_url, images,
-                  retail_price, discount_percent, discounted_price,
-                    stock_quantity, condition, brand, specs,
-                     rating_avg, rating_count, reviews_count, likes_count,
-                           categories ( name, slug ),
-                              subcategories ( name, slug ), model
-                           `,
-                        )
-                        .eq("id", product.id)
-                        .single();
-
-                      if (data) {
-                        const disc = data.discount_percent ?? 0;
-                        const imageUrl = data.image_url ?? "";
-                        const fullProduct = {
-                          id: String(data.id),
-                          name: data.name ?? "",
-                          description: data.description ?? "",
-                          image: imageUrl,
-                          images:
-                            Array.isArray(data.images) && data.images.length > 0
-                              ? data.images
-                              : [imageUrl],
-                          price: Number(
-                            data.discounted_price ?? data.retail_price ?? 0,
-                          ),
-                          retailPrice:
-                            disc > 0 ? Number(data.retail_price) : undefined,
-                          discountPercent: disc,
-                          stock: data.stock_quantity ?? 99,
-                          condition: data.condition ?? "New",
-                          category: data.categories?.[0]?.name ?? "",
-                          brand: data.brand ?? "",
-                          specs: data.specs
-                            ? Object.values(
-                              data.specs as Record<string, unknown>,
-                            ).map(String)
-                            : [],
-                          rating: Number(data.rating_avg ?? 0),
-                          reviews: data.reviews_count ?? data.rating_count ?? 0,
-                          likesCount: data.likes_count ?? 0,
-                          tags: [],
-                          model: data.model ?? "",
-                        };
-                        sessionStorage.setItem(
-                          "selectedProduct",
-                          JSON.stringify(fullProduct),
-                        );
-                      } else {
-                        // fallback: use what we have with all available images
-                        sessionStorage.setItem(
-                          "selectedProduct",
-                          JSON.stringify({
-                            id: String(product.id),
-                            name: product.name,
-                            description: "",
-                            image: product.image_url ?? "",
-                            images:
-                              Array.isArray(product.images) &&
-                                product.images.length > 0
-                                ? product.images
-                                : [product.image_url ?? ""],
-                            price: Number(
-                              product.discounted_price ??
-                              product.retail_price ??
-                              0,
-                            ),
-                            retailPrice:
-                              product.discount_percent > 0
-                                ? Number(product.retail_price)
-                                : undefined,
-                            discountPercent: Number(
-                              product.discount_percent ?? 0,
-                            ),
-                            stock: 99,
-                            condition: "New",
-                            category: product.categories?.name ?? "",
-                            brand: "",
-                            specs: [],
-                            rating: 0,
-                            reviews: 0,
-                            likesCount: 0,
-                            tags: [],
-                            model: "",
-                          }),
-                        );
-                      }
-                    } catch (error) {
-                      console.error("Error fetching product details:", error);
-
-                      // fallback safely
-                      sessionStorage.setItem(
-                        "selectedProduct",
-                        JSON.stringify({
-                          id: String(product.id),
-                          name: product.name ?? "",
-                          description: "",
-                          image: product.image_url ?? "",
-                          images:
-                            Array.isArray(product.images) &&
-                              product.images.length > 0
-                              ? product.images
-                              : [product.image_url ?? ""],
-                          price: Number(
-                            product.discounted_price ??
-                            product.retail_price ??
-                            0,
-                          ),
-                          retailPrice:
-                            product.discount_percent > 0
-                              ? Number(product.retail_price)
-                              : undefined,
-                          discountPercent: Number(
-                            product.discount_percent ?? 0,
-                          ),
-                          stock: 99,
-                          condition: "New",
-                          category: product.categories?.[0]?.name ?? "",
-                          brand: "",
-                          specs: [],
-                          rating: 0,
-                          reviews: 0,
-                          likesCount: 0,
-                          tags: [],
-                          model: "",
-                        }),
-                      );
-                    }
+                  onClick={() => {
+                    setPendingProductId(product.id);
                     setCurrentPage("shop");
                   }}
                   className="group relative cursor-pointer bg-white rounded-3xl md:rounded-[40px] shadow-md md:shadow-xl shadow-gray-200/60 border border-gray-100 overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-indigo-500/20 flex md:block"

@@ -27,6 +27,7 @@ import { Customers } from "./pages/Customers";
 import { AdminCoupons } from "./pages/Coupons";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
+import { CareerPortal } from "./pages/Careerportal";
 
 const Main: React.FC = () => {
   const {
@@ -44,7 +45,7 @@ const Main: React.FC = () => {
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        // ✅ Check if this is a password recovery redirect FIRST
+        // Check if this is a password recovery redirect FIRST
         const params = new URLSearchParams(window.location.search);
         const isReset = params.get("page") === "reset-password";
 
@@ -235,6 +236,7 @@ const Main: React.FC = () => {
       {adminPage === "Orders" && <Orders />}
       {adminPage === "Customers" && <Customers />}
       {adminPage === "Coupons" && <AdminCoupons />}
+      {adminPage === "Careers" && <CareerPortal />}
     </AdminLayout>
   );
 };

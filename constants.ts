@@ -45,7 +45,15 @@ export const SUBCATEGORIES: Record<
     groups: [
       {
         label: "Components & Peripherals",
-        items: ["Keyboard", "Mouse", "Headphones", "Hub", "Stand", "WIFI Adapter", "Router"],
+        items: [
+          "Keyboard",
+          "Mouse",
+          "Headphones",
+          "Hub",
+          "Stand",
+          "WIFI Adapter",
+          "Router",
+        ],
       },
     ],
   },
@@ -192,18 +200,25 @@ export const INITIAL_ORDERS: Order[] = [
 ];
 export const INITIAL_BRANCHES: Branch[] = [
   {
-    id: "br-1",
-    title: "Infofix Computers Service Centre",
+    id: "br-3",
+    title: "DGP Shop - Benachity",
     address:
-      "49/44, Ground Floor, Chamber of Commerce Lane, Beside/Opposite Maa Kali Hardware, Benachity, Durgapur - 713213",
+      "49/44, 1st Floor, Chamber of Commerce Lane, Beside/Opposite Maa Kali Hardware, Benachity, Durgapur - 713213",
     city: "Durgapur",
     days: "Monday - Sunday",
     hours: "10:00 AM - 8:00 PM",
-    phone: "9382979780",
+    phone: "8016872767",
     mapsUrl: "https://maps.app.goo.gl/nLMzieG821pR18rR8",
-    image: "/showroom_1.jpeg",
+    images: [
+      "/shop_1.jpeg",
+      "/shop_2.jpeg",
+      "/shop_3.jpeg",
+      "/shop_4.jpeg",
+      "/shop_5.jpeg",
+      "/shop_6.jpeg",
+    ],
     details:
-      "Authorized laptop & desktop repair center providing chip-level servicing and accessories.",
+      "Complete laptop sales, refurbished systems, and upgrade solutions.",
   },
   {
     id: "br-2",
@@ -215,24 +230,17 @@ export const INITIAL_BRANCHES: Branch[] = [
     hours: "10:00 AM - 9:00 PM",
     phone: "8670777330",
     mapsUrl: "https://maps.app.goo.gl/w2VkFS5GedjJna8n6",
-    image: "/service_centre.png",
+    images: [
+      "/showroom_1.png",
+      "/showroom_2.jpeg",
+      "/showroom_3.jpg",
+      "/showroom_4.jpeg",
+      "/showroom_5.jpg",
+    ],
     details:
       "Main Durgapur showroom showcasing the latest laptops, desktops, accessories, and custom PC builds. Experience hands-on product demos, expert guidance, and exclusive in-store deals.",
   },
-  {
-    id: "br-3",
-    title: "DGP Shop - Benachity",
-    address:
-      "49/44, 1st Floor, Chamber of Commerce Lane, Beside/Opposite Maa Kali Hardware, Benachity, Durgapur - 713213",
-    city: "Durgapur",
-    days: "Monday - Sunday",
-    hours: "10:00 AM - 8:00 PM",
-    phone: "8016872767",
-    mapsUrl: "https://maps.app.goo.gl/nLMzieG821pR18rR8",
-    image: "/shop1.jpeg",
-    details:
-      "Complete laptop sales, refurbished systems, and upgrade solutions.",
-  },
+
   {
     id: "br-5",
     title: "Asansol Shop",
@@ -243,7 +251,14 @@ export const INITIAL_BRANCHES: Branch[] = [
     hours: "10:00 AM - 9:00 PM",
     phone: "8670777086",
     mapsUrl: "https://maps.app.goo.gl/D859wor1oCqRc4LD8",
-    image: "/infofix-computers-asansol-computer-dealers-9hb1m4cx6o.jpg",
+    images: [
+      "asn_main.jpg",
+      "/asn_1.jpg",
+      "/asn_2.png",
+      "/asn_3.png",
+      "/asn_4.png",
+      "/asn_5.png",
+    ],
     details:
       "Flagship branch offering premium laptops, gaming builds & enterprise solutions.",
   },
@@ -256,8 +271,36 @@ export const INITIAL_BRANCHES: Branch[] = [
     hours: "10:00 AM - 8:00 PM",
     phone: "7318621222",
     mapsUrl: "https://maps.app.goo.gl/Aha3t8RyAmVpfqXFA",
-    image: "/ukhra_store.jpeg",
+    images: [
+      "/ukhra_1.jpeg",
+      "/ukhra_2.jpeg",
+      "/ukhra_3.jpeg",
+      "/ukhra_4.jpeg",
+      "/ukhra_5.jpeg",
+      "/ukhra_6.jpeg",
+      "/ukhra_store.jpeg",
+    ],
     details:
       "Sales & service point for laptops, accessories, and hardware components.",
+  },
+  {
+    id: "br-1",
+    title: "Infofix Computers Service Centre",
+    address:
+      "49/44, Ground Floor, Chamber of Commerce Lane, Beside/Opposite Maa Kali Hardware, Benachity, Durgapur - 713213",
+    city: "Durgapur",
+    days: "Monday - Sunday",
+    hours: "10:00 AM - 8:00 PM",
+    phone: "9382979780",
+    mapsUrl: "https://maps.app.goo.gl/nLMzieG821pR18rR8",
+    images: [
+      "/service_1.jpeg",
+      "/service_2.jpeg",
+      "/service_3.jpeg",
+      "/service_4.jpeg",
+      "/service_5.jpeg",
+    ],
+    details:
+      "Authorized laptop & desktop repair center providing chip-level servicing and accessories.",
   },
 ];
