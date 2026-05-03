@@ -80,7 +80,7 @@ export const Branches: React.FC = () => {
               />
               <div className="hidden sm:flex items-center gap-2 pr-2">
                 <span className="text-[10px] font-black text-gray-700 uppercase tracking-widest px-3 py-2 bg-white/5 rounded-lg border border-white/10">
-                  {filteredBranches.length} Results
+                  {filteredBranches.length} Stores
                 </span>
               </div>
             </div>

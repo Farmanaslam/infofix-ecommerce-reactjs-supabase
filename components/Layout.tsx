@@ -1505,7 +1505,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
     },
     { name: "Coupons", icon: Tag, role: ["MANAGER", "ADMIN"] },
     { name: "Careers", icon: Briefcase, role: ["MANAGER", "ADMIN"] },
-    { name: "Settings", icon: Settings, role: ["MANAGER", "ADMIN"] },
+    { name: "Settings", icon: Settings, role: ["ADMIN"] },
   ];
 
   const visibleNav = navItems.filter((i) => i.role.includes(currentUser.role));

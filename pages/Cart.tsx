@@ -234,17 +234,28 @@ export const Cart: React.FC = () => {
 
                         <div className="flex items-center justify-between gap-3 mt-3">
                           <div className="flex items-center bg-gray-100 rounded-xl overflow-hidden" onClick={e => e.stopPropagation()}>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); updateQuantity(String(item.id), Math.max(moq, item.quantity - 1)); }}
-                              disabled={item.quantity <= moq}
-                              className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-200 disabled:opacity-30 transition-colors"
-                            ><Minus className="w-3.5 h-3.5" /></button>
-                            <span className="w-10 text-center font-black text-gray-900 text-sm">{item.quantity}</span>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); updateQuantity(String(item.id), item.quantity + 1); }}
-                              disabled={item.quantity >= (item.stock ?? Infinity)}
-                              className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-200 disabled:opacity-30 transition-colors"
-                            ><Plus className="w-3.5 h-3.5" /></button>
+                            {(() => {
+                              const isWholesale = moq > 1;
+                              const step = isWholesale ? moq : 1;
+                              const stock = item.stock ?? Infinity;
+                              const nextUp = item.quantity + step;
+                              const nextDown = item.quantity - step;
+                              return (
+                                <>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); updateQuantity(String(item.id), Math.max(moq, nextDown)); }}
+                                    disabled={item.quantity <= moq}
+                                    className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-200 disabled:opacity-30 transition-colors"
+                                  ><Minus className="w-3.5 h-3.5" /></button>
+                                  <span className="w-10 text-center font-black text-gray-900 text-sm">{item.quantity}</span>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); updateQuantity(String(item.id), Math.min(stock, nextUp)); }}
+                                    disabled={nextUp > stock}
+                                    className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-200 disabled:opacity-30 transition-colors"
+                                  ><Plus className="w-3.5 h-3.5" /></button>
+                                </>
+                              );
+                            })()}
                           </div>
 
                           <div className="flex items-center gap-4">

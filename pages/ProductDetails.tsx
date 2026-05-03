@@ -252,7 +252,8 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
     if (product.stock === 5) return "Only 5 left in stock – order soon!";
     return null;
   };
-
+  const isWholesale = moq > 1;
+  const step = isWholesale ? moq : 1;
   return (
     <>
       <style>{`
@@ -330,11 +331,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
             </div>
 
             {/*
-              RIGHT col — desktop: fixed height with flex-col so sticky CTA works
-              - lg:h-[calc(100vh-96px)] sets the column height equal to viewport minus header
-              - lg:sticky lg:top-6 keeps it in view as page scrolls
-              - inner scroll div grows to fill, overflows with scroll
-              - CTA bar at bottom is shrink-0, always visible
+              RIGHT col — desktop: fixed height with flex-col so sticky CTA
               Mobile: normal flow, no height constraint, CTA inline
             */}
             <div className="flex flex-col lg:h-[calc(100vh-96px)] lg:sticky lg:top-6">
@@ -429,12 +426,26 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                     <div className="flex items-center gap-4">
                       <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Qty</span>
                       <div className="flex items-center bg-gray-100 rounded-2xl overflow-hidden">
-                        <button onClick={() => setQty((q) => Math.max(moq, q - 1))} disabled={qty <= moq} className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-200 disabled:opacity-30 transition-colors"><Minus className="w-3.5 h-3.5" /></button>
+                        <button
+                          onClick={() => setQty((q) => Math.max(moq, q - step))}
+                          disabled={qty <= moq}
+                          className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-200 disabled:opacity-30 transition-colors"
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
                         <span className="w-12 text-center font-black text-gray-900 text-sm">{qty}</span>
-                        <button onClick={() => setQty((q) => Math.min(maxQty, q + 1))} disabled={qty >= maxQty} className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-200 disabled:opacity-30 transition-colors"><Plus className="w-3.5 h-3.5" /></button>
+                        <button
+                          onClick={() => setQty((q) => Math.min(maxQty, q + step))}
+                          disabled={qty >= maxQty || (isWholesale && qty + step > maxQty)}
+                          className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-200 disabled:opacity-30 transition-colors"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
                         {moq > 1 && <span className="text-[11px] text-amber-600 font-black bg-amber-50 border border-amber-100 px-2.5 py-1 rounded-lg">Min {moq}</span>}
                       </div>
-                      {product.stock < 20 && <span className="text-[11px] text-gray-400 font-semibold">{product.stock} in stock</span>}
+                      {(product.stock < 20 || isWholesale) && (
+                        <span className="text-[11px] text-gray-400 font-semibold">{product.stock} in stock</span>
+                      )}
                     </div>
                   </div>
                 )}
