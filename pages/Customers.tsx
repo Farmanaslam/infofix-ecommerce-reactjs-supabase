@@ -173,6 +173,8 @@ export const Customers: React.FC = () => {
       city: c.city ?? "",
       state: c.state ?? "",
       pincode: c.pincode ?? "",
+      notes: c.notes ?? "",
+      tags: (c.tags ?? []).join(", "),
     });
   };
 
@@ -222,11 +224,11 @@ export const Customers: React.FC = () => {
         prev.map((c) =>
           c.id === editCustomer.id
             ? {
-                ...c,
-                ...editForm,
-                tags: tagsArray,
-                updated_at: new Date().toISOString(),
-              }
+              ...c,
+              ...editForm,
+              tags: tagsArray,
+              updated_at: new Date().toISOString(),
+            }
             : c,
         ),
       );
@@ -574,33 +576,33 @@ export const Customers: React.FC = () => {
               {/* Stats */}
               {(viewCustomer.order_count != null ||
                 viewCustomer.total_spent != null) && (
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-indigo-50 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <ShoppingBag className="w-4 h-4 text-indigo-600" />
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">
-                        Orders
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-indigo-50 rounded-xl p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <ShoppingBag className="w-4 h-4 text-indigo-600" />
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                          Orders
+                        </p>
+                      </div>
+                      <p className="text-xl font-black text-gray-900">
+                        {viewCustomer.order_count ?? 0}
                       </p>
                     </div>
-                    <p className="text-xl font-black text-gray-900">
-                      {viewCustomer.order_count ?? 0}
-                    </p>
-                  </div>
-                  <div className="bg-emerald-50 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <IndianRupee className="w-4 h-4 text-emerald-600" />
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">
-                        Total Spent
+                    <div className="bg-emerald-50 rounded-xl p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <IndianRupee className="w-4 h-4 text-emerald-600" />
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                          Total Spent
+                        </p>
+                      </div>
+                      <p className="text-xl font-black text-gray-900">
+                        {viewCustomer.total_spent != null
+                          ? `₹${viewCustomer.total_spent.toLocaleString("en-IN")}`
+                          : "—"}
                       </p>
                     </div>
-                    <p className="text-xl font-black text-gray-900">
-                      {viewCustomer.total_spent != null
-                        ? `₹${viewCustomer.total_spent.toLocaleString("en-IN")}`
-                        : "—"}
-                    </p>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Contact & address */}
               <div className="bg-gray-50 rounded-2xl p-5 space-y-3">

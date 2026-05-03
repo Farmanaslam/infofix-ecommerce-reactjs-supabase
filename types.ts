@@ -154,6 +154,11 @@ export interface Customer {
   pincode: string;
   country: string;
   created_at: string;
+  notes?: string;
+  tags?: string[];
+  order_count?: number;
+  total_spent?: number;
+  updated_at?: string;
 }
 
 export interface AddressForm {
