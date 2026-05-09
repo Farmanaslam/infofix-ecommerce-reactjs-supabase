@@ -12,12 +12,13 @@ import {
   Map as MapIcon,
 } from "lucide-react";
 import { BranchCarousel } from "./BranchCarousel";
+import { SECTION_ACCENT } from "@/lib/sectionTheme";
 
 export const Branches: React.FC = () => {
-  const { branches } = useStore();
+  const { branches, selectedStoreSection } = useStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
-
+  const theme = SECTION_ACCENT[selectedStoreSection];
   useEffect(() => {
     setIsLoaded(true);
   }, []);
@@ -32,7 +33,7 @@ export const Branches: React.FC = () => {
   return (
     <div className="pb-32 bg-white selection:bg-indigo-100 selection:text-indigo-900">
       {/* Immersive Header Section */}
-      <section className="relative min-h-[70vh] md:h-100 flex items-center justify-center overflow-hidden bg-gray-900 pt-16 md:pt-0">
+      <section className="relative min-h-[50vh] md:h-100 flex items-center justify-center overflow-hidden bg-gray-900 pt-10 md:pt-0">
         {" "}
         <div className="absolute inset-0">
           <img
@@ -44,14 +45,14 @@ export const Branches: React.FC = () => {
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 w-full text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-full text-white text-[10px] font-black uppercase tracking-widest backdrop-blur-md animate-fade-in-up">
-            <MapIcon className="w-3 h-3 text-indigo-400" /> Infofix Store
+            <MapIcon style={{ width: 10, height: 10, color: theme.accent }} /> Infofix Store
             Network
           </div>
           <h1
             className="text-5xl md:text-7xl font-black text-white tracking-tighter animate-fade-in-up"
             style={{ animationDelay: "0.1s" }}
           >
-            Visit <span className="text-indigo-400">Store Locations</span>
+            Visit <span style={{ color: theme.accent }}>Store Locations</span>
           </h1>
           <p
             className="text-gray-300 text-lg max-w-2xl mx-auto font-medium animate-fade-in-up"
@@ -60,7 +61,7 @@ export const Branches: React.FC = () => {
             Visit Infofix Computers at any of our branches for product
             purchases, repairs, upgrades, and expert technical support.
           </p>
-          <p className="text-indigo-300 text-sm font-semibold tracking-wide">
+          <p className=" text-sm font-semibold tracking-wide" style={{ color: theme.accent }}>
             Trusted service. Genuine products. Local presence.
           </p>
           {/* Floating Search Bar */}
@@ -70,7 +71,7 @@ export const Branches: React.FC = () => {
           >
             <div className="absolute inset-0 bg-indigo-500/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full"></div>
             <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center p-2 shadow-2xl">
-              <Search className="ml-4 text-indigo-600 w-5 h-5" />
+              <Search className="ml-4 w-5 h-5" style={{ color: theme.accent }} />
               <input
                 type="text"
                 placeholder="Search city or branch name..."
@@ -91,7 +92,8 @@ export const Branches: React.FC = () => {
       {/* Main Grid */}
       <div className="app-container pt-6 relative z-20">
         {/* Store Overview Section */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-8 md:mb-16 mt-4 md:mt-0">
+
           <h2 className="text-3xl font-black text-gray-900 mb-4">
             Find an Infofix Computers Store Near You
           </h2>
@@ -122,12 +124,11 @@ export const Branches: React.FC = () => {
                   />
                   {/* Keep city badge + title overlay */}
                   <div className="absolute top-6 left-6 right-6 flex justify-between items-start z-10">
-                    <span className="bg-indigo-600/90 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-400/30">
+                    <span className="backdrop-blur-md text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest"
+                      style={{ background: theme.accent + 'e6', border: `1px solid ${theme.accent}66` }}>
                       {branch.city}
                     </span>
-                    <div className="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/20 text-white">
-                      <Navigation className="w-4 h-4" />
-                    </div>
+
                   </div>
                   <div className="absolute bottom-8 left-8 right-8 z-10">
                     <h3 className="text-3xl font-black text-white tracking-tight drop-shadow-lg">
@@ -140,8 +141,10 @@ export const Branches: React.FC = () => {
                 <div className="p-10 space-y-8 flex-1 flex flex-col">
                   <div className="space-y-4">
                     <div className="flex items-start gap-4">
-                      <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
-                        <MapPin className="w-5 h-5" />
+                      <div className="p-2.5 rounded-xl transition-all duration-300"
+                        style={{ background: theme.accentLight, color: theme.accent }}
+                        onMouseEnter={e => { e.currentTarget.style.background = theme.accent; e.currentTarget.style.color = '#fff'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = theme.accentLight; e.currentTarget.style.color = theme.accent; }}>                        <MapPin className="w-5 h-5" />
                       </div>
                       <p className="text-gray-600 font-medium leading-relaxed">
                         {branch.address}
@@ -150,7 +153,8 @@ export const Branches: React.FC = () => {
 
                     <div className="grid grid-cols-2 gap-6 pt-2">
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-[10px] font-black text-indigo-600 uppercase tracking-widest">
+                        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
+                          style={{ color: theme.accent }}>
                           <Clock className="w-3 h-3" /> Availability
                         </div>
                         <p className="text-sm font-bold text-gray-900">
@@ -161,7 +165,7 @@ export const Branches: React.FC = () => {
                         </p>
                       </div>
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-[10px] font-black text-indigo-600 uppercase tracking-widest">
+                        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest" style={{ color: theme.accent }}>
                           <Phone className="w-3 h-3" /> Phone
                         </div>
                         <p className="text-sm font-bold text-gray-900">
@@ -192,15 +196,17 @@ export const Branches: React.FC = () => {
                       href={branch.mapsUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex-1 bg-gray-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-indigo-600 transition-all shadow-xl shadow-gray-200 active:scale-[0.98]"
-                    >
+                      className="flex-1 bg-gray-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-xl shadow-gray-200 active:scale-[0.98]"
+                      onMouseEnter={e => (e.currentTarget.style.background = theme.accent)}
+                      onMouseLeave={e => (e.currentTarget.style.background = '#111827')}                    >
                       <ExternalLink className="w-4 h-4" /> View Map
                     </a>
                     <button
                       onClick={() =>
                         (window.location.href = `tel:${branch.phone}`)
                       }
-                      className="px-6 bg-indigo-50 text-indigo-600 rounded-2xl hover:bg-indigo-100 transition-all active:scale-[0.98] border border-indigo-100"
+                      className="px-6 bg-indigo-50 rounded-2xl hover:bg-indigo-100 transition-all active:scale-[0.98] border border-indigo-100"
+                      style={{ color: theme.accent }}
                     >
                       <Phone className="w-5 h-5" />
                     </button>
@@ -232,16 +238,16 @@ export const Branches: React.FC = () => {
       </div>
 
       {/* Premium CTA Footer */}
-      <section className="mt-40 app-container">
+      <section className="mt-18 app-container">
         <div className="relative bg-[#172337] rounded-[56px] p-16 md:p-32 overflow-hidden text-center text-white">
           <div className="absolute top-0 left-0 w-full h-full bg-linear-to-br from-indigo-600/20 to-transparent"></div>
           <div className="relative z-10 space-y-8 max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-indigo-400 text-[10px] font-black uppercase tracking-widest backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full  text-[10px] font-black uppercase tracking-widest backdrop-blur-md" style={{ color: theme.accent }}>
               <Sparkles className="w-3 h-3" /> Store Assistance
             </div>
             <h2 className="text-4xl md:text-7xl font-black tracking-tighter leading-none">
               Need Help Finding a{" "}
-              <span className="text-indigo-400">Nearest Store?</span>
+              <span style={{ color: theme.accent }}>Nearest Store?</span>
             </h2>
             <p className="text-gray-400 text-lg md:text-xl font-medium opacity-80 leading-relaxed">
               Looking for product availability, service support, or directions?

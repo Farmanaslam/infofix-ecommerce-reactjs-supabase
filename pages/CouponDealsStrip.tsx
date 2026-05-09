@@ -293,7 +293,7 @@ const MobileDealsCarousel = ({ deals, onProductClick, onDismiss, accent = '#6366
 
     return (
         <div
-            className="relative px-4 pt-6 pb-3 text-white"
+            className="relative px-4 pt-3 pb-3 text-white"
             style={{ background: `linear-gradient(to right, ${accent}ee, ${accent}bb)` }}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
@@ -304,12 +304,12 @@ const MobileDealsCarousel = ({ deals, onProductClick, onDismiss, accent = '#6366
             >
                 <X className="w-4 h-4 text-white" />
             </button>
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 shadow-lg">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-2 shadow-lg">
 
                 {/* Header */}
-                <div className="flex items-center gap-2 mb-2">
-                    <Zap className="w-4 h-4 text-yellow-300" />
-                    <span className="text-xs font-bold tracking-widest uppercase">
+                <div className="flex items-center gap-1.5 mb-1">
+                    <Zap className="w-3 h-3 text-yellow-300" />
+                    <span className="text-[10px] font-bold tracking-widest uppercase">
                         Exclusive Deal
                     </span>
                 </div>
@@ -322,7 +322,7 @@ const MobileDealsCarousel = ({ deals, onProductClick, onDismiss, accent = '#6366
                     {deal.productImage && (
                         <img
                             src={deal.productImage}
-                            className="w-14 h-14 rounded-xl object-cover border border-white/20"
+                            className="w-10 h-10 rounded-lg object-cover border border-white/20"
                         />
                     )}
 
@@ -342,7 +342,7 @@ const MobileDealsCarousel = ({ deals, onProductClick, onDismiss, accent = '#6366
                 </div>
 
                 {/* Dots */}
-                <div className="flex justify-center mt-3 gap-1">
+                <div className="flex justify-center mt-2 gap-1">
                     {deals.map((_: any, i: number) => (
                         <div
                             key={i}

@@ -17,9 +17,11 @@ import {
   HardDrive,
   RefreshCw,
 } from "lucide-react";
-
+import { SECTION_ACCENT } from "@/lib/sectionTheme";
+import { Helmet } from "react-helmet-async";
 export const Services: React.FC = () => {
-  const { setCurrentPage, setSelectedCategory } = useStore();
+  const { setCurrentPage, setSelectedCategory, selectedStoreSection } = useStore();
+  const theme = SECTION_ACCENT[selectedStoreSection];
 
   const mainServices = [
     {
@@ -154,6 +156,70 @@ export const Services: React.FC = () => {
   ];
   return (
     <div className="pb-28">
+      <Helmet>
+        <title>
+          {selectedStoreSection === 'Refurbished'
+            ? 'Certified Refurbished Laptop Services Durgapur | Infofix Computers'
+            : selectedStoreSection === 'Wholesale'
+              ? 'Wholesale Computer Supply Services West Bengal | Infofix Computers'
+              : 'Laptop & Desktop Services in Durgapur | Custom PC Builds | Infofix Computers'}
+        </title>
+        <meta name="description" content={
+          selectedStoreSection === 'Refurbished'
+            ? 'Grade-A certified refurbished laptops in Durgapur. Professionally tested, SSD upgraded, 6-month warranty. Dell, HP, Lenovo ThinkPad from ₹11,999. Infofix Computers.'
+            : selectedStoreSection === 'Wholesale'
+              ? 'Wholesale laptop & desktop supply across West Bengal. Bulk pricing, GST invoice, dedicated B2B support. Infofix Computers Durgapur.'
+              : 'Buy laptops, desktop PCs & custom builds in Durgapur, Asansol & all India. Hardware repair, RAM/SSD upgrades, OS install. 1-year warranty. Infofix Computers.'
+        } />
+        <meta name="keywords" content="laptop repair durgapur, computer repair durgapur, custom pc build durgapur, desktop pc durgapur, laptop service asansol, refurbished laptop durgapur, ssd upgrade durgapur, gaming pc durgapur, computer services west bengal" />
+        <link rel="canonical" href="https://infofixcomputers.com/services" />
+        <meta property="og:title" content="Computer & Laptop Services in Durgapur | Infofix Computers" />
+        <meta property="og:description" content="New PCs, custom builds, laptop repair, refurbished laptops & upgrades. 5 stores across West Bengal. 1-year warranty. Pan-India delivery." />
+        <meta property="og:image" content="https://infofixcomputers.com/icons/logo.png" />
+        <meta property="og:url" content="https://infofixcomputers.com/services" />
+        <meta property="og:type" content="website" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          "name": "Computer & Laptop Services — Infofix Computers",
+          "url": "https://infofixcomputers.com/services",
+          "description": "New laptops, desktop PCs, custom builds, hardware repair, RAM/SSD upgrades and certified refurbished devices. Serving Durgapur, Asansol, Ukhra & pan-India.",
+          "provider": {
+            "@type": "LocalBusiness",
+            "name": "Infofix Computers",
+            "@id": "https://infofixcomputers.com/#business",
+            "telephone": "+91-8293295257",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Benachity Near Bank of Baroda",
+              "addressLocality": "Durgapur",
+              "addressRegion": "West Bengal",
+              "postalCode": "713201",
+              "addressCountry": "IN"
+            }
+          },
+          "areaServed": [
+            { "@type": "City", "name": "Durgapur" },
+            { "@type": "City", "name": "Asansol" },
+            { "@type": "City", "name": "Ukhra" },
+            { "@type": "State", "name": "West Bengal" },
+            { "@type": "Country", "name": "India" }
+          ],
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Tech Services Catalog",
+            "itemListElement": [
+              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Laptop Repair Durgapur", "description": "Hardware faults, screen replacement, motherboard repair — fast turnaround at our Durgapur service centre." } },
+              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Custom PC Build Durgapur", "description": "Custom gaming and office PCs built to your specs and budget. Assembled and tested same day." } },
+              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Certified Refurbished Laptops Durgapur", "description": "Grade-A refurbished Dell, HP, Lenovo laptops. SSD upgraded, tested, 6-month warranty." } },
+              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "RAM & SSD Upgrade Durgapur", "description": "Speed up any laptop or desktop with RAM and SSD upgrades installed while you wait." } },
+              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "OS Install & Data Recovery Durgapur", "description": "Fresh Windows install, driver setup, data migration and full system optimization." } },
+              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Laptop Repair Asansol", "description": "Hardware and software laptop repairs at our Asansol service centre." } },
+              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Desktop PC Sales Durgapur", "description": "Pre-assembled and custom desktop PCs for home, office and gaming available across 5 stores." } }
+            ]
+          }
+        })}</script>
+      </Helmet>
       <style>{`
         @keyframes shimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
         @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
@@ -179,7 +245,7 @@ export const Services: React.FC = () => {
           className="absolute inset-0"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(99,102,241,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.08) 1px,transparent 1px)",
+              `linear-gradient(${theme.accent}14 1px,transparent 1px),linear-gradient(90deg,${theme.accent}14 1px,transparent 1px)`,
             backgroundSize: "44px 44px",
           }}
         />
@@ -187,20 +253,17 @@ export const Services: React.FC = () => {
           className="absolute -top-32 left-1/2 -translate-x-1/2 w-175 h-100 rounded-full"
           style={{
             background:
-              "radial-gradient(ellipse, rgba(99,102,241,0.2) 0%, transparent 70%)",
+              `radial-gradient(ellipse, ${theme.accent}33 0%, transparent 70%)`,
           }}
         />
 
         <div className="relative z-10 px-4 max-w-4xl py-24">
           <div
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-8"
-            style={{
-              background: "rgba(99,102,241,0.12)",
-              border: "1px solid rgba(99,102,241,0.25)",
-              color: "#818cf8",
-            }}
+            style={{ background: `${theme.accent}1f`, border: `1px solid ${theme.accent}40`, color: theme.accent }}
+
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 pulse-dot" />
+            <span className="w-1.5 h-1.5 rounded-full pulse-dot" style={{ background: theme.accent }} />
             Laptops · Desktops · Custom Builds
           </div>
 
@@ -210,7 +273,7 @@ export const Services: React.FC = () => {
           >
             The Right Machine.
             <br />
-            <span className="shimmer-text">Built for You.</span>
+            <span style={{ color: theme.accent }}>Built for You.</span>
           </h1>
 
           <p
@@ -226,7 +289,7 @@ export const Services: React.FC = () => {
             <button
               onClick={() => setCurrentPage("shop")}
               className="flex items-center gap-2 px-7 py-3.5 rounded-2xl font-black text-sm text-white uppercase tracking-wider hover:opacity-90 transition-all"
-              style={{ background: "#6366f1" }}
+              style={{ background: theme.accent }}
             >
               Browse All Products <ArrowRight className="w-4 h-4" />
             </button>
@@ -248,7 +311,7 @@ export const Services: React.FC = () => {
         {/* ── 3 MAIN SERVICES ── */}
         <section className="space-y-10">
           <div className="text-center space-y-3">
-            <p className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em]">
+            <p className="text-xs font-black uppercase tracking-[0.2em]" style={{ color: theme.accent }}>
               Core Offerings
             </p>
             <h2 className="text-4xl font-black text-gray-900 tracking-tight">
@@ -260,11 +323,12 @@ export const Services: React.FC = () => {
             {mainServices.map((svc, i) => (
               <div
                 key={i}
-                className={`card-hover group relative rounded-4xl overflow-hidden border ${
-                  svc.dark
-                    ? "bg-gray-900 border-gray-800"
-                    : "bg-white border-gray-100 hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-500/10"
-                } transition-all duration-300`}
+                className={`card-hover group relative rounded-4xl overflow-hidden border ${svc.dark
+                  ? "bg-gray-900 border-gray-800"
+                  : "bg-white border-gray-100 "
+                  } transition-all duration-300`}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = `${theme.accent}33`; e.currentTarget.style.boxShadow = `0 20px 40px ${theme.accent}18`; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#f3f4f6'; e.currentTarget.style.boxShadow = ''; }}
               >
                 {svc.dark && (
                   <div
@@ -336,7 +400,7 @@ export const Services: React.FC = () => {
         {/* ── CUSTOM BUILD TIERS ── */}
         <section className="bg-gray-50 rounded-[40px] p-10 md:p-16 space-y-10">
           <div className="text-center space-y-3">
-            <p className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em]">
+            <p className="text-xs font-black uppercase tracking-[0.2em]" style={{ color: theme.accent }}>
               Custom PC Builds
             </p>
             <h2 className="text-4xl font-black text-gray-900 tracking-tight">
@@ -353,14 +417,15 @@ export const Services: React.FC = () => {
               <div
                 key={i}
                 onClick={() => setCurrentPage("contact")}
-                className={`card-hover cursor-pointer relative rounded-3xl p-8 flex flex-col gap-5 transition-all ${
-                  tier.featured
-                    ? "bg-gray-900 border-2 shadow-2xl shadow-indigo-500/20 md:-mt-6"
-                    : "bg-white border border-gray-200 hover:border-indigo-100 hover:shadow-lg"
-                }`}
+                className={`card-hover cursor-pointer relative rounded-3xl p-8 flex flex-col gap-5 transition-all ${tier.featured
+                  ? "bg-gray-900 border-2 shadow-2xl shadow-indigo-500/20 md:-mt-6"
+                  : "bg-white border border-gray-200 "
+                  }`}
                 style={{
                   borderColor: tier.featured ? tier.color : undefined,
                 }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = `${theme.accent}33`; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; }}
               >
                 {tier.featured && (
                   <div
@@ -415,12 +480,13 @@ export const Services: React.FC = () => {
                 </div>
 
                 <button
-                  className={`w-full py-3 rounded-2xl font-black text-sm uppercase tracking-wider transition-all ${
-                    tier.featured
-                      ? "text-white hover:opacity-90"
-                      : "bg-gray-900 text-white hover:bg-indigo-600"
-                  }`}
+                  className={`w-full py-3 rounded-2xl font-black text-sm uppercase tracking-wider transition-all ${tier.featured
+                    ? "text-white hover:opacity-90"
+                    : "bg-gray-900 text-white"
+                    }`}
                   style={tier.featured ? { background: tier.color } : {}}
+                  onMouseEnter={e => e.currentTarget.style.background = theme.accent}
+                  onMouseLeave={e => e.currentTarget.style.background = '#111827'}
                 >
                   Build This Config →
                 </button>
@@ -432,7 +498,7 @@ export const Services: React.FC = () => {
             Need a different configuration?{" "}
             <button
               onClick={() => setCurrentPage("contact")}
-              className="text-indigo-600 font-black hover:underline"
+              className="font-black hover:underline" style={{ color: theme.accent }}
             >
               Tell us what you need →
             </button>
@@ -442,7 +508,7 @@ export const Services: React.FC = () => {
         {/* ── SUPPORT SERVICES ── */}
         <section className="space-y-10">
           <div className="text-center space-y-3">
-            <p className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em]">
+            <p className="text-xs font-black" style={{ color: theme.accent }}>
               After-Sales & Support
             </p>
             <h2 className="text-4xl font-black text-gray-900 tracking-tight">
@@ -493,7 +559,7 @@ export const Services: React.FC = () => {
             className="absolute inset-0 opacity-40"
             style={{
               backgroundImage:
-                "linear-gradient(rgba(99,102,241,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.08) 1px,transparent 1px)",
+                `linear-gradient(${theme.accent}14 1px,transparent 1px),linear-gradient(90deg,${theme.accent}14 1px,transparent 1px)`,
               backgroundSize: "36px 36px",
             }}
           />
@@ -501,7 +567,7 @@ export const Services: React.FC = () => {
             className="absolute -top-20 left-1/2 -translate-x-1/2 w-150 h-75 rounded-full"
             style={{
               background:
-                "radial-gradient(ellipse, rgba(99,102,241,0.16) 0%, transparent 70%)",
+                `radial-gradient(ellipse, ${theme.accent}29 0%, transparent 70%)`,
             }}
           />
 
@@ -509,7 +575,7 @@ export const Services: React.FC = () => {
             <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
               Trusted by 50,000+ Customers.
               <br />
-              <span style={{ color: "#818cf8" }}>
+              <span style={{ color: theme.accent }}>
                 5 Stores. 8 Years Strong.
               </span>
             </h2>
@@ -523,7 +589,7 @@ export const Services: React.FC = () => {
               <button
                 onClick={() => setCurrentPage("contact")}
                 className="flex items-center gap-2 px-7 py-3.5 rounded-2xl font-black text-sm text-white uppercase tracking-wider hover:opacity-90 transition-all"
-                style={{ background: "#6366f1" }}
+                style={{ background: theme.accent }}
               >
                 <Phone className="w-4 h-4" /> Contact Us
               </button>

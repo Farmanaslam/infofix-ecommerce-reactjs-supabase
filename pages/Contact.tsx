@@ -1,18 +1,21 @@
 import React from "react";
-import { Mail, Phone, MapPin, Send, MessageCircle, Clock,ShoppingCart } from "lucide-react";
+import { Mail, Phone, MapPin, Send, MessageCircle, Clock, ShoppingCart } from "lucide-react";
 import { useStore } from "../context/StoreContext";
+import { SECTION_ACCENT } from "@/lib/sectionTheme";
 
 export const Contact: React.FC = () => {
-  const { setCurrentPage } = useStore();
+  const { setCurrentPage, selectedStoreSection } = useStore();
+  const theme = SECTION_ACCENT[selectedStoreSection];
   return (
     <div className="py-8 md:py-24 app-container">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-24">
-        <div className="space-y-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-24">
+
+        <div className="space-y-8 lg:space-y-12">
           <div className="space-y-6">
             <h1 className="text-5xl md:text-6xl font-black tracking-tighter leading-none">
-              <span className="bg-linear-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
-                Get in Touch
-              </span>{" "}
+              <span style={{ color: theme.accent }}>
+                Get in Touch {" "}
+              </span>
               with Infofix Computers
             </h1>
 
@@ -22,7 +25,8 @@ export const Contact: React.FC = () => {
               reliable assistance.
             </p>
 
-            <p className="text-sm font-bold text-indigo-600 mt-4">
+            <p className="text-sm font-bold mt-4" style={{ color: theme.accent }}
+            >
               Your trusted destination for computers, accessories, and expert
               technical support.
             </p>
@@ -30,7 +34,10 @@ export const Contact: React.FC = () => {
 
           <div className="space-y-8">
             <div className="flex items-start gap-6 group">
-              <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300"
+                style={{ background: theme.accentLight, color: theme.accent }}
+                onMouseEnter={e => { const el = e.currentTarget; el.style.background = theme.accent; el.style.color = '#fff'; }}
+                onMouseLeave={e => { const el = e.currentTarget; el.style.background = theme.accentLight; el.style.color = theme.accent; }}>
                 <MapPin className="w-7 h-7" />
               </div>
               <div>
@@ -48,7 +55,9 @@ export const Contact: React.FC = () => {
             </div>
 
             <div className="flex items-start gap-6 group">
-              <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+              <div className="w-14 h-14 bg-indigo-50  rounded-2xl flex items-center justify-center shrink-0  group-hover:text-white transition-all duration-300" style={{ background: theme.accentLight, color: theme.accent }}
+                onMouseEnter={e => { const el = e.currentTarget; el.style.background = theme.accent; el.style.color = '#fff'; }}
+                onMouseLeave={e => { const el = e.currentTarget; el.style.background = theme.accentLight; el.style.color = theme.accent; }}>
                 <Mail className="w-7 h-7" />
               </div>
               <div>
@@ -56,27 +65,31 @@ export const Contact: React.FC = () => {
                 <p className="text-gray-500 font-medium">
                   infofixcomputers1@gmail.com
                 </p>
-                <p className="text-xs text-indigo-600 font-bold mt-1">
+                <p className="text-xs font-bold mt-1" style={{ color: theme.accent }}>
                   Response time: Within 24 hours
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-6 group">
-              <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+              <div className="w-14 h-14  rounded-2xl flex items-center justify-center shrink-0  group-hover:text-white transition-all duration-300" style={{ background: theme.accentLight, color: theme.accent }}
+                onMouseEnter={e => { const el = e.currentTarget; el.style.background = theme.accent; el.style.color = '#fff'; }}
+                onMouseLeave={e => { const el = e.currentTarget; el.style.background = theme.accentLight; el.style.color = theme.accent; }}>
                 <Phone className="w-7 h-7" />
               </div>
               <div>
                 <h4 className="text-lg font-bold text-gray-900">Call Us</h4>
                 <p className="text-gray-500 font-medium">+91 8293295257</p>
-                <p className="text-xs text-indigo-600 font-bold mt-1">
+                <p className="text-xs font-bold mt-1" style={{ color: theme.accent }}>
                   Available Mon-Sun, 10am - 8pm
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-6 group">
-              <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+              <div className="w-14 h-14  rounded-2xl flex items-center justify-center shrink-0  group-hover:text-white transition-all duration-300" style={{ background: theme.accentLight, color: theme.accent }}
+                onMouseEnter={e => { const el = e.currentTarget; el.style.background = theme.accent; el.style.color = '#fff'; }}
+                onMouseLeave={e => { const el = e.currentTarget; el.style.background = theme.accentLight; el.style.color = theme.accent; }}>
                 <Clock className="w-7 h-7" />
               </div>
               <div>
@@ -91,7 +104,7 @@ export const Contact: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-100 p-2 md:p-12 rounded-[48px] shadow-2xl shadow-gray-200/50">
+        <div className="bg-white border border-gray-100 p-4 md:p-12 rounded-[48px] shadow-2xl shadow-gray-200/50">
           <form
             className="space-y-6"
             onSubmit={(e) => {
@@ -125,9 +138,19 @@ export const Contact: React.FC = () => {
                   name="fullname"
                   type="text"
                   placeholder="Krishna Sharma"
-                  className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-indigo-600 font-medium transition-all"
+                  className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 outline-none font-medium transition-all"
+                  style={{
+                    "--tw-ring-color": theme.accent,
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.boxShadow = `0 0 0 2px ${theme.accent}`;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.boxShadow = "none";
+                  }}
                 />
               </div>
+
               <div className="space-y-2">
                 <label className="text-xs font-black text-gray-400 uppercase tracking-widest">
                   Phone Number
@@ -136,17 +159,30 @@ export const Contact: React.FC = () => {
                   name="phone"
                   type="tel"
                   placeholder="+91 00000 00000"
-                  className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-indigo-600 font-medium transition-all"
+                  className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 outline-none font-medium transition-all"
+                  onFocus={(e) => {
+                    e.target.style.boxShadow = `0 0 0 2px ${theme.accent}`;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.boxShadow = "none";
+                  }}
                 />
               </div>
             </div>
+
             <div className="space-y-2">
               <label className="text-xs font-black text-gray-400 uppercase tracking-widest">
                 Subject
               </label>
               <select
                 name="subject"
-                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-indigo-600 font-medium transition-all appearance-none cursor-pointer"
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 outline-none font-medium transition-all appearance-none cursor-pointer"
+                onFocus={(e) => {
+                  e.target.style.boxShadow = `0 0 0 2px ${theme.accent}`;
+                }}
+                onBlur={(e) => {
+                  e.target.style.boxShadow = "none";
+                }}
               >
                 <option>Order Inquiry</option>
                 <option>Repair Request</option>
@@ -155,6 +191,7 @@ export const Contact: React.FC = () => {
                 <option>Other</option>
               </select>
             </div>
+
             <div className="space-y-2">
               <label className="text-xs font-black text-gray-400 uppercase tracking-widest">
                 Your Message
@@ -163,30 +200,39 @@ export const Contact: React.FC = () => {
                 name="message"
                 rows={4}
                 placeholder="How can we help you today?"
-                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-indigo-600 font-medium resize-none transition-all"
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 outline-none font-medium resize-none transition-all"
+                onFocus={(e) => {
+                  e.target.style.boxShadow = `0 0 0 2px ${theme.accent}`;
+                }}
+                onBlur={(e) => {
+                  e.target.style.boxShadow = "none";
+                }}
               ></textarea>
             </div>
             <button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 cursor-pointer text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-[0.98]"
-            >
+              className="w-full cursor-pointer text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl flex items-center justify-center gap-3 active:scale-[0.98]"
+              style={{ background: theme.accent }}
+              onMouseEnter={e => e.currentTarget.style.background = theme.accentHover}
+              onMouseLeave={e => e.currentTarget.style.background = theme.accent}            >
               Send Message <Send className="w-5 h-5" />
             </button>
           </form>
           <p className="mt-4 text-xs text-gray-400 font-medium">
             Your information is safe with us. We never share customer data.
           </p>
-          <div className="mt-8 p-6 bg-indigo-50 rounded-3xl flex items-center gap-4">
+          <div className="mt-8 p-6 rounded-3xl flex items-center gap-4" style={{ background: theme.accentLight }}>
             <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
-              <MessageCircle className="w-6 h-6 text-indigo-600" />
+              <MessageCircle className="w-6 h-6" style={{ color: theme.accent }} />
             </div>
-            <p className="text-sm font-semibold text-indigo-900 leading-tight">
+            <p className="text-sm font-semibold leading-tight" style={{ color: theme.accent }}>
               Prefer instant messaging? <br />
               <a
                 href="https://wa.me/8670777086?text=Hi%20Infofix%20Computers"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-indigo-600 hover:underline"
+                className="hover:underline"
+                style={{ color: theme.accent }}
               >
                 Chat with us on WhatsApp
               </a>
@@ -198,7 +244,7 @@ export const Contact: React.FC = () => {
       <div className="mt-10 md:mt-28 relative">
         <div className="text-center mb-14">
           <h3 className="text-4xl md:text-5xl font-black tracking-tight">
-            <span className="bg-linear-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
+            <span style={{ color: theme.accent }}>
               Why Choose Infofix Computers?
             </span>
           </h3>
@@ -239,134 +285,132 @@ export const Contact: React.FC = () => {
         </div>
       </div>
       {/* Bottom CTA */}
-    {/* Bottom CTA */}
-{/* Bottom CTA */}
-<div className="mt-24 relative overflow-hidden rounded-3xl" style={{ background: "#0a0a0f" }}>
-  {/* Grid pattern */}
-  <div
-    className="absolute inset-0"
-    style={{
-      backgroundImage:
-        "linear-gradient(rgba(99,102,241,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.07) 1px,transparent 1px)",
-      backgroundSize: "40px 40px",
-    }}
-  />
-  {/* Glow blob */}
-  <div
-    className="absolute -top-24 -left-24 w-96 h-96 rounded-full pointer-events-none"
-    style={{
-      background: "radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)",
-    }}
-  />
+      <div className="mt-24 relative overflow-hidden rounded-3xl" style={{ background: "#0a0a0f" }}>
+        {/* Grid pattern */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(99,102,241,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.07) 1px,transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+        {/* Glow blob */}
+        <div
+          className="absolute -top-24 -left-24 w-96 h-96 rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)",
+          }}
+        />
 
-  {/* Header */}
-  <div className="relative px-8 md:px-16 pt-12 pb-8 text-center border-b" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-    <div
-      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-4"
-      style={{
-        background: "rgba(99,102,241,0.12)",
-        border: "1px solid rgba(99,102,241,0.25)",
-        color: "#818cf8",
-      }}
-    >
-      <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 pulse-dot" />
-      Need Help or the Right Product?
-    </div>
-    <h3 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-3">
-      We're here every day, 10am – 8pm.
-    </h3>
-    <p className="font-medium max-w-md mx-auto leading-relaxed" style={{ color: "#6b7280" }}>
-      Browse our store, visit us in person, or just drop a message — our team responds fast.
-    </p>
-  </div>
+        {/* Header */}
+        <div className="relative px-8 md:px-16 pt-12 pb-8 text-center border-b" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-4"
+            style={{
+              background: "rgba(99,102,241,0.12)",
+              border: "1px solid rgba(99,102,241,0.25)",
+              color: theme.accentText
+            }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full  pulse-dot" style={{ background: theme.accent }} />
+            Need Help or the Right Product?
+          </div>
+          <h3 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-3">
+            We're here every day, 10am – 8pm.
+          </h3>
+          <p className="font-medium max-w-md mx-auto leading-relaxed" style={{ color: "#6b7280" }}>
+            Browse our store, visit us in person, or just drop a message — our team responds fast.
+          </p>
+        </div>
 
-  {/* Three columns */}
-  <div className="relative grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+        {/* Three columns */}
+        <div className="relative grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
 
-    {/* Shop */}
-    <div className="p-8 flex flex-col gap-4">
-      <div
-        className="w-11 h-11 rounded-xl flex items-center justify-center"
-        style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.2)" }}
-      >
-        <ShoppingCart className="w-5 h-5" style={{ color: "#818cf8" }} />
+          {/* Shop */}
+          <div className="p-8 flex flex-col gap-4">
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center"
+              style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.2)" }}
+            >
+              <ShoppingCart className="w-5 h-5" style={{ color: theme.accent }} />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-black text-white mb-1">Shop Online</h4>
+              <p className="text-sm font-medium leading-relaxed" style={{ color: "#6b7280" }}>
+                Browse PCs, laptops, accessories & refurbished deals.
+              </p>
+            </div>
+            <button
+              onClick={() => setCurrentPage("shop")}
+              className="mt-auto w-fit flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm text-white uppercase tracking-wider transition-all hover:opacity-90 cursor-pointer"
+              style={{ background: theme.accent }}
+            >
+              Browse Store →
+            </button>
+          </div>
+
+          {/* Visit */}
+          <div className="p-8 flex flex-col gap-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center"
+              style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.2)" }}
+            >
+              <MapPin className="w-5 h-5" style={{ color: theme.accent }} />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-black text-white mb-1">Visit Our Store</h4>
+              <p className="text-sm font-medium leading-relaxed" style={{ color: "#6b7280" }}>
+                Benachity, Durgapur. Open every day 10am – 8pm.
+              </p>
+            </div>
+            <button
+              onClick={() => setCurrentPage("branches")}
+              className="mt-auto w-fit flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm uppercase tracking-wider transition-all hover:bg-white/10 cursor-pointer"
+              style={{ border: "1px solid rgba(99,102,241,0.12)", color: "#9ca3af" }}
+            >
+              Get Directions →
+            </button>
+          </div>
+
+          {/* WhatsApp */}
+          <div className="p-8 flex flex-col gap-4">
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center"
+              style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.12)" }}
+            >
+              <MessageCircle className="w-5 h-5" style={{ color: theme.accent }} />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-black text-white mb-1">Message on WhatsApp</h4>
+              <p className="text-sm font-medium leading-relaxed" style={{ color: "#6b7280" }}>
+                Fastest way to reach us. We reply within minutes.
+              </p>
+            </div>
+            <a
+              href="https://wa.me/8293295257?text=Hi%20Infofix%20Computers,%20I%20need%20help"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-auto w-fit flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm text-white uppercase tracking-wider transition-all hover:opacity-90"
+              style={{ background: theme.accent }}
+            >
+              Chat Now →
+            </a>
+          </div>
+
+        </div>
+
+        {/* Footer bar */}
+        <div
+          className="relative px-8 py-4 flex items-center justify-center gap-2 flex-wrap border-t"
+          style={{ background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.07)" }}
+        >
+          <Clock className="w-3.5 h-3.5" style={{ color: "#4b5563" }} />
+          <p className="text-xs font-medium" style={{ color: "#4b5563" }}>
+            Mon – Sun &nbsp;·&nbsp; 10:00 AM – 8:00 PM &nbsp;·&nbsp; +91 82932 95257 &nbsp;·&nbsp; infofixcomputers1@gmail.com
+          </p>
+        </div>
       </div>
-      <div className="flex-1">
-        <h4 className="font-black text-white mb-1">Shop Online</h4>
-        <p className="text-sm font-medium leading-relaxed" style={{ color: "#6b7280" }}>
-          Browse PCs, laptops, accessories & refurbished deals.
-        </p>
-      </div>
-      <button
-        onClick={() => setCurrentPage("shop")}
-        className="mt-auto w-fit flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm text-white uppercase tracking-wider transition-all hover:opacity-90 cursor-pointer"
-        style={{ background: "#6366f1" }}
-      >
-        Browse Store →
-      </button>
-    </div>
-
-    {/* Visit */}
-    <div className="p-8 flex flex-col gap-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-      <div
-        className="w-11 h-11 rounded-xl flex items-center justify-center"
-        style={{ background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.2)" }}
-      >
-        <MapPin className="w-5 h-5" style={{ color: "#10b981" }} />
-      </div>
-      <div className="flex-1">
-        <h4 className="font-black text-white mb-1">Visit Our Store</h4>
-        <p className="text-sm font-medium leading-relaxed" style={{ color: "#6b7280" }}>
-          Benachity, Durgapur. Open every day 10am – 8pm.
-        </p>
-      </div>
-      <button
-        onClick={() => setCurrentPage("branches")}
-        className="mt-auto w-fit flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm uppercase tracking-wider transition-all hover:bg-white/10 cursor-pointer"
-        style={{ border: "1px solid rgba(255,255,255,0.15)", color: "#9ca3af" }}
-      >
-        Get Directions →
-      </button>
-    </div>
-
-    {/* WhatsApp */}
-    <div className="p-8 flex flex-col gap-4">
-      <div
-        className="w-11 h-11 rounded-xl flex items-center justify-center"
-        style={{ background: "rgba(236,72,153,0.12)", border: "1px solid rgba(236,72,153,0.2)" }}
-      >
-        <MessageCircle className="w-5 h-5" style={{ color: "#ec4899" }} />
-      </div>
-      <div className="flex-1">
-        <h4 className="font-black text-white mb-1">Message on WhatsApp</h4>
-        <p className="text-sm font-medium leading-relaxed" style={{ color: "#6b7280" }}>
-          Fastest way to reach us. We reply within minutes.
-        </p>
-      </div>
-      <a
-        href="https://wa.me/8293295257?text=Hi%20Infofix%20Computers,%20I%20need%20help"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-auto w-fit flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm text-white uppercase tracking-wider transition-all hover:opacity-90"
-        style={{ background: "#16a34a" }}
-      >
-        Chat Now →
-      </a>
-    </div>
-
-  </div>
-
-  {/* Footer bar */}
-  <div
-    className="relative px-8 py-4 flex items-center justify-center gap-2 flex-wrap border-t"
-    style={{ background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.07)" }}
-  >
-    <Clock className="w-3.5 h-3.5" style={{ color: "#4b5563" }} />
-    <p className="text-xs font-medium" style={{ color: "#4b5563" }}>
-      Mon – Sun &nbsp;·&nbsp; 10:00 AM – 8:00 PM &nbsp;·&nbsp; +91 82932 95257 &nbsp;·&nbsp; infofixcomputers1@gmail.com
-    </p>
-  </div>
-</div>
     </div>
   );
 };

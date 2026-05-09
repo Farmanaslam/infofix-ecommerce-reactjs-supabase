@@ -1,6 +1,9 @@
 import React from "react";
-
+import { useStore } from "../context/StoreContext";
+import { SECTION_ACCENT } from "@/lib/sectionTheme";
 export const Policy: React.FC = () => {
+  const { selectedStoreSection } = useStore();
+  const theme = SECTION_ACCENT[selectedStoreSection];
   return (
     <div className="bg-gray-50/40 min-h-screen py-16 px-4">
       <div className="max-w-6xl mx-auto">
@@ -20,7 +23,7 @@ export const Policy: React.FC = () => {
 
         {/* Intro Section */}
         <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100 border border-gray-100 p-8 mb-12">
-          <h2 className="text-2xl font-bold text-indigo-600 mb-4">
+          <h2 className="text-2xl font-bold mb-4" style={{ color: theme.accent }}>
             Customer Commitment
           </h2>
           <p className="text-gray-600 leading-relaxed">
@@ -33,7 +36,7 @@ export const Policy: React.FC = () => {
 
         {/* Policy Grid */}
         <div className="grid md:grid-cols-2 gap-8">
-          <PolicyCard
+          <PolicyCard theme={theme}
             title="🚚 Shipping & Delivery"
             content={[
               "Orders processed within 24–48 business hours.",
@@ -44,7 +47,7 @@ export const Policy: React.FC = () => {
             ]}
           />
 
-          <PolicyCard
+          <PolicyCard theme={theme}
             title="🔄 Return & Replacement"
             content={[
               "Accepted for manufacturing defects or wrong items.",
@@ -55,7 +58,7 @@ export const Policy: React.FC = () => {
             ]}
           />
 
-          <PolicyCard
+          <PolicyCard theme={theme}
             title="💰 Refund Policy"
             content={[
               "Refund initiated after quality inspection approval.",
@@ -66,7 +69,7 @@ export const Policy: React.FC = () => {
             ]}
           />
 
-          <PolicyCard
+          <PolicyCard theme={theme}
             title="🛠 Warranty Policy"
             content={[
               "Warranty varies by product & brand.",
@@ -76,7 +79,7 @@ export const Policy: React.FC = () => {
             ]}
           />
 
-          <PolicyCard
+          <PolicyCard theme={theme}
             title="💳 Payment Policy"
             content={[
               "UPI (Google Pay, PhonePe, Paytm).",
@@ -88,7 +91,7 @@ export const Policy: React.FC = () => {
             ]}
           />
 
-          <PolicyCard
+          <PolicyCard theme={theme}
             title="🔐 Privacy & Data Protection"
             content={[
               "We collect only essential customer information.",
@@ -99,7 +102,7 @@ export const Policy: React.FC = () => {
             ]}
           />
 
-          <PolicyCard
+          <PolicyCard theme={theme}
             title="❌ Order Cancellation"
             content={[
               "Orders can be cancelled before dispatch.",
@@ -108,7 +111,7 @@ export const Policy: React.FC = () => {
             ]}
           />
 
-          <PolicyCard
+          <PolicyCard theme={theme}
             title="📄 Terms & Conditions"
             content={[
               "By placing an order, you agree to all policies.",
@@ -119,7 +122,7 @@ export const Policy: React.FC = () => {
         </div>
 
         {/* Trust Section */}
-        <div className="mt-16 bg-indigo-600 text-white rounded-3xl p-10 text-center shadow-xl">
+        <div className="mt-16 text-white rounded-3xl p-10 text-center shadow-xl" style={{ background: theme.accent }}>
           <h3 className="text-2xl font-bold mb-6">
             Why Shop With Infofix Computers?
           </h3>
@@ -133,7 +136,7 @@ export const Policy: React.FC = () => {
         </div>
 
         {/* Support Section */}
-        <div className="mt-12 bg-white border border-indigo-100 rounded-2xl p-8 text-center shadow-sm">
+        <div className="mt-12 bg-white rounded-2xl p-8 text-center shadow-sm border" style={{ borderColor: `${theme.accent}33` }}>
           <h3 className="text-xl font-bold text-gray-900 mb-4">
             Need Help or Clarification?
           </h3>
@@ -146,14 +149,16 @@ export const Policy: React.FC = () => {
 };
 
 const PolicyCard = ({
+  theme,
   title,
   content,
 }: {
+  theme: any;
   title: string;
   content: string[];
 }) => (
   <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300">
-    <h2 className="text-xl font-bold text-indigo-600 mb-4">{title}</h2>
+    <h2 className="text-xl font-bold mb-4" style={{ color: theme.accent }}>{title}</h2>
     <ul className="space-y-2 text-gray-600 text-sm leading-relaxed">
       {content.map((item, index) => (
         <li key={index}>• {item}</li>

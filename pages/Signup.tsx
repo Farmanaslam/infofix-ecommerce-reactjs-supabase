@@ -17,28 +17,20 @@ import {
   Headphones,
   Star,
 } from "lucide-react";
-
+import { SECTION_ACCENT } from "@/lib/sectionTheme";
 const STEPS = ["Account", "Address", "Confirm"];
 
 // ── OUTSIDE Signup ──────────────────────────────────────────
 const Field = ({
-  icon: Icon,
-  label,
-  name,
-  type = "text",
-  placeholder,
-  required = false,
-  readOnly = false,
-  value,
-  rightEl,
-  onChange,
+  icon: Icon, label, name, type = "text", placeholder,
+  required = false, readOnly = false, value, rightEl, onChange, accent,
 }: any) => (
   <div className="space-y-1.5">
     <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest">
       {label}
     </label>
     <div className="relative">
-      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400">
+      <div className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: accent ?? '#6366f1' }}>
         <Icon size={16} />
       </div>
       <input
@@ -49,14 +41,17 @@ const Field = ({
         readOnly={readOnly}
         value={value}
         onChange={onChange}
-        className={`w-full pl-11 ${rightEl ? "pr-11" : "pr-4"} py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none text-sm font-medium transition-all ${readOnly ? "opacity-60 cursor-not-allowed" : ""}`}
+        className={`w-full pl-11 ${rightEl ? "pr-11" : "pr-4"} py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white  outline-none text-sm font-medium transition-all ${readOnly ? "opacity-60 cursor-not-allowed" : ""}`}
+        onFocus={e => { e.target.style.borderColor = accent ?? '#6366f1'; e.target.style.boxShadow = `0 0 0 2px ${accent ?? '#6366f1'}22`; }}
+        onBlur={e => { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = ''; }}
       />
       {rightEl && (
         <button
           type="button"
           onClick={rightEl.onClick}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 transition-colors"
-        >
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition-colors"
+          onMouseEnter={e => e.currentTarget.style.color = accent ?? '#6366f1'}
+          onMouseLeave={e => e.currentTarget.style.color = '#9ca3af'}        >
           {rightEl.icon}
         </button>
       )}
@@ -66,8 +61,8 @@ const Field = ({
 
 // ── Signup component starts here ────────────────────────────
 export const Signup = () => {
-  const { setCurrentUser, setCurrentPage } = useStore();
-
+  const { setCurrentUser, setCurrentPage, selectedStoreSection } = useStore();
+  const theme = SECTION_ACCENT[selectedStoreSection];
   const [step, setStep] = useState(0);
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -186,7 +181,7 @@ export const Signup = () => {
         {/* LEFT SIDE — matches Login exactly */}
         <div className="space-y-6 flex flex-col items-center lg:items-start lg:sticky lg:top-32">
           <h1 className="text-5xl md:text-6xl font-black text-gray-900 tracking-tighter leading-none">
-            JOIN THE <span className="text-indigo-600">INFOFIX</span> FAMILY
+            JOIN THE <span style={{ color: theme.accent }}>INFOFIX</span> FAMILY
           </h1>
 
           <p className="text-gray-500 text-xl font-medium leading-relaxed">
@@ -194,7 +189,7 @@ export const Signup = () => {
             tracking, and expert technical support.
           </p>
 
-          <div className="bg-indigo-50 p-8 rounded-4xl space-y-4">
+          <div className="p-8 rounded-4xl space-y-4" style={{ background: theme.accentLight }}>
             {[
               { icon: Zap, text: "Fast checkout with saved addresses" },
               { icon: ShieldCheck, text: "Secure payments & order protection" },
@@ -202,17 +197,17 @@ export const Signup = () => {
               { icon: Star, text: "Exclusive member-only offers" },
             ].map(({ icon: Icon, text }) => (
               <div key={text} className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
-                  <Icon size={15} className="text-indigo-600" />
+                <div className="w-8 h-8 rounded-xl  flex items-center justify-center shrink-0" style={{ background: `${theme.accent}22` }}>
+                  <Icon size={15} style={{ color: theme.accent }} />
                 </div>
-                <span className="text-indigo-900 text-sm font-semibold">
+                <span className="text-sm font-semibold" style={{ color: theme.accentText }}>
                   {text}
                 </span>
               </div>
             ))}
           </div>
 
-          <p className="text-sm font-semibold text-indigo-900 bg-indigo-50 p-4 rounded-2xl">
+          <p className="text-sm font-semibold" style={{ color: theme.accentText, background: `${theme.accent}14`, padding: "1rem", borderRadius: "1rem" }}>
             Secure authentication powered by modern encryption standards.
           </p>
         </div>
@@ -225,22 +220,19 @@ export const Signup = () => {
               <React.Fragment key={s}>
                 <div className="flex items-center gap-2">
                   <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-all ${i < step
-                      ? "bg-green-500 text-white"
-                      : i === step
-                        ? "bg-indigo-600 text-white"
-                        : "bg-gray-100 text-gray-400"
-                      }`}
+                    style={i === step ? { background: theme.accent } : i < step ? { background: '#22c55e' } : {}}
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-all ${i < step ? 'text-white' : i === step ? 'text-white' : 'bg-gray-100 text-gray-400'}`}
                   >
                     {i < step ? <Check size={13} /> : i + 1}
                   </div>
                   <span
                     className={`text-xs font-bold hidden sm:block ${i === step
-                      ? "text-indigo-600"
+                      ? ""
                       : i < step
                         ? "text-green-600"
                         : "text-gray-400"
                       }`}
+                    style={i === step ? { color: theme.accent } : {}}
                   >
                     {s}
                   </span>
@@ -273,6 +265,7 @@ export const Signup = () => {
                 required
                 value={formData.fullName}
                 onChange={handleChange}
+                accent={theme.accent}
               />
               <Field
                 icon={Mail}
@@ -283,6 +276,7 @@ export const Signup = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
+                accent={theme.accent}
               />
               <Field
                 icon={Phone}
@@ -293,6 +287,7 @@ export const Signup = () => {
                 required
                 value={formData.phone}
                 onChange={handleChange}
+                accent={theme.accent}
               />
               <Field
                 icon={Lock}
@@ -307,6 +302,7 @@ export const Signup = () => {
                   icon: showPass ? <EyeOff size={16} /> : <Eye size={16} />,
                   onClick: () => setShowPass(!showPass),
                 }}
+                accent={theme.accent}
               />
               <Field
                 icon={Lock}
@@ -321,11 +317,15 @@ export const Signup = () => {
                   icon: showConfirm ? <EyeOff size={16} /> : <Eye size={16} />,
                   onClick: () => setShowConfirm(!showConfirm),
                 }}
+                accent={theme.accent}
               />
               <button
                 type="button"
                 onClick={handleNext}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-[0.98]"
+                className="w-full text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl flex items-center justify-center gap-3 active:scale-[0.98]"
+                style={{ background: theme.accent }}
+                onMouseEnter={e => e.currentTarget.style.background = theme.accentHover}
+                onMouseLeave={e => e.currentTarget.style.background = theme.accent}
               >
                 Continue <ChevronRight className="w-5 h-5" />
               </button>
@@ -334,7 +334,7 @@ export const Signup = () => {
                 <button
                   type="button"
                   onClick={() => setCurrentPage("login")}
-                  className="text-indigo-600 font-bold hover:underline"
+                  className="font-bold hover:underline" style={{ color: theme.accent }}
                 >
                   Sign In
                 </button>
@@ -353,6 +353,7 @@ export const Signup = () => {
                 required
                 value={formData.address1}
                 onChange={handleChange}
+                accent={theme.accent}
               />
               <Field
                 icon={MapPin}
@@ -361,6 +362,7 @@ export const Signup = () => {
                 placeholder="Landmark, Area"
                 value={formData.address2}
                 onChange={handleChange}
+                accent={theme.accent}
               />
               <div className="grid grid-cols-2 gap-4">
                 <Field
@@ -371,6 +373,7 @@ export const Signup = () => {
                   required
                   value={formData.city}
                   onChange={handleChange}
+                  accent={theme.accent}
                 />
                 <Field
                   icon={MapPin}
@@ -380,6 +383,7 @@ export const Signup = () => {
                   required
                   value={formData.state}
                   onChange={handleChange}
+                  accent={theme.accent}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -391,6 +395,7 @@ export const Signup = () => {
                   required
                   value={formData.pincode}
                   onChange={handleChange}
+                  accent={theme.accent}
                 />
                 <Field
                   icon={MapPin}
@@ -398,6 +403,7 @@ export const Signup = () => {
                   name="country"
                   value={formData.country}
                   readOnly
+                  accent={theme.accent}
                 />
               </div>
               <div className="flex gap-3 pt-1">
@@ -411,7 +417,10 @@ export const Signup = () => {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-[0.98]"
+                  className="flex-1 text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl flex items-center justify-center gap-3 active:scale-[0.98]"
+                  style={{ background: theme.accent }}
+                  onMouseEnter={e => e.currentTarget.style.background = theme.accentHover}
+                  onMouseLeave={e => e.currentTarget.style.background = theme.accent}
                 >
                   Continue <ChevronRight className="w-5 h-5" />
                 </button>
@@ -422,8 +431,8 @@ export const Signup = () => {
           {/* STEP 2 */}
           {step === 2 && (
             <form onSubmit={handleSubmit} className="space-y-5 animate-fadein">
-              <div className="bg-indigo-50 rounded-3xl p-6 space-y-3">
-                <p className="text-xs font-black text-indigo-400 uppercase tracking-widest">
+              <div className="rounded-3xl p-6 space-y-3" style={{ background: theme.accentLight }}>
+                <p className="text-xs font-black" style={{ color: theme.accent }}>
                   Review Your Details
                 </p>
                 {[
@@ -463,10 +472,8 @@ export const Signup = () => {
                     className="sr-only"
                   />
                   <div
-                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${formData.acceptTerms
-                      ? "bg-indigo-600 border-indigo-600"
-                      : "border-gray-300 group-hover:border-indigo-400"
-                      }`}
+                    style={formData.acceptTerms ? { background: theme.accent, borderColor: theme.accent } : {}}
+                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${!formData.acceptTerms ? 'border-gray-300' : ''}`}
                   >
                     {formData.acceptTerms && (
                       <Check size={12} className="text-white" strokeWidth={3} />
@@ -478,12 +485,12 @@ export const Signup = () => {
                   <button
                     type="button"
                     onClick={() => setCurrentPage("policy")}
-                    className="text-indigo-600 font-bold hover:underline"
+                    className="font-bold hover:underline" style={{ color: theme.accent }}
                   >
                     Terms & Conditions
                   </button>{" "}
                   and{" "}
-                  <span className="text-indigo-600 font-bold">
+                  <span className="font-bold" style={{ color: theme.accent }}>
                     Privacy Policy
                   </span>
                 </span>
@@ -500,7 +507,10 @@ export const Signup = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-[0.98]"
+                  className="flex-1 disabled:opacity-60 text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl flex items-center justify-center gap-3 active:scale-[0.98]"
+                  style={{ background: theme.accent }}
+                  onMouseEnter={e => e.currentTarget.style.background = theme.accentHover}
+                  onMouseLeave={e => e.currentTarget.style.background = theme.accent}
                 >
                   {loading ? (
                     <>

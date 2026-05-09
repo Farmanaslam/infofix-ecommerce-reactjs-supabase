@@ -107,7 +107,7 @@ const ReviewCard: React.FC<{ review: Review }> = ({ review }) => {
   );
 };
 
-const AddReviewForm: React.FC<{ productId: string; onSubmit: (r: Review) => void }> = ({ productId, onSubmit }) => {
+const AddReviewForm: React.FC<{ productId: string; onSubmit: (r: Review) => void; accent: string }> = ({ productId, onSubmit, accent }) => {
   const [name, setName] = useState(""); const [stars, setStars] = useState(0); const [title, setTitle] = useState(""); const [text, setText] = useState(""); const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(() => { try { return localStorage.getItem(`reviewed_product_${productId}`) === "1"; } catch { return false; } });
   const handleSubmit = async () => {
@@ -132,12 +132,17 @@ const AddReviewForm: React.FC<{ productId: string; onSubmit: (r: Review) => void
     <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100">
       <h4 className="font-black text-gray-900 text-base mb-5">Write a Review</h4>
       <div className="space-y-4">
-        <div><label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5 block">Your Name</label><input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Rahul M." className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" /></div>
+        <div><label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5 block">Your Name</label><input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Rahul M." className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-900 placeholder-gray-400 focus:outline-none  transition-all" onFocus={e => { e.target.style.boxShadow = `0 0 0 2px ${accent}33`; e.target.style.borderColor = accent; }}
+          onBlur={e => { e.target.style.boxShadow = ''; e.target.style.borderColor = '#e5e7eb'; }} /></div>
         <div><label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block">Your Rating</label><StarPicker value={stars} onChange={setStars} /></div>
-        <div><label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5 block">Review Title <span className="text-gray-300">(optional)</span></label><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Sum it up in a few words" className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" /></div>
-        <div><label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5 block">Your Review</label><textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="What did you like or dislike? How is the quality and performance?" rows={4} className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none" /><p className="text-[10px] text-gray-400 mt-1 font-semibold text-right">{text.length} chars</p></div>
+        <div><label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5 block">Review Title <span className="text-gray-300">(optional)</span></label><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Sum it up in a few words" className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-900 placeholder-gray-400 focus:outline-none transition-all" onFocus={e => { e.target.style.boxShadow = `0 0 0 2px ${accent}33`; e.target.style.borderColor = accent; }}
+          onBlur={e => { e.target.style.boxShadow = ''; e.target.style.borderColor = '#e5e7eb'; }} /></div>
+        <div><label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5 block">Your Review</label><textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="What did you like or dislike? How is the quality and performance?" rows={4} className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-900 placeholder-gray-400 focus:outline-none  transition-all resize-none" onFocus={e => { e.target.style.boxShadow = `0 0 0 2px ${accent}33`; e.target.style.borderColor = accent; }}
+          onBlur={e => { e.target.style.boxShadow = ''; e.target.style.borderColor = '#e5e7eb'; }} /><p className="text-[10px] text-gray-400 mt-1 font-semibold text-right">{text.length} chars</p></div>
         {error && <p className="text-xs font-bold text-red-500 bg-red-50 px-4 py-2.5 rounded-xl border border-red-100">{error}</p>}
-        <button onClick={handleSubmit} className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-indigo-100 active:scale-[0.98]"><Send className="w-4 h-4" /> Submit Review</button>
+        <button onClick={handleSubmit} className="w-full flex items-center justify-center gap-2 text-white py-3.5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-indigo-100 active:scale-[0.98]" style={{ background: accent, boxShadow: `0 4px 12px ${accent}33` }}
+          onMouseEnter={e => e.currentTarget.style.background = accent + 'dd'}
+          onMouseLeave={e => e.currentTarget.style.background = accent}><Send className="w-4 h-4" /> Submit Review</button>
       </div>
     </div>
   );
@@ -159,7 +164,9 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [showImageViewer, setShowImageViewer] = useState(false);
-
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const [showFixedCta, setShowFixedCta] = useState(false);
   useEffect(() => {
     const fetchReviews = async () => {
       setReviewsLoading(true);
@@ -209,6 +216,20 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
   const avgRating = reviews.length ? reviews.reduce((s, r) => s + r.stars, 0) / reviews.length : product.rating;
   const ratingDist = [5, 4, 3, 2, 1].map((s) => ({ star: s, count: reviews.filter((r) => r.stars === s).length, pct: reviews.length ? Math.round((reviews.filter((r) => r.stars === s).length / reviews.length) * 100) : 0 }));
 
+  useEffect(() => {
+    const el = ctaRef.current;
+    if (!el) return;
+    const handleScroll = () => {
+      const rect = el.getBoundingClientRect();
+      const btnVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      const bottomRect = bottomRef.current?.getBoundingClientRect();
+      const pastBottom = bottomRect ? bottomRect.top < window.innerHeight : false;
+      setShowFixedCta(!btnVisible && !pastBottom);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isOut]);
   const handleAddToCart = () => {
     addToCart({ ...product, min_order_quantity: moq } as any, qty);
   };
@@ -267,7 +288,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
         .pd-right-scroll::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:99px}
       `}</style>
 
-      <div className="min-h-screen bg-white pb-32">
+      <div className="min-h-screen bg-white pb-6">
         <div className="app-container pt-6 pb-2">
           <button
             onClick={onBack}
@@ -310,9 +331,11 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                 <button onClick={() => navigator.share?.({ title: product.name, url: window.location.href })} className="absolute top-5 right-5 z-10 w-11 h-11 rounded-2xl flex items-center justify-center bg-white/90 backdrop-blur-md border border-white/60 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 shadow-lg transition-all duration-200"><Share2 className="w-4 h-4" /></button>
               </div>
               {galleryImages.length > 1 && (
-                <div className="flex gap-3 mt-4 overflow-x-auto scrollbar-hide pb-1 px-0.5">
+                <div className="flex gap-3 mt-4 overflow-x-auto scrollbar-hide p-2 px-1">
                   {galleryImages.map((img, i) => (
-                    <button key={i} onClick={() => setActiveImg(i)} className={`relative shrink-0 w-18 h-18 rounded-2xl overflow-hidden transition-all duration-200 ${activeImg === i ? "ring-[2.5px] ring-offset-2 ring-indigo-600 scale-[1.07] shadow-lg shadow-indigo-200/60" : "ring-1 ring-gray-200 opacity-60 hover:opacity-100 hover:ring-gray-300 hover:scale-[1.03]"}`}>
+                    <button key={i} onClick={() => setActiveImg(i)} className={`relative shrink-0 w-18 h-18 rounded-2xl overflow-hidden transition-all duration-200 ${activeImg === i ? "" : "ring-1 ring-gray-200 opacity-60 hover:opacity-100 hover:ring-gray-300 hover:scale-[1.03]"}`}
+                      style={activeImg === i ? { outline: `2.5px solid ${accent}`, outlineOffset: '2px', boxShadow: `0 4px 12px ${accent}44` } : {}}
+                    >
                       <img src={img} alt="" className="w-full h-full object-cover" />
                       {activeImg === i && <div className="absolute inset-0 bg-indigo-600/8 pointer-events-none" />}
                     </button>
@@ -341,7 +364,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
 
                 {/* Breadcrumb */}
                 <div className="pd-fade flex items-center gap-2 flex-wrap" style={{ animationDelay: "60ms" }}>
-                  <span className="text-[10px] text-indigo-600 font-black uppercase tracking-[0.2em]">{product.category}</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: accent }}>{product.category}</span>
                   {product.subcategory && <><span className="text-gray-300">›</span><span className="text-[10px] text-gray-400 font-semibold">{product.subcategory}</span></>}
                   {product.brand && <span className="ml-auto text-[10px] font-black text-gray-500 uppercase tracking-widest bg-gray-100 px-2.5 py-1 rounded-xl">{product.brand}</span>}
                 </div>
@@ -387,7 +410,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                 {product.description && (
                   <div className="pd-fade" style={{ animationDelay: "160ms" }}>
                     <p className={`text-gray-600 text-[14.5px] leading-relaxed transition-all duration-300 ${!showFullDesc ? "line-clamp-2" : ""}`}>{product.description}</p>
-                    {product.description.length > 120 && <button onClick={() => setShowFullDesc((p) => !p)} className="mt-2 text-indigo-600 font-bold text-xs uppercase tracking-wider hover:underline">{showFullDesc ? "Show Less" : "Read More"}</button>}
+                    {product.description.length > 120 && <button onClick={() => setShowFullDesc((p) => !p)} className="mt-2 font-bold text-xs uppercase tracking-wider hover:underline" style={{ color: accent }}>{showFullDesc ? "Show Less" : "Read More"}</button>}
                   </div>
                 )}
 
@@ -397,7 +420,8 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                     <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-3">Key Specifications</p>
                     <div className="rounded-2xl border border-gray-100 overflow-hidden bg-gray-50/60">
                       {specEntries.map((spec, i) => (
-                        <div key={i} className={`flex items-start gap-3 px-4 py-3 hover:bg-indigo-50/40 transition-colors ${i !== specEntries.length - 1 ? "border-b border-gray-100" : ""}`}>
+                        <div key={i} className={`flex items-start gap-3 px-4 py-3 transition-colors ${i !== specEntries.length - 1 ? "border-b border-gray-100" : ""}`} onMouseEnter={e => e.currentTarget.style.background = `${accent}0a`}
+                          onMouseLeave={e => e.currentTarget.style.background = ''}>
                           <span className="w-36 shrink-0 text-[11px] font-black text-gray-400 uppercase tracking-wide leading-snug pt-0.5">{spec.key || "—"}</span>
                           <span className="text-gray-200 shrink-0 mt-0.5">·</span>
                           <span className="flex-1 text-[13px] font-semibold text-gray-800 leading-snug">{spec.value !== "" ? spec.value : "—"}</span>
@@ -474,7 +498,9 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                           <div className="px-4 py-3 space-y-2.5">
                             <div className="flex gap-2">
                               <input type="text" inputMode="numeric" maxLength={6} value={pincode} onChange={(e) => { setPincode(e.target.value.replace(/\D/g, "")); setPincodeStatus("idle"); }} onKeyDown={(e) => e.key === "Enter" && checkPincode()} placeholder="Enter 6-digit pincode" className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-bold text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
-                              <button onClick={checkPincode} disabled={pincodeStatus === "checking"} className="shrink-0 flex items-center justify-center w-10 h-10 md:w-auto md:h-auto rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white transition-colors">
+                              <button onClick={checkPincode} disabled={pincodeStatus === "checking"} className="shrink-0 flex items-center justify-center w-10 h-10 md:w-auto md:h-auto rounded-xl text-white transition-colors" style={{ background: accent }}
+                                onMouseEnter={e => e.currentTarget.style.background = accent + 'cc'}
+                                onMouseLeave={e => e.currentTarget.style.background = accent}>
                                 {pincodeStatus === "checking" ? <span className="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : <><svg className="w-4 h-4 md:hidden" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><line x1="16.65" y1="16.65" x2="21" y2="21" /></svg><span className="hidden md:block text-xs font-black uppercase tracking-widest px-4 py-2.5">Check</span></>}
                               </button>
                             </div>
@@ -498,19 +524,39 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                     { icon: <Package className="w-3.5 h-3.5" />, label: "Secure Payments" },
                   ].map((b) => (
                     <div key={b.label} className="flex items-center gap-2.5 bg-gray-50 border border-gray-100 rounded-2xl px-3.5 py-3">
-                      <span className="text-indigo-500 shrink-0">{b.icon}</span>
+                      <span className="shrink-0" style={{ color: accent }}>{b.icon}</span>
                       <span className="text-[11px] font-black text-gray-600 uppercase tracking-wide leading-tight">{b.label}</span>
                     </div>
                   ))}
                 </div>
 
               </div>{/* end scrollable */}
-
+              {/* Mobile inline CTA anchor — shows when scrolled to actual position */}
+              {!isOut && (
+                <div ref={ctaRef} className="lg:hidden flex gap-3 pt-6">
+                  <button onClick={handleBuyNow}
+                    className="flex-1 flex items-center justify-center gap-2 active:scale-[0.97] text-white py-3.5 rounded-2xl font-black text-sm uppercase tracking-[0.12em] shadow-lg transition-all duration-200"
+                    style={{ background: accent, boxShadow: `0 4px 16px ${accent}44` }}>
+                    Buy Now <ArrowRight className="w-4 h-4" />
+                  </button>
+                  <button onClick={handleAddToCart}
+                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-black text-sm uppercase tracking-[0.12em] border-2 border-gray-200 text-gray-900 active:scale-[0.97] transition-all duration-200">
+                    <ShoppingBag className="w-4 h-4" /> Add to Cart
+                  </button>
+                </div>
+              )}
+              {isOut && <div ref={ctaRef} />}
               {/* Desktop sticky CTA — hidden on mobile */}
               {!isOut ? (
                 <div className="hidden lg:flex gap-3 shrink-0 pt-3 pb-1 bg-white border-t border-gray-100 shadow-[0_-6px_20px_-4px_rgba(0,0,0,0.07)]">
-                  <button onClick={handleBuyNow} className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white py-4 rounded-2xl font-black text-sm uppercase tracking-[0.12em] shadow-xl shadow-indigo-200/80 transition-all duration-200 group/b">Buy Now <ArrowRight className="w-4 h-4 group-hover/b:translate-x-0.5 transition-transform" /></button>
-                  <button onClick={handleAddToCart} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-sm uppercase tracking-[0.12em] border-2 border-gray-200 text-gray-900 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 active:scale-[0.98] transition-all duration-200"><ShoppingBag className="w-4 h-4" /> Add to Cart</button>
+                  <button onClick={handleBuyNow} className="flex-1 flex items-center justify-center gap-2 active:scale-[0.98] text-white py-4 rounded-2xl font-black text-sm uppercase tracking-[0.12em] shadow-xl  transition-all duration-200 group/b"
+                    onMouseEnter={e => e.currentTarget.style.background = accent + 'dd'}
+                    onMouseLeave={e => e.currentTarget.style.background = accent}
+                    style={{ background: accent, boxShadow: `0 8px 24px ${accent}55` }}
+                  >Buy Now <ArrowRight className="w-4 h-4 group-hover/b:translate-x-0.5 transition-transform" /></button>
+                  <button onClick={handleAddToCart} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-sm uppercase tracking-[0.12em] border-2 border-gray-200 text-gray-900  active:scale-[0.98] transition-all duration-200"
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = accent; e.currentTarget.style.background = accent + '12'; e.currentTarget.style.color = accent; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.background = ''; e.currentTarget.style.color = '#111827'; }}><ShoppingBag className="w-4 h-4" /> Add to Cart</button>
                 </div>
               ) : (
                 <div className="hidden lg:block shrink-0 pt-3 pb-1 border-t border-gray-100">
@@ -520,13 +566,14 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
 
             </div>{/* end right col */}
           </div>
-          {/* Mobile fixed bottom CTA */}
-          {!isOut ? (
+          {/* Mobile FIXED bottom CTA — only when actual buttons off-screen */}
+          {!isOut && showFixedCta && (
             <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-100 px-4 py-3 safe-area-pb"
-              style={{ boxShadow: "0 -8px 32px -4px rgba(99,102,241,0.15)" }}>
+              style={{ boxShadow: `0 -8px 32px -4px ${accent}26` }}>
               <div className="flex gap-3 max-w-lg mx-auto">
                 <button onClick={handleBuyNow}
-                  className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.97] text-white py-3.5 rounded-2xl font-black text-sm uppercase tracking-[0.12em] shadow-lg shadow-indigo-200/80 transition-all duration-200">
+                  className="flex-1 flex items-center justify-center gap-2 active:scale-[0.97] text-white py-3.5 rounded-2xl font-black text-sm uppercase tracking-[0.12em] shadow-lg transition-all duration-200"
+                  style={{ background: accent, boxShadow: `0 4px 16px ${accent}44` }}>
                   Buy Now <ArrowRight className="w-4 h-4" />
                 </button>
                 <button onClick={handleAddToCart}
@@ -535,7 +582,10 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                 </button>
               </div>
             </div>
-          ) : (
+          )}
+
+          {/* Out of stock — always fixed on mobile */}
+          {isOut && (
             <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-100 px-4 py-3"
               style={{ boxShadow: "0 -8px 32px -4px rgba(0,0,0,0.08)" }}>
               <button disabled className="w-full py-3.5 rounded-2xl bg-gray-100 text-gray-400 font-black text-sm uppercase tracking-widest cursor-not-allowed">
@@ -544,6 +594,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
             </div>
           )}
 
+          <div ref={bottomRef} />
           {/* Reviews — unchanged */}
           <div className="mt-8 lg:mt-20 pt-8 lg:pt-12 border-t border-gray-100">
             <div className="flex items-center justify-between mb-8">
@@ -567,7 +618,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
             </div>
             <div className="mt-12 max-w-2xl">
               <h3 className="text-xl font-black text-gray-900 mb-5 tracking-tight">Have this product? Leave a Review</h3>
-              <AddReviewForm productId={product.id} onSubmit={(r) => setReviews((prev) => [r, ...prev])} />
+              <AddReviewForm productId={product.id} onSubmit={(r) => setReviews((prev) => [r, ...prev])} accent={accent} />
             </div>
           </div>
         </div>

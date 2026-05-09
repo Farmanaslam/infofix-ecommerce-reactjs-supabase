@@ -176,7 +176,7 @@ export const ProductCard: React.FC<ProductProps> = ({
     >
       {/* ── Image ── */}
       <div
-        className="relative aspect-square md:aspect-4/5 rounded-2xl md:rounded-[28px] overflow-hidden bg-gray-50 mb-3 md:mb-6
+        className="relative aspect-4/3 md:aspect-4/5 rounded-2xl md:rounded-[28px] overflow-hidden bg-gray-50 mb-2 md:mb-6
                      transition-all duration-500
                      group-hover:-translate-y-2 group-hover:shadow-[0_32px_64px_-12px_rgba(79,70,229,0.18)]"
       >
@@ -322,7 +322,7 @@ export const ProductCard: React.FC<ProductProps> = ({
         </div>
 
         {/* Product Name */}
-        <h3 className="font-bold text-[13px] md:text-[18px] text-gray-900 leading-snug line-clamp-2 md:min-h-12 transition-colors duration-200"
+        <h3 className="font-bold text-[12px] md:text-[18px] text-gray-900 leading-tight line-clamp-2 md:min-h-12 transition-colors duration-200"
           style={{ ['--tw-text-opacity' as any]: 1 }}
           onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.color = accent ?? '#6366f1'; }}
           onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.color = ''; }}>
@@ -348,17 +348,10 @@ export const ProductCard: React.FC<ProductProps> = ({
           </div>
         )}
 
-        {/* Brand — mobile only, compact */}
-        {product.brand && (
-          <span className="md:hidden text-[9px] font-black text-gray-400 uppercase tracking-wider leading-none">
-            {product.brand}
-          </span>
-        )}
-
         <div className="flex-1" />
 
         {/* Price */}
-        <div className="flex items-end justify-between mt-1">
+        <div className="flex items-end justify-between ">
           <div>
             <div className="flex items-baseline gap-1.5 md:gap-2 flex-wrap">
               <span className="font-black text-[16px] md:text-[22px] text-gray-900 tracking-tight leading-none">
@@ -396,33 +389,38 @@ export const ProductCard: React.FC<ProductProps> = ({
 
         {/* ── CTA Buttons ── */}
         {!isOut && (
-          <div className="mt-2 md:mt-3 flex flex-col gap-1.5 md:gap-2 -mx-1 md:-mx-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddToCart(product);
-              }}
-              className="md:hidden w-full flex items-center justify-center gap-1.5
-                         bg-gray-900 hover:bg-gray-800 active:scale-[0.98]
-                         text-white py-2.5 rounded-xl font-black text-[9px] uppercase tracking-[0.18em]
-                         shadow-sm transition-all duration-200"
-            >
-              <ShoppingBag className="w-3 h-3" />
-              Add to Cart
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onBuyNow(product);
-              }}
-              className="w-full flex items-center justify-center gap-1.5 md:gap-2 active:scale-[0.98] text-white py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[11px] uppercase tracking-[0.15em] md:tracking-[0.18em] shadow-lg transition-all duration-200 group/btn"
-              style={{ background: accent ?? '#6366f1' }}
-              onMouseEnter={e => (e.currentTarget.style.background = accentHover ?? '#4f46e5')}
-              onMouseLeave={e => (e.currentTarget.style.background = accent ?? '#6366f1')}
-            >
-              Buy Now
-              <ArrowRight className="w-3 h-3 md:w-3.5 md:h-3.5 transition-transform duration-200 group-hover/btn:translate-x-0.5" />
-            </button>
+          <div className="mt-2 md:mt-3 -mx-1 md:-mx-2">
+            {/* ── MOBILE: two compact side-by-side buttons ── */}
+            <div className="flex gap-1.5 md:hidden">
+              <button
+                onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
+                className="flex-1 flex items-center justify-center gap-1 bg-gray-100 active:scale-[0.97] text-gray-800 py-2 rounded-xl font-black text-[8px] uppercase tracking-[0.12em] transition-all duration-150"
+              >
+                <ShoppingBag className="w-3 h-3 shrink-0" />
+                Cart
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onBuyNow(product); }}
+                className="flex-1 flex items-center justify-center gap-1 active:scale-[0.97] text-white py-2 rounded-xl font-black text-[8px] uppercase tracking-[0.12em] transition-all duration-150"
+                style={{ background: accent ?? '#6366f1' }}
+              >
+                Buy Now
+                <ArrowRight className="w-3 h-3 shrink-0" />
+              </button>
+            </div>
+            {/* ── DESKTOP: original stacked full-width buttons ── */}
+            <div className="hidden md:flex flex-col gap-2">
+              <button
+                onClick={(e) => { e.stopPropagation(); onBuyNow(product); }}
+                className="w-full flex items-center justify-center gap-2 active:scale-[0.98] text-white py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-[0.18em] shadow-lg transition-all duration-200 group/btn"
+                style={{ background: accent ?? '#6366f1' }}
+                onMouseEnter={e => (e.currentTarget.style.background = accentHover ?? '#4f46e5')}
+                onMouseLeave={e => (e.currentTarget.style.background = accent ?? '#6366f1')}
+              >
+                Buy Now
+                <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-0.5" />
+              </button>
+            </div>
           </div>
         )}
         {isOut && (

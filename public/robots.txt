@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /checkout
+Disallow: /cart
+Disallow: /profile
+Disallow: /orders
+Disallow: /reset-password
+
+Sitemap: https://infofixcomputers.com/sitemap.xml

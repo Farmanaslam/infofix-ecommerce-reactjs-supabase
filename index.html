@@ -1,10 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-V00GNEYCQR"
-    ></script>
+    <meta charset="UTF-8" />
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -12,37 +9,145 @@
       }
       gtag("js", new Date());
       gtag("config", "G-V00GNEYCQR");
+      window.addEventListener("load", function () {
+        var s = document.createElement("script");
+        s.src = "https://www.googletagmanager.com/gtag/js?id=G-V00GNEYCQR";
+        s.async = true;
+        document.head.appendChild(s);
+      });
     </script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "Infofix Computers",
-        "url": "https://infofixcomputers.com",
-        "logo": "https://infofixcomputers.com/icons/logo.png"
+        "@graph": [
+          {
+            "@type": "LocalBusiness",
+            "@id": "https://infofixcomputers.com/#business",
+            "name": "Infofix Computers",
+            "url": "https://infofixcomputers.com",
+            "logo": "https://infofixcomputers.com/icons/logo.png",
+            "image": "https://infofixcomputers.com/icons/logo.png",
+            "description": "Buy new & certified refurbished laptops, desktops, gaming PCs in Durgapur and across India. 1-year warranty, PAN India shipping.",
+            "telephone": "+91-8293295257",
+            "priceRange": "₹₹",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Benachity Near Bank of Baroda, Durgapur - 713201",
+              "addressLocality": "Durgapur",
+              "addressRegion": "West Bengal",
+              "postalCode": "713201",
+              "addressCountry": "IN"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": 23.5204,
+              "longitude": 87.3119
+            },
+            "openingHoursSpecification": [
+              {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": [
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday"
+                ],
+                "opens": "10:00",
+                "closes": "20:00"
+              }
+            ],
+            "sameAs": [
+              "https://www.facebook.com/infofixcomputers",
+              "https://www.instagram.com/infofixcomputers"
+            ],
+            "hasMap": "https://maps.google.com/?q=Infofix+Computers+Durgapur",
+            "areaServed": [
+              { "@type": "City", "name": "Durgapur" },
+              { "@type": "City", "name": "Asansol" },
+              { "@type": "City", "name": "Ukhra" },
+              { "@type": "State", "name": "West Bengal" },
+              { "@type": "Country", "name": "India" }
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://infofixcomputers.com/#website",
+            "url": "https://infofixcomputers.com",
+            "name": "Infofix Computers",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://infofixcomputers.com/shop?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          }
+        ]
       }
     </script>
-    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- ── TITLE & BRANDING ── -->
-    <title>Infofix Computers | Buy PCs, Laptops & Custom Builds in India</title>
+    <title>
+      Infofix Computers | Buy Laptops, Desktops & Custom PCs in Durgapur,
+      Asansol, West Bengal & India
+    </title>
     <meta name="application-name" content="Infofix Computers" />
     <meta
       name="description"
-      content="Infofix Computers - Buy desktops, laptops & custom PCs in Durgapur. Best prices, fast delivery, and expert support."
+      content="Buy new & certified refurbished laptops, desktops, gaming PCs in Durgapur, Asansol, Ukhra, West Bengal. PAN India shipping. 1-year warranty. Infofix Computers."
     />
+    <meta
+      name="keywords"
+      content="buy laptop durgapur, laptop shop durgapur, refurbished laptop durgapur, gaming pc durgapur, buy desktop durgapur, computer shop asansol, laptop ukhra, buy laptop india, laptop near me, refurbished laptop india, custom pc durgapur, wholesale laptop west bengal"
+    />
+    <meta name="geo.region" content="IN-WB" />
+    <meta name="geo.placename" content="Durgapur, West Bengal, India" />
+    <meta name="geo.position" content="23.5204;87.3119" />
+    <meta name="ICBM" content="23.5204, 87.3119" />
     <meta property="og:title" content="Infofix Computers" />
     <meta
       property="og:description"
       content="Buy laptops, desktops & custom PCs at Infofix Computers, Durgapur"
     />
+
     <meta
       property="og:image"
       content="https://infofixcomputers.com/icons/logo.png"
     />
+    <meta
+      name="robots"
+      content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+    />
     <meta property="og:url" content="https://infofixcomputers.com" />
     <meta property="og:type" content="website" />
+    <meta name="author" content="Infofix Computers" />
+    <meta name="copyright" content="Infofix Computers" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="rating" content="general" />
+
+    <!-- Twitter card missing: -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@infofixcomputers" />
+    <meta
+      name="twitter:title"
+      content="Infofix Computers — Buy Laptops & PCs in Durgapur"
+    />
+    <meta
+      name="twitter:description"
+      content="New & refurbished laptops, desktops, custom PCs. Serving Durgapur, Asansol, Ukhra & all India."
+    />
+    <meta
+      name="twitter:image"
+      content="https://infofixcomputers.com/icons/logo.png"
+    />
+
+    <!-- WhatsApp/Facebook share image size hint: -->
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Infofix Computers" />
+    <meta property="og:locale" content="en_IN" />
     <!-- ── FAVICON (use .ico — works in ALL browsers, no exception) ── -->
     <link rel="icon" href="/icons/favicon.ico" sizes="any" />
     <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
@@ -61,10 +166,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
     />
-
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap"
+      />
+    </noscript>
     <style>
       body {
         font-family: "Inter", sans-serif;
@@ -128,19 +243,6 @@
         scrollbar-width: none;
       }
     </style>
-
-    <script type="importmap">
-      {
-        "imports": {
-          "react/": "https://esm.sh/react@^19.2.3/",
-          "react": "https://esm.sh/react@^19.2.3",
-          "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-          "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
-          "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-          "recharts": "https://esm.sh/recharts@^3.6.0"
-        }
-      }
-    </script>
     <link rel="stylesheet" href="/index.css" />
   </head>
 

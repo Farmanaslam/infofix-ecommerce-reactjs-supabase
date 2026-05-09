@@ -2,8 +2,12 @@ import React, { useState, useEffect } from "react";
 import { X, MapPin, Briefcase, Clock, Upload, CheckCircle, Star, Users, ChevronDown, ChevronUp, Award, Target, BookOpen, IndianRupee } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { Job } from "@/types";
+import { SECTION_ACCENT } from '@/lib/sectionTheme';
+import { useStore } from "@/context/StoreContext";
 
 export const CareersPage = () => {
+  const { selectedStoreSection } = useStore();
+  const theme = SECTION_ACCENT[selectedStoreSection];
   const [jobs, setJobs] = useState<Job[]>([]);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
@@ -118,14 +122,14 @@ export const CareersPage = () => {
   const regularJobs = jobs.filter(j => !j.is_featured);
 
   return (
-    <div className="min-h-screen bg-white py-8 md:py-20 px-4">
+    <div className="min-h-screen bg-white py-6 md:py-16 px-4">
       <div className="max-w-5xl mx-auto">
         {/* HERO */}
-        <div className="text-center mb-12 md:mb-20">
-          <h1 className="text-5xl font-black bg-linear-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
+        <div className="text-center mb-8 md:mb-16">
+          <h1 className="text-3xl md:text-5xl font-black" style={{ color: theme.accent }}>
             Careers at Infofix Computers
           </h1>
-          <p className="text-gray-500 mt-6 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-500 mt-3 md:mt-6 text-base md:text-lg max-w-2xl mx-auto">
             Join our growing team and build your future with Infofix Computers.
           </p>
         </div>
@@ -161,7 +165,7 @@ export const CareersPage = () => {
                             )}
                           </div>
 
-                          <div className="flex flex-wrap items-center gap-3 text-sm text-indigo-600 font-semibold mt-1">
+                          <div className="flex flex-wrap items-center gap-3 text-sm font-semibold mt-1" style={{ color: theme.accent }}>
                             <span className="flex items-center gap-1"><Briefcase size={13} /> {job.type}</span>
                             <span className="flex items-center gap-1"><MapPin size={13} /> {job.location}</span>
                             {job.department && <span className="text-slate-500">{job.department}</span>}
@@ -184,8 +188,8 @@ export const CareersPage = () => {
                           {job.skills_required?.length > 0 && (
                             <div className="flex flex-wrap gap-1.5 mt-3">
                               {job.skills_required.map(s => (
-                                <span key={s} className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 text-[11px] font-bold border border-indigo-100">{s}</span>
-                              ))}
+                                <span key={s} className="px-2 py-0.5 rounded-md text-[11px] font-bold border"
+                                  style={{ background: theme.accentLight, color: theme.accentText, borderColor: theme.accent + '33' }}>{s}</span>))}
                             </div>
                           )}
 
@@ -210,8 +214,10 @@ export const CareersPage = () => {
                           <button
                             onClick={() => setSelectedJob(job)}
                             disabled={!!isExpired}
-                            className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
+                            className="px-6 py-2.5 rounded-xl text-white font-bold transition-all shadow-lg whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{ background: theme.accent }}
+                            onMouseEnter={e => (e.currentTarget.style.background = theme.accentHover)}
+                            onMouseLeave={e => (e.currentTarget.style.background = theme.accent)}                          >
                             Apply Now
                           </button>
                         </div>
@@ -226,7 +232,8 @@ export const CareersPage = () => {
                             { label: "Benefits", value: job.benefits, icon: <Award className="w-3.5 h-3.5" /> },
                           ].filter(s => s.value).map(({ label, value, icon }) => (
                             <div key={label} className="bg-white rounded-xl p-4 border border-gray-100">
-                              <div className="flex items-center gap-1.5 mb-2 text-xs font-black text-indigo-600 uppercase tracking-wider">{icon} {label}</div>
+                              <div className="flex items-center gap-1.5 mb-2 text-xs font-black uppercase tracking-wider" style={{ color: theme.accent }}>
+                                {icon} {label}</div>
                               <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-line">{value}</p>
                             </div>
                           ))}
@@ -265,30 +272,30 @@ export const CareersPage = () => {
                 <label className="text-xs font-bold text-gray-600">Full Name *</label>
                 <input type="text" required value={generalForm.full_name}
                   onChange={(e) => setGeneralForm({ ...generalForm, full_name: e.target.value })}
-                  className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" />
+                  className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2  focus:outline-none text-sm" style={{ outlineColor: theme.accent }} />
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-600">Email *</label>
                 <input type="email" required value={generalForm.email}
                   onChange={(e) => setGeneralForm({ ...generalForm, email: e.target.value })}
-                  className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" />
+                  className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2  focus:outline-none text-sm" style={{ outlineColor: theme.accent }} />
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-600">Phone</label>
                 <input type="tel" value={generalForm.phone}
                   onChange={(e) => setGeneralForm({ ...generalForm, phone: e.target.value })}
-                  className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" />
+                  className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2  focus:outline-none text-sm" style={{ outlineColor: theme.accent }} />
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-600">Preferred Role</label>
                 <input type="text" placeholder="Sales / HR / Technician / etc" value={generalForm.preferred_role}
                   onChange={(e) => setGeneralForm({ ...generalForm, preferred_role: e.target.value })}
-                  className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" />
+                  className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2  focus:outline-none text-sm" style={{ outlineColor: theme.accent }} />
               </div>
               <div className="md:col-span-2">
                 <label className="text-xs font-bold text-gray-600">Upload CV *</label>
                 <label className="mt-1 flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-gray-300 bg-white cursor-pointer hover:border-indigo-400 transition-all text-sm text-gray-500">
-                  <Upload size={16} className="text-indigo-500" />
+                  <Upload size={16} style={{ color: theme.accent }} />
                   {generalForm.cv_file ? generalForm.cv_file.name : "Click to upload PDF / DOC / DOCX"}
                   <input type="file" accept=".pdf,.doc,.docx" required className="hidden"
                     onChange={(e) => setGeneralForm({ ...generalForm, cv_file: e.target.files?.[0] || null })} />
@@ -296,7 +303,13 @@ export const CareersPage = () => {
               </div>
               <div className="md:col-span-2">
                 <button type="submit" disabled={uploading}
-                  className="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 disabled:opacity-60 disabled:cursor-not-allowed">
+                  className="w-full py-3 rounded-xl text-white font-bold transition-all shadow-lg shadow-indigo-100 disabled:opacity-60 disabled:cursor-not-allowed" style={{ backgroundColor: theme.accent }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = theme.accentHover)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = theme.accent)
+                  }>
                   {uploading ? "Submitting…" : "Submit Application"}
                 </button>
               </div>
@@ -323,7 +336,7 @@ export const CareersPage = () => {
             ) : (
               <>
                 <h2 className="text-2xl font-black text-gray-900">Apply for {selectedJob.title}</h2>
-                <p className="text-sm text-indigo-600 font-semibold mt-1 flex items-center gap-3">
+                <p className="text-sm font-semibold mt-1 flex items-center gap-3" style={{ color: theme.accent }}>
                   <span className="flex items-center gap-1"><Briefcase size={13} /> {selectedJob.type}</span>
                   <span className="flex items-center gap-1"><MapPin size={13} /> {selectedJob.location}</span>
                 </p>
@@ -333,19 +346,19 @@ export const CareersPage = () => {
                     <label className="text-xs font-bold text-gray-600">Full Name *</label>
                     <input type="text" placeholder="Your full name" required value={applyForm.full_name}
                       onChange={(e) => setApplyForm({ ...applyForm, full_name: e.target.value })}
-                      className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" />
+                      className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2  focus:outline-none text-sm" style={{ outlineColor: theme.accent }} />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-600">Email *</label>
                     <input type="email" placeholder="you@example.com" required value={applyForm.email}
                       onChange={(e) => setApplyForm({ ...applyForm, email: e.target.value })}
-                      className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" />
+                      className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2  focus:outline-none text-sm" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-600">Phone</label>
                     <input type="tel" placeholder="+91 XXXXX XXXXX" value={applyForm.phone}
                       onChange={(e) => setApplyForm({ ...applyForm, phone: e.target.value })}
-                      className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" />
+                      className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2  focus:outline-none text-sm" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-600">Upload CV *</label>
@@ -357,7 +370,13 @@ export const CareersPage = () => {
                     </label>
                   </div>
                   <button type="submit" disabled={uploading}
-                    className="w-full cursor-pointer py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed">
+                    className="w-full cursor-pointer py-3 rounded-xl  text-white font-bold  transition-all disabled:opacity-60 disabled:cursor-not-allowed" style={{ backgroundColor: theme.accent }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor = theme.accentHover)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor = theme.accent)
+                    }>
                     {uploading ? "Submitting…" : "Submit Application"}
                   </button>
                 </form>

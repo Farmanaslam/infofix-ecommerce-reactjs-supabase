@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Plus, Minus, Trash2, ShoppingCart, Tag, ArrowRight, Shield, Truck, RefreshCw, ChevronRight } from "lucide-react";
 import { useStore } from "../context/StoreContext";
-import ProductDetails from "./ProductDetails";
 import { supabase } from "@/lib/supabaseClient";
-
+import { SECTION_ACCENT } from '@/lib/sectionTheme';
+import { useNavigate } from "react-router-dom";
 interface AvailableCoupon {
   code: string;
   discount_amount: number;
@@ -15,14 +15,13 @@ interface AvailableCoupon {
 export const Cart: React.FC = () => {
   const {
     cart, products, setCurrentPage, currentUser,
-    updateQuantity, removeFromCart, addToCart, cartLoading, setPendingRedirectAfterLogin
+    updateQuantity, removeFromCart, addToCart, cartLoading, setPendingRedirectAfterLogin, selectedStoreSection
   } = useStore();
-
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const theme = SECTION_ACCENT[selectedStoreSection];
   const [allCoupons, setAllCoupons] = useState<AvailableCoupon[]>([]);
   const [showFixedCheckout, setShowFixedCheckout] = useState(true);
   const checkoutBtnRef = useRef<HTMLButtonElement>(null);
-
+  const navigate = useNavigate();
   // Drag-scroll refs
   const scrollRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
@@ -103,7 +102,13 @@ export const Cart: React.FC = () => {
 
   const handleSelectProduct = (product: any) => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    setSelectedProduct(product);
+    const slug = product.name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .slice(0, 80);
+    navigate(`/products/${slug}-${product.id}`);
   };
 
   if (cartLoading) {
@@ -111,15 +116,6 @@ export const Cart: React.FC = () => {
       <div className="flex justify-center items-center py-24">
         <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
       </div>
-    );
-  }
-  if (selectedProduct) {
-    return (
-      <ProductDetails
-        product={selectedProduct}
-        onBack={() => setSelectedProduct(null)}
-        onNavigateToCart={() => setSelectedProduct(null)}
-      />
     );
   }
 
@@ -133,10 +129,11 @@ export const Cart: React.FC = () => {
   if (!currentUser) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-16 text-center">
-        <ShoppingCart size={56} className="mx-auto text-indigo-300 mb-4" />
+        <ShoppingCart size={56} className="mx-auto mb-4" style={{ color: theme.accent }} />
         <h2 className="text-2xl font-semibold text-gray-700 mb-3">Please log in to view your cart</h2>
         <p className="text-gray-500 mb-6">Your cart is saved to your account so you never lose your items.</p>
-        <button onClick={() => { setPendingRedirectAfterLogin("cart"); setCurrentPage("login"); }} className="bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700 transition">
+        <button onClick={() => { setPendingRedirectAfterLogin("cart"); setCurrentPage("login"); }} className="text-white px-6 py-3 rounded-xl transition"
+          style={{ background: theme.accent }}>
           Log In
         </button>
       </div>
@@ -146,10 +143,20 @@ export const Cart: React.FC = () => {
   if (cart.length === 0) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-16 text-center">
-        <ShoppingCart size={56} className="mx-auto text-indigo-200 mb-4" />
+        <ShoppingCart size={56} className="mx-auto mb-4" style={{ color: theme.accent }} />
         <h2 className="text-2xl font-semibold text-gray-700 mb-3">Your cart is currently empty.</h2>
         <p className="text-gray-500 mb-6">Browse our products to continue shopping.</p>
-        <button onClick={() => setCurrentPage("shop")} className="bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700 transition">
+        <button
+          onClick={() => setCurrentPage("shop")}
+          className="text-white px-6 py-3 rounded-xl transition-all duration-300"
+          style={{ backgroundColor: theme.accent }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = theme.accentHover)
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = theme.accent)
+          }
+        >
           Continue Shopping
         </button>
       </div>
@@ -162,7 +169,7 @@ export const Cart: React.FC = () => {
       {showFixedCheckout && (
         <div
           className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-100 px-4 py-3"
-          style={{ boxShadow: "0 -8px 32px -4px rgba(99,102,241,0.15)" }}
+          style={{ boxShadow: `0 -8px 32px -4px ${SECTION_ACCENT[selectedStoreSection].accent}26` }}
         >
           <div className="flex items-center gap-3 max-w-lg mx-auto">
             <div>
@@ -171,8 +178,8 @@ export const Cart: React.FC = () => {
             </div>
             <button
               onClick={() => setCurrentPage("checkout")}
-              className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 text-white py-3.5 rounded-2xl font-black text-sm uppercase tracking-[0.1em] shadow-lg shadow-indigo-200/80 active:scale-[0.97] transition-all"
-            >
+              className="flex-1 flex items-center justify-center gap-2 text-white py-3.5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg active:scale-[0.97] transition-all"
+              style={{ background: theme.accent }}            >
               Proceed to Checkout <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -259,7 +266,7 @@ export const Cart: React.FC = () => {
                           </div>
 
                           <div className="flex items-center gap-4">
-                            <p className="font-black text-indigo-600 text-base">₹{(item.price * item.quantity).toLocaleString("en-IN")}</p>
+                            <p className="font-black text-base" style={{ color: theme.accent }}>₹{(item.price * item.quantity).toLocaleString("en-IN")}</p>
                             <button
                               onClick={(e) => { e.stopPropagation(); removeFromCart(String(item.id)); }}
                               className="flex items-center gap-1 text-xs font-bold text-red-400 hover:text-red-600 transition-colors"
@@ -277,7 +284,7 @@ export const Cart: React.FC = () => {
             {applicableCoupons.length > 0 && (
               <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
                 <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-indigo-500" />
+                  <Tag className="w-4 h-4" style={{ color: theme.accent }} />
                   <span className="text-sm font-black text-gray-700 uppercase tracking-widest">Available Coupons</span>
                   <span className="ml-auto text-[10px] text-gray-400 font-semibold">Apply at checkout</span>
                 </div>
@@ -286,8 +293,8 @@ export const Cart: React.FC = () => {
                     const applicableItems = getCouponApplicableProducts(c);
                     return (
                       <div key={c.code} className="flex items-start gap-4 px-5 py-4">
-                        <div className="shrink-0 border-2 border-dashed border-indigo-300 rounded-xl px-3 py-1.5">
-                          <span className="font-black text-indigo-700 text-sm tracking-widest">{c.code}</span>
+                        <div className="shrink-0 border-2 border-dashed rounded-xl px-3 py-1.5" style={{ borderColor: theme.accent + '88' }}>
+                          <span className="font-black text-sm tracking-widest" style={{ color: theme.accentText }}>{c.code}</span>
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold text-gray-800">₹{c.discount_amount} off</p>
@@ -321,7 +328,7 @@ export const Cart: React.FC = () => {
                     <h2 className="text-sm font-black text-gray-700 uppercase tracking-widest">Customers Also Bought</h2>
                     <p className="text-xs text-gray-400 mt-0.5">Based on items in your cart</p>
                   </div>
-                  <button onClick={() => setCurrentPage("shop")} className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                  <button onClick={() => setCurrentPage("shop")} className="text-xs font-bold flex items-center gap-1" style={{ color: theme.accent }}>
                     View all <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -346,8 +353,18 @@ export const Cart: React.FC = () => {
                       <div
                         key={product.id}
                         onClick={() => handleSelectProduct(product)}
-                        className="shrink-0 w-36 border border-gray-100 rounded-2xl p-3 bg-white hover:shadow-md hover:border-indigo-200 transition-all cursor-pointer"
+                        className="shrink-0 w-36 border border-gray-100 rounded-2xl p-3 bg-white transition-all cursor-pointer"
                         style={{ pointerEvents: "auto" }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = `${theme.accent}55`;
+                          e.currentTarget.style.boxShadow = `0 10px 25px ${theme.accent}22`;
+                          e.currentTarget.style.transform = "translateY(-2px)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = "#f3f4f6";
+                          e.currentTarget.style.boxShadow = "none";
+                          e.currentTarget.style.transform = "translateY(0)";
+                        }}
                       >
                         <img
                           src={product.image}
@@ -356,10 +373,12 @@ export const Cart: React.FC = () => {
                           draggable={false}
                         />
                         <h3 className="font-semibold text-xs text-gray-800 leading-snug line-clamp-2 mb-1.5">{product.name}</h3>
-                        <p className="text-indigo-600 font-black text-sm mb-2">₹{product.price.toLocaleString("en-IN")}</p>
+                        <p className="font-black text-sm mb-2" style={{ color: theme.accent }}>
+                          ₹{product.price.toLocaleString("en-IN")}</p>
                         <button
                           onClick={(e) => { e.stopPropagation(); addToCart(product); }}
-                          className="w-full text-[10px] font-black border border-indigo-400 text-indigo-600 rounded-lg py-1.5 hover:bg-indigo-50 transition uppercase tracking-wide"
+                          className="w-full text-[10px] font-black border rounded-lg py-1.5 transition uppercase tracking-wide"
+                          style={{ borderColor: theme.accent, color: theme.accent }}
                         >+ Add</button>
                       </div>
                     ))}
@@ -385,10 +404,11 @@ export const Cart: React.FC = () => {
                 { icon: <Shield className="w-4 h-4" />, label: "Secure Checkout" },
                 { icon: <Truck className="w-4 h-4" />, label: "Free Delivery" },
                 { icon: <RefreshCw className="w-4 h-4" />, label: "7-Day Returns" },
-                { icon: <Tag className="w-4 h-4" />, label: "Best Price" },
+                { icon: <Tag className="w-4 h-4" style={{ color: theme.accent }} />, label: "Best Price" },
               ].map((b) => (
                 <div key={b.label} className="flex items-center gap-2.5 bg-white border border-gray-100 rounded-xl px-3.5 py-3 shadow-sm">
-                  <span className="text-indigo-500 shrink-0">{b.icon}</span>
+                  <span className="shrink-0" style={{ color: theme.accent }}>{b.icon}</span>
+
                   <span className="text-[11px] font-black text-gray-600 uppercase tracking-wide">{b.label}</span>
                 </div>
               ))}
@@ -418,7 +438,7 @@ export const Cart: React.FC = () => {
                 <div className="h-px bg-gray-100" />
                 <div className="flex justify-between">
                   <span className="font-black text-gray-900">Total Amount</span>
-                  <span className="font-black text-xl text-indigo-600">₹{total.toLocaleString("en-IN")}</span>
+                  <span className="font-black text-xl" style={{ color: theme.accent }}>₹{total.toLocaleString("en-IN")}</span>
                 </div>
                 <p className="text-[11px] text-emerald-600 font-semibold bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2">
                   🚚 Estimated delivery: 5–7 business days
@@ -428,13 +448,24 @@ export const Cart: React.FC = () => {
                 <button
                   ref={checkoutBtnRef}
                   onClick={() => setCurrentPage("checkout")}
-                  className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white py-4 rounded-2xl font-black text-sm uppercase tracking-[0.1em] shadow-lg shadow-indigo-200/80 transition-all"
-                >
+                  className="w-full flex items-center justify-center gap-2 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg transition-all active:scale-[0.98]"
+                  style={{ background: theme.accent }}
+                  onMouseEnter={e => (e.currentTarget.style.background = theme.accentHover)}
+                  onMouseLeave={e => (e.currentTarget.style.background = theme.accent)}                >
                   Proceed to Checkout <ArrowRight className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setCurrentPage("shop")}
-                  className="w-full py-3 rounded-2xl font-bold text-sm text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 border border-gray-100 transition-all"
+                  className="w-full py-4 rounded-2xl font-bold text-sm border transition-all"
+                  style={{ borderColor: "#f3f4f6" }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = theme.accent;
+                    e.currentTarget.style.backgroundColor = theme.accentLight;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = "";
+                    e.currentTarget.style.backgroundColor = "";
+                  }}
                 >
                   Continue Shopping
                 </button>

@@ -22,7 +22,7 @@ import {
 import { useStore } from "../context/StoreContext";
 import { supabase } from "../lib/supabaseClient";
 import { Customer, ProfileForm, AddressForm, RecentOrder } from "../types";
-
+import { SECTION_ACCENT } from "@/lib/sectionTheme";
 const emptyAddressForm: AddressForm = {
   address1: "",
   address2: "",
@@ -69,8 +69,8 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 export const Profile: React.FC = () => {
-  const { setCurrentPage, logout, setLoading, loading } = useStore();
-
+  const { setCurrentPage, logout, setLoading, loading, selectedStoreSection } = useStore();
+  const theme = SECTION_ACCENT[selectedStoreSection];
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -236,17 +236,17 @@ export const Profile: React.FC = () => {
     const updatePayload =
       editingAddress === "address1"
         ? {
-            address1: addressForm.address1,
-            city: addressForm.city,
-            state: addressForm.state,
-            pincode: addressForm.pincode,
-            country: addressForm.country,
-            updated_at: new Date().toISOString(),
-          }
+          address1: addressForm.address1,
+          city: addressForm.city,
+          state: addressForm.state,
+          pincode: addressForm.pincode,
+          country: addressForm.country,
+          updated_at: new Date().toISOString(),
+        }
         : {
-            address2: addressForm.address2,
-            updated_at: new Date().toISOString(),
-          };
+          address2: addressForm.address2,
+          updated_at: new Date().toISOString(),
+        };
     const { data, error: updateError } = await supabase
       .from("customers")
       .update(updatePayload)
@@ -306,17 +306,17 @@ export const Profile: React.FC = () => {
     year: "numeric",
   });
   const inputCls =
-    "w-full px-4 py-3 rounded-xl border border-indigo-200 bg-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-800";
-  const inputCls2 =
-    "w-full px-4 py-3 rounded-xl border border-gray-200 bg-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-800";
+    "w-full px-4 py-3 rounded-xl border bg-white font-medium focus:outline-none text-gray-800 transition-all";
 
+  const inputCls2 =
+    "w-full px-4 py-3 rounded-xl border border-gray-200 bg-white font-medium focus:outline-none text-gray-800 transition-all";
   return (
     <div className="min-h-screen bg-gray-50/50 py-16">
       <div className="max-w-6xl mx-auto px-4">
         {/* PAGE HEADER */}
         <div className="mb-12">
           <h1 className="text-5xl font-black tracking-tight">
-            <span className="bg-linear-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
+            <span style={{ color: theme.accent }}>
               My Account
             </span>
           </h1>
@@ -343,25 +343,25 @@ export const Profile: React.FC = () => {
         {(!customer.phone?.replace(/\D/g, "") ||
           customer.phone.replace(/\D/g, "").length < 10 ||
           !customer.address1?.trim()) && (
-          <div className="mb-6 px-5 py-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl font-semibold flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 shrink-0 text-amber-500 mt-0.5" />
-            <span className="text-sm leading-relaxed">
-              <span className="font-black">Complete your profile</span> — please
-              add your{" "}
-              {!customer.phone?.replace(/\D/g, "") ||
-              customer.phone.replace(/\D/g, "").length < 10
-                ? "phone number"
-                : ""}
-              {(!customer.phone?.replace(/\D/g, "") ||
-                customer.phone.replace(/\D/g, "").length < 10) &&
-              !customer.address1?.trim()
-                ? " and "
-                : ""}
-              {!customer.address1?.trim() ? "delivery address" : ""} before
-              placing orders.
-            </span>
-          </div>
-        )}
+            <div className="mb-6 px-5 py-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl font-semibold flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 shrink-0 text-amber-500 mt-0.5" />
+              <span className="text-sm leading-relaxed">
+                <span className="font-black">Complete your profile</span> — please
+                add your{" "}
+                {!customer.phone?.replace(/\D/g, "") ||
+                  customer.phone.replace(/\D/g, "").length < 10
+                  ? "phone number"
+                  : ""}
+                {(!customer.phone?.replace(/\D/g, "") ||
+                  customer.phone.replace(/\D/g, "").length < 10) &&
+                  !customer.address1?.trim()
+                  ? " and "
+                  : ""}
+                {!customer.address1?.trim() ? "delivery address" : ""} before
+                placing orders.
+              </span>
+            </div>
+          )}
 
         {/* ── PROFILE OVERVIEW ─────────────────────────────────────────────── */}
         <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100 border border-gray-100 p-10 mb-12">
@@ -370,7 +370,10 @@ export const Profile: React.FC = () => {
             {!editingProfile && (
               <button
                 onClick={handleEditProfile}
-                className="flex items-center gap-2 px-5 py-2.5 bg-indigo-50 text-indigo-600 rounded-xl font-semibold hover:bg-indigo-100 transition cursor-pointer text-sm"
+                className="flex items-center gap-2 px-5 py-2.5  rounded-xl font-semibold hover:bg-indigo-100 transition cursor-pointer text-sm"
+                style={{ background: theme.accentLight, color: theme.accent }}
+                onMouseEnter={e => e.currentTarget.style.background = `${theme.accent}26`}
+                onMouseLeave={e => e.currentTarget.style.background = theme.accentLight}
               >
                 <Pencil className="w-4 h-4" /> Edit Profile
               </button>
@@ -385,7 +388,7 @@ export const Profile: React.FC = () => {
                     Full Name
                   </label>
                   <div className="relative">
-                    <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400" />
+                    <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: `${theme.accent}99` }} />
                     <input
                       className={`${inputCls} pl-10`}
                       placeholder="Full Name"
@@ -396,6 +399,15 @@ export const Profile: React.FC = () => {
                           full_name: e.target.value,
                         })
                       }
+                      style={{ borderColor: theme.accent + "40" }}
+                      onFocus={(e) => {
+                        e.target.style.boxShadow = `0 0 0 2px ${theme.accentLight}`;
+                        e.target.style.borderColor = theme.accent;
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.boxShadow = "none";
+                        e.target.style.borderColor = theme.accent + "40";
+                      }}
                     />
                   </div>
                 </div>
@@ -404,7 +416,7 @@ export const Profile: React.FC = () => {
                     Email Address
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400" />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: `${theme.accent}99` }} />
                     <input
                       className={`${inputCls} pl-10`}
                       placeholder="Email"
@@ -416,6 +428,15 @@ export const Profile: React.FC = () => {
                           email: e.target.value,
                         })
                       }
+                      style={{ borderColor: theme.accent + "40" }}
+                      onFocus={(e) => {
+                        e.target.style.boxShadow = `0 0 0 2px ${theme.accentLight}`;
+                        e.target.style.borderColor = theme.accent;
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.boxShadow = "none";
+                        e.target.style.borderColor = theme.accent + "40";
+                      }}
                     />
                   </div>
                 </div>
@@ -424,8 +445,11 @@ export const Profile: React.FC = () => {
                     Phone Number
                   </label>
                   <div className="relative">
-                    <div className="flex rounded-xl overflow-hidden border border-indigo-200 bg-white focus-within:ring-2 focus-within:ring-indigo-400">
-                      <span className="flex items-center px-3 bg-indigo-50 text-sm font-bold text-gray-600 border-r border-indigo-200 shrink-0">
+                    <div className="flex rounded-xl overflow-hidden border bg-white transition-all"
+                      style={{ borderColor: `${theme.accent}40` }}
+                      onFocusCapture={e => (e.currentTarget.style.boxShadow = `0 0 0 2px ${theme.accentLight}`, e.currentTarget.style.borderColor = theme.accent)}
+                      onBlurCapture={e => (e.currentTarget.style.boxShadow = 'none', e.currentTarget.style.borderColor = `${theme.accent}40`)}
+                    >                      <span className="flex items-center px-3 text-sm font-bold text-gray-600 border-r shrink-0" style={{ background: theme.accentLight, borderColor: `${theme.accent}40` }}>
                         +91
                       </span>
                       <input
@@ -441,6 +465,8 @@ export const Profile: React.FC = () => {
                             phone: `91${e.target.value.replace(/\D/g, "").slice(0, 10)}`,
                           })
                         }
+                        style={{ borderColor: theme.accent + "40" }}
+
                       />
                     </div>
                   </div>
@@ -458,7 +484,10 @@ export const Profile: React.FC = () => {
                 <button
                   onClick={handleSaveProfile}
                   disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl font-semibold hover:bg-indigo-500 transition disabled:opacity-50 cursor-pointer"
+                  className="flex items-center gap-2 px-6 py-3 text-white rounded-2xl font-semibold  transition disabled:opacity-50 cursor-pointer"
+                  style={{ background: theme.accent }}
+                  onMouseEnter={e => e.currentTarget.style.background = theme.accentHover}
+                  onMouseLeave={e => e.currentTarget.style.background = theme.accent}
                 >
                   {saving ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -482,7 +511,7 @@ export const Profile: React.FC = () => {
                   Full Name
                 </label>
                 <div className="flex items-center gap-3 px-5 py-4 bg-gray-50 rounded-2xl">
-                  <UserIcon className="w-4 h-4 text-indigo-600" />
+                  <UserIcon className="w-4 h-4" style={{ color: theme.accent }} />
                   <span className="font-semibold text-gray-800">
                     {customer.full_name}
                   </span>
@@ -493,7 +522,7 @@ export const Profile: React.FC = () => {
                   Email Address
                 </label>
                 <div className="flex items-center gap-3 px-5 py-4 bg-gray-50 rounded-2xl">
-                  <Mail className="w-4 h-4 text-indigo-600" />
+                  <Mail className="w-4 h-4" style={{ color: theme.accent }} />
                   <span className="font-semibold text-gray-800">
                     {customer.email}
                   </span>
@@ -504,7 +533,7 @@ export const Profile: React.FC = () => {
                   Phone Number
                 </label>
                 <div className="flex items-center gap-3 px-5 py-4 bg-gray-50 rounded-2xl">
-                  <Phone className="w-4 h-4 text-indigo-600" />
+                  <Phone className="w-4 h-4" style={{ color: theme.accent }} />
                   <span className="font-semibold text-gray-800">
                     {customer.phone?.replace(/\D/g, "").length >= 10 ? (
                       `+${customer.phone}`
@@ -538,7 +567,7 @@ export const Profile: React.FC = () => {
               Primary Address
             </p>
             {editingAddress === "address1" ? (
-              <div className="bg-indigo-50 p-6 rounded-2xl space-y-4">
+              <div className=" p-6 rounded-2xl space-y-4" style={{ background: theme.accentLight }}>
                 <input
                   className={inputCls}
                   placeholder="Address Line"
@@ -546,6 +575,15 @@ export const Profile: React.FC = () => {
                   onChange={(e) =>
                     setAddressForm({ ...addressForm, address1: e.target.value })
                   }
+                  style={{ borderColor: theme.accent + "40" }}
+                  onFocus={(e) => {
+                    e.target.style.boxShadow = `0 0 0 2px ${theme.accentLight}`;
+                    e.target.style.borderColor = theme.accent;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.boxShadow = "none";
+                    e.target.style.borderColor = theme.accent + "40";
+                  }}
                 />
                 <div className="grid grid-cols-2 gap-4">
                   <input
@@ -555,6 +593,15 @@ export const Profile: React.FC = () => {
                     onChange={(e) =>
                       setAddressForm({ ...addressForm, city: e.target.value })
                     }
+                    style={{ borderColor: theme.accent + "40" }}
+                    onFocus={(e) => {
+                      e.target.style.boxShadow = `0 0 0 2px ${theme.accentLight}`;
+                      e.target.style.borderColor = theme.accent;
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = "none";
+                      e.target.style.borderColor = theme.accent + "40";
+                    }}
                   />
                   <input
                     className={inputCls}
@@ -566,6 +613,15 @@ export const Profile: React.FC = () => {
                         pincode: e.target.value,
                       })
                     }
+                    style={{ borderColor: theme.accent + "40" }}
+                    onFocus={(e) => {
+                      e.target.style.boxShadow = `0 0 0 2px ${theme.accentLight}`;
+                      e.target.style.borderColor = theme.accent;
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = "none";
+                      e.target.style.borderColor = theme.accent + "40";
+                    }}
                   />
                   <input
                     className={inputCls}
@@ -574,6 +630,15 @@ export const Profile: React.FC = () => {
                     onChange={(e) =>
                       setAddressForm({ ...addressForm, state: e.target.value })
                     }
+                    style={{ borderColor: theme.accent + "40" }}
+                    onFocus={(e) => {
+                      e.target.style.boxShadow = `0 0 0 2px ${theme.accentLight}`;
+                      e.target.style.borderColor = theme.accent;
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = "none";
+                      e.target.style.borderColor = theme.accent + "40";
+                    }}
                   />
                   <input
                     className={inputCls}
@@ -585,13 +650,25 @@ export const Profile: React.FC = () => {
                         country: e.target.value,
                       })
                     }
+                    style={{ borderColor: theme.accent + "40" }}
+                    onFocus={(e) => {
+                      e.target.style.boxShadow = `0 0 0 2px ${theme.accentLight}`;
+                      e.target.style.borderColor = theme.accent;
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = "none";
+                      e.target.style.borderColor = theme.accent + "40";
+                    }}
                   />
                 </div>
                 <div className="flex gap-3">
                   <button
                     onClick={handleSaveAddress}
                     disabled={saving}
-                    className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl font-semibold hover:bg-indigo-500 transition disabled:opacity-50 cursor-pointer"
+                    className="flex items-center gap-2 px-6 py-3 text-white rounded-2xl font-semibold transition disabled:opacity-50 cursor-pointer"
+                    style={{ background: theme.accent }}
+                    onMouseEnter={e => e.currentTarget.style.background = theme.accentHover}
+                    onMouseLeave={e => e.currentTarget.style.background = theme.accent}
                   >
                     {saving ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -611,7 +688,7 @@ export const Profile: React.FC = () => {
             ) : (
               <div className="bg-indigo-50 p-6 rounded-2xl flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
-                  <MapPin className="w-6 h-6 text-indigo-600 mt-1 shrink-0" />
+                  <MapPin className="w-6 h-6 mt-1 shrink-0" style={{ color: theme.accent }} />
                   {customer.address1?.trim() ? (
                     <p className="text-gray-600 whitespace-pre-line leading-relaxed">
                       {formatAddress(
@@ -630,7 +707,8 @@ export const Profile: React.FC = () => {
                 </div>
                 <button
                   onClick={handleEditAddress1}
-                  className="flex items-center gap-1 text-indigo-600 font-semibold hover:underline cursor-pointer shrink-0"
+                  className="flex items-center gap-1 font-semibold hover:underline cursor-pointer shrink-0"
+                  style={{ color: theme.accent }}
                 >
                   <Pencil className="w-4 h-4" /> Edit
                 </button>
@@ -656,12 +734,24 @@ export const Profile: React.FC = () => {
                         address2: e.target.value,
                       })
                     }
+                    style={{ borderColor: theme.accent + "40" }}
+                    onFocus={(e) => {
+                      e.target.style.boxShadow = `0 0 0 2px ${theme.accentLight}`;
+                      e.target.style.borderColor = theme.accent;
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = "none";
+                      e.target.style.borderColor = theme.accent + "40";
+                    }}
                   />
                   <div className="flex gap-3">
                     <button
                       onClick={handleSaveAddress}
                       disabled={saving}
-                      className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl font-semibold hover:bg-indigo-500 transition disabled:opacity-50 cursor-pointer"
+                      className="flex items-center gap-2 px-6 py-3 text-white rounded-2xl font-semibold transition disabled:opacity-50 cursor-pointer"
+                      style={{ background: theme.accent }}
+                      onMouseEnter={e => e.currentTarget.style.background = theme.accentHover}
+                      onMouseLeave={e => e.currentTarget.style.background = theme.accent}
                     >
                       {saving ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -687,7 +777,8 @@ export const Profile: React.FC = () => {
                   <div className="flex gap-3 shrink-0">
                     <button
                       onClick={handleEditAddress2}
-                      className="flex items-center gap-1 text-indigo-600 font-semibold hover:underline cursor-pointer"
+                      className="flex items-center gap-1  font-semibold hover:underline cursor-pointer"
+                      style={{ color: theme.accent }}
                     >
                       <Pencil className="w-4 h-4" /> Edit
                     </button>
@@ -710,7 +801,7 @@ export const Profile: React.FC = () => {
               <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
                 New Secondary Address
               </p>
-              <div className="bg-gray-50 p-6 rounded-2xl space-y-4 border border-dashed border-indigo-300">
+              <div className="bg-gray-50 p-6 rounded-2xl space-y-4 border border-dashed" style={{ borderColor: `${theme.accent}66` }}>
                 <input
                   className={inputCls2}
                   placeholder="Address Line 2"
@@ -718,12 +809,24 @@ export const Profile: React.FC = () => {
                   onChange={(e) =>
                     setAddressForm({ ...addressForm, address2: e.target.value })
                   }
+                  style={{ borderColor: theme.accent + "40" }}
+                  onFocus={(e) => {
+                    e.target.style.boxShadow = `0 0 0 2px ${theme.accentLight}`;
+                    e.target.style.borderColor = theme.accent;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.boxShadow = "none";
+                    e.target.style.borderColor = theme.accent + "40";
+                  }}
                 />
                 <div className="flex gap-3">
                   <button
                     onClick={handleSaveAddress}
                     disabled={saving || !addressForm.address2.trim()}
-                    className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl font-semibold hover:bg-indigo-500 transition disabled:opacity-50 cursor-pointer"
+                    className="flex items-center gap-2 px-6 py-3 text-white rounded-2xl font-semibold transition disabled:opacity-50 cursor-pointer"
+                    style={{ background: theme.accent }}
+                    onMouseEnter={e => e.currentTarget.style.background = theme.accentHover}
+                    onMouseLeave={e => e.currentTarget.style.background = theme.accent}
                   >
                     {saving ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -748,10 +851,17 @@ export const Profile: React.FC = () => {
             <button
               onClick={handleAddNew}
               disabled={hasAddress2}
-              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold transition ${hasAddress2 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-indigo-600 text-white hover:bg-indigo-500 cursor-pointer"}`}
+              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold transition ${hasAddress2 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "cursor-pointer"}`}
               title={hasAddress2 ? "Maximum of 2 addresses allowed" : ""}
+              style={{ background: theme.accent, color: theme.accentLight }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = theme.accentHover;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = theme.accent;
+              }}
             >
-              <Plus className="w-4 h-4" /> Add New Address{" "}
+              <Plus className="w-4 h-4" style={{ color: theme.accentLight }} /> Add New Address{" "}
               {hasAddress2 && (
                 <span className="text-xs ml-1">(limit reached)</span>
               )}
@@ -765,7 +875,8 @@ export const Profile: React.FC = () => {
             <h2 className="text-2xl font-black">Recent Orders</h2>
             <button
               onClick={() => setCurrentPage("orders")}
-              className="text-indigo-600 font-bold hover:underline cursor-pointer text-sm"
+              className=" font-bold hover:underline cursor-pointer text-sm"
+              style={{ color: theme.accent }}
             >
               View All
             </button>
@@ -773,8 +884,8 @@ export const Profile: React.FC = () => {
 
           {recentOrders.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-14 rounded-2xl bg-gray-50 border border-dashed border-gray-200">
-              <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center mb-4">
-                <Package className="w-8 h-8 text-indigo-400" />
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: theme.accentLight }}>
+                <Package className="w-8 h-8" style={{ color: theme.accent }} />
               </div>
               <p className="text-gray-800 font-bold text-lg">No orders yet</p>
               <p className="text-gray-400 text-sm mt-1 mb-6">
@@ -782,7 +893,10 @@ export const Profile: React.FC = () => {
               </p>
               <button
                 onClick={() => setCurrentPage("shop")}
-                className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-semibold hover:bg-indigo-500 transition cursor-pointer"
+                className="px-6 py-3  text-white rounded-2xl font-semibold transition cursor-pointer"
+                style={{ background: theme.accent }}
+                onMouseEnter={e => e.currentTarget.style.background = theme.accentHover}
+                onMouseLeave={e => e.currentTarget.style.background = theme.accent}
               >
                 Start Shopping
               </button>
@@ -792,7 +906,9 @@ export const Profile: React.FC = () => {
               {recentOrders.map((order) => (
                 <div
                   key={order.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-gray-50 rounded-2xl border border-gray-100 hover:border-indigo-200 transition"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-gray-50 rounded-2xl border border-gray-100 transition"
+                  onMouseEnter={e => e.currentTarget.style.borderColor = `${theme.accent}44`}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = '#f3f4f6'}
                 >
                   <div className="flex items-center gap-4">
                     {/* First item image */}
@@ -804,7 +920,7 @@ export const Profile: React.FC = () => {
                       />
                     ) : (
                       <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
-                        <Package className="w-5 h-5 text-indigo-400" />
+                        <Package className="w-5 h-5" style={{ color: theme.accent }} />
                       </div>
                     )}
                     <div>
@@ -823,12 +939,13 @@ export const Profile: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-4">
                     <StatusBadge status={order.status} />
-                    <p className="font-black text-indigo-600 text-sm whitespace-nowrap">
+                    <p className="font-black text-sm whitespace-nowrap" style={{ color: theme.accent }}>
                       ₹{order.total_amount.toLocaleString()}
                     </p>
                     <button
                       onClick={() => setCurrentPage("orders")}
-                      className="text-xs text-indigo-600 font-bold hover:underline shrink-0"
+                      className="text-xs font-bold hover:underline shrink-0"
+                      style={{ color: theme.accent }}
                     >
                       Details →
                     </button>
@@ -859,8 +976,8 @@ export const Profile: React.FC = () => {
               Logout from All Devices
             </button>
           </div>
-          <div className="mt-6 bg-indigo-50 p-4 rounded-xl text-sm text-indigo-900 flex items-start gap-2">
-            <Shield className="w-4 h-4 mt-0.5 shrink-0" />
+          <div className="mt-6  p-4 rounded-xl text-sm flex items-start gap-2" style={{ background: theme.accentLight, color: theme.accentText }}>
+            <Shield className="w-4 h-4 mt-0.5 shrink-0" style={{ color: theme.accent }} />
             For your safety, always use a strong password and avoid sharing your
             login details.
           </div>

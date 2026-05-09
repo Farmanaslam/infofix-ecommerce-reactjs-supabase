@@ -27,7 +27,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { ProfileSetupModal } from "./ProfileSetupModal";
-
+import { Helmet } from "react-helmet-async";
+import { useLocation } from "react-router-dom";
 const HOME_THEMES = {
   Infofix: {
     accent: '#6366f1',
@@ -788,7 +789,7 @@ export const Home: React.FC = () => {
     selectedStoreSection,
     setPendingProductId,
   } = useStore();
-
+  const location = useLocation();
   const ht = HOME_THEMES[selectedStoreSection];
   const heroSlidesBySection = {
     Infofix: heroSlides,
@@ -1227,6 +1228,64 @@ export const Home: React.FC = () => {
 
   return (
     <>
+      <Helmet>
+        <title>
+          {selectedStoreSection === 'Refurbished'
+            ? 'Certified Refurbished Laptops & Desktops | Infofix Computers Durgapur'
+            : selectedStoreSection === 'Wholesale'
+              ? 'Wholesale Laptops & Desktops Supplier | Infofix Computers West Bengal'
+              : 'Buy Laptops, Desktops & Custom PCs in Durgapur | Infofix Computers'}
+        </title>
+        <meta name="description" content={
+          selectedStoreSection === 'Refurbished'
+            ? 'Grade-A certified refurbished laptops & desktops in Durgapur. Professionally tested, SSD upgraded, 6-month warranty. Save up to 50%. Infofix Computers.'
+            : selectedStoreSection === 'Wholesale'
+              ? 'Wholesale laptops, desktops & accessories for businesses in West Bengal. GST invoice, bulk pricing, pan-India delivery. Infofix Computers Durgapur.'
+              : 'Buy new laptops, desktops & custom PCs in Durgapur, Asansol, Ukhra & all India. 1-year warranty, best price guaranteed. Infofix Computers since 2017.'
+        } />
+        <link rel="canonical" href="https://infofixcomputers.com/" />
+        <meta property="og:title" content="Infofix Computers — Durgapur's Most Trusted Tech Store" />
+        <meta property="og:description" content="New & certified refurbished laptops, desktops, gaming PCs. Serving Durgapur, Asansol, Ukhra & pan-India." />
+        <meta property="og:image" content="https://infofixcomputers.com/icons/logo.png" />
+        <meta property="og:url" content="https://infofixcomputers.com/" />
+        <meta property="og:type" content="website" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Where can I buy a laptop in Durgapur?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Infofix Computers at Benachity, Durgapur sells new and refurbished laptops from Dell, HP, Lenovo, Asus and more. Visit any of our 5 stores or order online with pan-India delivery." }
+            },
+            {
+              "@type": "Question",
+              "name": "Are refurbished laptops worth buying?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. Infofix certified refurbished laptops pass a 40-point quality check, get SSD upgrades, and come with a 6-month warranty. Save up to 50% vs new price." }
+            },
+            {
+              "@type": "Question",
+              "name": "Do you deliver laptops all over India?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. Infofix Computers ships laptops and desktops pan-India with 1-year warranty and secure packaging." }
+            },
+            {
+              "@type": "Question",
+              "name": "What is the price of a refurbished laptop in Durgapur?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Refurbished laptops at Infofix Computers Durgapur start from ₹11,999. Models include Dell Latitude, HP EliteBook, Lenovo ThinkPad — all with 6-month warranty." }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I get a custom gaming PC built in Durgapur?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. Infofix Computers builds custom gaming PCs in Durgapur. Pick your components — Ryzen, Intel, RTX, AMD — assembled and tested same day." }
+            },
+            {
+              "@type": "Question",
+              "name": "Does Infofix offer wholesale laptop supply in West Bengal?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. Infofix Wholesale supplies bulk laptops, desktops and accessories to businesses, schools and resellers across West Bengal with GST invoice and dedicated B2B support." }
+            }
+          ]
+        })}</script>
+      </Helmet>
       {currentUser?.role === "CUSTOMER" && (
         <ProfileSetupModal
           open={showProfileModal}

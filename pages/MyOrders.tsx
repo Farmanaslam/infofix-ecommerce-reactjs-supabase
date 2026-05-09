@@ -16,7 +16,7 @@ import { useStore } from "../context/StoreContext";
 import { supabase } from "../lib/supabaseClient";
 import { Order, OrderItem } from "../types";
 import { OrderCardSkeleton } from "./Skeleton";
-
+import { SECTION_ACCENT } from "@/lib/sectionTheme";
 const STATUS_FILTERS = [
   "All",
   "Processing",
@@ -73,11 +73,7 @@ interface OrderWithCoupon extends Order {
 
 // ─── Order Card ─────────────────────────────────────────────────────────────────
 
-const OrderCard: React.FC<{
-  order: OrderWithCoupon;
-  onRefresh: () => void;
-  onReorder: (item: OrderItem) => void;
-}> = ({ order, onRefresh, onReorder }) => {
+const OrderCard: React.FC<{ order: OrderWithCoupon; onRefresh: () => void; onReorder: (item: OrderItem) => void; theme: any; }> = ({ order, onRefresh, onReorder, theme }) => {
   const [expanded, setExpanded] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [showTracking, setShowTracking] = useState(false);
@@ -181,7 +177,7 @@ const OrderCard: React.FC<{
                   Qty: {item.quantity} × ₹{item.price.toLocaleString()}
                 </p>
               </div>
-              <p className="font-bold text-indigo-600 text-sm">
+              <p className="font-bold text-sm" style={{ color: theme.accent }}>
                 ₹{(item.price * item.quantity).toLocaleString()}
               </p>
             </div>
@@ -189,7 +185,7 @@ const OrderCard: React.FC<{
           {order.items.length > 2 && (
             <button
               onClick={() => setExpanded((v) => !v)}
-              className="text-xs text-indigo-600 font-semibold flex items-center gap-1 mt-1"
+              className="text-xs font-semibold flex items-center gap-1 mt-1" style={{ color: theme.accent }}
             >
               {expanded ? (
                 <>
@@ -237,15 +233,18 @@ const OrderCard: React.FC<{
           <div className="flex flex-wrap gap-3 items-start">
             <button
               onClick={() => setExpanded((v) => !v)}
-              className="px-5 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-500 transition text-sm"
-            >
+              className="px-5 py-2 text-white rounded-xl font-semibold transition text-sm"
+              style={{ background: theme.accent }}
+              onMouseEnter={e => e.currentTarget.style.background = theme.accentHover}
+              onMouseLeave={e => e.currentTarget.style.background = theme.accent}            >
               {expanded ? "Hide Details" : "View Details"}
             </button>
 
             {order.status !== "Delivered" && order.status !== "Cancelled" && (
               <button
                 onClick={() => setShowTracking(true)}
-                className="px-5 py-2 bg-blue-100 text-blue-600 rounded-xl font-semibold hover:bg-blue-200 transition text-sm flex items-center gap-1"
+                className="px-5 py-2  rounded-xl font-semibold hover:bg-blue-200 transition text-sm flex items-center gap-1"
+                style={{ background: theme.accent, color: theme.accentLight }}
               >
                 <Truck className="w-3.5 h-3.5" /> Track Order
               </button>
@@ -341,8 +340,8 @@ const OrderCard: React.FC<{
                     <div key={i} className="flex gap-4">
                       <div className="flex flex-col items-center">
                         <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 ${step.done ? "bg-indigo-600 border-indigo-600" : "bg-white border-gray-200"}`}
-                        >
+                          style={step.done ? { background: theme.accent, borderColor: theme.accent } : {}}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 ${!step.done ? 'bg-white border-gray-200' : ''}`}                        >
                           {step.done ? (
                             <CheckCircle className="w-4 h-4 text-white" />
                           ) : (
@@ -351,8 +350,8 @@ const OrderCard: React.FC<{
                         </div>
                         {i < arr.length - 1 && (
                           <div
-                            className={`w-0.5 h-8 ${step.done ? "bg-indigo-300" : "bg-gray-200"}`}
-                          />
+                            className="w-0.5 h-8"
+                            style={{ background: step.done ? `${theme.accent}66` : '#e5e7eb' }} />
                         )}
                       </div>
                       <div className="pb-6">
@@ -372,8 +371,8 @@ const OrderCard: React.FC<{
                 </div>
 
                 {order.tracking_id && (
-                  <div className="mt-4 p-4 bg-indigo-50 rounded-2xl">
-                    <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest mb-1">
+                  <div className="mt-4 p-4  rounded-2xl" style={{ background: theme.accentLight }}>
+                    <p className="text-xs font-bold" style={{ color: theme.accent }}>
                       Tracking ID
                     </p>
                     <p className="font-mono font-bold text-gray-800">
@@ -403,7 +402,7 @@ const OrderCard: React.FC<{
               Delivery Address
             </p>
             <p className="text-gray-700 font-medium flex items-start gap-2 text-sm">
-              <MapPin className="w-4 h-4 text-indigo-500 mt-0.5 shrink-0" />
+              <MapPin className="w-4 h-4 mt-0.5 shrink-0" style={{ color: theme.accent }} />
               {order.address_line}, {order.city}, {order.state} —{" "}
               {order.pincode}
             </p>
@@ -470,7 +469,7 @@ const OrderCard: React.FC<{
 
               <div className="flex justify-between font-bold border-t border-gray-200 pt-1.5 mt-1.5">
                 <span>Total</span>
-                <span className="text-indigo-600">
+                <span style={{ color: theme.accent }}>
                   ₹{order.total_amount.toLocaleString()}
                 </span>
               </div>
@@ -492,7 +491,8 @@ const OrderCard: React.FC<{
 // ─── Main Component ─────────────────────────────────────────────────────────────
 
 export const MyOrders: React.FC = () => {
-  const { setCurrentPage, currentUser, setHeaderSearchQuery } = useStore();
+  const { setCurrentPage, currentUser, setHeaderSearchQuery, selectedStoreSection } = useStore();
+  const theme = SECTION_ACCENT[selectedStoreSection];
   const [orders, setOrders] = useState<OrderWithCoupon[]>([]);
   const [activeFilter, setActiveFilter] = useState("All");
   const [loading, setLoading] = useState(true);
@@ -563,13 +563,21 @@ export const MyOrders: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50/50 py-16 flex items-center justify-center">
         <div className="text-center">
-          <Package className="w-16 h-16 text-indigo-200 mx-auto mb-4" />
+          <Package className="w-16 h-16 mx-auto mb-4"
+            style={{ color: `${theme.accent}55` }} />
           <h2 className="text-2xl font-bold text-gray-700 mb-3">
             Please log in to view your orders
           </h2>
           <button
             onClick={() => setCurrentPage("login")}
-            className="bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700 transition font-semibold"
+            className=" text-white px-6 py-3 rounded-xl transition font-semibold"
+            style={{ background: theme.accent }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = theme.accentHover)
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = theme.accent)
+            }
           >
             Log In
           </button>
@@ -584,7 +592,12 @@ export const MyOrders: React.FC = () => {
         {/* Header */}
         <div className="mb-6 md:mb-12">
           <h1 className="text-3xl md:text-5xl font-black tracking-tight">
-            <span className="bg-linear-to-br from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
+            <span
+              className="bg-clip-text text-transparent"
+              style={{
+                backgroundImage: `linear-gradient(to bottom right, ${theme.accent}, ${theme.accentHover})`,
+              }}
+            >
               My Orders
             </span>
           </h1>
@@ -599,12 +612,28 @@ export const MyOrders: React.FC = () => {
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-5 py-2 rounded-2xl font-semibold transition cursor-pointer text-sm ${activeFilter === filter
-                ? "bg-indigo-600 text-white shadow-md"
+              className={`px-5 py-2 rounded-2xl font-semibold transition-all duration-300 cursor-pointer text-sm ${activeFilter === filter
+                ? "text-white shadow-md"
                 : "bg-white border border-gray-200 hover:bg-gray-100"
                 }`}
+              style={
+                activeFilter === filter
+                  ? { background: theme.accent }
+                  : {}
+              }
+              onMouseEnter={(e) => {
+                if (activeFilter === filter) {
+                  e.currentTarget.style.background = theme.accentHover;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeFilter === filter) {
+                  e.currentTarget.style.background = theme.accent;
+                }
+              }}
             >
               {filter}
+
               {filter !== "All" && (
                 <span className="ml-1.5 text-xs opacity-70">
                   ({orders.filter((o) => o.status === filter).length})
@@ -623,7 +652,8 @@ export const MyOrders: React.FC = () => {
           </div>
         ) : filteredOrders.length === 0 ? (
           <div className="bg-white p-16 rounded-3xl text-center shadow-xl shadow-indigo-100">
-            <Package className="w-16 h-16 text-indigo-200 mx-auto mb-4" />
+            <Package className="w-16 h-16 mx-auto mb-4"
+              style={{ color: `${theme.accent}55` }} />
             <h3 className="text-2xl font-black mb-4">
               {activeFilter === "All"
                 ? "No Orders Yet"
@@ -637,7 +667,14 @@ export const MyOrders: React.FC = () => {
             {activeFilter === "All" && (
               <button
                 onClick={() => setCurrentPage("shop")}
-                className="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-indigo-500 transition cursor-pointer"
+                className=" text-white px-8 py-3 rounded-2xl font-bold  transition cursor-pointer"
+                style={{ background: theme.accent }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = theme.accentHover)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = theme.accent)
+                }
               >
                 Start Shopping
               </button>
@@ -651,13 +688,17 @@ export const MyOrders: React.FC = () => {
                 order={order}
                 onRefresh={fetchOrders}
                 onReorder={handleReorder}
+                theme={theme}
               />
             ))}
           </div>
         )}
 
         {/* Support Section */}
-        <div className="mt-10 md:mt-20 bg-indigo-600 text-white rounded-3xl p-6 md:p-12 text-center space-y-4 md:space-y-6">
+        <div
+          className="mt-10 md:mt-20 text-white rounded-3xl p-6 md:p-12 text-center space-y-4 md:space-y-6"
+          style={{ background: theme.accent }}
+        >
           <h3 className="text-xl md:text-3xl font-black">Need Help with an Order?</h3>
           <p className="opacity-90">
             If you have questions about delivery, invoice, or order issues, our
@@ -666,7 +707,8 @@ export const MyOrders: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-center gap-6">
             <button
               onClick={() => setCurrentPage("contact")}
-              className="bg-white text-indigo-600 px-6 py-3 rounded-2xl font-bold hover:scale-105 transition cursor-pointer"
+              className="bg-white  px-6 py-3 rounded-2xl font-bold hover:scale-105 transition cursor-pointer"
+              style={{ color: theme.accent }}
             >
               Contact Support
             </button>

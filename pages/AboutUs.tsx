@@ -13,12 +13,63 @@ import {
   Award,
   RefreshCw,
 } from "lucide-react";
-
+import { SECTION_ACCENT } from "@/lib/sectionTheme";
+import { Helmet } from "react-helmet-async";
+import { useLocation } from "react-router-dom";
 export const AboutUs: React.FC = () => {
-  const { setIsMessageModalOpen, setCurrentPage } = useStore();
-
+  const { setIsMessageModalOpen, setCurrentPage, selectedStoreSection } = useStore();
+  const theme = SECTION_ACCENT[selectedStoreSection];
+  const location = useLocation();
   return (
     <div className="pb-24">
+      <Helmet>
+        <title>About Infofix Computers — Durgapur's Most Trusted Tech Store Since 2017</title>
+        <meta name="description" content="Infofix Computers is West Bengal's most trusted laptop & desktop store. 5 branches across Durgapur, Asansol & Ukhra. 50,000+ happy customers. Custom PCs, refurbished laptops, 1-year warranty." />
+        <meta name="keywords" content="about infofix computers, computer shop durgapur, laptop store durgapur, trusted computer store west bengal, custom pc durgapur, refurbished laptop durgapur" />
+        <link rel="canonical" href="https://infofixcomputers.com/about" />
+        <meta property="og:title" content="About Infofix Computers — Durgapur's Trusted Tech Store" />
+        <meta property="og:description" content="5 stores across West Bengal. 50,000+ customers. New laptops, custom PCs & certified refurbished — backed by 1-year warranty." />
+        <meta property="og:image" content="https://infofixcomputers.com/icons/logo.png" />
+        <meta property="og:url" content="https://infofixcomputers.com/about" />
+        <meta property="og:type" content="website" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "AboutPage",
+          "name": "About Infofix Computers",
+          "url": "https://infofixcomputers.com/about",
+          "description": "Infofix Computers is Durgapur's most trusted technology company — specializing in new laptops, desktop PCs, and fully custom-built computers since 2017.",
+          "mainEntity": {
+            "@type": "LocalBusiness",
+            "name": "Infofix Computers",
+            "@id": "https://infofixcomputers.com/#business",
+            "foundingDate": "2017",
+            "numberOfEmployees": { "@type": "QuantitativeValue", "value": "20" },
+            "slogan": "Reliable Technology. Honest Pricing. Long-Term Value.",
+            "description": "West Bengal's most trusted multi-branch technology company. New laptops, desktop PCs, custom builds, certified refurbished devices — all backed by expert technicians and 1-year warranty.",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Benachity Near Bank of Baroda",
+              "addressLocality": "Durgapur",
+              "addressRegion": "West Bengal",
+              "postalCode": "713201",
+              "addressCountry": "IN"
+            },
+            "telephone": "+91-8293295257",
+            "url": "https://infofixcomputers.com",
+            "areaServed": [
+              { "@type": "City", "name": "Durgapur" },
+              { "@type": "City", "name": "Asansol" },
+              { "@type": "City", "name": "Ukhra" },
+              { "@type": "State", "name": "West Bengal" },
+              { "@type": "Country", "name": "India" }
+            ],
+            "sameAs": [
+              "https://www.facebook.com/infofixcomputers",
+              "https://www.instagram.com/infofixcomputers"
+            ]
+          }
+        })}</script>
+      </Helmet>
       <style>{`
         @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
         .pulse-dot { animation: pulseDot 2s ease infinite; }
@@ -27,14 +78,14 @@ export const AboutUs: React.FC = () => {
       `}</style>
 
       {/* ── HERO — exactly as original ── */}
-      <div className="h-125 bg-indigo-900 relative flex items-center justify-center text-center">
+      <div className="h-105 md:h-150 bg-indigo-900 relative flex items-center justify-center text-center">
         <img
           src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=2070"
           className="absolute inset-0 w-full h-full object-cover opacity-30"
           alt="Computer Shop"
         />
         <div className="relative z-10 px-4 max-w-3xl">
-          <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight">
+          <h1 className="text-2xl md:text-5xl lg:text-7xl font-black text-white mb-4 md:mb-6 tracking-tight">
             Built on Trust. Driven by Technology.
           </h1>
           <p className="text-indigo-100 text-xl font-medium">
@@ -45,10 +96,10 @@ export const AboutUs: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 mt-24 space-y-28">
+      <div className="max-w-6xl mx-auto px-4 mt-8 md:mt-16 space-y-16 md:space-y-24">
         {/* ── ABOUT INFOFIX ── */}
         <section className="space-y-8 text-center max-w-4xl mx-auto">
-          <h2 className="text-xs font-black text-indigo-600 uppercase tracking-widest">
+          <h2 className="text-xs font-black uppercase tracking-widest" style={{ color: theme.accent }}>
             About Infofix
           </h2>
           <h3 className="text-4xl font-black text-gray-900 leading-tight">
@@ -138,9 +189,9 @@ export const AboutUs: React.FC = () => {
               <div
                 className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full"
                 style={{
-                  background: "rgba(99,102,241,0.15)",
-                  border: "1px solid rgba(99,102,241,0.25)",
-                  color: "#818cf8",
+                  background: theme.accent + '22',
+                  border: `1px solid ${theme.accent}44`,
+                  color: theme.accent,
                 }}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 pulse-dot" />
@@ -164,7 +215,7 @@ export const AboutUs: React.FC = () => {
                   "In-house technicians who stand behind every build",
                 ].map((pt, i) => (
                   <div key={i} className="flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" style={{ color: theme.accent }} />
                     <span className="text-gray-300 text-sm font-medium">
                       {pt}
                     </span>
@@ -218,7 +269,7 @@ export const AboutUs: React.FC = () => {
         {/* ── WHAT WE OFFER ── */}
         <section className="space-y-10">
           <div className="text-center space-y-3">
-            <h2 className="text-xs font-black text-indigo-600 uppercase tracking-widest">
+            <h2 className="text-xs font-black uppercase tracking-widest" style={{ color: theme.accent }}>
               What We Offer
             </h2>
             <h3 className="text-4xl font-black text-gray-900 leading-tight">
@@ -333,7 +384,7 @@ export const AboutUs: React.FC = () => {
           />
           <div className="relative z-10 space-y-10">
             <div className="text-center space-y-3">
-              <h2 className="text-xs font-black text-indigo-300 uppercase tracking-widest">
+              <h2 className="text-xs font-black uppercase tracking-widest" style={{ color: theme.accent + 'cc' }}>
                 Why Choose Infofix
               </h2>
               <h3 className="text-3xl md:text-4xl font-black">
@@ -397,7 +448,7 @@ export const AboutUs: React.FC = () => {
         {/* ── OUR JOURNEY ── */}
         <section className="space-y-12 max-w-5xl mx-auto">
           <div className="text-center space-y-3">
-            <h2 className="text-xs font-black text-indigo-600 uppercase tracking-widest">
+            <h2 className="text-xs font-black uppercase tracking-widest" style={{ color: theme.accent }}>
               Our Journey
             </h2>
             <h3 className="text-4xl font-black text-gray-900">
@@ -497,8 +548,8 @@ export const AboutUs: React.FC = () => {
           <div className="flex flex-wrap gap-4 justify-center">
             <button
               onClick={() => setIsMessageModalOpen(true)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3.5 rounded-xl font-semibold transition cursor-pointer"
-            >
+              className="text-white px-8 py-3.5 rounded-xl font-semibold transition cursor-pointer"
+              style={{ background: theme.accent }}            >
               Send Message
             </button>
             <button

@@ -14,7 +14,8 @@ import { Product } from "../types";
 import { supabase } from "@/lib/supabaseClient";
 import { ProductCard } from "./Product";
 import { ProductDetails } from "./ProductDetails";
-
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 const PER_PAGE = 12;
 const IS_SB = !!supabase;
 
@@ -463,6 +464,87 @@ const FilterSection = ({
   );
 };
 
+function toSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 80)
+}
+
+function getSeoHeading(pathname: string, searchQuery: string, selectedCategory: string, selectedSubcategory: string, section: string) {
+  const p = pathname.toLowerCase()
+
+  // Exact SEO URL mappings
+  const urlHeadings: Record<string, { h1: string; h2: string; sub: string }> = {
+    '/buy-laptop': { h1: 'Buy Laptop', h2: 'Online in India', sub: 'New & refurbished laptops — all brands, all budgets. Pan-India delivery.' },
+    '/buy-laptop-durgapur': { h1: 'Buy Laptop in', h2: 'Durgapur', sub: 'Walk in or order online. Laptops for students, professionals & gamers in Durgapur.' },
+    '/buy-laptop-asansol': { h1: 'Buy Laptop in', h2: 'Asansol', sub: 'Best laptop prices in Asansol. Dell, HP, Lenovo, Asus & more — same-day pickup available.' },
+    '/buy-laptop-west-bengal': { h1: 'Buy Laptop in', h2: 'West Bengal', sub: 'Trusted laptop retailer across West Bengal. Fast shipping & warranty included.' },
+    '/buy-laptop-bengal': { h1: 'Buy Laptop in', h2: 'Bengal', sub: 'Top laptop brands available across Bengal with doorstep delivery & expert support.' },
+    '/buy-gaming-laptop-durgapur': { h1: 'Gaming Laptops', h2: 'Durgapur', sub: 'High-performance gaming laptops — RTX graphics, fast refresh, competitive prices. Available in Durgapur.' },
+    '/buy-desktop-pc': { h1: 'Buy Desktop PC', h2: 'Online India', sub: 'Ready-to-use desktops & custom PC builds. Office, gaming & workstation configs.' },
+    '/buy-desktop-pc-durgapur': { h1: 'Desktop PC in', h2: 'Durgapur', sub: 'Pre-built and custom desktop PCs available in Durgapur. Same-day assembly.' },
+    '/laptop-under-30000': { h1: 'Laptops', h2: 'Under ₹30,000', sub: 'Best laptops under ₹30,000 in India. New & refurbished — Dell, HP, Lenovo. Fast delivery.' },
+    '/laptop-under-50000': { h1: 'Laptops', h2: 'Under ₹50,000', sub: 'Premium laptops under ₹50,000. i5/i7, 16GB RAM, SSD — all brands, best prices.' },
+    '/gaming-laptop-under-60000': { h1: 'Gaming Laptops', h2: 'Under ₹60,000', sub: 'Best gaming laptops under ₹60,000. RTX graphics, 144Hz display, fast delivery.' },
+    '/best-laptop-for-students': { h1: 'Best Laptops', h2: 'for Students', sub: 'Lightweight, long battery, budget-friendly. Best student laptops for college & school India.' },
+    '/best-laptop-for-programming': { h1: 'Best Laptops', h2: 'for Programming', sub: '16GB RAM, fast SSD, sharp display. Top programming laptops in India 2025.' },
+    '/refurbished-laptop-under-20000': { h1: 'Refurbished Laptops', h2: 'Under ₹20,000', sub: 'Certified refurbished laptops under ₹20,000. Grade-A condition, 6-month warranty.' },
+    '/buy-desktop-pc-asansol': { h1: 'Desktop PC in', h2: 'Asansol', sub: 'Office & gaming desktops in Asansol. Budget to high-end — all configs.' },
+    '/buy-gaming-pc-durgapur': { h1: 'Gaming PC in', h2: 'Durgapur', sub: 'Custom gaming rigs built to your specs. RTX, Ryzen, fast RAM — assembled in Durgapur.' },
+    '/gaming-pc-durgapur': { h1: 'Gaming PC', h2: 'Durgapur', sub: 'Durgapur\'s go-to gaming PC store. Custom builds, branded rigs & accessories.' },
+    '/custom-pc-build-durgapur': { h1: 'Custom PC Build', h2: 'Durgapur', sub: 'Build your dream PC with expert help. Pick parts, we assemble & test — ready in hours.' },
+    '/computer-shop-durgapur': { h1: 'Computer Shop', h2: 'Durgapur', sub: 'Durgapur\'s trusted computer store. Laptops, desktops, accessories & repair under one roof.' },
+    '/computer-shop-asansol': { h1: 'Computer Shop', h2: 'Asansol', sub: 'Asansol\'s favourite tech store. New & refurbished computers with warranty.' },
+    '/laptop-shop-durgapur': { h1: 'Laptop Shop', h2: 'Durgapur', sub: 'Widest laptop selection in Durgapur. EMI available. Expert advice free.' },
+    '/buy-refurbished-laptop': { h1: 'Refurbished Laptops', h2: 'Certified Quality', sub: 'Grade-A refurbished laptops tested, cleaned & warrantied. Save up to 50% vs new.' },
+    '/buy-refurbished-laptop-durgapur': { h1: 'Refurbished Laptops', h2: 'Durgapur', sub: 'Certified refurbished laptops in Durgapur. Like-new performance, budget price.' },
+    '/buy-refurbished-laptop-asansol': { h1: 'Refurbished Laptops', h2: 'Asansol', sub: 'Quality refurbished laptops available in Asansol. Warranty included.' },
+    '/buy-refurbished-laptop-west-bengal': { h1: 'Refurbished Laptops', h2: 'West Bengal', sub: 'Best refurbished laptops across West Bengal. Trusted by 50,000+ customers.' },
+    '/refurbished-laptop-durgapur': { h1: 'Refurbished Laptops', h2: 'Durgapur', sub: 'Pre-owned laptops professionally restored. Durgapur pick-up & delivery available.' },
+    '/refurbished-laptop-asansol': { h1: 'Refurbished Laptops', h2: 'Asansol', sub: 'Affordable refurbished laptops in Asansol with 6-month warranty.' },
+    '/refurbished-desktop-durgapur': { h1: 'Refurbished Desktop', h2: 'Durgapur', sub: 'Certified refurbished desktop PCs in Durgapur. Office-ready, budget-friendly.' },
+    '/second-hand-laptop-durgapur': { h1: 'Refurbished Laptops', h2: 'Durgapur', sub: 'Not just second-hand — certified refurbished. Tested, cleaned & warrantied.' },
+    '/certified-refurbished-laptop': { h1: 'Certified Refurbished', h2: 'Laptops', sub: 'Every laptop passes 40-point quality check. Grade-A condition. Infofix certified.' },
+    '/wholesale-laptop-west-bengal': { h1: 'Wholesale Laptops', h2: 'West Bengal', sub: 'Bulk laptop supply across West Bengal. GST invoice, dedicated B2B support.' },
+    '/wholesale-desktop-durgapur': { h1: 'Wholesale Desktops', h2: 'Durgapur', sub: 'Volume desktop orders for offices, schools & resellers. Competitive wholesale pricing.' },
+    '/bulk-laptop-supplier-durgapur': { h1: 'Bulk Laptop Supplier', h2: 'Durgapur', sub: 'Reliable bulk laptop sourcing from Durgapur. Fast dispatch, GST billing, flexible MOQ.' },
+    '/computer-wholesale-durgapur': { h1: 'Computer Wholesale', h2: 'Durgapur', sub: 'Wholesale computers & accessories in Durgapur. Best trade pricing for businesses.' },
+    '/buy-laptop-ukhra': { h1: 'Buy Laptop in', h2: 'Ukhra', sub: 'Laptops delivered to Ukhra. New & refurbished — all major brands.' },
+    '/buy-laptop-new-ukhra': { h1: 'New Laptops in', h2: 'Ukhra', sub: 'Brand-new laptops for students & professionals in New Ukhra.' },
+    '/buy-laptop-second-hand-ukhra': { h1: 'Refurbished Laptops', h2: 'Ukhra', sub: 'Affordable certified refurbished laptops delivered to Ukhra.' },
+    '/refurbished-laptop-ukhra': { h1: 'Refurbished Laptops', h2: 'Ukhra', sub: 'Grade-A refurbished laptops with warranty. Available in Ukhra.' },
+    '/buy-desktop-ukhra': { h1: 'Desktop PC in', h2: 'Ukhra', sub: 'Desktop computers for home & office. Delivered to Ukhra with warranty.' },
+    '/computer-shop-ukhra': { h1: 'Computer Shop', h2: 'Ukhra', sub: 'Your local computer store — now serving Ukhra with online orders & fast delivery.' },
+    '/buy-laptop-india': { h1: 'Buy Laptop', h2: 'Online India', sub: 'Shop laptops online across India. Free shipping, 1-year warranty, easy EMI.' },
+    '/laptop-shop-india': { h1: 'Laptop Shop', h2: 'India', sub: 'India\'s trusted online laptop store. All brands, all budgets, doorstep delivery.' },
+    '/buy-desktop-india': { h1: 'Buy Desktop PC', h2: 'India', sub: 'Desktop PCs delivered pan-India. Office, gaming & custom builds.' },
+    '/refurbished-laptop-india': { h1: 'Refurbished Laptops', h2: 'India', sub: 'Certified refurbished laptops shipped anywhere in India. Verified quality, great value.' },
+    '/computer-shop-india': { h1: 'Computer Store', h2: 'India', sub: 'Shop computers online — delivered across India with warranty & expert support.' },
+    '/buy-gaming-laptop-india': { h1: 'Gaming Laptops', h2: 'India', sub: 'Top gaming laptops in India — RTX graphics, 144Hz+ display, fast delivery.' },
+    '/buy-laptop-near-me': { h1: 'Laptop Store', h2: 'Near Me', sub: 'Find laptops near you. Infofix serves Durgapur, Asansol, Ukhra & ships pan-India.' },
+    '/computer-store-near-me': { h1: 'Computer Store', h2: 'Near Me', sub: 'Local computer store with online ordering. Serving Durgapur, Asansol & all of West Bengal.' },
+    '/laptop-store-near-me': { h1: 'Laptop Store', h2: 'Near Me', sub: 'Your nearest laptop store — online & offline. Visit us in Durgapur or order online.' },
+  }
+  if (urlHeadings[p]) return urlHeadings[p]
+
+  // Dynamic from search/category
+
+  if (searchQuery) return { h1: `Results for`, h2: `"${searchQuery}"`, sub: `Showing products matching "${searchQuery}". Filter by brand, price & specs.` }
+  if (selectedSubcategory && selectedCategory !== 'All') return { h1: selectedSubcategory, h2: `${selectedCategory}s`, sub: `Browse ${selectedSubcategory} ${selectedCategory}s. Filter by brand, price & specs.` }
+  if (selectedCategory !== 'All') return { h1: `Browse`, h2: `${selectedCategory}s`, sub: `Explore our full range of ${selectedCategory}s — new, refurbished & custom builds.` }
+
+  return section === 'Refurbished'
+    ? { h1: 'Quality Tech,', h2: 'Smart Price.', sub: 'Grade-A certified refurbished laptops & desktops. Tested, cleaned, warrantied. Save up to 50%.' }
+    : section === 'Wholesale'
+      ? { h1: 'Buy More,', h2: 'Save More.', sub: 'Wholesale pricing for businesses, schools & resellers. GST invoice. Bulk discounts available.' }
+      : { h1: 'Explore Our', h2: 'Products.', sub: 'New & certified refurbished laptops, desktops & accessories. Backed by Infofix warranty. Pan-India shipping.' }
+}
+
+
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN STORE COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
@@ -482,7 +564,7 @@ export const Store: React.FC = () => {
     selectedStoreSection,
     currentPage,
     shopNavKey,
-    pendingProductId, setPendingProductId
+    pendingProductId, setPendingProductId, setSelectedStoreSection,
   } = useStore();
 
   // Theme config per section
@@ -573,6 +655,10 @@ export const Store: React.FC = () => {
     }
   });
 
+
+  const location = useLocation()
+  const navigate = useNavigate()
+
   // ── data state ──
   const [products, setProducts] = useState<Product[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -608,6 +694,8 @@ export const Store: React.FC = () => {
   const totalPages = Math.ceil(totalCount / PER_PAGE);
 
   const pendingSearchRef = useRef<string>("");
+  const seoHeading = getSeoHeading(location.pathname, searchQuery, selectedCategory, selectedSubcategory, selectedStoreSection)
+
 
   // ── Bridge: context category → local state ──────────────────────────────
   useEffect(() => {
@@ -653,14 +741,17 @@ export const Store: React.FC = () => {
       sessionStorage.removeItem("selectedProduct");
     }
   }, [ctxCategory]);
+
+
   // ── Handlers ─────────────────────────────────────────────────────────────
   const handleViewDetails = (product: Product) => {
     const enriched = products.find((p) => p.id === product.id) ?? product;
     setSelectedProduct(enriched);
     sessionStorage.setItem("selectedProduct", JSON.stringify(enriched));
+    // Navigate to SEO URL — /products/hp-laptop-15s-8gb-512gb-ssd
+    navigate(`/products/${toSlug(enriched.name)}-${enriched.id}`)
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
   const handleBuyNow = (product: Product) => {
     if (!currentUser) {
       // Save product for post-login add-to-cart
@@ -1023,13 +1114,19 @@ export const Store: React.FC = () => {
     selectedStorage,
     selectedStoreSection,
   ]);
+
+
+
   const prevSectionRef = useRef(selectedStoreSection);
   useEffect(() => {
     prevSectionRef.current = selectedStoreSection;
     setSelectedProduct(null);
     sessionStorage.removeItem("selectedProduct");
+    setSelectedCategory("All");
+    setSelectedSubcategory("");
+    setSearchQuery("");
+    setHeroSearch("");
   }, [selectedStoreSection]);
-
 
   useEffect(() => {
     if (currentPage === 'shop') {
@@ -1072,12 +1169,83 @@ export const Store: React.FC = () => {
       if (data) {
         const product = fromSupabase(data);
         sessionStorage.setItem("selectedProduct", JSON.stringify(product));
-        setSelectedProduct(product);  // set AFTER sessionStorage
+        setSelectedProduct(product);
+        navigate(`/products/${toSlug(product.name)}-${product.id}`);
       }
       setPendingProductId(null);
     };
     fetchAndOpen();
   }, [pendingProductId]);
+
+  useEffect(() => {
+    const path = location.pathname.toLowerCase()
+
+    // ignore non-SEO paths
+    if (path === '/shop' || path === '/' || path.startsWith('/products/')) return
+
+    // ── Set store section ──
+    if (
+      path.includes('refurbished') ||
+      path.includes('second-hand') ||
+      path.includes('certified-refurbished')
+    ) {
+      setSelectedStoreSection('Refurbished')
+    } else if (
+      path.includes('wholesale') ||
+      path.includes('bulk') ||
+      path.includes('b2b')
+    ) {
+      setSelectedStoreSection('Wholesale')
+    } else {
+      setSelectedStoreSection('Infofix')
+    }
+
+    // ── Set category ──
+    if (path.includes('gaming-pc') || path.includes('desktop')) {
+      setSelectedCategory('Desktop')
+      if (path.includes('gaming')) setHeaderSearchQuery('gaming')
+    } else if (path.includes('laptop')) {
+      setSelectedCategory('Laptop')
+      if (path.includes('gaming')) setSelectedSubcategory('Gaming')
+    } else if (path.includes('repair')) {
+      // repair pages → services, no category needed
+    }
+  }, [location.pathname])
+
+  // Read product ID from slug URL on direct visit
+  useEffect(() => {
+    const path = location.pathname
+    if (!path.startsWith('/products/')) return
+
+    const slug = path.replace('/products/', '')
+    // ID is the last segment after final dash
+    const parts = slug.split('-')
+    const id = parts[parts.length - 1]
+
+    if (!id || !supabase) return
+
+    // Only fetch if no product already open
+    if (selectedProduct?.id === id) return
+
+    const fetchProduct = async () => {
+      const { data } = await supabase
+        .from("products")
+        .select(`id, name, description, image_url, images,
+        retail_price, discount_percent, discounted_price, min_order_quantity,
+        stock_quantity, condition, brand, specs,
+        rating_avg, rating_count, reviews_count, likes_count,
+        categories(name,slug), subcategories(name,slug), model`)
+        .eq("id", Number(id))
+        .single()
+
+      if (data) {
+        const product = fromSupabase(data)
+        sessionStorage.setItem("selectedProduct", JSON.stringify(product))
+        setSelectedProduct(product)
+      }
+    }
+    fetchProduct()
+  }, [location.pathname])
 
   // ── If a product is selected, render ProductDetails ───────────────────────
   if (selectedProduct) {
@@ -1087,6 +1255,7 @@ export const Store: React.FC = () => {
         onBack={() => {
           setSelectedProduct(null);
           sessionStorage.removeItem("selectedProduct");
+          navigate('/shop')
           window.scrollTo({ top: 0, behavior: "smooth" });
         }}
         onNavigateToCart={handleNavigateToCart}
@@ -1098,6 +1267,81 @@ export const Store: React.FC = () => {
   // ── Otherwise render the store grid ──────────────────────────────────────
   return (
     <div className="pb-32 overflow-hidden bg-white">
+      <Helmet>
+        <title>{seoHeading.h1} {seoHeading.h2} | Infofix Computers</title>
+        <meta name="description" content={seoHeading.sub} />
+        <meta property="og:title" content={`${seoHeading.h1} ${seoHeading.h2} | Infofix Computers`} />
+        <meta property="og:description" content={seoHeading.sub} />
+        <link rel="canonical" href={`https://infofixcomputers.com${location.pathname}`} />
+        {/* LocalBusiness JSON-LD — only on computer-shop routes */}
+        {location.pathname.includes('computer-shop') && (
+          <script type="application/ld+json">{JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ComputerStore",
+            "@id": "https://infofixcomputers.com/#business",
+            "name": "Infofix Computers",
+            "url": "https://infofixcomputers.com",
+            "image": "https://infofixcomputers.com/icons/logo.png",
+            "telephone": "+91-8293295257",
+            "priceRange": "₹₹",
+            "description": seoHeading.sub,
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Benachity Near Bank of Baroda",
+              "addressLocality": "Durgapur",
+              "addressRegion": "West Bengal",
+              "postalCode": "713201",
+              "addressCountry": "IN"
+            },
+            "geo": { "@type": "GeoCoordinates", "latitude": 23.5204, "longitude": 87.3119 },
+            "openingHoursSpecification": [{
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+              "opens": "10:00", "closes": "20:00"
+            }],
+            "areaServed": [
+              { "@type": "City", "name": "Durgapur" },
+              { "@type": "City", "name": "Asansol" },
+              { "@type": "City", "name": "Ukhra" },
+              { "@type": "State", "name": "West Bengal" },
+              { "@type": "Country", "name": "India" }
+            ],
+            "sameAs": [
+              "https://www.facebook.com/infofixcomputers",
+              "https://www.instagram.com/infofixcomputers"
+            ]
+          })}</script>
+        )}
+        {/* Product listing schema on shop/category routes */}
+        {(location.pathname === '/shop' || location.pathname.startsWith('/buy-') || location.pathname.startsWith('/laptop') || location.pathname.startsWith('/gaming') || location.pathname.startsWith('/refurbished') || location.pathname.startsWith('/custom') || location.pathname.startsWith('/wholesale')) && (
+          <script type="application/ld+json">{JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": `${seoHeading.h1} ${seoHeading.h2}`,
+            "description": seoHeading.sub,
+            "url": `https://infofixcomputers.com${location.pathname}`,
+            "numberOfItems": totalCount,
+            "itemListElement": products.slice(0, 10).map((p, i) => ({
+              "@type": "ListItem",
+              "position": i + 1,
+              "item": {
+                "@type": "Product",
+                "name": p.name,
+                "image": p.image,
+                "description": p.description?.slice(0, 160),
+                "brand": { "@type": "Brand", "name": p.brand },
+                "offers": {
+                  "@type": "Offer",
+                  "price": p.price,
+                  "priceCurrency": "INR",
+                  "availability": p.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                  "seller": { "@type": "Organization", "name": "Infofix Computers" }
+                }
+              }
+            }))
+          })}</script>
+        )}
+      </Helmet>
       <style>{`
         @keyframes skeletonWave {
           0%   { background-position: -200% 0; }
@@ -1120,13 +1364,14 @@ export const Store: React.FC = () => {
       `}</style>
 
       {/* ── Hero ── */}
-      <section ref={gridRef} className="relative flex items-center justify-center overflow-hidden h-auto py-2 px-2 md:h-80 md:py-0" style={{ background: 'white' }}>
+      <section ref={gridRef} className="relative flex items-center justify-center overflow-hidden py-3 px-2 md:py-5" style={{ background: 'white' }}>
+
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[60%] rounded-full blur-[120px] opacity-40 pointer-events-none"
           style={{ background: theme.accent + '22' }} />
         <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[50%] rounded-full blur-[100px] opacity-30 pointer-events-none"
           style={{ background: theme.accent + '18' }} />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 w-full text-center space-y-5">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 w-full text-center space-y-2">
           <div
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest anim-fade-in-up"
             style={
@@ -1137,12 +1382,13 @@ export const Store: React.FC = () => {
           >
             <Sparkles className="w-3 h-3" /> {theme.eyebrow}
           </div>
-          <h1 className="text-5xl md:text-7xl font-black text-gray-900 tracking-tighter anim-fade-in-up" style={{ animationDelay: "0.08s" }}>
-            {theme.headline1}{' '}
-            <span style={{ color: theme.accent }}>{theme.headline2}</span>
+          <h1 className="text-2xl md:text-4xl font-black text-gray-900 tracking-tighter anim-fade-in-up" style={{ animationDelay: "0.08s" }}>
+
+            {seoHeading.h1}{' '}
+            <span style={{ color: theme.accent }}>{seoHeading.h2}</span>
           </h1>
-          <p className="text-gray-500 text-lg max-w-2xl mx-auto font-medium anim-fade-in-up" style={{ animationDelay: "0.16s" }}>
-            {theme.subtext}
+          <p className="text-sm md:text-base font-semibold text-gray-600 max-w-xl mx-auto anim-fade-in-up" style={{ animationDelay: "0.12s" }}>
+            {seoHeading.sub}
           </p>
 
           <div className="w-[90%] sm:w-full max-w-2xl mx-auto relative group anim-fade-in-up" style={{ animationDelay: "0.24s" }}>
@@ -1181,10 +1427,10 @@ export const Store: React.FC = () => {
         </div>
       </section>
 
-      <div className="app-container mt-4">
+      <div className="app-container mt-2">
         {/* ── Filter Bar ── */}
         <div
-          className="sticky top-0 z-30 -mx-4 px-4 py-4 bg-white/96 backdrop-blur-sm border-b border-gray-100 mb-6"
+          className="sticky top-0 z-30 -mx-4 px-4 py-2.5 bg-white/96 backdrop-blur-sm border-b border-gray-100 mb-4"
         >
           <div className="flex flex-col gap-4 max-w-7xl mx-auto">
             <div className="flex flex-wrap items-center gap-2 w-full">

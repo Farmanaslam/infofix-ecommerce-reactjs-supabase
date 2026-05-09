@@ -20,6 +20,8 @@ import { INITIAL_PRODUCTS, OPERATORS, INITIAL_BRANCHES } from "../constants";
 import { supabase } from "@/lib/supabaseClient";
 import { ArrowRight, Check, X } from "lucide-react";
 import { AppNotification } from "../types";
+import { useNavigate, useLocation } from 'react-router-dom'
+import { SECTION_ACCENT } from '@/lib/sectionTheme'
 export type CustomerPage =
   | "home"
   | "shop"
@@ -27,7 +29,7 @@ export type CustomerPage =
   | "contact"
   | "services"
   | "branches"
-  | "updates"
+  | "blog"
   | "login"
   | "signup"
   | "cart"
@@ -37,7 +39,8 @@ export type CustomerPage =
   | "careers"
   | "product"
   | "forgot-password"
-  | "reset-password";
+  | "reset-password"
+  | "checkout";
 export type AdminPage =
   | "Dashboard"
   | "Inventory"
@@ -111,7 +114,8 @@ const CartToast: React.FC<{
   visible: boolean;
   onGoToCart: () => void;
   onDismiss: () => void;
-}> = ({ product, visible, onGoToCart, onDismiss }) => {
+  accent?: string;
+}> = ({ product, visible, onGoToCart, onDismiss, accent = '#6366f1' }) => {
   if (!product) return null;
   return (
     <>
@@ -137,8 +141,8 @@ const CartToast: React.FC<{
         <div className="relative overflow-hidden bg-gray-900 rounded-3xl shadow-2xl shadow-black/50 border border-white/8">
           <div
             key={visible ? "bar-in" : "bar-out"}
-            className={`absolute bottom-0 left-0 h-0.75 rounded-full bg-linear-to-r from-indigo-500 via-violet-500 to-pink-500 ${visible ? "cart-toast-bar" : ""}`}
-          />
+            className={`absolute bottom-0 left-0 h-0.75 rounded-full ${visible ? "cart-toast-bar" : ""}`}
+            style={{ background: `linear-gradient(to right, ${accent}, ${accent}99, #ec4899)` }} />
           <div className="flex items-center gap-4 px-5 py-4">
             <div className="relative shrink-0 w-12 h-12 rounded-2xl overflow-hidden bg-gray-800 border border-white/10">
               <img
@@ -164,8 +168,8 @@ const CartToast: React.FC<{
             <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={onGoToCart}
-                className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-[11px] font-black uppercase tracking-widest px-4 py-2.5 rounded-xl transition-all duration-150 shadow-lg shadow-indigo-900/40"
-              >
+                className="flex items-center gap-1.5 active:scale-95 text-white text-[11px] font-black uppercase tracking-widest px-4 py-2.5 rounded-xl transition-all duration-150 shadow-lg"
+                style={{ background: accent }}              >
                 View Cart <ArrowRight className="w-3 h-3" />
               </button>
               <button
@@ -228,11 +232,27 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const [currentUser, setCurrentUserState] = useState<User | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [branches, setBranches] = useState<Branch[]>(INITIAL_BRANCHES);
-  const savedPage = localStorage.getItem("currentPage") as CustomerPage;
-  const safePage: CustomerPage =
-    savedPage && !["login", "signup", "reset-password", "checkout"].includes(savedPage)
-      ? savedPage : "home";
-  const [currentPage, setCurrentPageState] = useState<CustomerPage>(safePage);
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  // Derive currentPage from URL path
+  const pathToPage = (path: string): CustomerPage => {
+    const seg = path.replace(/^\//, '').split('/')[0]
+    const valid: CustomerPage[] = [
+      'home', 'shop', 'about', 'contact', 'services', 'branches', 'blog',
+      'login', 'signup', 'cart', 'profile', 'orders', 'policy', 'careers',
+      'product', 'forgot-password', 'reset-password', 'checkout',
+    ]
+    if (seg === 'products') return 'product'
+    if (valid.includes(seg as CustomerPage)) return seg as CustomerPage
+    // SEO shop URLs → treat as shop
+    const shopPaths = ['buy-', 'refurbished-', 'wholesale-', 'gaming-', 'custom-', 'computer-', 'laptop-', 'second-hand-', 'certified-', 'bulk-']
+    if (shopPaths.some(p => seg.startsWith(p))) return 'shop'
+    // service URLs
+    if (seg.includes('repair')) return 'services'
+    return 'home'
+  }
+  const currentPage = pathToPage(location.pathname)
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
@@ -590,8 +610,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
               const target = pendingRedirect ?? "home";
               localStorage.removeItem("pendingRedirect");
               setPendingRedirectAfterLoginState(null);
-              localStorage.setItem("currentPage", target);
-              setCurrentPageState(target);
+              navigate(target === 'home' ? '/' : `/${target}`)
             }
           }
         }
@@ -939,18 +958,26 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const setAdminPage = useCallback((page: AdminPage) => {
     localStorage.setItem("adminPage", page);
     setAdminPageState(page);
-  }, []);
+    const map: Record<AdminPage, string> = {
+      Dashboard: '/admin/dashboard',
+      Inventory: '/admin/inventory',
+      Orders: '/admin/orders',
+      Customers: '/admin/customers',
+      Blogs: '/admin/blogs',
+      Coupons: '/admin/coupons',
+      Careers: '/admin/careers',
+      Settings: '/admin/settings',
+    };
+    if (window.location.pathname !== map[page]) {
+      navigate(map[page]);
+    }
+  }, [navigate]);
+
   const setCurrentPage = useCallback((page: CustomerPage) => {
-    if (currentPage === page) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    if (page !== "reset-password") {
-      localStorage.setItem("currentPage", page);
-    }
-    setCurrentPageState(page);
-    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
-  }, [currentPage]);
+    const path = page === 'home' ? '/' : `/${page}`
+    navigate(path)
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
+  }, [navigate])
 
   const logout = useCallback(async () => {
     if (currentUser) {
@@ -975,9 +1002,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     await supabase.auth.signOut();
     setCurrentUserState(null);
     setCart([]);
-    setCurrentPageState("home");
     setAdminPageState("Dashboard");
-    window.location.href = "/";
+    navigate('/')
   }, [currentUser]);
 
   const switchRole = useCallback(
@@ -1062,6 +1088,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       <CartToast
         product={toastProduct}
         visible={toastVisible}
+        accent={SECTION_ACCENT[selectedStoreSection].accent}
         onGoToCart={() => {
           setToastVisible(false);
           setCurrentPage("cart");

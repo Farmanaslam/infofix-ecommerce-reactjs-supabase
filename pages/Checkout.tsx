@@ -3,7 +3,7 @@ import { ShieldCheck, CheckCircle, MapPin, Plus, Tag, X, Phone, Home as HomeIcon
 import { useStore } from "../context/StoreContext";
 import { supabase } from "../lib/supabaseClient";
 import { Address } from "../types";
-
+import { SECTION_ACCENT } from '@/lib/sectionTheme';
 type PaymentMethod = "UPI" | "Card" | "NetBanking" | "COD";
 
 const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; desc: string; comingSoon?: boolean }[] = [
@@ -15,12 +15,13 @@ const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; desc: string; comingS
 
 const AddressDrawer: React.FC<{
   open: boolean; onClose: () => void; onSaved: (address: Address) => void;
-  userId: string; title?: string;
-}> = ({ open, onClose, onSaved, userId, title = "Add Delivery Address" }) => {
+  userId: string; title?: string; accent?: string;
+}> = ({ open, onClose, onSaved, userId, title = "Add Delivery Address", accent = '#6366f1' }) => {
+  const { selectedStoreSection } = useStore();
   const [form, setForm] = useState({ phone: "", address_line: "", city: "", state: "", pincode: "" });
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
+  const theme = SECTION_ACCENT[selectedStoreSection];
   const validate = () => {
     const e: Record<string, string> = {};
     if (!form.phone.trim() || !/^\d{10}$/.test(form.phone.trim())) e.phone = "Valid 10-digit number required";
@@ -98,7 +99,12 @@ const AddressDrawer: React.FC<{
               </div>
             </div>
             <button onClick={handleSave} disabled={saving}
-              className="mt-5 w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white py-4 rounded-2xl font-black text-sm transition-all shadow-lg shadow-indigo-200/60 flex items-center justify-center gap-2">
+              className="mt-5 w-full  disabled:opacity-60 text-white py-4 rounded-2xl font-black text-sm transition-all shadow-lg shadow-indigo-200/60 flex items-center justify-center gap-2" style={{ backgroundColor: theme.accent }} onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = theme.accentHover)
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = theme.accent)
+              }>
               {saving ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Saving…</> : <>Save & Continue <ChevronRight className="w-4 h-4" /></>}
             </button>
             <p className="text-center text-xs text-gray-400 mt-3">Your address is saved securely and only used for delivery</p>
@@ -110,8 +116,8 @@ const AddressDrawer: React.FC<{
 };
 
 export const Checkout: React.FC = () => {
-  const { cart, currentUser, setCurrentPage, clearCart, setPendingRedirectAfterLogin } = useStore();
-
+  const { cart, currentUser, setCurrentPage, clearCart, setPendingRedirectAfterLogin, selectedStoreSection } = useStore();
+  const theme = SECTION_ACCENT[selectedStoreSection];
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>("COD");
   const [addressOptions, setAddressOptions] = useState<{ label: string; address: Address }[]>([]);
   const [selectedAddressIndex, setSelectedAddressIndex] = useState(0);
@@ -124,7 +130,10 @@ export const Checkout: React.FC = () => {
   const [orderNumber, setOrderNumber] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<{ id: string; code: string; discount_amount: number; description: string | null; product_ids: number[] | null } | null>(null);
+  const [appliedCoupons, setAppliedCoupons] = useState<{
+    id: string; code: string; discount_amount: number;
+    description: string | null; product_ids: number[] | null;
+  }[]>([]);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [finalDiscount, setFinalDiscount] = useState(0);
@@ -193,31 +202,60 @@ export const Checkout: React.FC = () => {
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const cartProductIds = cart.map((item) => Number(item.id));
 
-  const discountAmount = (() => {
-    if (!appliedCoupon) return 0;
-    if (appliedCoupon.product_ids && appliedCoupon.product_ids.length > 0) {
-      const matchingQty = cart.filter(item => appliedCoupon.product_ids!.includes(Number(item.id))).reduce((sum, item) => sum + item.quantity, 0);
-      return Math.min(appliedCoupon.discount_amount * matchingQty, subtotal);
+  const discountAmount = appliedCoupons.reduce((total, coupon) => {
+    if (coupon.product_ids && coupon.product_ids.length > 0) {
+      const matchingQty = cart
+        .filter(item => coupon.product_ids!.includes(Number(item.id)))
+        .reduce((sum, item) => sum + item.quantity, 0);
+      return total + Math.min(coupon.discount_amount * matchingQty, subtotal);
     }
-    return Math.min(appliedCoupon.discount_amount, subtotal);
-  })();
+    return total + Math.min(coupon.discount_amount, subtotal);
+  }, 0);
   const total = subtotal - discountAmount;
   const canPlaceOrder = selectedPayment && addressConfirmed && cart.length > 0 && !!selectedAddress?.phone?.trim();
 
   const applyCouponByCode = async (code: string) => {
     setCouponError(null);
     if (!code.trim() || !currentUser?.id) return;
+
+    // Already applied?
+    if (appliedCoupons.some(c => c.code === code.trim().toUpperCase())) {
+      setCouponError("This coupon is already applied.");
+      return;
+    }
+
     setCouponLoading(true);
-    const { data, error: fetchError } = await supabase.from("coupons").select("id, code, discount_amount, min_order_amount, is_active, expires_at, description, product_ids").eq("code", code.trim().toUpperCase()).single();
+    const { data, error: fetchError } = await supabase
+      .from("coupons")
+      .select("id, code, discount_amount, min_order_amount, is_active, expires_at, description, product_ids")
+      .eq("code", code.trim().toUpperCase())
+      .single();
+
     if (fetchError || !data) { setCouponError("Invalid coupon code."); }
     else if (!data.is_active) { setCouponError("This coupon is no longer active."); }
     else if (data.expires_at && new Date(data.expires_at) < new Date()) { setCouponError("This coupon has expired."); }
-    else if (data.min_order_amount > 0 && subtotal < data.min_order_amount) { setCouponError(`Minimum order ₹${data.min_order_amount.toLocaleString()} required.`); }
-    else if (data.product_ids?.length > 0 && !data.product_ids.some((pid: number) => cartProductIds.includes(pid))) { setCouponError("Not applicable to items in cart."); }
+    else if (data.min_order_amount > 0 && subtotal < data.min_order_amount) {
+      setCouponError(`Minimum order ₹${data.min_order_amount.toLocaleString()} required.`);
+    }
+    else if (data.product_ids?.length > 0 && !data.product_ids.some((pid: number) => cartProductIds.includes(pid))) {
+      setCouponError("Not applicable to items in cart.");
+    }
     else {
-      const { data: existingUsage } = await supabase.from("coupon_usages").select("id").eq("coupon_id", data.id).eq("user_id", currentUser.id).maybeSingle();
+      const { data: existingUsage } = await supabase
+        .from("coupon_usages").select("id")
+        .eq("coupon_id", data.id).eq("user_id", currentUser.id).maybeSingle();
       if (existingUsage) { setCouponError("You've already used this coupon."); }
-      else { setAppliedCoupon({ id: data.id, code: data.code, discount_amount: data.discount_amount, description: data.description, product_ids: data.product_ids ?? null }); setCouponCode(""); setCouponError(null); }
+      else {
+        // ✅ Push to array instead of replacing
+        setAppliedCoupons(prev => [...prev, {
+          id: data.id, code: data.code,
+          discount_amount: data.discount_amount,
+          description: data.description,
+          product_ids: data.product_ids ?? null,
+        }]);
+        setCouponCode("");
+        setCouponError(null);
+      }
     }
     setCouponLoading(false);
   };
@@ -232,19 +270,19 @@ export const Checkout: React.FC = () => {
         customer_phone: selectedAddress.phone ?? "", address_line: selectedAddress.address_line,
         city: selectedAddress.city, state: selectedAddress.state, pincode: selectedAddress.pincode,
         items: orderItems, subtotal, tax: 0, delivery_charge: 0, discount_amount: discountAmount,
-        coupon_code: appliedCoupon?.code ?? null, total_amount: total,
+        coupon_code: appliedCoupons.map(c => c.code).join(',') || null, total_amount: total,
         payment_method: selectedPayment === "COD" ? "Cash on Delivery" : selectedPayment,
         payment_status: selectedPayment === "COD" ? "Pending" : "Paid", status: "Processing",
-        notes: appliedCoupon ? `Coupon: ${appliedCoupon.code} (₹${discountAmount} off)` : null,
+        notes: appliedCoupons.length ? `Coupons: ${appliedCoupons.map(c => `${c.code} (-₹${c.discount_amount})`).join(', ')}` : null,
       }).select("order_number").single();
       if (insertError) throw insertError;
       await Promise.all(orderItems.map(async (item) => {
         const { data: prod } = await supabase.from("products").select("stock_quantity").eq("id", item.product_id).single();
         if (prod) await supabase.from("products").update({ stock_quantity: Math.max(0, prod.stock_quantity - item.quantity) }).eq("id", item.product_id);
       }));
-      if (appliedCoupon) {
-        await supabase.from("coupon_usages").insert({ coupon_id: appliedCoupon.id, user_id: currentUser.id });
-        await supabase.rpc("increment_coupon_usage", { coupon_id: appliedCoupon.id });
+      for (const coupon of appliedCoupons) {
+        await supabase.from("coupon_usages").insert({ coupon_id: coupon.id, user_id: currentUser.id });
+        await supabase.rpc("increment_coupon_usage", { coupon_id: coupon.id });
       }
       setFinalDiscount(discountAmount);
       await clearCart();
@@ -252,7 +290,7 @@ export const Checkout: React.FC = () => {
         await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-order-email`, {
           method: "POST",
           headers: { "Content-Type": "application/json", apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
-          body: JSON.stringify({ ...data, customer_name: currentUser.name, customer_email: currentUser.email, customer_phone: selectedAddress.phone, address_line: selectedAddress.address_line, city: selectedAddress.city, state: selectedAddress.state, pincode: selectedAddress.pincode, items: orderItems, subtotal, tax: 0, discount_amount: discountAmount, coupon_code: appliedCoupon?.code ?? null, total_amount: total, payment_method: selectedPayment === "COD" ? "Cash on Delivery" : selectedPayment, payment_status: selectedPayment === "COD" ? "Pending" : "Paid" }),
+          body: JSON.stringify({ ...data, customer_name: currentUser.name, customer_email: currentUser.email, customer_phone: selectedAddress.phone, address_line: selectedAddress.address_line, city: selectedAddress.city, state: selectedAddress.state, pincode: selectedAddress.pincode, items: orderItems, subtotal, tax: 0, discount_amount: discountAmount, coupon_code: appliedCoupons.map(c => c.code).join(',') || null, total_amount: total, payment_method: selectedPayment === "COD" ? "Cash on Delivery" : selectedPayment, payment_status: selectedPayment === "COD" ? "Pending" : "Paid" }),
         });
       } catch { }
       setOrderNumber(data?.order_number ?? "");
@@ -274,7 +312,7 @@ export const Checkout: React.FC = () => {
         <h1 className="text-3xl font-black text-gray-900 mb-3">Order Placed!</h1>
         <p className="text-gray-500 mb-2">Thank you, <span className="font-bold text-gray-800">{currentUser?.name}</span>!</p>
         {orderNumber && <p className="text-indigo-600 font-black text-lg mb-2">Order #{orderNumber}</p>}
-        {appliedCoupon && finalDiscount > 0 && <p className="text-emerald-600 font-semibold text-sm mb-4">You saved ₹{finalDiscount.toLocaleString()} with coupon {appliedCoupon.code}!</p>}
+        {appliedCoupons.length > 0 && finalDiscount > 0 && <p className="text-emerald-600 font-semibold text-sm mb-4">You saved ₹{finalDiscount.toLocaleString()} with {appliedCoupons.length} coupon{appliedCoupons.length > 1 ? 's' : ''}!</p>}
         <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-5 py-4 text-left mb-8 space-y-2">
           <p className="text-indigo-800 font-black text-sm">What happens next?</p>
           <p className="text-indigo-700 text-sm leading-relaxed">Our team will reach out shortly to confirm your order and collect a <span className="font-bold">minimal advance shipping amount</span>.</p>
@@ -302,7 +340,8 @@ export const Checkout: React.FC = () => {
 
       {/* Mobile fixed bottom CTA — only when payment selected */}
       {showFixedPlaceOrder && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-100 px-4 py-3" style={{ boxShadow: "0 -8px 32px -4px rgba(99,102,241,0.15)" }}>
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-100 px-4 py-3" style={{ boxShadow: `0 -8px 32px -4px ${theme.accent}26` }}
+        >
           <div className="flex items-center gap-3 max-w-lg mx-auto">
             <div>
               <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Total</p>
@@ -315,7 +354,8 @@ export const Checkout: React.FC = () => {
               </button>
             </div>
             <button onClick={placeOrderAction} disabled={placeOrderDisabled}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-black text-sm uppercase tracking-[0.1em] shadow-lg active:scale-[0.97] transition-all ${placeOrderDisabled ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none" : "bg-indigo-600 text-white shadow-indigo-200/80"}`}>
+              className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg active:scale-[0.97] transition-all ${placeOrderDisabled ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none" : "text-white"}`}
+              style={!placeOrderDisabled ? { background: theme.accent } : {}}>
               {placeOrderLabel} {!placeOrderDisabled && <ArrowRight className="w-4 h-4" />}
             </button>
           </div>
@@ -338,7 +378,7 @@ export const Checkout: React.FC = () => {
             {/* DELIVERY ADDRESS */}
             <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
               <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-indigo-500" />
+                <MapPin className="w-4 h-4" style={{ color: theme.accent }} />
                 <h2 className="text-sm font-black text-gray-700 uppercase tracking-widest">Delivery Address</h2>
                 {addressConfirmed && <span className="ml-auto text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1"><CheckCircle className="w-3 h-3" />Confirmed</span>}
               </div>
@@ -349,13 +389,16 @@ export const Checkout: React.FC = () => {
                       <>
                         {addressOptions.map((opt, idx) => (
                           <div key={idx} onClick={() => { setSelectedAddressIndex(idx); setAddressConfirmed(false); }}
-                            className={`border-2 p-4 rounded-2xl cursor-pointer transition-all ${selectedAddressIndex === idx ? "border-indigo-400 bg-indigo-50/60" : "border-gray-100 hover:border-indigo-200"}`}>
+                            className={`border-2 p-4 rounded-2xl cursor-pointer transition-all ${selectedAddressIndex === idx ? "" : "border-gray-100"}`}
+                            style={selectedAddressIndex === idx ? { borderColor: theme.accent, background: theme.accentLight + '60' } : {}}>
                             <div className="flex items-start gap-3">
-                              <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selectedAddressIndex === idx ? "border-indigo-600 bg-indigo-600" : "border-gray-300"}`}>
+                              <div className="mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all"
+                                style={selectedAddressIndex === idx ? { borderColor: theme.accent, background: theme.accent } : { borderColor: '#d1d5db' }}>
                                 {selectedAddressIndex === idx && <div className="w-2 h-2 rounded-full bg-white" />}
                               </div>
                               <div>
-                                <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1">{opt.label}</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: theme.accent }}>{opt.label}</p>
+
                                 <p className="font-bold text-sm text-gray-900">{opt.address.address_line}</p>
                                 <p className="text-xs text-gray-500 mt-0.5">{opt.address.city}, {opt.address.state} — {opt.address.pincode}</p>
                                 {opt.address.phone && <p className="text-xs text-gray-500 font-semibold mt-0.5">{opt.address.phone}</p>}
@@ -364,17 +407,22 @@ export const Checkout: React.FC = () => {
                           </div>
                         ))}
                         <div className="flex gap-3 pt-1 items-center flex-wrap">
-                          <button onClick={() => setAddressConfirmed(true)} disabled={addressConfirmed}
-                            className={`px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${addressConfirmed ? "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-not-allowed" : "bg-indigo-600 text-white hover:bg-indigo-700"}`}>
+                          <button
+                            onClick={() => setAddressConfirmed(true)}
+                            disabled={addressConfirmed}
+                            className={`px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${addressConfirmed ? "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-not-allowed" : "text-white"}`}
+                            style={!addressConfirmed ? { background: theme.accent } : {}}
+                          >
                             {addressConfirmed ? "✓ Confirmed" : "Deliver Here"}
                           </button>
-                          {addressConfirmed && <button onClick={() => setAddressConfirmed(false)} className="text-indigo-600 font-bold text-xs hover:underline">Change</button>}
+                          {addressConfirmed && <button onClick={() => setAddressConfirmed(false)} className="font-bold text-xs hover:underline" style={{ color: theme.accent }}>Change</button>}
+
                         </div>
                       </>
                     ) : (
-                      <div className="border-2 border-indigo-400 bg-indigo-50/40 p-4 rounded-2xl">
+                      <div className="border-2 p-4 rounded-2xl" style={{ borderColor: theme.accent, background: theme.accentLight + '40' }}>
                         <div className="flex items-start gap-3">
-                          <CheckCircle className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+                          <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: theme.accent }} />
                           <div>
                             <p className="font-bold text-sm text-gray-900">{selectedAddress?.address_line}</p>
                             <p className="text-xs text-gray-500 mt-0.5">{selectedAddress?.city}, {selectedAddress?.state} — {selectedAddress?.pincode}</p>
@@ -383,7 +431,11 @@ export const Checkout: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    <button onClick={() => setShowAddressDrawer(true)} className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:underline">
+                    <button
+                      onClick={() => setCurrentPage("profile")}
+                      className="flex items-center gap-1.5 text-xs font-bold hover:underline"
+                      style={{ color: theme.accent }}
+                    >
                       <Plus className="w-3.5 h-3.5" /> Add / Change Address
                     </button>
                     {!addressConfirmed && (
@@ -393,11 +445,18 @@ export const Checkout: React.FC = () => {
                     )}
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-indigo-200 bg-indigo-50/30 rounded-2xl p-6 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-all" onClick={() => setShowAddressDrawer(true)}>
-                    <MapPin className="w-8 h-8 text-indigo-400 mx-auto mb-2" />
+                  <div
+                    className="border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all"
+                    style={{ borderColor: theme.accent + '66', background: theme.accentLight + '30' }}
+                    onClick={() => setShowAddressDrawer(true)}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = theme.accent)}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = theme.accent + '66')}
+                  >
+                    <MapPin className="w-8 h-8 mx-auto mb-2" style={{ color: theme.accent }} />
                     <p className="font-black text-gray-900 text-sm mb-1">Add delivery address</p>
                     <p className="text-xs text-gray-500 mb-3">Required to complete checkout</p>
-                    <button className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-black text-xs hover:bg-indigo-700 transition inline-flex items-center gap-1.5 shadow-lg shadow-indigo-200/60">
+                    <button className="text-white px-5 py-2.5 rounded-xl font-black text-xs transition inline-flex items-center gap-1.5 shadow-lg"
+                      style={{ background: theme.accent }}>
                       <Plus className="w-3.5 h-3.5" /> Add Address
                     </button>
                   </div>
@@ -408,7 +467,7 @@ export const Checkout: React.FC = () => {
             {/* PAYMENT METHOD */}
             <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
               <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-indigo-500" />
+                <ShieldCheck className="w-4 h-4" style={{ color: theme.accent }} />
                 <h2 className="text-sm font-black text-gray-700 uppercase tracking-widest">Payment Method</h2>
                 {selectedPayment && <span className="ml-auto text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1"><CheckCircle className="w-3 h-3" />Selected</span>}
               </div>
@@ -418,9 +477,13 @@ export const Checkout: React.FC = () => {
                   const isDisabled = !!opt.comingSoon;
                   return (
                     <div key={opt.id} onClick={() => !isDisabled && setSelectedPayment(opt.id)}
-                      className={`border-2 rounded-2xl p-4 transition-all ${isDisabled ? "border-gray-100 bg-gray-50/50 cursor-not-allowed opacity-50" : isSelected ? "border-indigo-400 bg-indigo-50/50 cursor-pointer" : "border-gray-100 hover:border-indigo-200 bg-white cursor-pointer"}`}>
+                      className={`border-2 rounded-2xl p-4 transition-all ${isDisabled ? "border-gray-100 bg-gray-50/50 cursor-not-allowed opacity-50" : "cursor-pointer"}`}
+                      style={!isDisabled && isSelected ? { borderColor: theme.accent, background: theme.accentLight + '80' } : {}}>
                       <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${isSelected && !isDisabled ? "border-indigo-600 bg-indigo-600" : "border-gray-300"}`}>
+                        <div
+                          className="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all"
+                          style={isSelected && !isDisabled ? { borderColor: theme.accent, background: theme.accent } : { borderColor: '#d1d5db' }}
+                        >
                           {isSelected && !isDisabled && <div className="w-2 h-2 rounded-full bg-white" />}
                         </div>
                         <div className="flex-1">
@@ -478,55 +541,77 @@ export const Checkout: React.FC = () => {
                       <p className="font-semibold text-xs text-gray-900 line-clamp-1">{item.name}</p>
                       <p className="text-[10px] text-gray-400">Qty: {item.quantity}</p>
                     </div>
-                    <p className="font-black text-indigo-600 text-xs shrink-0">₹{(item.price * item.quantity).toLocaleString("en-IN")}</p>
+                    <p className="font-black text-xs shrink-0" style={{ color: theme.accent }}>₹{(item.price * item.quantity).toLocaleString("en-IN")}</p>
                   </div>
                 ))}
               </div>
 
               {/* Coupon */}
               <div className="px-5 py-4 border-t border-gray-50 space-y-3">
-                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1.5"><Tag className="w-3.5 h-3.5 text-indigo-500" /> Apply Coupon</p>
-                {!appliedCoupon ? (
-                  <>
-                    <div className="flex gap-2">
-                      <input value={couponCode} onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); if (couponError) setCouponError(null); }}
-                        onKeyDown={(e) => e.key === "Enter" && applyCouponByCode(couponCode)}
-                        placeholder="Enter code" className="flex-1 bg-gray-50 rounded-xl px-4 py-2.5 text-sm font-black tracking-widest outline-none focus:ring-2 focus:ring-indigo-500 uppercase min-w-0" />
-                      <button onClick={() => applyCouponByCode(couponCode)} disabled={couponLoading || !couponCode.trim()}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-black text-xs transition-all disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0">
-                        {couponLoading ? "…" : "Apply"}
-                      </button>
-                    </div>
-                    {couponError && <p className="text-xs text-red-500 font-semibold bg-red-50 border border-red-100 rounded-xl px-3 py-2">{couponError}</p>}
-                    {(() => {
-                      const applicable = allCoupons.filter((c) => !c.product_ids?.length || c.product_ids.some((pid) => cartProductIds.includes(pid)));
-                      if (!applicable.length) return null;
-                      return (
-                        <div className="space-y-1.5">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Available</p>
-                          {applicable.map((c) => (
-                            <div key={c.code} onClick={() => applyCouponByCode(c.code)}
-                              className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 cursor-pointer hover:bg-indigo-50 hover:border-indigo-200 transition-all group">
-                              <span className="font-black text-indigo-700 text-[11px] tracking-widest border border-indigo-200 bg-white rounded-lg px-2 py-0.5 shrink-0 group-hover:border-indigo-400 transition-all">{c.code}</span>
-                              <span className="text-xs font-bold text-gray-700">₹{c.discount_amount} off</span>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })()}
-                  </>
-                ) : (
-                  <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5">
-                    <div className="w-7 h-7 bg-emerald-500 rounded-lg flex items-center justify-center shrink-0">
-                      <CheckCircle className="w-4 h-4 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-black text-emerald-800 text-xs tracking-widest">{appliedCoupon.code}</p>
-                      <p className="text-xs text-emerald-600 font-semibold">₹{discountAmount.toLocaleString()} off applied</p>
-                    </div>
-                    <button onClick={() => { setAppliedCoupon(null); setCouponCode(""); setCouponError(null); }} className="w-6 h-6 flex items-center justify-center rounded-lg text-emerald-400 hover:text-red-500 hover:bg-red-50 transition-all shrink-0"><X className="w-3.5 h-3.5" /></button>
+                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1.5"><Tag className="w-3.5 h-3.5" style={{ color: theme.accent }} />Apply Coupon</p>
+                <>
+                  <div className="flex gap-2">
+                    <input value={couponCode} onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); if (couponError) setCouponError(null); }}
+                      onKeyDown={(e) => e.key === "Enter" && applyCouponByCode(couponCode)}
+                      placeholder="Enter code" className="flex-1 bg-gray-50 rounded-xl px-4 py-2.5 text-sm font-black tracking-widest outline-none focus:ring-2 focus:ring-indigo-500 uppercase min-w-0" />
+                    <button onClick={() => applyCouponByCode(couponCode)} disabled={couponLoading || !couponCode.trim()}
+                      className="text-white px-4 py-2.5 rounded-xl font-black text-xs transition-all disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
+                      style={{ background: theme.accent }}>
+                      {couponLoading ? "…" : "Apply"}
+                    </button>
                   </div>
-                )}
+                  {couponError && <p className="text-xs text-red-500 font-semibold bg-red-50 border border-red-100 rounded-xl px-3 py-2">{couponError}</p>}
+                  {appliedCoupons.length > 0 && (
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Applied</p>
+                      {appliedCoupons.map((c) => {
+                        const thisDiscount = c.product_ids?.length
+                          ? Math.min(c.discount_amount * cart.filter(i => c.product_ids!.includes(Number(i.id))).reduce((s, i) => s + i.quantity, 0), subtotal)
+                          : Math.min(c.discount_amount, subtotal);
+                        return (
+                          <div key={c.code} className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5">
+                            <div className="w-7 h-7 bg-emerald-500 rounded-lg flex items-center justify-center shrink-0">
+                              <CheckCircle className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-black text-emerald-800 text-xs tracking-widest">{c.code}</p>
+                              <p className="text-xs text-emerald-600 font-semibold">−₹{thisDiscount.toLocaleString()} off</p>
+                            </div>
+                            <button onClick={() => setAppliedCoupons(prev => prev.filter(x => x.code !== c.code))}
+                              className="w-6 h-6 flex items-center justify-center rounded-lg text-emerald-400 hover:text-red-500 hover:bg-red-50 transition-all shrink-0">
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {(() => {
+                    const applicable = allCoupons.filter(c =>
+                      !appliedCoupons.some(a => a.code === c.code) &&
+                      (!c.product_ids?.length || c.product_ids.some(pid => cartProductIds.includes(pid)))
+                    );
+                    if (!applicable.length) return null;
+                    return (
+                      <div className="space-y-1.5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Available</p>
+                        {applicable.map((c) => (
+                          <div key={c.code} onClick={() => applyCouponByCode(c.code)}
+                            className="flex items-center gap-3 border rounded-xl px-3 py-2 cursor-pointer transition-all group"
+                            style={{ backgroundColor: theme.accentLight, borderColor: `${theme.accent}20` }}
+                            onMouseEnter={e => { e.currentTarget.style.backgroundColor = `${theme.accent}15`; e.currentTarget.style.borderColor = theme.accent; }}
+                            onMouseLeave={e => { e.currentTarget.style.backgroundColor = theme.accentLight; e.currentTarget.style.borderColor = `${theme.accent}20`; }}>
+                            <span className="font-black text-[11px] tracking-widest border rounded-lg px-2 py-0.5 shrink-0"
+                              style={{ color: theme.accentText, borderColor: `${theme.accent}40`, backgroundColor: "#fff" }}>
+                              {c.code}
+                            </span>
+                            <span className="text-xs font-bold" style={{ color: theme.accentText }}>₹{c.discount_amount} off</span>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                </>
               </div>
 
               {/* Price breakdown */}
@@ -540,9 +625,9 @@ export const Checkout: React.FC = () => {
                 <div className="flex justify-between text-sm text-gray-400">
                   <span>Taxes</span><span>Included</span>
                 </div>
-                {appliedCoupon && discountAmount > 0 && (
+                {appliedCoupons.length > 0 && discountAmount > 0 && (
                   <div className="flex justify-between text-sm font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-2 rounded-xl">
-                    <span className="flex items-center gap-1"><Tag className="w-3 h-3" />{appliedCoupon.code}</span>
+                    <span className="flex items-center gap-1"><Tag className="w-3 h-3" />{appliedCoupons.length} Coupon{appliedCoupons.length > 1 ? 's' : ''}</span>
                     <span>− ₹{discountAmount.toLocaleString("en-IN")}</span>
                   </div>
                 )}
@@ -550,11 +635,11 @@ export const Checkout: React.FC = () => {
                 <div className="flex justify-between font-black text-gray-900">
                   <span>Total</span>
                   <div className="text-right">
-                    {appliedCoupon && discountAmount > 0 && <p className="text-xs text-gray-400 line-through font-medium mb-0.5">₹{(total + discountAmount).toLocaleString("en-IN")}</p>}
-                    <span className="text-lg text-indigo-600">₹{total.toLocaleString("en-IN")}</span>
+                    {appliedCoupons && discountAmount > 0 && <p className="text-xs text-gray-400 line-through font-medium mb-0.5">₹{(total + discountAmount).toLocaleString("en-IN")}</p>}
+                    <span className="text-lg" style={{ color: theme.accent }}>₹{total.toLocaleString("en-IN")}</span>
                   </div>
                 </div>
-                {appliedCoupon && discountAmount > 0 && (
+                {appliedCoupons && discountAmount > 0 && (
                   <p className="text-center text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-xl py-2">
                     🎉 You're saving ₹{discountAmount.toLocaleString("en-IN")}!
                   </p>
@@ -574,7 +659,13 @@ export const Checkout: React.FC = () => {
                 {error && <p className="text-xs text-red-600 font-semibold bg-red-50 px-4 py-2 rounded-xl">{error}</p>}
 
                 <button ref={placeOrderBtnRef} onClick={placeOrderAction} disabled={placeOrderDisabled}
-                  className={`w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-sm uppercase tracking-[0.1em] transition-all shadow-lg active:scale-[0.98] ${placeOrderDisabled ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none" : addressOptions.length === 0 ? "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-200/60" : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200/60"}`}>
+                  className={`w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-lg active:scale-[0.98] ${placeOrderDisabled ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none" : addressOptions.length === 0 ? "bg-amber-500 text-white" : "text-white"}`}
+                  style={!placeOrderDisabled && addressOptions.length > 0 ? { background: theme.accent } : {}} onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = theme.accentHover)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = theme.accent)
+                  }>
                   {placeOrderLabel} {!placeOrderDisabled && <ArrowRight className="w-4 h-4" />}
                 </button>
 

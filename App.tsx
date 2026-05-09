@@ -1,34 +1,39 @@
-import React, { useEffect, useState } from "react";
-import { StoreProvider, useStore } from "./context/StoreContext";
+import React, { lazy, Suspense, useEffect, useState } from "react";
+import { AdminPage, StoreProvider, useStore } from "./context/StoreContext";
 import { CustomerLayout, AdminLayout } from "./components/Layout";
-import { Dashboard } from "./pages/Dashboard";
-import { Inventory } from "./pages/Inventory";
-import { Settings } from "./pages/Settings";
-import { Store } from "./pages/Store";
-import { Home } from "./pages/Home";
-import { AboutUs } from "./pages/AboutUs";
-import { Contact } from "./pages/Contact";
-import { Services } from "./pages/Services";
-import { Branches } from "./pages/Branches";
-import { Updates } from "./pages/Updates";
-import { Login } from "./pages/Login";
-import { Signup } from "./pages/Signup";
-import { generateCustomerResponse } from "./services/geminiService";
 import { supabase } from "./lib/supabaseClient";
-import { Cart } from "./pages/Cart";
-import { Profile } from "./pages/Profile";
-import { MyOrders } from "./pages/MyOrders";
-import { Policy } from "./pages/Policy";
-import { Checkout } from "./pages/Checkout";
-import { CareersPage } from "./pages/CareersPage";
-import { ContentManager } from "./pages/ContentManager";
-import { Orders } from "./pages/Orders";
-import { Customers } from "./pages/Customers";
-import { AdminCoupons } from "./pages/Coupons";
-import { ForgotPassword } from "./pages/ForgotPassword";
-import { ResetPassword } from "./pages/ResetPassword";
-import { CareerPortal } from "./pages/Careerportal";
+const Home = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })))
+const Store = lazy(() => import('./pages/Store').then(m => ({ default: m.Store })))
+const AboutUs = lazy(() => import('./pages/AboutUs').then(m => ({ default: m.AboutUs })))
+const Contact = lazy(() => import('./pages/Contact').then(m => ({ default: m.Contact })))
+const Services = lazy(() => import('./pages/Services').then(m => ({ default: m.Services })))
+const Branches = lazy(() => import('./pages/Branches').then(m => ({ default: m.Branches })))
+const Updates = lazy(() => import('./pages/Updates').then(m => ({ default: m.Updates })))
+const Login = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })))
+const Signup = lazy(() => import('./pages/Signup').then(m => ({ default: m.Signup })))
+const Cart = lazy(() => import('./pages/Cart').then(m => ({ default: m.Cart })))
+const Profile = lazy(() => import('./pages/Profile').then(m => ({ default: m.Profile })))
+const MyOrders = lazy(() => import('./pages/MyOrders').then(m => ({ default: m.MyOrders })))
+const Policy = lazy(() => import('./pages/Policy').then(m => ({ default: m.Policy })))
+const Checkout = lazy(() => import('./pages/Checkout').then(m => ({ default: m.Checkout })))
+const CareersPage = lazy(() => import('./pages/CareersPage').then(m => ({ default: m.CareersPage })))
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword').then(m => ({ default: m.ForgotPassword })))
+const ResetPassword = lazy(() => import('./pages/ResetPassword').then(m => ({ default: m.ResetPassword })))
+const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })))
+const Inventory = lazy(() => import('./pages/Inventory').then(m => ({ default: m.Inventory })))
+const Orders = lazy(() => import('./pages/Orders').then(m => ({ default: m.Orders })))
+const Customers = lazy(() => import('./pages/Customers').then(m => ({ default: m.Customers })))
+const ContentManager = lazy(() => import('./pages/ContentManager').then(m => ({ default: m.ContentManager })))
+const AdminCoupons = lazy(() => import('./pages/Coupons').then(m => ({ default: m.AdminCoupons })))
+const CareerPortal = lazy(() => import('./pages/Careerportal').then(m => ({ default: m.CareerPortal })))
+const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings })))
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+  </div>
+)
 const Main: React.FC = () => {
   const {
     currentUser,
@@ -42,6 +47,7 @@ const Main: React.FC = () => {
     setCurrentPage,
   } = useStore();
   const [authReady, setAuthReady] = useState(false);
+  const location = useLocation();
   useEffect(() => {
     const restoreSession = async () => {
       try {
@@ -56,7 +62,7 @@ const Main: React.FC = () => {
           } else {
             await supabase.auth.getSession();
           }
-          window.history.replaceState({}, document.title, window.location.pathname);
+          window.history.replaceState({}, document.title, '/reset-password');
           setCurrentPage("reset-password");
           return;
         }
@@ -79,7 +85,8 @@ const Main: React.FC = () => {
               role: staff.role,
               avatar: "",
             });
-            setViewMode("STORE");
+            const saved = localStorage.getItem("viewMode") as "STORE" | "ADMIN" | null;
+            setViewMode(saved ?? "STORE");
             return;
           }
 
@@ -146,14 +153,6 @@ const Main: React.FC = () => {
             });
           }
           const stalePage = localStorage.getItem("currentPage");
-          if (
-            !stalePage ||
-            stalePage === "login" ||
-            stalePage === "signup" ||
-            stalePage === "checkout"
-          ) {
-            localStorage.setItem("currentPage", "home");
-          }
         }
       } finally {
         setAuthReady(true);
@@ -190,6 +189,23 @@ const Main: React.FC = () => {
     });
     return () => listener.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const urlToPage: Record<string, AdminPage> = {
+      '/admin/dashboard': 'Dashboard',
+      '/admin/inventory': 'Inventory',
+      '/admin/orders': 'Orders',
+      '/admin/customers': 'Customers',
+      '/admin/blogs': 'Blogs',
+      '/admin/coupons': 'Coupons',
+      '/admin/careers': 'Careers',
+      '/admin/settings': 'Settings',
+    };
+    const p = urlToPage[location.pathname];
+    if (p && p !== adminPage) setAdminPage(p);
+  }, [location.pathname]);
+
+
   if (!authReady) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white">
@@ -203,42 +219,123 @@ const Main: React.FC = () => {
     );
   }
 
-  if (!currentUser || currentUser.role === "CUSTOMER" || viewMode === "STORE") {
+  const isAdmin = currentUser && currentUser.role !== 'CUSTOMER' && viewMode === 'ADMIN'
+
+
+  if (isAdmin) {
     return (
-      <CustomerLayout>
-        {currentPage === "home" && <Home />}
-        {currentPage === "shop" && <Store />}
-        {currentPage === "about" && <AboutUs />}
-        {currentPage === "contact" && <Contact />}
-        {currentPage === "services" && <Services />}
-        {currentPage === "branches" && <Branches />}
-        {currentPage === "updates" && <Updates />}
-        {currentPage === "login" && <Login />}
-        {currentPage === "signup" && <Signup />}
-        {currentPage === "cart" && <Cart />}
-        {currentPage === "profile" && <Profile />}
-        {currentPage === "orders" && <MyOrders />}
-        {currentPage === "policy" && <Policy />}
-        {currentPage === "checkout" && <Checkout />}
-        {currentPage === "careers" && <CareersPage />}
-        {currentPage === "forgot-password" && <ForgotPassword />}
-        {currentPage === "reset-password" && <ResetPassword />}
-      </CustomerLayout>
-    );
+      <AdminLayout>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/inventory" element={<Inventory />} />
+            <Route path="/admin/orders" element={<Orders />} />
+            <Route path="/admin/customers" element={<Customers />} />
+            <Route path="/admin/blogs" element={<ContentManager />} />
+            <Route path="/admin/coupons" element={<AdminCoupons />} />
+            <Route path="/admin/careers" element={<CareerPortal />} />
+            <Route path="/admin/settings" element={<Settings />} />
+            <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+          </Routes>
+        </Suspense>
+      </AdminLayout>
+    )
   }
 
   return (
-    <AdminLayout>
-      {adminPage === "Dashboard" && <Dashboard />}
-      {adminPage === "Inventory" && <Inventory />}
-      {adminPage === "Settings" && <Settings />}
-      {adminPage === "Blogs" && <ContentManager />}
-      {adminPage === "Orders" && <Orders />}
-      {adminPage === "Customers" && <Customers />}
-      {adminPage === "Coupons" && <AdminCoupons />}
-      {adminPage === "Careers" && <CareerPortal />}
-    </AdminLayout>
-  );
+    <CustomerLayout>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Navigate to="/" replace />} />
+
+          {/* ── CORE PAGES ── */}
+          <Route path="/shop" element={<Store />} />
+          <Route path="/products/:slug" element={<Store />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/branches" element={<Branches />} />
+          <Route path="/blog" element={<Updates />} />
+          <Route path="/blog/:slug" element={<Updates />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/orders" element={<MyOrders />} />
+          <Route path="/policy" element={<Policy />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/careers" element={<CareersPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* ── SEO SHOP URLS — Infofix new store ── */}
+          <Route path="/buy-laptop" element={<Store />} />
+          <Route path="/buy-laptop-durgapur" element={<Store />} />
+          <Route path="/buy-laptop-asansol" element={<Store />} />
+          <Route path="/buy-laptop-west-bengal" element={<Store />} />
+          <Route path="/buy-laptop-bengal" element={<Store />} />
+          <Route path="/buy-gaming-laptop-durgapur" element={<Store />} />
+          <Route path="/buy-desktop-pc" element={<Store />} />
+          <Route path="/buy-desktop-pc-durgapur" element={<Store />} />
+          <Route path="/buy-desktop-pc-asansol" element={<Store />} />
+          <Route path="/buy-gaming-pc-durgapur" element={<Store />} />
+          <Route path="/gaming-pc-durgapur" element={<Store />} />
+          <Route path="/custom-pc-build-durgapur" element={<Store />} />
+          <Route path="/computer-shop-durgapur" element={<Store />} />
+          <Route path="/computer-shop-asansol" element={<Store />} />
+          <Route path="/laptop-shop-durgapur" element={<Store />} />
+          <Route path="/laptop-under-30000" element={<Store />} />
+          <Route path="/laptop-under-50000" element={<Store />} />
+          <Route path="/gaming-laptop-under-60000" element={<Store />} />
+          <Route path="/best-laptop-for-students" element={<Store />} />
+          <Route path="/best-laptop-for-programming" element={<Store />} />
+          <Route path="/refurbished-laptop-under-20000" element={<Store />} />
+          {/* ── SEO SHOP URLS — Refurbished ── */}
+          <Route path="/buy-refurbished-laptop" element={<Store />} />
+          <Route path="/buy-refurbished-laptop-durgapur" element={<Store />} />
+          <Route path="/buy-refurbished-laptop-asansol" element={<Store />} />
+          <Route path="/buy-refurbished-laptop-west-bengal" element={<Store />} />
+          <Route path="/refurbished-laptop-durgapur" element={<Store />} />
+          <Route path="/refurbished-laptop-asansol" element={<Store />} />
+          <Route path="/refurbished-desktop-durgapur" element={<Store />} />
+          <Route path="/second-hand-laptop-durgapur" element={<Store />} />
+          <Route path="/certified-refurbished-laptop" element={<Store />} />
+
+          {/* ── SEO SHOP URLS — Wholesale ── */}
+          <Route path="/wholesale-laptop-west-bengal" element={<Store />} />
+          <Route path="/wholesale-desktop-durgapur" element={<Store />} />
+          <Route path="/bulk-laptop-supplier-durgapur" element={<Store />} />
+          <Route path="/computer-wholesale-durgapur" element={<Store />} />
+
+          {/* ── SEO SERVICE URLS ── */}
+          <Route path="/computer-repair-durgapur" element={<Services />} />
+          <Route path="/laptop-repair-durgapur" element={<Services />} />
+          <Route path="/laptop-repair-asansol" element={<Services />} />
+
+          {/* ── Ukhra ── */}
+          <Route path="/buy-laptop-ukhra" element={<Store />} />
+          <Route path="/buy-laptop-new-ukhra" element={<Store />} />
+          <Route path="/buy-laptop-second-hand-ukhra" element={<Store />} />
+          <Route path="/refurbished-laptop-ukhra" element={<Store />} />
+          <Route path="/buy-desktop-ukhra" element={<Store />} />
+          <Route path="/computer-shop-ukhra" element={<Store />} />
+
+          {/* ── India-wide ── */}
+          <Route path="/buy-laptop-india" element={<Store />} />
+          <Route path="/laptop-shop-india" element={<Store />} />
+          <Route path="/buy-desktop-india" element={<Store />} />
+          <Route path="/refurbished-laptop-india" element={<Store />} />
+          <Route path="/computer-shop-india" element={<Store />} />
+          <Route path="/buy-gaming-laptop-india" element={<Store />} />
+          <Route path="/buy-laptop-near-me" element={<Store />} />
+          <Route path="/computer-store-near-me" element={<Store />} />
+          <Route path="/laptop-store-near-me" element={<Store />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+    </CustomerLayout>
+  )
 };
 
 const App: React.FC = () => {

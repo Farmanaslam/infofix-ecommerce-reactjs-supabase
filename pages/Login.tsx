@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Lock, Mail, Eye, EyeOff, LogIn } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { supabase } from "@/lib/supabaseClient";
+import { SECTION_ACCENT } from "@/lib/sectionTheme";
 
 export const Login: React.FC = () => {
-  const { setCurrentUser, setCurrentPage, setViewMode, pendingRedirectAfterLogin, setPendingRedirectAfterLogin, currentUser } = useStore();
+  const { setCurrentUser, setCurrentPage, setViewMode, pendingRedirectAfterLogin, selectedStoreSection, setPendingRedirectAfterLogin, currentUser } = useStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+  const theme = SECTION_ACCENT[selectedStoreSection];
   const handleGoogleSignIn = async () => {
     const keys = Object.keys(sessionStorage);
     keys.forEach(k => { if (k.startsWith("oauth_handled_")) sessionStorage.removeItem(k); });
@@ -89,7 +90,7 @@ export const Login: React.FC = () => {
           {/* LEFT SIDE */}
           <div className="space-y-6 flex flex-col items-center lg:items-start">
             <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-gray-900 tracking-tighter leading-none">
-              WELCOME BACK TO <span className="text-indigo-600">INFOFIX</span>
+              WELCOME BACK TO <span style={{ color: theme.accent }}>INFOFIX</span>
             </h1>
 
             <p className="text-gray-500 text-xl font-medium leading-relaxed">
@@ -97,8 +98,8 @@ export const Login: React.FC = () => {
               computing solutions.
             </p>
 
-            <div className="bg-indigo-50 p-4 md:p-8 rounded-4xl">
-              <p className="text-sm font-semibold text-indigo-900">
+            <div className=" p-4 md:p-8 rounded-4xl" style={{ background: theme.accentLight }}>
+              <p className="text-sm font-semibold" style={{ color: theme.accentText }}>
                 Secure authentication powered by modern encryption standards.
               </p>
             </div>
@@ -121,7 +122,13 @@ export const Login: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full bg-gray-50 border-none rounded-2xl pl-12 pr-6 py-4 outline-none focus:ring-2 focus:ring-indigo-600 font-medium transition-all"
+                    className="w-full bg-gray-50 border-none rounded-2xl pl-12 pr-6 py-4 outline-none font-medium transition-all"
+                    onFocus={(e) => {
+                      e.target.style.boxShadow = `0 0 0 2px ${theme.accent}`;
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = "none";
+                    }}
                   />
                 </div>
               </div>
@@ -139,7 +146,13 @@ export const Login: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-gray-50 border-none rounded-2xl pl-12 pr-12 py-4 outline-none focus:ring-2 focus:ring-indigo-600 font-medium transition-all"
+                    className="w-full bg-gray-50 border-none rounded-2xl pl-12 pr-12 py-4 outline-none font-medium transition-all"
+                    onFocus={(e) => {
+                      e.target.style.boxShadow = `0 0 0 2px ${theme.accent}`;
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = "none";
+                    }}
                   />
                   <button
                     type="button"
@@ -156,14 +169,17 @@ export const Login: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setCurrentPage("forgot-password")}
-                  className="text-sm text-indigo-500 hover:text-indigo-700 font-semibold hover:underline transition-colors"
+                  className="text-sm font-semibold hover:underline transition-colors"
+                  style={{ color: theme.accent }}
                 >
                   Forgot Password?
                 </button>
               </div>
 
               {/* Login Button */}
-              <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-[0.98]">
+              <button className="w-full  text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-[0.98]" style={{ background: theme.accent }}
+                onMouseEnter={e => e.currentTarget.style.background = theme.accentHover}
+                onMouseLeave={e => e.currentTarget.style.background = theme.accent}>
                 Login <LogIn className="w-5 h-5" />
               </button>
 
@@ -209,7 +225,7 @@ export const Login: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setCurrentPage("signup")}
-                  className="text-indigo-600 font-bold hover:underline"
+                  className="font-bold hover:underline" style={{ color: theme.accent }}
                 >
                   Sign Up
                 </button>
