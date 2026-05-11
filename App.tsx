@@ -96,7 +96,7 @@ const Main: React.FC = () => {
             .single();
 
           if (profile) {
-            setCurrentUser({
+            await setCurrentUser({
               id: user.id,
               name: profile.full_name,
               email: profile.email,
@@ -203,6 +203,14 @@ const Main: React.FC = () => {
     const p = urlToPage[location.pathname];
     if (p && p !== adminPage) setAdminPage(p);
   }, [location.pathname]);
+
+  if (!authReady) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const isAdmin = currentUser && currentUser.role !== 'CUSTOMER' && viewMode === 'ADMIN'
   if (isAdmin) {

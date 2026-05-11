@@ -20,6 +20,7 @@ export const Cart: React.FC = () => {
   const theme = SECTION_ACCENT[selectedStoreSection];
   const [allCoupons, setAllCoupons] = useState<AvailableCoupon[]>([]);
   const [showFixedCheckout, setShowFixedCheckout] = useState(true);
+  const [dbProducts, setDbProducts] = useState<any[]>([]);
   const checkoutBtnRef = useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
   // Drag-scroll refs
@@ -83,6 +84,43 @@ export const Cart: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [cart.length]);
 
+  useEffect(() => {
+    const fetchSimilar = async () => {
+      if (cart.length === 0) return;
+
+      // Get category names from cart items
+      const catNames = [...new Set(cart.map(i => (i.category ?? "").trim()))].filter(Boolean);
+      const cartIdNums = cart.map(i => Number(i.id));
+
+      // Step 1: resolve category names → IDs
+      const { data: catRows } = await supabase
+        .from("categories")
+        .select("id, name")
+        .in("name", catNames);
+
+      if (!catRows || catRows.length === 0) return;
+      const catIds = catRows.map((c: any) => c.id);
+
+      const { data } = await supabase
+        .from("products")
+        .select("id, name, discounted_price, image_url, category_id, min_order_quantity, stock_quantity")
+        .eq("is_active", true)
+        .in("category_id", catIds)
+        .not("id", "in", `(${cartIdNums.join(",")})`)
+        .limit(12);
+
+      if (data) setDbProducts(data.map((p: any) => ({
+        ...p,
+        id: String(p.id),
+        image: p.image_url,
+        price: parseFloat(p.discounted_price ?? p.retail_price ?? "0"),
+        stock: p.stock_quantity,
+        min_order_quantity: p.min_order_quantity ?? 1,
+      })));
+    };
+    fetchSimilar();
+  }, [cart]);
+
   const cartProductIds = cart.map((item) => Number(item.id));
   const applicableCoupons = allCoupons.filter((c) => {
     if (!c.product_ids || c.product_ids.length === 0) return true;
@@ -115,9 +153,7 @@ export const Cart: React.FC = () => {
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const cartCategories = [...new Set(cart.map((item) => (item.category ?? "").trim().toLowerCase()))];
   const cartIds = new Set(cart.map((item) => String(item.id)));
-  const similarProducts = products
-    .filter((p) => cartCategories.includes((p.category ?? "").trim().toLowerCase()) && !cartIds.has(String(p.id)))
-    .slice(0, 8);
+  const similarProducts = dbProducts.slice(0, 8);
 
   if (!currentUser) {
     return (
@@ -327,6 +363,8 @@ export const Cart: React.FC = () => {
                   </button>
                 </div>
                 <div className="p-4 overflow-hidden">
+                  <div className="pointer-events-none absolute right-4 top-4 bottom-5 w-10 z-10"
+                    style={{ background: `linear-gradient(to right, transparent, white)` }} />
                   {/* Drag-scrollable on desktop, touch-scroll on mobile, no scrollbar */}
                   <div
                     ref={scrollRef}
@@ -347,7 +385,7 @@ export const Cart: React.FC = () => {
                       <div
                         key={product.id}
                         onClick={() => handleSelectProduct(product)}
-                        className="shrink-0 w-36 border border-gray-100 rounded-2xl p-3 bg-white transition-all cursor-pointer"
+                        className="shrink-0 w-[42vw] sm:w-40 md:w-36 border border-gray-100 rounded-2xl p-3 bg-white transition-all cursor-pointer"
                         style={{ pointerEvents: "auto" }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.borderColor = `${theme.accent}55`;
