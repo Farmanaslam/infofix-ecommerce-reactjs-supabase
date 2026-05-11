@@ -1433,12 +1433,16 @@ export const Home: React.FC = () => {
   }
 
   /* ── STAGGER CHILDREN ── */
-  .stagger-children > * {
+ .stagger-children > * {
     opacity: 0;
     transform: translateY(40px);
     transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1),
                 transform 0.6s cubic-bezier(0.22,1,0.36,1);
-    will-change: opacity, transform;
+  }
+  /* Above-fold hero items already visible — no CLS */
+  .hero-section .stagger-children > * {
+    opacity: 1;
+    transform: none;
   }
   .stagger-children.visible > *:nth-child(1) { opacity:1; transform:none; transition-delay:0s; }
   .stagger-children.visible > *:nth-child(2) { opacity:1; transform:none; transition-delay:0.08s; }
@@ -1458,7 +1462,7 @@ export const Home: React.FC = () => {
   }
  .card-hover { transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease; }
 .card-hover:hover { transform: translateY(-10px) scale(1.02) !important; }
-  .pulse-dot { animation: pulseGlobal 2s ease infinite; }
+  .pulse-dot { animation: pulseGlobal 2s ease infinite;  will-change: opacity, transform;  }
   .sidebar-scroll::-webkit-scrollbar { display: none; }
   @keyframes shimmer-sweep {
   0%   { background-position: 200% 0; }
@@ -1470,7 +1474,7 @@ export const Home: React.FC = () => {
         <section className="bg-white py-3 border-gray-800 hero-section">
           <div className="px-3 lg:px-20">
             {/* Desktop */}
-            <div className="hidden md:grid md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_320px] gap-4 hero-carousel-wrap">
+            <div className="hidden md:grid md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_320px] gap-4 hero-carousel-wrap" style={{ minHeight: 420 }}>
               <HeroCarousel
                 key={selectedStoreSection}
                 onShop={() => {
@@ -2093,7 +2097,11 @@ export const Home: React.FC = () => {
                   <div className="relative w-28 md:w-auto md:h-72 shrink-0 overflow-hidden">
                     <img
                       src={product.image_url}
-                      alt={"Product Image Unavailable"}
+                      alt={product.name}
+                      loading="lazy"
+                      width={400}
+                      height={288}
+                      decoding="async"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     {product.discount_percent > 0 && (

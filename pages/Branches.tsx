@@ -37,9 +37,13 @@ export const Branches: React.FC = () => {
         {" "}
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2069"
+            src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200"
             className="w-full h-full object-cover opacity-30 scale-105"
-            alt="Background"
+            alt="Infofix store branches background"
+            width={1200}
+            height={500}
+            fetchPriority="high"
+            decoding="async"
           />
           <div className="absolute inset-0 bg-linear-to-b from-transparent via-gray-900/50 to-white"></div>
         </div>

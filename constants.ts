@@ -213,8 +213,6 @@ export const INITIAL_BRANCHES: Branch[] = [
       "/shop_1.jpeg",
       "/shop_2.jpeg",
       "/shop_3.jpeg",
-      "/shop_4.jpeg",
-      "/shop_5.jpeg",
       "/shop_6.jpeg",
     ],
     details:
@@ -234,7 +232,6 @@ export const INITIAL_BRANCHES: Branch[] = [
       "/showroom_1.png",
       "/showroom_2.jpeg",
       "/showroom_3.jpg",
-      "/showroom_4.jpeg",
       "/showroom_5.jpg",
     ],
     details:

@@ -152,7 +152,6 @@
     <link rel="icon" href="/icons/favicon.ico" sizes="any" />
     <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
     <!-- ── SVG favicon for modern browsers (sharper at all sizes) ── -->
-    <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
 
     <!-- ── Apple touch icon for iOS "Add to Home Screen" ── -->
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -165,6 +164,18 @@
     <!-- ── FONTS ── -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link rel="dns-prefetch" href="https://YOUR_SUPABASE_PROJECT.supabase.co" />
+    <link rel="preconnect" href="https://YOUR_SUPABASE_PROJECT.supabase.co" />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap&text=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
     <link
       rel="preload"
       as="style"

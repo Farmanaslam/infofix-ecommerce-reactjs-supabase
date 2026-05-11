@@ -2,7 +2,7 @@ import path from "path";
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-
+import compression from "vite-plugin-compression";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, ".", "");
   return {
@@ -11,7 +11,12 @@ export default defineConfig(({ mode }) => {
       host: "0.0.0.0",
       historyApiFallback: true,
     },
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      compression({ algorithm: "gzip", ext: ".gz" }),
+      compression({ algorithm: "brotliCompress", ext: ".br" }),
+    ],
     define: {
       "process.env.API_KEY": JSON.stringify(env.GEMINI_API_KEY),
       "process.env.GEMINI_API_KEY": JSON.stringify(env.GEMINI_API_KEY),
@@ -22,21 +27,21 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         output: {
-          manualChunks: {
-            // Split massive deps into separate cached chunks
-            "vendor-react": ["react", "react-dom"],
-            "vendor-router": ["react-router-dom"],
-            "vendor-supabase": ["@supabase/supabase-js"],
-            "vendor-recharts": ["recharts"], // only loads on Dashboard
-            "vendor-genai": ["@google/genai"], // only loads when Gemini used
-            "vendor-lucide": ["lucide-react"],
-            "vendor-helmet": ["react-helmet-async"],
+          manualChunks(id) {
+            if (id.includes("lucide-react")) return "vendor-lucide";
+            if (id.includes("recharts")) return "vendor-recharts";
+            if (id.includes("@supabase")) return "vendor-supabase";
+            if (id.includes("react-dom")) return "vendor-react";
+            if (id.includes("react-router")) return "vendor-router";
+            if (id.includes("react-helmet")) return "vendor-helmet";
           },
         },
       },
       chunkSizeWarningLimit: 1000,
       target: "esnext",
       minify: "esbuild",
+      cssCodeSplit: true,
+      sourcemap: false,
     },
   };
 });

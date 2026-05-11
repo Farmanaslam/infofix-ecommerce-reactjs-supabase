@@ -295,6 +295,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
 
   // Fetch notifications on mount
   useEffect(() => {
+    let active = true;
     const fetchNotifications = async () => {
       const { data, error } = await supabase
         .from("notifications")
@@ -351,6 +352,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       });
 
     return () => {
+      active = false;
       supabase.removeChannel(channel);
     };
   }, [currentUser?.id]);
@@ -405,8 +407,16 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   }, [currentUser]);
   const isFetchingRef = useRef(false);
 
+  // REPLACE WITH:
   const fetchDashboardData = useCallback(async () => {
     if (isFetchingRef.current) return;
+    const { data: sessionData0 } = await supabase.auth.getSession();
+    const sessionUser0 = sessionData0?.session?.user;
+    if (sessionUser0) {
+      const { data: staffCheck } = await supabase
+        .from("staffs").select("id").eq("id", sessionUser0.id).maybeSingle();
+      if (!staffCheck) return;
+    }
     isFetchingRef.current = true;
     try {
       type OrderRow = {
@@ -750,6 +760,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     return () => listener.subscription.unsubscribe();
   }, []);
   useEffect(() => {
+    return;
     const fetchProducts = async () => {
       const { data, error } = await supabase
         .from("products")

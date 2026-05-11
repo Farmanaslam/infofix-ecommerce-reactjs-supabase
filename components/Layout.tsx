@@ -1029,7 +1029,6 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
           </div>
         </div>
       </header>
-
       {currentPage === "home" && (
         <CouponDealsStrip
           storeSection={selectedStoreSection.toLowerCase()}

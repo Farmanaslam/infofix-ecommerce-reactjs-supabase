@@ -75,8 +75,7 @@ const Main: React.FC = () => {
             .from("staffs")
             .select("*")
             .eq("id", user.id)
-            .single();
-
+ .maybeSingle(); 
           if (staff) {
             setCurrentUser({
               id: user.id,
