@@ -352,6 +352,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
           {/* Cart (mobile left, desktop right) */}
           <button
             onClick={() => setCurrentPage("cart")}
+            aria-label="View shopping cart"
             className="relative lg:hidden w-10 h-10 flex items-center justify-center rounded-xl text-slate-600 transition-all duration-150 group"
             onMouseEnter={e => { e.currentTarget.style.color = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'; e.currentTarget.style.background = (sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1') + '15'; }}
             onMouseLeave={e => { e.currentTarget.style.color = ''; e.currentTarget.style.background = ''; }}          >

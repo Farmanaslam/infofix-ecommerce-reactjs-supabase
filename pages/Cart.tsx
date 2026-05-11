@@ -62,13 +62,6 @@ export const Cart: React.FC = () => {
     fetchCoupons();
   }, []);
 
-  useEffect(() => {
-    if (products.length === 0) return;
-    cart.forEach((item) => {
-      const exists = products.some((p) => String(p.id) === String(item.id));
-      if (!exists) removeFromCart(String(item.id));
-    });
-  }, [products]);
 
   useEffect(() => {
     const btn = checkoutBtnRef.current;
@@ -216,7 +209,8 @@ export const Cart: React.FC = () => {
                       onClick={() => handleSelectProduct(item)}
                     >
                       <div className="shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
-                        <img src={item.image} className="w-full h-full object-cover" alt={item.name} />
+                        <img src={item.image} className="w-full h-full object-cover" alt={item.name} width={96} height={96} />
+
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -366,12 +360,8 @@ export const Cart: React.FC = () => {
                           e.currentTarget.style.transform = "translateY(0)";
                         }}
                       >
-                        <img
-                          src={product.image}
-                          className="w-full h-24 object-cover rounded-xl mb-2"
-                          alt={product.name}
-                          draggable={false}
-                        />
+                        <img src={product.image} className="w-full h-24 object-cover rounded-xl mb-2" alt={product.name} width={144} height={96} draggable={false} />
+
                         <h3 className="font-semibold text-xs text-gray-800 leading-snug line-clamp-2 mb-1.5">{product.name}</h3>
                         <p className="font-black text-sm mb-2" style={{ color: theme.accent }}>
                           ₹{product.price.toLocaleString("en-IN")}</p>

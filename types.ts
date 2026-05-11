@@ -37,6 +37,7 @@ export interface Product {
   tags: string[];
   model: string;
   min_order_quantity?: number;
+  stock_quantity?: number;
 }
 
 export interface Branch {

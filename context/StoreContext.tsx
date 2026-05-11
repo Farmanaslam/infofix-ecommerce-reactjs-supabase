@@ -197,8 +197,9 @@ async function fetchCartFromSupabase(userId: string): Promise<CartItem[]> {
   return data.map((row: any) => {
     const moq = row.products?.min_order_quantity ?? 1;
     const stock = row.products?.stock_quantity ?? 0;
-    const safeQty = Math.max(moq, Math.min(row.quantity, stock));
-
+    const safeQty = stock > 0
+      ? Math.max(moq, Math.min(row.quantity, stock))
+      : row.quantity;
     return {
       id: String(row.product_id),
       product_id: String(row.product_id),

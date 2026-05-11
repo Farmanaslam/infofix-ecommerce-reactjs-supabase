@@ -318,16 +318,45 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                 <div className="absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-black/25 to-transparent pointer-events-none" />
                 {galleryImages.length > 1 && (
                   <>
-                    <button onClick={() => setActiveImg((i) => Math.max(i - 1, 0))} disabled={activeImg === 0} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-md flex items-center justify-center shadow-xl disabled:opacity-0 hover:bg-white hover:scale-105 transition-all duration-200"><ChevronLeft className="w-5 h-5 text-gray-800" /></button>
-                    <button onClick={() => setActiveImg((i) => Math.min(i + 1, galleryImages.length - 1))} disabled={activeImg === galleryImages.length - 1} className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-md flex items-center justify-center shadow-xl disabled:opacity-0 hover:bg-white hover:scale-105 transition-all duration-200"><ChevronRight className="w-5 h-5 text-gray-800" /></button>
+                    <button
+                      onClick={() => setActiveImg((i) => Math.max(i - 1, 0))}
+                      disabled={activeImg === 0}
+                      aria-label="Previous image"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-md flex items-center justify-center shadow-xl disabled:opacity-0 hover:bg-white hover:scale-105 transition-all duration-200"
+                    >
+                      <ChevronLeft className="w-5 h-5 text-gray-800" />
+                    </button>
+                    <button
+                      onClick={() => setActiveImg((i) => Math.min(i + 1, galleryImages.length - 1))}
+                      disabled={activeImg === galleryImages.length - 1}
+                      aria-label="Next image"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-md flex items-center justify-center shadow-xl disabled:opacity-0 hover:bg-white hover:scale-105 transition-all duration-200"
+                    >
+                      <ChevronRight className="w-5 h-5 text-gray-800" />
+                    </button>
                   </>
                 )}
                 {galleryImages.length > 1 && (
                   <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex gap-1.5">
-                    {galleryImages.map((_, i) => <button key={i} onClick={() => setActiveImg(i)} className={`rounded-full transition-all duration-300 ${i === activeImg ? "w-6 h-2 bg-white" : "w-2 h-2 bg-white/50 hover:bg-white/80"}`} />)}
+                    {galleryImages.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setActiveImg(i)}
+                        aria-label={`Go to image ${i + 1} of ${galleryImages.length}`}
+                        aria-current={i === activeImg ? "true" : undefined}
+                        className={`rounded-full transition-all duration-300 ${i === activeImg ? "w-6 h-2 bg-white" : "w-2 h-2 bg-white/50 hover:bg-white/80"}`}
+                      />
+                    ))}
                   </div>
                 )}
-                <button onClick={handleLike} className={`absolute top-5 right-20 z-10 w-11 h-11 rounded-2xl flex items-center justify-center backdrop-blur-md border shadow-lg transition-all duration-200 ${liked ? "bg-red-500 border-red-400 text-white scale-110" : "bg-white/90 border-white/60 text-gray-500 hover:bg-red-50 hover:text-red-500"}`}><Heart className={`w-5 h-5 ${liked ? "fill-current" : ""}`} /></button>
+                <button
+                  onClick={handleLike}
+                  aria-label={liked ? "Unlike this product" : "Like this product"}
+                  aria-pressed={liked}
+                  className={`absolute top-5 right-20 z-10 w-11 h-11 rounded-2xl flex items-center justify-center backdrop-blur-md border shadow-lg transition-all duration-200 ${liked ? "bg-red-500 border-red-400 text-white scale-110" : "bg-white/90 border-white/60 text-gray-500 hover:bg-red-50 hover:text-red-500"}`}
+                >
+                  <Heart className={`w-5 h-5 ${liked ? "fill-current" : ""}`} />
+                </button>
                 <button onClick={() => navigator.share?.({ title: product.name, url: window.location.href })} className="absolute top-5 right-5 z-10 w-11 h-11 rounded-2xl flex items-center justify-center bg-white/90 backdrop-blur-md border border-white/60 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 shadow-lg transition-all duration-200"><Share2 className="w-4 h-4" /></button>
               </div>
               {galleryImages.length > 1 && (
@@ -336,7 +365,8 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                     <button key={i} onClick={() => setActiveImg(i)} className={`relative shrink-0 w-18 h-18 rounded-2xl overflow-hidden transition-all duration-200 ${activeImg === i ? "" : "ring-1 ring-gray-200 opacity-60 hover:opacity-100 hover:ring-gray-300 hover:scale-[1.03]"}`}
                       style={activeImg === i ? { outline: `2.5px solid ${accent}`, outlineOffset: '2px', boxShadow: `0 4px 12px ${accent}44` } : {}}
                     >
-                      <img src={img} alt="" className="w-full h-full object-cover" />
+                      <img src={img} alt={`${product.name} - view ${i + 1}`} className="w-full h-full object-cover" />
+
                       {activeImg === i && <div className="absolute inset-0 bg-indigo-600/8 pointer-events-none" />}
                     </button>
                   ))}
@@ -628,7 +658,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
         <div className="fixed inset-0 z-99999 bg-black/90 backdrop-blur-md flex items-center justify-center" onTouchStart={(e) => { (e.currentTarget as any)._x = e.touches[0].clientX; }} onTouchEnd={(e) => { const diff = ((e.currentTarget as any)._x ?? 0) - e.changedTouches[0].clientX; if (Math.abs(diff) > 40) { if (diff > 0) setActiveImg((i) => Math.min(i + 1, galleryImages.length - 1)); else setActiveImg((i) => Math.max(i - 1, 0)); } }}>
           <button onClick={() => setShowImageViewer(false)} className="absolute top-5 right-5 text-white bg-white/10 hover:bg-white/20 p-2 rounded-xl"><X className="w-6 h-6" /></button>
           {galleryImages.length > 1 && <button onClick={() => setActiveImg((i) => Math.max(i - 1, 0))} className="absolute left-5 text-white bg-white/10 hover:bg-white/20 p-3 rounded-xl"><ChevronLeft className="w-6 h-6" /></button>}
-          <img src={galleryImages[activeImg]} alt="" className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-2xl" />
+          <img src={galleryImages[activeImg]} alt={`${product.name} - full view`} className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-2xl" />
           {galleryImages.length > 1 && <button onClick={() => setActiveImg((i) => Math.min(i + 1, galleryImages.length - 1))} className="absolute right-5 text-white bg-white/10 hover:bg-white/20 p-3 rounded-xl"><ChevronRight className="w-6 h-6" /></button>}
         </div>
       )}

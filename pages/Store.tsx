@@ -1366,8 +1366,8 @@ export const Store: React.FC = () => {
       {/* ── Hero ── */}
       <section ref={gridRef} className="relative flex items-center justify-center overflow-hidden py-3 px-2 md:py-5" style={{ background: 'white' }}>
 
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[60%] rounded-full blur-[120px] opacity-40 pointer-events-none"
-          style={{ background: theme.accent + '22' }} />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[60%] rounded-full blur-[80px] opacity-30 pointer-events-none"
+          style={{ background: theme.accent + '22', willChange: 'auto' }} />
         <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[50%] rounded-full blur-[100px] opacity-30 pointer-events-none"
           style={{ background: theme.accent + '18' }} />
 

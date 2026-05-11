@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => {
             if (id.includes("react-dom")) return "vendor-react";
             if (id.includes("react-router")) return "vendor-router";
             if (id.includes("react-helmet")) return "vendor-helmet";
+            if (id.includes("@google/genai")) return "vendor-genai";
           },
         },
       },

@@ -181,8 +181,9 @@ export const ProductCard: React.FC<ProductProps> = ({
                      group-hover:-translate-y-2 group-hover:shadow-[0_32px_64px_-12px_rgba(79,70,229,0.18)]"
       >
         <img
-          width={400} height={300}
           loading="lazy"
+          width={400}
+          height={300}
           src={
             imgError
               ? "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=600&q=80"
