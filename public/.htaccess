@@ -1,0 +1,13 @@
+Options -MultiViews
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [QSA,L]
+
+# Old WordPress product URLs → new shop
+Redirect 301 /product-category/all/ https://infofixcomputers.com/shop
+Redirect 301 /product-category/accessories/ https://infofixcomputers.com/shop
+Redirect 301 /our-branches/ https://infofixcomputers.com/branches
+
+# Individual old product pages → shop (or specific new URL if exists)
+RedirectMatch 301 ^/product/(.*)$ https://infofixcomputers.com/shop
