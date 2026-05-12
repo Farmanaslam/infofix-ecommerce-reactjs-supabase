@@ -96,6 +96,15 @@ export const Updates: React.FC = () => {
               "@id": `https://infofixcomputers.com/blog/${toSlug(selectedPost.title)}`
             }
           })}</script>
+          <script type="application/ld+json">{JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://infofixcomputers.com/" },
+              { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://infofixcomputers.com/blog" },
+              { "@type": "ListItem", "position": 3, "name": selectedPost.title, "item": `https://infofixcomputers.com/blog/${toSlug(selectedPost.title)}` }
+            ]
+          })}</script>
         </Helmet>
 
         <div className="max-w-4xl mx-auto px-4 pt-8 pb-4">
@@ -212,6 +221,7 @@ export const Updates: React.FC = () => {
             "author": { "@type": "Organization", "name": p.author }
           }))
         })}</script>
+
       </Helmet>
 
       <div className="app-container py-10 md:py-16">

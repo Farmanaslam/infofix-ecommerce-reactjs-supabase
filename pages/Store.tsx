@@ -1341,6 +1341,14 @@ export const Store: React.FC = () => {
             }))
           })}</script>
         )}
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://infofixcomputers.com/" },
+            { "@type": "ListItem", "position": 2, "name": seoHeading.h1 + ' ' + seoHeading.h2, "item": `https://infofixcomputers.com${location.pathname}` }
+          ]
+        })}</script>
       </Helmet>
       <style>{`
         @keyframes skeletonWave {

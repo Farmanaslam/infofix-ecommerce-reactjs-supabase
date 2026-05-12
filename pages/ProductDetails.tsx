@@ -8,7 +8,7 @@ import { Product } from "../types";
 import { useStore } from "../context/StoreContext";
 import { supabase } from "@/lib/supabaseClient";
 import { ProductCouponBadge, ProductCouponInline } from "./ProductCouponBade";
-
+import { Helmet } from 'react-helmet-async'
 interface ProductDetailsProps {
   product: Product;
   onBack: () => void;
@@ -277,6 +277,47 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
   const step = isWholesale ? moq : 1;
   return (
     <>
+      <Helmet>
+        <title>{product.name} | Infofix Computers</title>
+        <meta name="description" content={product.description?.slice(0, 160) || `Buy ${product.name} at best price. ${product.brand} | Infofix Computers`} />
+        <link rel="canonical" href={`https://infofixcomputers.com/products/${product.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 80)}-${product.id}`} />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          "name": product.name,
+          "image": product.images?.[0] ?? product.image,
+          "description": product.description?.slice(0, 300),
+          "brand": { "@type": "Brand", "name": product.brand || "Infofix" },
+          "sku": String(product.id),
+          "offers": {
+            "@type": "Offer",
+            "price": product.price,
+            "priceCurrency": "INR",
+            "availability": product.stock > 0
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+            "url": `https://infofixcomputers.com/products/${product.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 80)}-${product.id}`,
+            "seller": { "@type": "Organization", "name": "Infofix Computers" },
+            "priceValidUntil": "2026-12-31"
+          },
+          ...(product.reviews > 0 ? {
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": product.rating > 0 ? product.rating.toFixed(1) : "4.5",
+              "reviewCount": product.reviews
+            }
+          } : {})
+        })}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://infofixcomputers.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Shop", "item": "https://infofixcomputers.com/shop" },
+            { "@type": "ListItem", "position": 3, "name": product.name, "item": `https://infofixcomputers.com/products/${product.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 80)}-${product.id}` }
+          ]
+        })}</script>
+      </Helmet>
       <style>{`
         @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
         .pd-fade{animation:fadeInUp 0.5s ease both}
