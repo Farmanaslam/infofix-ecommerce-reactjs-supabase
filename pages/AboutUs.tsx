@@ -250,7 +250,7 @@ export const AboutUs: React.FC = () => {
               </p>
               <div className="space-y-2.5 pt-2">
                 {[
-                  "Expanding across West Bengal city by city",
+                  "Expanding across India city by city",
                   "Growing our custom PC build program statewide",
                   "A digital platform customers rely on, not just browse",
                 ].map((pt, i) => (
