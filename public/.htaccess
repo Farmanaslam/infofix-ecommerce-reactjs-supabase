@@ -1,40 +1,37 @@
 Options -MultiViews
 RewriteEngine On
+
+# SPA — serve index.html for all non-file, non-dir requests
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.html [QSA,L]
 
-# ── Old WordPress product URLs → new React ──
+# Old WordPress product categories → shop
 Redirect 301 /product-category/all/ https://infofixcomputers.com/shop
 Redirect 301 /product-category/accessories/ https://infofixcomputers.com/shop
 Redirect 301 /product-category/laptops/ https://infofixcomputers.com/shop
 Redirect 301 /product-category/desktops/ https://infofixcomputers.com/shop
 Redirect 301 /product-category/refurbished/ https://infofixcomputers.com/buy-refurbished-laptop
+
+# Old WordPress slugs → new React (trailing-slash versions ONLY — no-slash handled by SPA)
 Redirect 301 /our-branches/ https://infofixcomputers.com/branches
 Redirect 301 /about-us/ https://infofixcomputers.com/about
 Redirect 301 /contact-us/ https://infofixcomputers.com/contact
-Redirect 301 /services/ https://infofixcomputers.com/services
-Redirect 301 /blog/ https://infofixcomputers.com/blog
-Redirect 301 /careers/ https://infofixcomputers.com/careers
-Redirect 301 /shop/ https://infofixcomputers.com/shop
-Redirect 301 /cart/ https://infofixcomputers.com/cart
 Redirect 301 /my-account/ https://infofixcomputers.com/profile
-Redirect 301 /checkout/ https://infofixcomputers.com/checkout
 
-# ── All old product pages → shop ──
+# DO NOT add /blog/ /careers/ /services/ /shop/ here — causes loops
+
+# Old product pages → shop
 RedirectMatch 301 ^/product/(.*)$ https://infofixcomputers.com/shop
 
-# ── WordPress system junk → kill crawl waste ──
-RedirectMatch 301 ^/wp-admin(.*)$ https://infofixcomputers.com/
-RedirectMatch 301 ^/wp-login(.*)$ https://infofixcomputers.com/
-RedirectMatch 301 ^/wp-content(.*)$ https://infofixcomputers.com/
-RedirectMatch 301 ^/wp-includes(.*)$ https://infofixcomputers.com/
-RedirectMatch 301 ^/\?p=(.*)$ https://infofixcomputers.com/shop
-RedirectMatch 301 ^/tag/(.*)$ https://infofixcomputers.com/blog
-RedirectMatch 301 ^/author/(.*)$ https://infofixcomputers.com/
-RedirectMatch 301 ^/page/(.*)$ https://infofixcomputers.com/
+# WordPress junk — 410 Gone (better than 301 for SEO)
+RedirectMatch 410 ^/wp-admin
+RedirectMatch 410 ^/wp-login
+RedirectMatch 410 ^/wp-content
+RedirectMatch 410 ^/wp-includes
+RedirectMatch 410 ^/[0-9]{4}/[0-9]{2}/[0-9]{2}/.*$
 
-# ── Performance headers ──
+# Performance headers
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType image/jpeg "access plus 1 year"
@@ -50,13 +47,6 @@ RedirectMatch 301 ^/page/(.*)$ https://infofixcomputers.com/
   </FilesMatch>
 </IfModule>
 
-# ── Gzip compression ──
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json
 </IfModule>
-RedirectMatch 410 ^/[0-9]{4}/[0-9]{2}/[0-9]{2}/.*$
-RedirectMatch 301 ^/wp-admin(.*)$ https://infofixcomputers.com/
-RedirectMatch 410 ^/wp-admin
-RedirectMatch 410 ^/wp-login
-RedirectMatch 410 ^/wp-content
-RedirectMatch 410 ^/wp-includes

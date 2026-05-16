@@ -15,7 +15,8 @@ self.addEventListener("fetch", (event) => {
   const url = event.request.url;
 
   // Skip OAuth redirects — let browser handle them natively
-  if (url.includes("access_token") || url.includes("localhost:3000")) {
+  if (url.includes("access_token") || url.includes("localhost:3000")||
+    url.includes("yt-proxy") ) {
     return;
   }
 

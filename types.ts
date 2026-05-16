@@ -141,6 +141,9 @@ export interface UpdatePost {
   image_url: string;
   published_date: string;
   is_featured: boolean;
+  video_url?: string;
+  description_en?: string;
+  description_hinglish?: string;
 }
 export type UpdateForm = Omit<UpdatePost, "id" | "published_date">;
 export interface Customer {

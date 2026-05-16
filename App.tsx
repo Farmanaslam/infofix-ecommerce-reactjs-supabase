@@ -159,7 +159,6 @@ const Main: React.FC = () => {
     };
     restoreSession();
   }, []);
-
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
