@@ -11,17 +11,29 @@ export default async function handler(req, res) {
     const { Innertube } = await import("youtubei.js");
     const yt = await Innertube.create({ retrieve_player: false });
     const info = await yt.getInfo(videoId);
-    
     const transcriptData = await info.getTranscript();
-    const segments = transcriptData?.transcript?.content?.body?.initial_segments ?? [];
+
+    // Log full structure so we can see exact shape
+    const raw = JSON.stringify(transcriptData).slice(0, 2000);
     
+    // Try multiple possible paths
+    const segments = 
+      transcriptData?.transcript?.content?.body?.initial_segments ??
+      transcriptData?.content?.body?.initial_segments ??
+      transcriptData?.body?.initial_segments ??
+      [];
+
     const text = segments
-      .map(s => s.snippet?.text ?? "")
+      .map(s => s?.snippet?.text ?? s?.text ?? "")
+      .filter(Boolean)
       .join(" ")
       .replace(/\s+/g, " ")
       .trim();
 
-    if (!text) return res.status(500).json({ error: "No transcript found" });
+    if (!text) {
+      // Return raw so we can debug structure
+      return res.status(500).json({ error: "No transcript parsed", debug: raw });
+    }
 
     res.status(200).json({ transcript: text });
   } catch (err) {
