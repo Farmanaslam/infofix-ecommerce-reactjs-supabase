@@ -1,5 +1,3 @@
-import { YoutubeTranscript } from 'youtube-transcript';
-
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
@@ -10,21 +8,43 @@ export default async function handler(req, res) {
   if (!videoId) return res.status(400).json({ error: "videoId required" });
 
   try {
-    // Try Hindi first (hi), then auto-Hindi (a.hi), then English
-    let transcript = null;
-    for (const lang of ["hi", "a.hi", "en", "a.en"]) {
-      try {
-        const result = await YoutubeTranscript.fetchTranscript(videoId, { lang });
-        if (result?.length) { transcript = result; break; }
-      } catch (_) {}
-    }
+    // Fetch YouTube page to get caption track URLs
+    const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+      }
+    });
+    const html = await pageRes.text();
 
-    if (!transcript) {
-      // Last resort: fetch without lang param
-      transcript = await YoutubeTranscript.fetchTranscript(videoId);
-    }
+    // Extract captionTracks from ytInitialPlayerResponse
+    const match = html.match(/"captionTracks":(\[.*?\])/);
+    if (!match) return res.status(500).json({ error: "No captions found on this video" });
 
-    const text = transcript.map(t => t.text).join(" ");
+    const tracks = JSON.parse(match[1]);
+    
+    // Prefer Hindi, fallback to first available
+    const track = tracks.find(t => t.languageCode === "hi") 
+      || tracks.find(t => t.languageCode === "en")
+      || tracks[0];
+
+    if (!track) return res.status(500).json({ error: "No caption track available" });
+
+    // Fetch the actual transcript XML
+    const xmlRes = await fetch(track.baseUrl);
+    const xml = await xmlRes.text();
+
+    // Parse XML to plain text
+    const text = xml
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/\s+/g, " ")
+      .trim();
+
     res.status(200).json({ transcript: text });
   } catch (err) {
     res.status(500).json({ error: err.message });
