@@ -2,86 +2,63 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
+  if (req.method === "OPTIONS") return res.status(200).end();
 
   const { videoId } = req.query;
+  if (!videoId) return res.status(400).json({ error: "videoId required" });
 
-  if (!videoId) {
-    return res.status(400).json({
-      error: "videoId required",
-    });
-  }
+  const API_KEY = process.env.YOUTUBE_API_KEY;
 
   try {
-    // METHOD 1 — youtubei.js
-    try {
-      const { Innertube } = await import("youtubei.js");
+    // Get caption tracks
+    const listRes = await fetch(
+      `https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=${videoId}&key=${API_KEY}`
+    );
+    const listData = await listRes.json();
 
-      const yt = await Innertube.create({
-        retrieve_player: false,
-      });
+    if (listData.error) {
+      return res.status(500).json({ error: listData.error.message });
+    }
 
-      const info = await yt.getInfo(videoId);
-
-      const transcriptData = await info.getTranscript();
-
-      const segments =
-        transcriptData?.transcript?.content?.body?.initial_segments ??
-        transcriptData?.content?.body?.initial_segments ??
-        transcriptData?.body?.initial_segments ??
-        [];
-
-      const text = segments
-        .map((s) => s?.snippet?.text ?? s?.text ?? "")
-        .filter(Boolean)
+    if (!listData.items?.length) {
+      // Fallback: timedtext API (no auth needed)
+      const timedRes = await fetch(
+        `https://www.youtube.com/api/timedtext?v=${videoId}&lang=hi&fmt=json3`
+      );
+      const timedData = await timedRes.json().catch(() => null);
+      const text = (timedData?.events ?? [])
+        .flatMap(e => e.segs ?? [])
+        .map(s => s.utf8 ?? "")
         .join(" ")
         .replace(/\s+/g, " ")
         .trim();
 
-      if (text) {
-        return res.status(200).json({
-          transcript: text,
-          source: "youtubei.js",
-        });
-      }
-    } catch (e) {
-      console.log("youtubei.js failed");
+      if (text) return res.status(200).json({ transcript: text });
+      return res.status(500).json({ error: "No captions found" });
     }
 
-    // METHOD 2 — youtube-transcript fallback
-    try {
-      const { YoutubeTranscript } =
-        await import("youtube-transcript");
+    // Pick Hindi or first track
+    const track =
+      listData.items.find(t => t.snippet.language === "hi") ||
+      listData.items[0];
 
-      const transcript =
-        await YoutubeTranscript.fetchTranscript(videoId);
+    // timedtext fetch using language code
+    const lang = track.snippet.language;
+    const timedRes = await fetch(
+      `https://www.youtube.com/api/timedtext?v=${videoId}&lang=${lang}&fmt=json3`
+    );
+    const timedData = await timedRes.json().catch(() => null);
+    const text = (timedData?.events ?? [])
+      .flatMap(e => e.segs ?? [])
+      .map(s => s.utf8 ?? "")
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
 
-      const text = transcript
-        .map((t) => t.text)
-        .join(" ")
-        .replace(/\s+/g, " ")
-        .trim();
+    if (!text) return res.status(500).json({ error: "Transcript empty" });
+    return res.status(200).json({ transcript: text });
 
-      if (text) {
-        return res.status(200).json({
-          transcript: text,
-          source: "youtube-transcript",
-        });
-      }
-    } catch (e) {
-      console.log("youtube-transcript failed");
-    }
-
-    return res.status(500).json({
-      error:
-        "Transcript unavailable. Video may not have captions enabled.",
-    });
   } catch (err) {
-    return res.status(500).json({
-      error: err.message,
-    });
+    return res.status(500).json({ error: err.message });
   }
 }
