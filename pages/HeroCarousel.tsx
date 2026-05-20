@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-
+import { Link } from "react-router-dom";
 const slides = [
   {
     eyebrow: "New Arrival 2025",
@@ -245,13 +245,15 @@ export const HeroCarousel: React.FC = () => {
 
           {/* CTAs */}
           <div className="flex items-center gap-3 flex-wrap">
-            <button
+            <Link
+              to="/buy-desktop-pc"
               className="text-white text-xs font-black uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all duration-200 hover:opacity-90"
               style={{ background: slide.accentColor }}
             >
               Shop Desktops
-            </button>
-            <button
+            </Link>
+            <Link
+              to="/shop"
               className="text-sm font-semibold px-5 py-3 rounded-xl transition-all duration-200 hover:border-current"
               style={{
                 background: "transparent",
@@ -260,7 +262,7 @@ export const HeroCarousel: React.FC = () => {
               }}
             >
               View Configs →
-            </button>
+            </Link>
           </div>
         </div>
 

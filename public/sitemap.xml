@@ -2,38 +2,92 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://infofixcomputers.com/</loc><priority>1.0</priority><changefreq>daily</changefreq></url>
   <url><loc>https://infofixcomputers.com/shop</loc><priority>0.9</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://infofixcomputers.com/about</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/contact</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/services</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/branches</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/careers</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/blog</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/buy-laptop-durgapur</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/buy-laptop-asansol</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/buy-refurbished-laptop-durgapur</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/second-hand-laptop-durgapur</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/computer-shop-durgapur</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/computer-shop-asansol</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/laptop-shop-durgapur</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/gaming-pc-durgapur</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/custom-pc-build-durgapur</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/buy-gaming-laptop-durgapur</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/laptop-repair-durgapur</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/computer-repair-durgapur</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/dell-laptop-durgapur</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/hp-laptop-durgapur</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/lenovo-laptop-durgapur</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-desktop-pc-durgapur</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-gaming-pc-durgapur</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/refurbished-laptop-durgapur</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/refurbished-desktop-durgapur</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/bulk-laptop-supplier-durgapur</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/wholesale-desktop-durgapur</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/computer-wholesale-durgapur</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-laptop-asansol</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/computer-shop-asansol</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/laptop-repair-asansol</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/laptop-repair-service-asansol</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-refurbished-laptop-asansol</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/refurbished-laptop-asansol</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-desktop-pc-asansol</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-laptop-bardhaman</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/computer-shop-bardhaman</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-laptop-ukhra</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-laptop-new-ukhra</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-laptop-second-hand-ukhra</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/refurbished-laptop-ukhra</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-desktop-ukhra</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/computer-shop-ukhra</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-laptop-west-bengal</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-refurbished-laptop-west-bengal</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/wholesale-laptop-west-bengal</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-refurbished-laptop</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/certified-refurbished-laptop</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/refurbished-laptop-india</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/refurbished-dell-laptop-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/refurbished-hp-laptop-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/refurbished-lenovo-laptop-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/refurbished-gaming-laptop-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/refurbished-desktop-pc-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/refurbished-laptop-under-20000</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/laptop-under-30000</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/laptop-under-50000</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/gaming-laptop-under-60000</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/custom-gaming-pc-under-50000</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/custom-gaming-pc-under-80000</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-desktop-pc-under-30000-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-desktop-pc-under-50000-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-laptop-under-20000-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-laptop-under-40000-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/gaming-laptop-under-70000-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/best-laptop-for-students</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/best-laptop-for-programming</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/buy-refurbished-laptop</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/refurbished-laptop-india</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/certified-refurbished-laptop</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/wholesale-laptop-west-bengal</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/bulk-laptop-supplier-durgapur</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/buy-laptop-ukhra</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/computer-shop-ukhra</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/best-laptop-for-video-editing-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/best-business-laptop-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/best-laptop-for-college-students-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/best-laptop-for-engineering-students-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/buy-laptop-near-me</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/blog</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/about</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/contact</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/services</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/branches</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/careers</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-laptop-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-laptop-online-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/laptop-shop-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-desktop-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/computer-shop-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-gaming-laptop-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/computer-store-near-me</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/laptop-store-near-me</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-laptop-accessories-online-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/wholesale-laptop-supplier-india</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-laptop-bengal</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-laptop</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/buy-desktop-pc</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/blog/i-bought-a-second-hand-gaming-pc-for-50-less-worth-it-gaming-pc-market-in-durgap</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2026-05-20</lastmod></url>
+  <url><loc>https://infofixcomputers.com/blog/only-25k-macbook</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2026-05-20</lastmod></url>
+  <url><loc>https://infofixcomputers.com/blog/gaming-pc-under-10k-in-2026-second-hand-laptop-desktop-west-bengal</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2026-05-20</lastmod></url>
   <url><loc>https://infofixcomputers.com/blog/laptop-overheating-7-fixes-that-actually-work</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2026-03-28</lastmod></url>
   <url><loc>https://infofixcomputers.com/blog/custom-pc-vs-branded-desktop-which-gives-more-value-in-india</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2026-03-10</lastmod></url>
   <url><loc>https://infofixcomputers.com/blog/why-business-laptops-beat-consumer-laptops-for-students-and-professionals</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2026-02-20</lastmod></url>
@@ -41,58 +95,60 @@
   <url><loc>https://infofixcomputers.com/blog/intel-core-i5-vs-ryzen-5-which-is-better-for-your-budget-in-2025</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2026-01-20</lastmod></url>
   <url><loc>https://infofixcomputers.com/blog/buy-refurbished-laptop-in-durgapur-complete-local-guide</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2026-01-08</lastmod></url>
   <url><loc>https://infofixcomputers.com/blog/second-hand-laptop-shop-in-ukhra-refurbished-pcs-laptops-with-warranty</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2025-12-22</lastmod></url>
-  <url><loc>https://infofixcomputers.com/blog/how-to-choose-the-best-laptop-for-programming-in-2025</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2025-12-18</lastmod></url>
   <url><loc>https://infofixcomputers.com/blog/buy-new-laptop-in-ukhra-affordable-laptop-desktop-store-near-you</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2025-12-18</lastmod></url>
+  <url><loc>https://infofixcomputers.com/blog/how-to-choose-the-best-laptop-for-programming-in-2025</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2025-12-18</lastmod></url>
   <url><loc>https://infofixcomputers.com/blog/buy-second-hand-laptop-in-asansol-refurbished-dell-hp-with-warranty</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2025-12-14</lastmod></url>
   <url><loc>https://infofixcomputers.com/blog/buy-new-laptop-in-asansol-best-computer-shop-for-students-gaming</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2025-12-12</lastmod></url>
   <url><loc>https://infofixcomputers.com/blog/best-gaming-pc-build-under-50000-in-india-ryzen-rtx-guide</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2025-12-05</lastmod></url>
   <url><loc>https://infofixcomputers.com/blog/refurbished-vs-second-hand-laptop-what-is-the-real-difference</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2025-11-25</lastmod></url>
   <url><loc>https://infofixcomputers.com/blog/best-refurbished-laptops-under-30000-in-india-2025</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>2025-11-10</lastmod></url>
+  <url><loc>https://infofixcomputers.com/products/intel-core-i5-6th-gen-white-desktop-pc-16gb-ram-256gb-ssd-22-monitor-full-set-83</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/amd-ryzen-5-5500-gaming-desktop-pc-8gb-ram-512gb-ssd-rx-580-8gb-24-monitor-45</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/ivoomi-shakti-wireless-bluetooth-mouse-black-24ghz-bt-v52-rechargeable-106</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/zoox-wireless-keyboard-mouse-combo-white-dual-mode-24ghz-bluetooth-50-102</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/ivoomi-hero-wired-usb-keyboard-with-keyskin-spill-resistant-uv-printed-keys-key--99</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/ivoomi-shakti-wireless-bluetooth-mouse-black-24ghz-bt-v52-rechargeable-106</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/intel-core-i5-4th-gen-desktop-pc-8gb-ram-256gb-ssd-20-monitor-full-set-36</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/ivoomi-finn-wireless-bluetooth-keyboard-dual-mode-black-iv-101kmc-93</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/amd-ryzen-5-5600gt-gaming-desktop-pc-16gb-ram-512gb-nvme-ssd-rtx-3050-27-monitor-44</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/intel-core-i3-3rd-gen-desktop-pc-set-with-19-monitor-4gb-ram-128gb-ssd-complete--32</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/intel-core-i5-3rd-gen-desktop-pc-8gb-ram-256gb-ssd-19-monitor-full-set-35</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/robot-wired-gaming-mouse-usb-1500-dpi-rgb-lights-150cm-cable-124</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/ivoomi-tucker-wired-gaming-keyboard-outemu-linear-switches-rgb-lights-volume-kno-95</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/intel-core-i5-3rd-gen-desktop-pc-set-4gb-ram-128gb-ssd-19-monitor-33</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/hp-probook-445-g6-refurbished-laptop-ryzen-5-3500u-8gb-ram-256gb-ssd-14-display-75</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/ivoomi-cosmo-wireless-mini-keyboard-mouse-combo-24ghz-compact-design-104</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/pride-wired-usb-mouse-plug-play-120cm-cable-universal-compatibility-126</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/ivoomi-venom-wired-usb-mini-keyboard-black-silver-compact-design-96</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/intel-core-i3-3rd-gen-desktop-pc-set-with-19-monitor-4gb-ram-128gb-ssd-complete--32</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/ivoomi-tucker-wired-gaming-keyboard-outemu-linear-switches-rgb-lights-volume-kno-95</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/intel-core-i5-3rd-gen-desktop-pc-8gb-ram-256gb-ssd-19-monitor-full-set-35</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/ivoomi-finn-wireless-bluetooth-keyboard-dual-mode-black-iv-101kmc-93</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/dell-latitude-7400-refurbished-laptop-intel-core-i5-8th-gen-8gb-ram-256gb-storag-119</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/lenovo-thinkpad-x1-refurbished-laptop-intel-core-i5-8th-gen-8gb-ram-256gb-nvme-s-123</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/hp-probook-445-g6-refurbished-laptop-ryzen-5-3500u-8gb-ram-256gb-ssd-14-display-75</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/ivoomi-quest-wired-usb-keyboard-spill-resistant-120cm-cable-uv-printed-keys-97</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/intel-core-i5-3rd-gen-desktop-pc-set-4gb-ram-128gb-ssd-19-monitor-33</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/intel-core-i5-14th-gen-gaming-desktop-pc-16gb-ram-512gb-nvme-ssd-rtx-3050-27-mon-43</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/intel-core-i3-3rd-gen-desktop-pc-8gb-ram-256gb-ssd-19-monitor-full-set-34</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/pride-wired-usb-mouse-plug-play-120cm-cable-universal-compatibility-126</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/ivoomi-quest-wired-usb-keyboard-spill-resistant-120cm-cable-uv-printed-keys-97</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/intel-core-i5-gaming-desktop-pc-8gb-ram-256gb-ssd-rgb-cabinet-22-monitor-37</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/ivoomi-shakti-wireless-bluetooth-mouse-grey-24ghz-bt-v52-rechargeable-105</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/ivoomi-captain-wired-keyboard-mouse-combo-spill-resistant-uv-printed-keys-key-su-101</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/ivoomi-pluto-wired-usb-keyboard-iv-kb105-multimedia-keys-uv-printed-keys-key-sup-98</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/intel-i5-3rd-gen-white-rgb-desktop-pc-8gb-ram-256gb-ssd-22-monitor-full-setup-130</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/robot-wired-gaming-mouse-usb-1500-dpi-rgb-lights-150cm-cable-124</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/dell-latitude-7420-refurbished-laptop-intel-i7-11th-gen-16gb-ram-256gb-nvme-back-118</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/intel-core-i5-gaming-desktop-pc-8gb-ram-256gb-ssd-rgb-cabinet-22-monitor-37</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/ivoomi-avni-wireless-bluetooth-mouse-black-bt-52-silent-click-15m-range-plug-pla-117</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/ivoomi-hank-wireless-mouse-light-green-24ghz-1600-dpi-silent-click-aa-battery-15-115</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/ivoomi-bree-wireless-bluetooth-mouse-green-type-c-rechargeable-silent-click-108</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/ivoomi-opaque-wireless-bluetooth-mouse-white-transparent-design-type-c-rechargea-112</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/ivoomi-sora-wireless-mouse-24ghz-1600-dpi-aaa-battery-plug-play-15m-range-116</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/pride-wired-usb-mouse-bold-plug-play-120cm-cable-smooth-tracking-127</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/concord-plus-dual-band-wifi-bluetooth-adapter-5g-600mbps-usb-129</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/ivoomi-sora-wireless-mouse-24ghz-1600-dpi-aaa-battery-plug-play-15m-range-116</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/ivoomi-hank-wireless-mouse-black-24ghz-1600-dpi-silent-click-aa-battery-15m-rang-114</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/ivoomi-opaque-wireless-bluetooth-mouse-white-transparent-design-type-c-rechargea-112</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/apple-macbook-air-13-inch-core-i5-8gb-ram-128gb-storage-silver-refurbished-111</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/zoox-wireless-keyboard-mouse-combo-black-dual-mode-24ghz-bluetooth-50-103</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/dell-latitude-7400-refurbished-laptop-intel-core-i5-8th-gen-8gb-ram-256gb-storag-119</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/dell-latitude-7420-refurbished-laptop-intel-i7-11th-gen-16gb-ram-256gb-nvme-back-118</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/ivoomi-hank-wireless-mouse-black-24ghz-1600-dpi-silent-click-aa-battery-15m-rang-114</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/intel-i5-3rd-gen-white-rgb-desktop-pc-8gb-ram-256gb-ssd-22-monitor-full-setup-130</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/ivoomi-bree-wireless-bluetooth-mouse-green-type-c-rechargeable-silent-click-108</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/ivoomi-super-wired-keyboard-mouse-combo-keyskin-spill-resistant-uv-printed-keys--100</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/ivoomi-shakti-wireless-bluetooth-mouse-grey-24ghz-bt-v52-rechargeable-105</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/force-1-plus-wireless-usb-adapter-150mbps-wifi-24ghz-bluetooth-42-132</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/lenovo-thinkpad-x13-yoga-refurbished-laptop-intel-core-i5-10th-gen-16gb-ram-256g-121</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/ivoomi-tucker-wired-gaming-keyboard-outemu-linear-switches-rgb-lights-volume-kno-94</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/intel-core-i5-6th-gen-desktop-pc-8gb-ram-512gb-ssd-22-monitor-full-set-46</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/dell-latitude-7400-refurbished-laptop-intel-core-i7-8th-gen-16gb-ram-256gb-stora-120</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/dell-latitude-7440-refurbished-laptop-intel-core-i7-4th-gen-8gb-ram-256gb-ssd-bu-122</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/ivoomi-avni-wireless-bluetooth-mouse-black-bt-52-silent-click-15m-range-plug-pla-117</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/ivoomi-opaque-wireless-bluetooth-mouse-blue-transparent-design-type-c-rechargeab-113</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/apple-macbook-air-13-inch-2017-core-i7-8gb-ram-256gb-storage-silver-refurbished-110</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://infofixcomputers.com/products/ivoomi-bree-wireless-bluetooth-mouse-black-type-c-rechargeable-silent-click-107</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/ivoomi-super-wired-keyboard-mouse-combo-keyskin-spill-resistant-uv-printed-keys--100</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/intel-core-i5-6th-gen-white-desktop-pc-16gb-ram-256gb-ssd-22-monitor-full-set-83</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://infofixcomputers.com/products/lenovo-thinkpad-x1-refurbished-laptop-intel-core-i5-8th-gen-8gb-ram-256gb-nvme-s-123</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/apple-macbook-air-13-inch-2017-core-i7-8gb-ram-256gb-storage-silver-refurbished-110</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/ivoomi-opaque-wireless-bluetooth-mouse-blue-transparent-design-type-c-rechargeab-113</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/ivoomi-cosmo-wireless-mini-keyboard-mouse-combo-24ghz-compact-design-104</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/nano-wireless-usb-wifi-adapter-150mbps-24ghz-plug-play-133</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://infofixcomputers.com/products/zoox-wireless-keyboard-mouse-combo-black-dual-mode-24ghz-bluetooth-50-103</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
 </urlset>

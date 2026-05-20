@@ -5,12 +5,13 @@ import { UpdatePost } from "../types";
 import { UpdateCardSkeleton } from "./Skeleton";
 import { useStore } from "../context/StoreContext";
 import { SECTION_ACCENT } from "@/lib/sectionTheme";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 
 function toSlug(title: string): string {
   return title
     .toLowerCase()
+    .replace(/[₹&@#%\+\*\(\)\[\]]/g, '')
     .replace(/[^a-z0-9\s-]/g, "")
     .trim()
     .replace(/\s+/g, "-")
@@ -85,6 +86,8 @@ const VideoCard: React.FC<{
               src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
               alt={post.title}
               loading="lazy"
+              width={480}
+              height={360}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
             {/* Play button overlay */}
@@ -186,7 +189,16 @@ export const Updates: React.FC = () => {
   const categories = ["All", "Laptops", "Custom Build PCs", "Desktop PCs", "Videos"];
   const filtered = activeCategory === "All" ? posts : posts.filter((p) => p.category === activeCategory);
   const featured = posts.find((p) => p.is_featured);
-
+  if (slug && !loading && posts.length > 0 && !selectedPost) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-black text-gray-900 mb-4">Article not found</h1>
+          <Link to="/blog" className="text-indigo-600 font-bold hover:underline">← Back to Blog</Link>
+        </div>
+      </div>
+    )
+  }
   // ── ARTICLE/VIDEO DETAIL VIEW ─────────────────────────────────────────────
   if (selectedPost) {
     const cat = categoryStyle[selectedPost.category];
@@ -233,12 +245,12 @@ export const Updates: React.FC = () => {
         </Helmet>
 
         <div className="max-w-4xl mx-auto px-4 pt-8 pb-4">
-          <button
-            onClick={() => navigate("/blog")}
+          <Link
+            to="/blog"
             className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition mb-6"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Blog
-          </button>
+          </Link>
           <p className="text-xs text-gray-400 font-semibold uppercase tracking-widest mb-4">
             <span className="cursor-pointer hover:underline" onClick={() => navigate("/blog")}>Home</span>
             {" › Blog › "}{selectedPost.category}
@@ -345,13 +357,13 @@ export const Updates: React.FC = () => {
             <p className="text-gray-500 font-medium mb-6">
               Visit Infofix Computers in Durgapur, Asansol, or Ukhra or browse our online store.
             </p>
-            <button
-              onClick={() => navigate("/shop")}
-              className="text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest"
+            <Link
+              to="/shop"
+              className="text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest inline-block"
               style={{ background: theme.accent }}
             >
               Shop Now →
-            </button>
+            </Link>
           </div>
 
           {/* Related */}
@@ -442,6 +454,7 @@ export const Updates: React.FC = () => {
                 <img
                   src={featVideoId ? `https://img.youtube.com/vi/${featVideoId}/hqdefault.jpg` : featured.image_url}
                   alt={featured.title}
+                  width={640} height={360}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 {featVideoId && (
@@ -518,6 +531,8 @@ export const Updates: React.FC = () => {
                       <img
                         src={post.image_url}
                         alt={post.title}
+                        width={480}
+                        height={270}
                         loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />

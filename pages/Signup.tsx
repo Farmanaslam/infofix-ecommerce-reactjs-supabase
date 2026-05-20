@@ -18,6 +18,7 @@ import {
   Star,
 } from "lucide-react";
 import { SECTION_ACCENT } from "@/lib/sectionTheme";
+import { Link } from "react-router-dom";
 const STEPS = ["Account", "Address", "Confirm"];
 
 // ── OUTSIDE Signup ──────────────────────────────────────────
@@ -331,13 +332,13 @@ export const Signup = () => {
               </button>
               <p className="p-2 md:p-0 text-sm text-gray-500 text-center font-medium">
                 Already have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage("login")}
-                  className="font-bold hover:underline" style={{ color: theme.accent }}
+                <Link
+                  to="/login"
+                  className="font-bold hover:underline"
+                  style={{ color: theme.accent }}
                 >
                   Sign In
-                </button>
+                </Link>
               </p>
             </div>
           )}
@@ -482,13 +483,13 @@ export const Signup = () => {
                 </div>
                 <span className="text-sm text-gray-600 font-medium leading-relaxed">
                   I agree to Infofix's{" "}
-                  <button
-                    type="button"
-                    onClick={() => setCurrentPage("policy")}
-                    className="font-bold hover:underline" style={{ color: theme.accent }}
+                  <Link
+                    to="/policy"
+                    className="font-bold hover:underline"
+                    style={{ color: theme.accent }}
                   >
                     Terms & Conditions
-                  </button>{" "}
+                  </Link>{" "}
                   and{" "}
                   <span className="font-bold" style={{ color: theme.accent }}>
                     Privacy Policy

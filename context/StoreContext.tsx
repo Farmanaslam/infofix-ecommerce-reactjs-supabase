@@ -21,6 +21,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { ArrowRight, Check, X } from "lucide-react";
 import { AppNotification } from "../types";
 import { useNavigate, useLocation } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { SECTION_ACCENT } from '@/lib/sectionTheme'
 export type CustomerPage =
   | "home"
@@ -166,12 +167,14 @@ const CartToast: React.FC<{
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <button
+              <Link
+                to="/cart"
                 onClick={onGoToCart}
                 className="flex items-center gap-1.5 active:scale-95 text-white text-[11px] font-black uppercase tracking-widest px-4 py-2.5 rounded-xl transition-all duration-150 shadow-lg"
-                style={{ background: accent }}              >
+                style={{ background: accent }}
+              >
                 View Cart <ArrowRight className="w-3 h-3" />
-              </button>
+              </Link>
               <button
                 onClick={onDismiss}
                 className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/15 text-gray-400 hover:text-white transition-colors"

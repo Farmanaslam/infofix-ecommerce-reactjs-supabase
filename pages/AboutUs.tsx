@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { SECTION_ACCENT } from "@/lib/sectionTheme";
 import { Helmet } from "react-helmet-async";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 export const AboutUs: React.FC = () => {
   const { setIsMessageModalOpen, setCurrentPage, selectedStoreSection } = useStore();
   const theme = SECTION_ACCENT[selectedStoreSection];
@@ -142,10 +142,7 @@ export const AboutUs: React.FC = () => {
                 color: "#ef4444",
               },
             ].map((s, i) => (
-              <div
-                key={i}
-                className="flex flex-col items-center gap-2 bg-gray-50 border border-gray-100 rounded-2xl py-6 px-4"
-              >
+              <Link to="/branches" key={i} className="flex flex-col items-center gap-2 bg-gray-50 border border-gray-100 rounded-2xl py-6 px-4 hover:border-indigo-200 transition-colors">
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center"
                   style={{ background: s.color + "18" }}
@@ -158,7 +155,7 @@ export const AboutUs: React.FC = () => {
                 <div className="text-xs font-semibold text-gray-400 text-center">
                   {s.label}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
@@ -549,15 +546,16 @@ export const AboutUs: React.FC = () => {
             <button
               onClick={() => setIsMessageModalOpen(true)}
               className="text-white px-8 py-3.5 rounded-xl font-semibold transition cursor-pointer"
-              style={{ background: theme.accent }}            >
+              style={{ background: theme.accent }}
+            >
               Send Message
             </button>
-            <button
-              onClick={() => setCurrentPage("branches")}
-              className="border border-gray-200 text-gray-700 hover:border-indigo-300 hover:text-indigo-600 px-8 py-3.5 rounded-xl font-semibold transition cursor-pointer flex items-center gap-2"
+            <Link
+              to="/branches"
+              className="border border-gray-200 text-gray-700 hover:border-indigo-300 hover:text-indigo-600 px-8 py-3.5 rounded-xl font-semibold transition flex items-center gap-2"
             >
               <MapPin className="w-4 h-4" /> Find a Store
-            </button>
+            </Link>
           </div>
 
           <p className="text-sm text-gray-400">

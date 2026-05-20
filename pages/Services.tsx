@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { SECTION_ACCENT } from "@/lib/sectionTheme";
 import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
 export const Services: React.FC = () => {
   const { setCurrentPage, setSelectedCategory, selectedStoreSection } = useStore();
   const theme = SECTION_ACCENT[selectedStoreSection];
@@ -286,23 +287,20 @@ export const Services: React.FC = () => {
           </p>
 
           <div className="flex flex-wrap gap-4 justify-center mt-10">
-            <button
-              onClick={() => setCurrentPage("shop")}
+            <Link
+              to="/shop"
               className="flex items-center gap-2 px-7 py-3.5 rounded-2xl font-black text-sm text-white uppercase tracking-wider hover:opacity-90 transition-all"
               style={{ background: theme.accent }}
             >
               Browse All Products <ArrowRight className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setCurrentPage("contact")}
+            </Link>
+            <Link
+              to="/contact"
               className="flex items-center gap-2 px-7 py-3.5 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-white/10 transition-all"
-              style={{
-                border: "1px solid rgba(255,255,255,0.15)",
-                color: "#9ca3af",
-              }}
+              style={{ border: "1px solid rgba(255,255,255,0.15)", color: "#9ca3af" }}
             >
               Custom Build Enquiry
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -380,17 +378,14 @@ export const Services: React.FC = () => {
                     ))}
                   </div>
 
-                  <button
-                    onClick={() => {
-                      svc.action();
-                      if (svc.title !== "Custom PC Builds")
-                        setCurrentPage("shop");
-                    }}
+                  <Link
+                    to={i === 0 ? "/buy-desktop-pc" : i === 1 ? "/buy-laptop" : "/buy-refurbished-laptop"}
+                    onClick={() => svc.action()}
                     className="flex items-center gap-2 self-start text-sm font-black uppercase tracking-wider px-5 py-2.5 rounded-xl transition-all hover:opacity-90"
                     style={{ background: svc.color + "18", color: svc.color }}
                   >
                     {svc.cta} <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}
@@ -496,12 +491,13 @@ export const Services: React.FC = () => {
 
           <p className="text-center text-sm text-gray-400 font-medium">
             Need a different configuration?{" "}
-            <button
-              onClick={() => setCurrentPage("contact")}
-              className="font-black hover:underline" style={{ color: theme.accent }}
+            <Link
+              to="/contact"
+              className="font-black hover:underline"
+              style={{ color: theme.accent }}
             >
               Tell us what you need →
-            </button>
+            </Link>
           </p>
         </section>
 
@@ -586,23 +582,20 @@ export const Services: React.FC = () => {
             </p>
 
             <div className="flex flex-wrap gap-4 justify-center pt-2">
-              <button
-                onClick={() => setCurrentPage("contact")}
+              <Link
+                to="/contact"
                 className="flex items-center gap-2 px-7 py-3.5 rounded-2xl font-black text-sm text-white uppercase tracking-wider hover:opacity-90 transition-all"
                 style={{ background: theme.accent }}
               >
                 <Phone className="w-4 h-4" /> Contact Us
-              </button>
-              <button
-                onClick={() => setCurrentPage("branches")}
+              </Link>
+              <Link
+                to="/branches"
                 className="flex items-center gap-2 px-7 py-3.5 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-white/10 transition-all"
-                style={{
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#9ca3af",
-                }}
+                style={{ border: "1px solid rgba(255,255,255,0.15)", color: "#9ca3af" }}
               >
                 <MapPin className="w-4 h-4" /> Find a Store
-              </button>
+              </Link>
             </div>
           </div>
         </section>

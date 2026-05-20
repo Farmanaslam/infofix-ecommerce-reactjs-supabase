@@ -3,7 +3,7 @@ import { Lock, Mail, Eye, EyeOff, LogIn } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { supabase } from "@/lib/supabaseClient";
 import { SECTION_ACCENT } from "@/lib/sectionTheme";
-
+import { Link } from "react-router-dom";
 export const Login: React.FC = () => {
   const { setCurrentUser, setCurrentPage, setViewMode, pendingRedirectAfterLogin, selectedStoreSection, setPendingRedirectAfterLogin, currentUser } = useStore();
   const [email, setEmail] = useState("");
@@ -221,14 +221,13 @@ export const Login: React.FC = () => {
                 Continue with Google
               </button>
               <p className="text-sm text-gray-500 text-center font-medium">
-                Don’t have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage("signup")}
+                Don't have an account?{" "}
+                <Link
+                  to="/signup"
                   className="font-bold hover:underline" style={{ color: theme.accent }}
                 >
                   Sign Up
-                </button>
+                </Link>
               </p>
             </form>
           </div>

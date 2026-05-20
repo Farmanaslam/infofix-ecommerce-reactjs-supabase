@@ -2,6 +2,7 @@ import React from "react";
 import { Mail, Phone, MapPin, Send, MessageCircle, Clock, ShoppingCart } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { SECTION_ACCENT } from "@/lib/sectionTheme";
+import { Link } from "react-router-dom";
 
 export const Contact: React.FC = () => {
   const { setCurrentPage, selectedStoreSection } = useStore();
@@ -341,13 +342,13 @@ export const Contact: React.FC = () => {
                 Browse PCs, laptops, accessories & refurbished deals.
               </p>
             </div>
-            <button
-              onClick={() => setCurrentPage("shop")}
-              className="mt-auto w-fit flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm text-white uppercase tracking-wider transition-all hover:opacity-90 cursor-pointer"
+            <Link
+              to="/shop"
+              className="mt-auto w-fit flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm text-white uppercase tracking-wider transition-all hover:opacity-90"
               style={{ background: theme.accent }}
             >
               Browse Store →
-            </button>
+            </Link>
           </div>
 
           {/* Visit */}
@@ -364,13 +365,13 @@ export const Contact: React.FC = () => {
                 Benachity, Durgapur. Open every day 10am – 8pm.
               </p>
             </div>
-            <button
-              onClick={() => setCurrentPage("branches")}
-              className="mt-auto w-fit flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm uppercase tracking-wider transition-all hover:bg-white/10 cursor-pointer"
+            <Link
+              to="/branches"
+              className="mt-auto w-fit flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm uppercase tracking-wider transition-all hover:bg-white/10"
               style={{ border: "1px solid rgba(99,102,241,0.12)", color: "#9ca3af" }}
             >
               Get Directions →
-            </button>
+            </Link>
           </div>
 
           {/* WhatsApp */}

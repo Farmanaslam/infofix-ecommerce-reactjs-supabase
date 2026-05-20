@@ -17,6 +17,7 @@ import { supabase } from "../lib/supabaseClient";
 import { Order, OrderItem } from "../types";
 import { OrderCardSkeleton } from "./Skeleton";
 import { SECTION_ACCENT } from "@/lib/sectionTheme";
+import { Link } from "react-router-dom";
 const STATUS_FILTERS = [
   "All",
   "Processing",
@@ -568,8 +569,8 @@ export const MyOrders: React.FC = () => {
           <h2 className="text-2xl font-bold text-gray-700 mb-3">
             Please log in to view your orders
           </h2>
-          <button
-            onClick={() => setCurrentPage("login")}
+          <Link
+            to="/login"
             className=" text-white px-6 py-3 rounded-xl transition font-semibold"
             style={{ background: theme.accent }}
             onMouseEnter={(e) =>
@@ -580,7 +581,7 @@ export const MyOrders: React.FC = () => {
             }
           >
             Log In
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -665,8 +666,8 @@ export const MyOrders: React.FC = () => {
                 : `You have no orders with status "${activeFilter}".`}
             </p>
             {activeFilter === "All" && (
-              <button
-                onClick={() => setCurrentPage("shop")}
+              <Link
+                to="/shop"
                 className=" text-white px-8 py-3 rounded-2xl font-bold  transition cursor-pointer"
                 style={{ background: theme.accent }}
                 onMouseEnter={(e) =>
@@ -677,7 +678,7 @@ export const MyOrders: React.FC = () => {
                 }
               >
                 Start Shopping
-              </button>
+              </Link>
             )}
           </div>
         ) : (
@@ -705,13 +706,13 @@ export const MyOrders: React.FC = () => {
             support team is here to help.
           </p>
           <div className="flex flex-col md:flex-row justify-center gap-6">
-            <button
-              onClick={() => setCurrentPage("contact")}
-              className="bg-white  px-6 py-3 rounded-2xl font-bold hover:scale-105 transition cursor-pointer"
+            <Link
+              to="/contact"
+              className="bg-white px-6 py-3 rounded-2xl font-bold hover:scale-105 transition"
               style={{ color: theme.accent }}
             >
               Contact Support
-            </button>
+            </Link>
             <a
               href="mailto:infofixcomputers1@gmail.com"
               className="bg-white/20 px-6 py-3 rounded-2xl font-bold hover:bg-white/30 transition cursor-pointer"

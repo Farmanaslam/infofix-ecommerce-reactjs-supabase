@@ -9,6 +9,7 @@ import { useStore } from "../context/StoreContext";
 import { supabase } from "@/lib/supabaseClient";
 import { ProductCouponBadge, ProductCouponInline } from "./ProductCouponBade";
 import { Helmet } from 'react-helmet-async'
+import { Link } from "react-router-dom";
 interface ProductDetailsProps {
   product: Product;
   onBack: () => void;
@@ -275,13 +276,22 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
   };
   const isWholesale = moq > 1;
   const step = isWholesale ? moq : 1;
+  function toSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/[₹&@#%\+\*\(\)\[\]]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .slice(0, 80)
+  }
   return (
     <>
       <Helmet>
         <title>{product.name} | Infofix Computers</title>
         <meta name="description" content={product.description?.slice(0, 160) || `Buy ${product.name} at best price. ${product.brand} | Infofix Computers`} />
-        <link rel="canonical" href={`https://infofixcomputers.com/products/${product.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 80)}-${product.id}`} />
-        <script type="application/ld+json">{JSON.stringify({
+        <link rel="canonical" href={`https://infofixcomputers.com/products/${toSlug(product.name)}-${product.id}`} />        <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Product",
           "name": product.name,
@@ -296,7 +306,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
             "availability": product.stock > 0
               ? "https://schema.org/InStock"
               : "https://schema.org/OutOfStock",
-            "url": `https://infofixcomputers.com/products/${product.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 80)}-${product.id}`,
+            "url": `https://infofixcomputers.com/products/${toSlug(product.name)}-${product.id}`,
             "seller": { "@type": "Organization", "name": "Infofix Computers" },
             "priceValidUntil": "2026-12-31"
           },
@@ -314,7 +324,12 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
           "itemListElement": [
             { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://infofixcomputers.com/" },
             { "@type": "ListItem", "position": 2, "name": "Shop", "item": "https://infofixcomputers.com/shop" },
-            { "@type": "ListItem", "position": 3, "name": product.name, "item": `https://infofixcomputers.com/products/${product.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 80)}-${product.id}` }
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": product.name,
+              "item": `https://infofixcomputers.com/products/${toSlug(product.name)}-${product.id}`
+            }
           ]
         })}</script>
       </Helmet>
@@ -331,14 +346,15 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
 
       <div className="min-h-screen bg-white pb-6">
         <div className="app-container pt-6 pb-2">
-          <button
+          <Link
+            to="/shop"
             onClick={onBack}
             className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 transition-colors group"
             onMouseEnter={e => { e.currentTarget.style.color = accent; }}
             onMouseLeave={e => { e.currentTarget.style.color = ''; }}
           >
             <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" /> Back to Store
-          </button>
+          </Link>
         </div>
 
         <div className="app-container mt-4">
@@ -435,8 +451,14 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
 
                 {/* Breadcrumb */}
                 <div className="pd-fade flex items-center gap-2 flex-wrap" style={{ animationDelay: "60ms" }}>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: accent }}>{product.category}</span>
-                  {product.subcategory && <><span className="text-gray-300">›</span><span className="text-[10px] text-gray-400 font-semibold">{product.subcategory}</span></>}
+                  <Link
+                    to={`/shop`}
+                    onClick={() => { }}
+                    className="text-[10px] font-black uppercase tracking-[0.2em] hover:underline"
+                    style={{ color: accent }}
+                  >
+                    {product.category}
+                  </Link>                  {product.subcategory && <><span className="text-gray-300">›</span><span className="text-[10px] text-gray-400 font-semibold">{product.subcategory}</span></>}
                   {product.brand && <span className="ml-auto text-[10px] font-black text-gray-500 uppercase tracking-widest bg-gray-100 px-2.5 py-1 rounded-xl">{product.brand}</span>}
                 </div>
 

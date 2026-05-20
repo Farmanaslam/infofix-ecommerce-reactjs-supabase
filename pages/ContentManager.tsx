@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, X, Star, Youtube, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
@@ -21,70 +22,82 @@ function extractVideoId(url: string): string | null {
   return null;
 }
 
-
-async function fetchYouTubeTranscript(videoId: string): Promise<string> {
-  const proxy = import.meta.env.VITE_TRANSCRIPT_PROXY;
-  if (!proxy) throw new Error("VITE_TRANSCRIPT_PROXY not set in .env");
-  
-  const res = await fetch(`${proxy}/api/transcript?videoId=${videoId}`);
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error ?? "Transcript fetch failed. Make sure video has captions enabled.");
-  }
-  const data = await res.json();
-  if (!data.transcript) throw new Error("No transcript found. Enable auto-captions on YouTube first.");
-  return data.transcript;
-}
-
-async function generateFromTranscript(
-  transcript: string
+// ── Generate EN + Hinglish from pasted transcript ─────────────────────────────
+async function generateDescriptions(
+  transcript: string,
+  videoTitle?: string
 ): Promise<{ en: string; hinglish: string }> {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
-  const prompt = `You are helping Infofix Computers, a computer shop in Durgapur, India, create blog descriptions from a YouTube video transcript.
+  // Clean timestamps & line breaks before sending
+  const cleanTranscript = transcript
+    .replace(/\d+:\d+(?::\d+)?\s*/g, "")   // remove timestamps
+    .replace(/\n+/g, " ")                    // flatten to one line
+    .replace(/\s{2,}/g, " ")                 // collapse spaces
+    .trim();
 
-The transcript below is from a YouTube video (may be in Hindi or mixed language):
-
-"${transcript.slice(0, 3000)}"
-
-Generate TWO blog descriptions based on what was said in the video:
-1. en: English version, 150-200 words, SEO-friendly, natural English. Mention Infofix Computers, Durgapur naturally if relevant.
-2. hinglish: Hinglish version, 150-200 words. Mix Hindi words naturally into English sentences. Example: "Yaar is laptop ka performance ekdum mast hai, aur price bhi pocket-friendly hai". Casual, local, relatable.
-
-Return ONLY valid JSON, no markdown, no extra text:
-{"en": "...", "hinglish": "..."}`;
-
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
+  const callGroq = async (prompt: string) => {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 1200 },
+        model: "llama-3.3-70b-versatile",
+        max_tokens: 1200,
+        messages: [{ role: "user", content: prompt }],
       }),
-    }
-  );
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    return data?.choices?.[0]?.message?.content ?? "";
+  };
 
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err?.error?.message ?? "Gemini API error");
-  }
+  const base = `${videoTitle ? `Video Title: "${videoTitle}"\n` : ""}Transcript:\n"""\n${cleanTranscript}\n"""`;
 
-  const data = await res.json();
-  const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-  const clean = raw.replace(/```json|```/g, "").trim();
-  const parsed = JSON.parse(clean);
-  return { en: parsed.en ?? "", hinglish: parsed.hinglish ?? "" };
+  const enRaw = await callGroq(`You write SEO blog descriptions for Infofix Computers — a computer store in Durgapur, Asansol, Ukhra West Bengal, India that sells new and refurbished laptops, desktops, accessories, and custom-build PCs also through webiste and 5 physical stores..
+
+${base}
+
+Write a 200-300 word SEO blog post excerpt in fluent English based ONLY on what was spoken in the transcript above. Follow these rules:
+- Paragraph 1 (3-4 sentences): What products, offers, specs, or highlights are shown/discussed. Include all key prices, brands, processor names, RAM, storage, warranty details mentioned.
+- Paragraph 2 (2-3 sentences): What makes Infofix Computers the right place to buy — use only details spoken in the video (location, offers, free gifts, etc).
+- Final sentence: Natural CTA mentioning infocomput.com or visiting the Infofix showroom.
+- Do NOT invent details not in the transcript. Do NOT use phrases like "In this video". Write as a blog author, not a video summarizer.
+- Tone: Helpful, knowledgeable, trustworthy local tech advisor.
+
+Return ONLY plain text. No markdown, no headers, no bullet points.`);
+
+  // wait 35s to avoid TPM limit
+  await new Promise(r => setTimeout(r, 35000));
+
+  const hinglishRaw = await callGroq(`You write Hinglish blog content for Infofix Computers — a computer store in Durgapur, West Bengal that sells new and refurbished laptops, desktops, accessories, and custom-build PCs.
+
+${base}
+
+Write a 200-250 word blog excerpt in Hinglish using ROMAN SCRIPT ONLY (absolutely no Devanagari/Hindi Unicode characters). Rules:
+- Natural mix of Hindi and English words in Roman script, like: "yaar", "ekdum sahi deal hai", "bilkul brand new condition mein", "price sun ke hairan ho jaoge", "aaj hi visit karo".
+- Casual, friendly tone — like a local Durgapur friend explaining a good deal.
+- Paragraph 1: Cover all key products, prices, specs, and offers mentioned in the transcript.
+- Paragraph 2: Why Infofix is worth visiting — only facts from the transcript.
+- Final sentence: CTA — mention infocomput.com or visiting the showroom.
+- Do NOT invent details. Do NOT use Devanagari script at all.
+
+Return ONLY plain text. No markdown, no headers, no bullet points.`);
+
+  return { en: enRaw.trim(), hinglish: hinglishRaw.trim() };
 }
+
 export const ContentManager: React.FC = () => {
   const [posts, setPosts] = useState<UpdatePost[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<UpdatePost | null>(null);
   const [loading, setLoading] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
+  const [aiStatus, setAiStatus] = useState("");
   const [postType, setPostType] = useState<"article" | "video">("article");
   const [descTab, setDescTab] = useState<"en" | "hinglish">("en");
+  const [pastedTranscript, setPastedTranscript] = useState("");
 
   const emptyForm: UpdateForm = {
     title: "",
@@ -97,7 +110,6 @@ export const ContentManager: React.FC = () => {
     description_en: "",
     description_hinglish: "",
   };
-  const [staffDescription, setStaffDescription] = useState("");
   const [formData, setFormData] = useState<UpdateForm>(emptyForm);
 
   const fetchPosts = async () => {
@@ -118,6 +130,9 @@ export const ContentManager: React.FC = () => {
       payload.video_url = "";
       payload.description_en = "";
       payload.description_hinglish = "";
+      payload.author = payload.author || "Infofix Technical Team";
+    } else {
+      payload.author = "Infofix Admin";
     }
     if (editingPost) {
       await supabase.from("updates").update(payload).eq("id", editingPost.id);
@@ -137,15 +152,15 @@ export const ContentManager: React.FC = () => {
     fetchPosts();
   };
 
- const handleGenerate = async () => {
-    if (!videoId) {
-      alert("Paste a valid YouTube URL first.");
+  const handleGenerate = async () => {
+    if (!pastedTranscript.trim()) {
+      alert("Paste the video transcript first.");
       return;
     }
     setAiLoading(true);
+    setAiStatus("Generating descriptions…");
     try {
-      const transcript = await fetchYouTubeTranscript(videoId);
-      const result = await generateFromTranscript(transcript);
+      const result = await generateDescriptions(pastedTranscript, formData.title || undefined);
       setFormData((f) => ({
         ...f,
         excerpt: result.en,
@@ -155,9 +170,9 @@ export const ContentManager: React.FC = () => {
       setDescTab("en");
     } catch (err: any) {
       alert("Failed: " + (err?.message ?? "Unknown error"));
-      console.error(err);
     } finally {
       setAiLoading(false);
+      setAiStatus("");
     }
   };
 
@@ -175,9 +190,9 @@ export const ContentManager: React.FC = () => {
           onClick={() => {
             setFormData(emptyForm);
             setEditingPost(null);
-           setPostType("article");
+            setPostType("article");
             setDescTab("en");
-            setStaffDescription("");
+            setPastedTranscript("");
             setIsOpen(true);
           }}
           className="flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition"
@@ -236,9 +251,9 @@ export const ContentManager: React.FC = () => {
                             description_en: post.description_en ?? "",
                             description_hinglish: post.description_hinglish ?? "",
                           });
-                         setPostType(post.video_url ? "video" : "article");
+                          setPostType(post.video_url ? "video" : "article");
                           setDescTab("en");
-                          setStaffDescription("");
+                          setPastedTranscript("");
                           setIsOpen(true);
                         }}
                         className="p-2 rounded-lg hover:bg-indigo-50 text-indigo-600"
@@ -286,11 +301,9 @@ export const ContentManager: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-
-              {/* ── VIDEO BLOG FLOW ── */}
               {postType === "video" && (
                 <>
-                  {/* STEP 1: YouTube URL */}
+                  {/* STEP 1 */}
                   <div className="rounded-2xl border-2 border-gray-100 p-4 space-y-3">
                     <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Step 1 — Paste YouTube Link</p>
                     <input
@@ -302,8 +315,6 @@ export const ContentManager: React.FC = () => {
                     />
                     {videoId && <p className="text-xs text-green-600 font-bold ml-1">✅ Valid — Video ID: {videoId}</p>}
                     {formData.video_url && !videoId && <p className="text-xs text-red-500 font-bold ml-1">❌ Invalid YouTube URL</p>}
-
-                    {/* Thumbnail preview */}
                     {videoId && (
                       <div className="rounded-xl overflow-hidden aspect-video border">
                         <img
@@ -315,9 +326,11 @@ export const ContentManager: React.FC = () => {
                     )}
                   </div>
 
-                   <div className="space-y-3">
+                  <div className="space-y-3">
                     <div>
-                      <label className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1.5 block">Title</label>
+                      <label className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1.5 block">
+                        Title <span className="normal-case font-medium text-gray-400">(optional — helps AI)</span>
+                      </label>
                       <input
                         type="text"
                         placeholder="Write your blog title"
@@ -338,31 +351,36 @@ export const ContentManager: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* STEP 2: AI Generate */}
-               <div className="rounded-2xl border-2 border-dashed border-indigo-200 bg-indigo-50/40 p-4 space-y-3">
+                  {/* STEP 2 */}
+                  <div className="rounded-2xl border-2 border-dashed border-indigo-200 bg-indigo-50/40 p-4 space-y-3">
                     <p className="text-xs font-black text-indigo-700 uppercase tracking-widest flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5" /> Step 2 — Auto-Generate Descriptions from Video
+                      <Sparkles className="w-3.5 h-3.5" /> Step 2 — Paste Transcript & Generate
                     </p>
                     <p className="text-xs text-gray-500 font-medium">
-                      Fetches your video's Hindi captions → generates English + Hinglish descriptions automatically.
+                      Paste transcript from YouTube (transcript tab or Studio) → AI writes a ~200-word SEO blog in English + Hinglish. Timestamps are stripped automatically. Takes ~40 sec.
                     </p>
+                    <textarea
+                      placeholder="Paste video transcript here…"
+                      value={pastedTranscript}
+                      onChange={(e) => setPastedTranscript(e.target.value)}
+                      className="w-full px-4 py-3 border rounded-xl text-sm resize-none"
+                      rows={5}
+                    />
                     <button
                       onClick={handleGenerate}
-                      disabled={aiLoading || !videoId}
+                      disabled={aiLoading || !pastedTranscript.trim()}
                       className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed bg-indigo-600 text-white hover:bg-indigo-700"
                     >
                       {aiLoading
-                        ? <><Loader2 className="w-4 h-4 animate-spin" /> Fetching transcript + generating…</>
-                        : <><Sparkles className="w-4 h-4" /> Generate from Video</>}
+                        ? <><Loader2 className="w-4 h-4 animate-spin" /> {aiStatus || "Working…"}</>
+                        : <><Sparkles className="w-4 h-4" /> Generate Descriptions</>}
                     </button>
                   </div>
 
-                  {/* STEP 3: Review & edit generated content */}
+                  {/* STEP 3 */}
                   {(formData.description_en || formData.description_hinglish) && (
                     <div className="rounded-2xl border-2 border-green-100 bg-green-50/30 p-4 space-y-4">
                       <p className="text-xs font-black text-green-700 uppercase tracking-widest">Step 3 — Review & Edit</p>
-
-                      {/* Title */}
                       <div>
                         <label className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1.5 block">Title</label>
                         <input
@@ -372,8 +390,6 @@ export const ContentManager: React.FC = () => {
                           className="w-full px-4 py-3 border rounded-xl text-sm"
                         />
                       </div>
-
-                      {/* Category */}
                       <div>
                         <label className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1.5 block">Category</label>
                         <select
@@ -384,8 +400,6 @@ export const ContentManager: React.FC = () => {
                           {categories.map((cat) => <option key={cat}>{cat}</option>)}
                         </select>
                       </div>
-
-                      {/* Description tabs */}
                       <div>
                         <div className="flex gap-2 mb-3">
                           <button
@@ -412,9 +426,8 @@ export const ContentManager: React.FC = () => {
                             rows={5}
                           />
                         )}
-                        <p className="text-xs text-gray-400 mt-1.5 ml-1">Edit freely. English version = used for SEO meta description.</p>
+                        <p className="text-xs text-gray-400 mt-1.5 ml-1">English version = SEO meta description.</p>
                       </div>
-
                       <label className="flex items-center gap-2 text-sm font-medium">
                         <input
                           type="checkbox"
@@ -426,7 +439,6 @@ export const ContentManager: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Show title+category+featured even before generate if editing */}
                   {!formData.description_en && editingPost && (
                     <div className="space-y-3">
                       <input
@@ -456,7 +468,6 @@ export const ContentManager: React.FC = () => {
                 </>
               )}
 
-              {/* ── ARTICLE BLOG FLOW ── */}
               {postType === "article" && (
                 <>
                   <input

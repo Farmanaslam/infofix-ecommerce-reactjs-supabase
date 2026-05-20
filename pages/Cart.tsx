@@ -3,7 +3,7 @@ import { Plus, Minus, Trash2, ShoppingCart, Tag, ArrowRight, Shield, Truck, Refr
 import { useStore } from "../context/StoreContext";
 import { supabase } from "@/lib/supabaseClient";
 import { SECTION_ACCENT } from '@/lib/sectionTheme';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 interface AvailableCoupon {
   code: string;
   discount_amount: number;
@@ -175,19 +175,13 @@ export const Cart: React.FC = () => {
         <ShoppingCart size={56} className="mx-auto mb-4" style={{ color: theme.accent }} />
         <h2 className="text-2xl font-semibold text-gray-700 mb-3">Your cart is currently empty.</h2>
         <p className="text-gray-500 mb-6">Browse our products to continue shopping.</p>
-        <button
-          onClick={() => setCurrentPage("shop")}
-          className="text-white px-6 py-3 rounded-xl transition-all duration-300"
+        <Link
+          to="/shop"
+          className="text-white px-6 py-3 rounded-xl transition-all duration-300 inline-block"
           style={{ backgroundColor: theme.accent }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = theme.accentHover)
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = theme.accent)
-          }
         >
           Continue Shopping
-        </button>
+        </Link>
       </div>
     );
   }
@@ -358,9 +352,9 @@ export const Cart: React.FC = () => {
                     <h2 className="text-sm font-black text-gray-700 uppercase tracking-widest">Customers Also Bought</h2>
                     <p className="text-xs text-gray-400 mt-0.5">Based on items in your cart</p>
                   </div>
-                  <button onClick={() => setCurrentPage("shop")} className="text-xs font-bold flex items-center gap-1" style={{ color: theme.accent }}>
+                  <Link to="/shop" className="text-xs font-bold flex items-center gap-1" style={{ color: theme.accent }}>
                     View all <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
+                  </Link>
                 </div>
                 <div className="p-4 overflow-hidden">
                   <div className="pointer-events-none absolute right-4 top-4 bottom-5 w-10 z-10"
@@ -420,9 +414,9 @@ export const Cart: React.FC = () => {
               <h4 className="font-bold text-gray-800 text-sm">🏢 Bulk & Corporate Discounts</h4>
               <p className="text-gray-500 text-xs mt-1 leading-relaxed">
                 Ordering for your business? We offer special pricing on bulk orders.{" "}
-                <button onClick={() => setCurrentPage("contact")} className="text-indigo-600 underline font-semibold hover:text-indigo-800">
+                <Link to="/contact" className="text-indigo-600 underline font-semibold hover:text-indigo-800">
                   Contact us for a quote.
-                </button>
+                </Link>
               </p>
             </div>
 
@@ -482,21 +476,15 @@ export const Cart: React.FC = () => {
                   onMouseLeave={e => (e.currentTarget.style.background = theme.accent)}                >
                   Proceed to Checkout <ArrowRight className="w-4 h-4" />
                 </button>
-                <button
-                  onClick={() => setCurrentPage("shop")}
-                  className="w-full py-4 rounded-2xl font-bold text-sm border transition-all"
+                <Link
+                  to="/shop"
+                  className="w-full py-4 rounded-2xl font-bold text-sm border transition-all block text-center"
                   style={{ borderColor: "#f3f4f6" }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = theme.accent;
-                    e.currentTarget.style.backgroundColor = theme.accentLight;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = "";
-                    e.currentTarget.style.backgroundColor = "";
-                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = theme.accent; e.currentTarget.style.backgroundColor = theme.accentLight; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = ""; e.currentTarget.style.backgroundColor = ""; }}
                 >
                   Continue Shopping
-                </button>
+                </Link>
               </div>
             </div>
           </div>

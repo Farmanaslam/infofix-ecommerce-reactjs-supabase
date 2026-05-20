@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useEffect, useState } from "react";
 import { AdminPage, StoreProvider, useStore } from "./context/StoreContext";
 import { CustomerLayout, AdminLayout } from "./components/Layout";
 import { supabase } from "./lib/supabaseClient";
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 const Home = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })))
 const Store = lazy(() => import('./pages/Store').then(m => ({ default: m.Store })))
 const AboutUs = lazy(() => import('./pages/AboutUs').then(m => ({ default: m.AboutUs })))
@@ -27,7 +28,7 @@ const ContentManager = lazy(() => import('./pages/ContentManager').then(m => ({ 
 const AdminCoupons = lazy(() => import('./pages/Coupons').then(m => ({ default: m.AdminCoupons })))
 const CareerPortal = lazy(() => import('./pages/Careerportal').then(m => ({ default: m.CareerPortal })))
 const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings })))
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })))
 
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
@@ -299,9 +300,9 @@ const Main: React.FC = () => {
           <Route path="/computer-wholesale-durgapur" element={<Store />} />
 
           {/* ── SEO SERVICE URLS ── */}
-          <Route path="/computer-repair-durgapur" element={<Services />} />
-          <Route path="/laptop-repair-durgapur" element={<Services />} />
-          <Route path="/laptop-repair-asansol" element={<Services />} />
+          <Route path="/computer-repair-durgapur" element={<Branches />} />
+          <Route path="/laptop-repair-durgapur" element={<Branches />} />
+          <Route path="/laptop-repair-asansol" element={<Branches />} />
 
           {/* ── Ukhra ── */}
           <Route path="/buy-laptop-ukhra" element={<Store />} />
@@ -321,7 +322,34 @@ const Main: React.FC = () => {
           <Route path="/buy-laptop-near-me" element={<Store />} />
           <Route path="/computer-store-near-me" element={<Store />} />
           <Route path="/laptop-store-near-me" element={<Store />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* ── NEW SEO URLs ── */}
+          <Route path="/buy-laptop-online-india" element={<Store />} />
+          <Route path="/refurbished-dell-laptop-india" element={<Store />} />
+          <Route path="/refurbished-hp-laptop-india" element={<Store />} />
+          <Route path="/refurbished-lenovo-laptop-india" element={<Store />} />
+          <Route path="/buy-laptop-under-20000-india" element={<Store />} />
+          <Route path="/buy-laptop-under-40000-india" element={<Store />} />
+          <Route path="/gaming-laptop-under-70000-india" element={<Store />} />
+          <Route path="/best-laptop-for-college-students-india" element={<Store />} />
+          <Route path="/best-laptop-for-engineering-students-india" element={<Store />} />
+          <Route path="/best-laptop-for-video-editing-india" element={<Store />} />
+          <Route path="/best-business-laptop-india" element={<Store />} />
+          <Route path="/custom-gaming-pc-under-50000" element={<Store />} />
+          <Route path="/custom-gaming-pc-under-80000" element={<Store />} />
+          <Route path="/refurbished-gaming-laptop-india" element={<Store />} />
+          <Route path="/buy-laptop-accessories-online-india" element={<Store />} />
+          <Route path="/buy-desktop-pc-under-30000-india" element={<Store />} />
+          <Route path="/buy-desktop-pc-under-50000-india" element={<Store />} />
+          <Route path="/refurbished-desktop-pc-india" element={<Store />} />
+          <Route path="/wholesale-laptop-supplier-india" element={<Store />} />
+          <Route path="/dell-laptop-durgapur" element={<Store />} />
+          <Route path="/hp-laptop-durgapur" element={<Store />} />
+          <Route path="/lenovo-laptop-durgapur" element={<Store />} />
+          <Route path="/laptop-repair-service-asansol" element={<Store />} />
+          <Route path="/buy-laptop-bardhaman" element={<Store />} />
+          <Route path="/computer-shop-bardhaman" element={<Store />} />
+          <Route path="*" element={<NotFound />} />
+
         </Routes>
       </Suspense>
     </CustomerLayout>

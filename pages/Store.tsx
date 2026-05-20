@@ -467,6 +467,7 @@ const FilterSection = ({
 function toSlug(name: string): string {
   return name
     .toLowerCase()
+    .replace(/[₹&@#%\+\*\(\)\[\]]/g, '')
     .replace(/[^a-z0-9\s-]/g, '')
     .trim()
     .replace(/\s+/g, '-')
@@ -528,6 +529,31 @@ function getSeoHeading(pathname: string, searchQuery: string, selectedCategory: 
     '/buy-laptop-near-me': { h1: 'Laptop Store', h2: 'Near Me', sub: 'Find laptops near you. Infofix serves Durgapur, Asansol, Ukhra & ships pan-India.' },
     '/computer-store-near-me': { h1: 'Computer Store', h2: 'Near Me', sub: 'Local computer store with online ordering. Serving Durgapur, Asansol & all of West Bengal.' },
     '/laptop-store-near-me': { h1: 'Laptop Store', h2: 'Near Me', sub: 'Your nearest laptop store — online & offline. Visit us in Durgapur or order online.' },
+    '/buy-laptop-online-india': { h1: 'Buy Laptop', h2: 'Online India', sub: 'Shop laptops online across India. Free shipping, 1-year warranty, EMI available. All brands.' },
+    '/refurbished-dell-laptop-india': { h1: 'Refurbished Dell', h2: 'Laptops India', sub: 'Certified refurbished Dell laptops pan-India. Latitude, XPS, Vostro — tested & warranted.' },
+    '/refurbished-hp-laptop-india': { h1: 'Refurbished HP', h2: 'Laptops India', sub: 'Certified HP refurbished laptops — EliteBook, ProBook, Pavilion. Warranty included.' },
+    '/refurbished-lenovo-laptop-india': { h1: 'Refurbished Lenovo', h2: 'Laptops India', sub: 'ThinkPad, IdeaPad refurbished — grade A condition, SSD upgraded, 6-month warranty.' },
+    '/buy-laptop-under-20000-india': { h1: 'Laptops', h2: 'Under ₹20,000', sub: 'Best budget laptops under ₹20,000 in India. Refurbished Dell, HP, Lenovo with warranty.' },
+    '/buy-laptop-under-40000-india': { h1: 'Laptops', h2: 'Under ₹40,000', sub: 'Top laptops under ₹40,000 — i5/Ryzen 5, 8GB RAM, SSD. Best value picks in India.' },
+    '/gaming-laptop-under-70000-india': { h1: 'Gaming Laptops', h2: 'Under ₹70,000', sub: 'Best gaming laptops under ₹70,000 — RTX 4060, 144Hz, fast SSD. India delivery.' },
+    '/best-laptop-for-college-students-india': { h1: 'Best Laptops', h2: 'for College Students', sub: 'Lightweight, long battery, budget-friendly. Top college laptops in India 2025.' },
+    '/best-laptop-for-engineering-students-india': { h1: 'Best Laptops', h2: 'for Engineering Students', sub: '16GB RAM, fast CPU, long battery. Best engineering laptops in India 2025.' },
+    '/best-laptop-for-video-editing-india': { h1: 'Best Laptops', h2: 'for Video Editing', sub: 'i7/Ryzen 7, dedicated GPU, 16GB+ RAM. Best video editing laptops in India 2025.' },
+    '/best-business-laptop-india': { h1: 'Best Business', h2: 'Laptops India', sub: 'Durable, secure, fast. Top business laptops — ThinkPad, EliteBook, Latitude — India 2025.' },
+    '/custom-gaming-pc-under-50000': { h1: 'Custom Gaming PC', h2: 'Under ₹50,000', sub: 'Best custom gaming PC build under ₹50,000. Ryzen 5, RTX/RX GPU, 16GB RAM. India delivery.' },
+    '/custom-gaming-pc-under-80000': { h1: 'Custom Gaming PC', h2: 'Under ₹80,000', sub: 'High-FPS gaming PC under ₹80,000. i5/Ryzen 7, RTX 3060/4060, 32GB RAM option.' },
+    '/refurbished-gaming-laptop-india': { h1: 'Refurbished Gaming', h2: 'Laptops India', sub: 'Certified refurbished gaming laptops with dedicated GPU. Pan-India delivery with warranty.' },
+    '/buy-desktop-pc-under-30000-india': { h1: 'Desktop PC', h2: 'Under ₹30,000', sub: 'Complete desktop setup under ₹30,000. i3/i5, 8GB RAM, SSD, monitor. India delivery.' },
+    '/buy-desktop-pc-under-50000-india': { h1: 'Desktop PC', h2: 'Under ₹50,000', sub: 'Office and gaming desktops under ₹50,000. Best value full setups in India.' },
+    '/refurbished-desktop-pc-india': { h1: 'Refurbished Desktop', h2: 'PCs India', sub: 'Certified refurbished desktop PCs pan-India. Office-ready, SSD upgraded, warranted.' },
+    '/wholesale-laptop-supplier-india': { h1: 'Wholesale Laptop', h2: 'Supplier India', sub: 'Bulk laptop supply pan-India. GST invoice, all brands, dedicated B2B account support.' },
+    '/dell-laptop-durgapur': { h1: 'Dell Laptops', h2: 'Durgapur', sub: 'Buy Dell laptops in Durgapur — Inspiron, Vostro, Latitude. New & refurbished with warranty.' },
+    '/hp-laptop-durgapur': { h1: 'HP Laptops', h2: 'Durgapur', sub: 'HP laptops in Durgapur — Pavilion, ProBook, EliteBook. New & refurbished stock.' },
+    '/lenovo-laptop-durgapur': { h1: 'Lenovo Laptops', h2: 'Durgapur', sub: 'Lenovo IdeaPad & ThinkPad laptops in Durgapur. Best prices, warranty included.' },
+    '/buy-laptop-bardhaman': { h1: 'Buy Laptop in', h2: 'Bardhaman', sub: 'Laptops delivered to Bardhaman. New & refurbished — all major brands, warranty included.' },
+    '/computer-shop-bardhaman': { h1: 'Computer Shop', h2: 'Bardhaman', sub: 'Online computer store serving Bardhaman. Laptops, desktops, accessories with delivery.' },
+    '/buy-laptop-accessories-online-india': { h1: 'Laptop Accessories', h2: 'Online India', sub: 'Buy laptop bags, chargers, mice, keyboards & more. Delivered pan-India. Infofix Computers.' },
+    '/laptop-repair-service-asansol': { h1: 'Laptop Repair Service', h2: 'Asansol', sub: 'Professional laptop repair in Asansol. All brands, fast turnaround, genuine parts.' },
   }
   if (urlHeadings[p]) return urlHeadings[p]
 
@@ -1349,6 +1375,52 @@ export const Store: React.FC = () => {
             { "@type": "ListItem", "position": 2, "name": seoHeading.h1 + ' ' + seoHeading.h2, "item": `https://infofixcomputers.com${location.pathname}` }
           ]
         })}</script>
+        {/* FAQ schema — only for known SEO URL pages */}
+        {(() => {
+          const knownSeoUrls = [
+            '/buy-laptop-durgapur', '/buy-laptop-asansol', '/buy-laptop-ukhra',
+            '/buy-refurbished-laptop-durgapur', '/computer-shop-durgapur',
+            '/computer-shop-asansol', '/laptop-shop-durgapur', '/gaming-pc-durgapur',
+            '/buy-gaming-laptop-durgapur', '/laptop-repair-durgapur',
+            '/laptop-under-30000', '/laptop-under-50000', '/best-laptop-for-students',
+            '/buy-refurbished-laptop', '/refurbished-laptop-india',
+            '/wholesale-laptop-west-bengal', '/buy-laptop-bardhaman',
+            '/dell-laptop-durgapur', '/hp-laptop-durgapur', '/lenovo-laptop-durgapur',
+          ]
+          if (!knownSeoUrls.includes(location.pathname.toLowerCase())) return null
+          return (
+            <script type="application/ld+json">{JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": [
+                {
+                  "@type": "Question",
+                  "name": `${seoHeading.h1} ${seoHeading.h2} — Where to buy?`,
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": `${seoHeading.sub} Visit Infofix Computers at Benachity, Durgapur (10AM–8PM, Mon–Sat) or order online at infofixcomputers.com with PAN India delivery.`
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Does Infofix Computers offer warranty?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. All new products carry manufacturer warranty. Refurbished products have 6-month Infofix service warranty. 7-day replacement policy on all orders. Call 8293295257."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Does Infofix ship across India?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. Infofix Computers offers PAN India shipping on all products including laptops, desktops, and accessories. Free delivery available on select orders."
+                  }
+                }
+              ]
+            })}</script>
+          )
+        })()}
       </Helmet>
       <style>{`
         @keyframes skeletonWave {
@@ -1771,7 +1843,7 @@ export const Store: React.FC = () => {
               { stat: "Bulk", label: "Volume Pricing Available" },
               { stat: "B2B", label: "Dedicated Account Support" },
             ] : [
-              { stat: "50000+", label: "Happy Customers" },
+              { stat: "50,000+", label: "Happy Customers" },
               { stat: "1 Year", label: "Warranty on All Products" },
               { stat: "Secure", label: "Verified Payments" },
               { stat: "Fast", label: "PAN India Shipping" },
@@ -1789,7 +1861,9 @@ export const Store: React.FC = () => {
             ))}
           </div>
         </section>
+
       )}
+
     </div>
   );
 };

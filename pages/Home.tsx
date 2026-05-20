@@ -28,7 +28,7 @@ import {
 import { supabase } from "@/lib/supabaseClient";
 import { ProfileSetupModal } from "./ProfileSetupModal";
 import { Helmet } from "react-helmet-async";
-import { useLocation } from "react-router-dom";
+import { href, Link, useLocation } from "react-router-dom";
 const HOME_THEMES = {
   Infofix: {
     accent: '#6366f1',
@@ -360,16 +360,16 @@ const HeroCarousel: React.FC<{ onShop: () => void; onContact: () => void; slides
           </div>
 
           <div className="flex items-center gap-2 mb-4">
-            <button
-              onClick={onShop}
-              className="text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl flex-1"
+            <Link
+              to="/shop"
+              className="text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl flex-1 text-center"
               style={{ background: slide.accentColor }}
             >
               Shop Now
-            </button>
-            <button
-              onClick={onContact}
-              className="text-[10px] font-semibold px-4 py-2.5 rounded-xl"
+            </Link>
+            <Link
+              to="/contact"
+              className="text-[10px] font-semibold px-4 py-2.5 rounded-xl text-center"
               style={{
                 background: "transparent",
                 border: "1px solid #2d2d4e",
@@ -377,7 +377,7 @@ const HeroCarousel: React.FC<{ onShop: () => void; onContact: () => void; slides
               }}
             >
               Custom →
-            </button>
+            </Link>
           </div>
 
           {/* Dots */}
@@ -475,15 +475,15 @@ const HeroCarousel: React.FC<{ onShop: () => void; onContact: () => void; slides
               </div>
             </div>
             <div className="flex items-center gap-3 flex-wrap">
-              <button
-                onClick={onShop}
+              <Link
+                to="/shop"
                 className="text-white text-xs font-black uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all hover:opacity-90"
                 style={{ background: slide.accentColor }}
               >
                 Shop Now
-              </button>
-              <button
-                onClick={onContact}
+              </Link>
+              <Link
+                to="/contact"
                 className="text-sm font-semibold px-5 py-3 rounded-xl transition-all"
                 style={{
                   background: "transparent",
@@ -492,7 +492,7 @@ const HeroCarousel: React.FC<{ onShop: () => void; onContact: () => void; slides
                 }}
               >
                 Custom Build →
-              </button>
+              </Link>
             </div>
           </div>
           {/* RIGHT */}
@@ -1493,6 +1493,7 @@ export const Home: React.FC = () => {
                     btnBg: "bg-emerald-500", btnHover: "hover:bg-emerald-400",
                     grad: "linear-gradient(135deg,#052e16 0%,#064e3b 100%)",
                     border: "#047857",
+                    href: "/shop",
                     action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
                   },
                   {
@@ -1503,6 +1504,7 @@ export const Home: React.FC = () => {
                     btnBg: "bg-indigo-500", btnHover: "hover:bg-indigo-400",
                     grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)",
                     border: "#3730a3",
+                    href: "/shop",
                     action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
                   },
                   {
@@ -1513,6 +1515,7 @@ export const Home: React.FC = () => {
                     btnBg: "bg-pink-500", btnHover: "hover:bg-pink-400",
                     grad: "linear-gradient(135deg,#500724 0%,#881337 100%)",
                     border: "#9f1239",
+                    href: "/shop",
                     action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
                   },
                 ] : selectedStoreSection === 'Wholesale' ? [
@@ -1524,6 +1527,7 @@ export const Home: React.FC = () => {
                     btnBg: "bg-pink-600", btnHover: "hover:bg-pink-500",
                     grad: "linear-gradient(135deg,#500724 0%,#831843 100%)",
                     border: "#9f1239",
+                    href: "/contact",
                     action: () => setCurrentPage("contact"),
                   },
                   {
@@ -1534,6 +1538,7 @@ export const Home: React.FC = () => {
                     btnBg: "bg-violet-500", btnHover: "hover:bg-violet-400",
                     grad: "linear-gradient(135deg,#2e1065 0%,#4c1d95 100%)",
                     border: "#6d28d9",
+                    href: "/shop",
                     action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
                   },
                   {
@@ -1544,6 +1549,7 @@ export const Home: React.FC = () => {
                     btnBg: "bg-amber-500", btnHover: "hover:bg-amber-400",
                     grad: "linear-gradient(135deg,#1c1007 0%,#2d1a00 100%)",
                     border: "#b45309",
+                    href: "/shop",
                     action: () => setCurrentPage("shop"),
                   },
                 ] : [
@@ -1555,6 +1561,7 @@ export const Home: React.FC = () => {
                     btnBg: "bg-white text-indigo-700", btnHover: "hover:bg-indigo-50",
                     grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)",
                     border: "#3730a3",
+                    href: "/shop",
                     action: () => setCurrentPage("shop"),
                   },
                   {
@@ -1565,6 +1572,7 @@ export const Home: React.FC = () => {
                     btnBg: "bg-emerald-500", btnHover: "hover:bg-emerald-400",
                     grad: "linear-gradient(135deg,#064e3b 0%,#065f46 100%)",
                     border: "#047857",
+                    href: "/shop",
                     action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
                   },
                   {
@@ -1575,13 +1583,14 @@ export const Home: React.FC = () => {
                     btnBg: "bg-violet-500", btnHover: "hover:bg-violet-400",
                     grad: "linear-gradient(135deg,#2e1065 0%,#4c1d95 100%)",
                     border: "#6d28d9",
+                    href: "/contact",
                     action: () => setCurrentPage("contact"),
                   },
                 ]).map((card, i) => (
-                  <div
+                  <Link
                     key={i}
-                    onClick={card.action}
-                    className="cursor-pointer group relative flex-1 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02]"
+                    to={card.href}
+                    className="group relative flex-1 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02]"
                     style={{ background: card.grad, border: `1px solid ${card.border}` }}
                   >
                     <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.1) 1px,transparent 1px)", backgroundSize: "20px 20px" }} />
@@ -1595,11 +1604,11 @@ export const Home: React.FC = () => {
                         </h3>
                         <p className="text-white/60 text-xs mt-1 font-medium">{card.sub}</p>
                       </div>
-                      <button className={`mt-3 self-start ${card.btnBg} text-xs font-black px-4 py-1.5 rounded-xl uppercase tracking-wider ${card.btnHover} transition-colors flex items-center gap-1`}>
+                      <span className={`mt-3 self-start ${card.btnBg} text-xs font-black px-4 py-1.5 rounded-xl uppercase tracking-wider ${card.btnHover} transition-colors flex items-center gap-1`}>
                         {card.btnLabel} <ArrowRight className="w-3 h-3" />
-                      </button>
+                      </span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -1618,22 +1627,22 @@ export const Home: React.FC = () => {
               {/* Mobile promo — 3 horizontal compact cards */}
               <div className="grid grid-cols-3 gap-2 hero-mobile-promos">
                 {(selectedStoreSection === 'Refurbished' ? [
-                  { badge: "Grade A", badgeBg: "bg-emerald-500", title: "Certified Refurb", sub: "Tested · Warranted", btnLabel: "Shop", grad: "linear-gradient(135deg,#052e16 0%,#064e3b 100%)", border: "#047857", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
-                  { badge: "Business", badgeBg: "bg-indigo-500", title: "ThinkPad & HP", sub: "From ₹18,999", btnLabel: "View", grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)", border: "#3730a3", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
-                  { badge: "Budget", badgeBg: "bg-pink-500", title: "Student Laptops", sub: "From ₹11,999", btnLabel: "Shop", grad: "linear-gradient(135deg,#500724 0%,#881337 100%)", border: "#9f1239", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
+                  { badge: "Grade A", badgeBg: "bg-emerald-500", title: "Certified Refurb", sub: "Tested · Warranted", btnLabel: "Shop", grad: "linear-gradient(135deg,#052e16 0%,#064e3b 100%)", border: "#047857", href: "/buy-refurbished-laptop", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
+                  { badge: "Business", badgeBg: "bg-indigo-500", title: "ThinkPad & HP", sub: "From ₹18,999", btnLabel: "View", grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)", border: "#3730a3", href: "/buy-refurbished-laptop", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
+                  { badge: "Budget", badgeBg: "bg-pink-500", title: "Student Laptops", sub: "From ₹11,999", btnLabel: "Shop", grad: "linear-gradient(135deg,#500724 0%,#881337 100%)", border: "#9f1239", href: "/buy-refurbished-laptop", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
                 ] : selectedStoreSection === 'Wholesale' ? [
-                  { badge: "Bulk", badgeBg: "bg-pink-600", title: "Desktop Bulk", sub: "Min 5 units", btnLabel: "Quote", grad: "linear-gradient(135deg,#500724 0%,#831843 100%)", border: "#9f1239", action: () => setCurrentPage("contact") },
-                  { badge: "B2B", badgeBg: "bg-violet-500", title: "Laptops Bulk", sub: "Volume price", btnLabel: "View", grad: "linear-gradient(135deg,#2e1065 0%,#4c1d95 100%)", border: "#6d28d9", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
-                  { badge: "Trade", badgeBg: "bg-amber-500", title: "Accessories", sub: "500+ SKUs", btnLabel: "Browse", grad: "linear-gradient(135deg,#1c1007 0%,#2d1a00 100%)", border: "#b45309", action: () => setCurrentPage("shop") },
+                  { badge: "Bulk", badgeBg: "bg-pink-600", title: "Desktop Bulk", sub: "Min 5 units", btnLabel: "Quote", grad: "linear-gradient(135deg,#500724 0%,#831843 100%)", border: "#9f1239", href: "/contact", action: () => setCurrentPage("contact") },
+                  { badge: "B2B", badgeBg: "bg-violet-500", title: "Laptops Bulk", sub: "Volume price", btnLabel: "View", grad: "linear-gradient(135deg,#2e1065 0%,#4c1d95 100%)", border: "#6d28d9", href: "/shop", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
+                  { badge: "Trade", badgeBg: "bg-amber-500", title: "Accessories", sub: "500+ SKUs", btnLabel: "Browse", grad: "linear-gradient(135deg,#1c1007 0%,#2d1a00 100%)", border: "#b45309", href: "/shop", action: () => setCurrentPage("shop") },
                 ] : [
-                  { badge: "Sale", badgeBg: "bg-red-500", title: "Offer Zone", sub: "Up to 40% off", btnLabel: "Shop", grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)", border: "#3730a3", action: () => setCurrentPage("shop") },
-                  { badge: "New", badgeBg: "bg-emerald-500", title: "Laptops", sub: "All budgets", btnLabel: "View", grad: "linear-gradient(135deg,#064e3b 0%,#065f46 100%)", border: "#047857", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
-                  { badge: "Custom", badgeBg: "bg-violet-500", title: "Custom PC", sub: "Your specs", btnLabel: "Build", grad: "linear-gradient(135deg,#2e1065 0%,#4c1d95 100%)", border: "#6d28d9", action: () => setCurrentPage("contact") },
+                  { badge: "Sale", badgeBg: "bg-red-500", title: "Offer Zone", sub: "Up to 40% off", btnLabel: "Shop", grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)", border: "#3730a3", href: "/shop", action: () => setCurrentPage("shop") },
+                  { badge: "New", badgeBg: "bg-emerald-500", title: "Laptops", sub: "All budgets", btnLabel: "View", grad: "linear-gradient(135deg,#064e3b 0%,#065f46 100%)", border: "#047857", href: "/shop", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
+                  { badge: "Custom", badgeBg: "bg-violet-500", title: "Custom PC", sub: "Your specs", btnLabel: "Build", grad: "linear-gradient(135deg,#2e1065 0%,#4c1d95 100%)", border: "#6d28d9", href: "/contact", action: () => setCurrentPage("contact") },
                 ]).map((card, i) => (
-                  <div
+                  <Link
                     key={i}
-                    onClick={card.action}
-                    className="cursor-pointer relative rounded-xl overflow-hidden flex flex-col justify-between p-3"
+                    to={card.href}
+                    className="relative rounded-xl overflow-hidden flex flex-col justify-between p-3"
                     style={{
                       background: card.grad,
                       border: `1px solid ${card.border}`,
@@ -1653,10 +1662,10 @@ export const Home: React.FC = () => {
                         {card.sub}
                       </p>
                     </div>
-                    <button className="mt-2 self-start bg-white/15 text-white text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-wider flex items-center gap-0.5">
+                    <span className="mt-2 self-start bg-white/15 text-white text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-wider flex items-center gap-0.5">
                       {card.btnLabel} <ArrowRight className="w-2 h-2" />
-                    </button>
-                  </div>
+                    </span>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -1726,6 +1735,7 @@ export const Home: React.FC = () => {
                   from: "₹14,999",
                   dark: false,
                   icon: <Laptop className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/buy-refurbished-laptop",
                   action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
                 },
                 {
@@ -1736,6 +1746,7 @@ export const Home: React.FC = () => {
                   from: "₹9,999",
                   dark: false,
                   icon: <Monitor className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/refurbished-desktop-durgapur",
                   action: () => { setSelectedCategory("Desktop"); setCurrentPage("shop"); },
                 },
                 {
@@ -1746,6 +1757,7 @@ export const Home: React.FC = () => {
                   from: "₹24,999",
                   dark: true,
                   icon: <Zap className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/buy-refurbished-laptop",
                   action: () => { setSelectedCategory("Desktop"); setHeaderSearchQuery("gaming"); setCurrentPage("shop"); },
                 },
                 {
@@ -1756,6 +1768,7 @@ export const Home: React.FC = () => {
                   from: "₹18,999",
                   dark: false,
                   icon: <Cpu className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/buy-refurbished-laptop-asansol",
                   action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
                 },
                 {
@@ -1766,6 +1779,7 @@ export const Home: React.FC = () => {
                   from: "₹12,999",
                   dark: false,
                   icon: <ShoppingBag className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/buy-refurbished-laptop",
                   action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
                 },
                 {
@@ -1776,6 +1790,7 @@ export const Home: React.FC = () => {
                   from: "₹32,999",
                   dark: false,
                   icon: <HardDrive className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/buy-refurbished-laptop",
                   action: () => { setSelectedCategory("Desktop"); setCurrentPage("shop"); },
                 },
               ] : selectedStoreSection === 'Wholesale' ? [
@@ -1787,6 +1802,7 @@ export const Home: React.FC = () => {
                   from: "₹12,999",
                   dark: false,
                   icon: <Monitor className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/wholesale-desktop-durgapur",
                   action: () => { setSelectedCategory("Desktop"); setCurrentPage("shop"); },
                 },
                 {
@@ -1797,6 +1813,7 @@ export const Home: React.FC = () => {
                   from: "₹19,999",
                   dark: false,
                   icon: <Laptop className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/wholesale-laptop-west-bengal",
                   action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
                 },
                 {
@@ -1807,6 +1824,7 @@ export const Home: React.FC = () => {
                   from: "₹299",
                   dark: false,
                   icon: <MemoryStick className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/shop",
                   action: () => { setHeaderSearchQuery("keyboard"); setCurrentPage("shop"); },
                 },
                 {
@@ -1817,6 +1835,7 @@ export const Home: React.FC = () => {
                   from: "₹499",
                   dark: false,
                   icon: <Phone className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/shop",
                   action: () => { setHeaderSearchQuery("headphone"); setCurrentPage("shop"); },
                 },
                 {
@@ -1827,6 +1846,7 @@ export const Home: React.FC = () => {
                   from: "₹399",
                   dark: true,
                   icon: <Globe className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/shop",
                   action: () => { setHeaderSearchQuery("router"); setCurrentPage("shop"); },
                 },
                 {
@@ -1837,6 +1857,7 @@ export const Home: React.FC = () => {
                   from: "₹999",
                   dark: false,
                   icon: <HardDrive className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/shop",
                   action: () => { setHeaderSearchQuery("stand"); setCurrentPage("shop"); },
                 },
               ] : [
@@ -1849,6 +1870,7 @@ export const Home: React.FC = () => {
                   from: "10,999",
                   dark: false,
                   icon: <Monitor className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/buy-desktop-pc",
                   action: () => { setSelectedCategory("Desktop"); setCurrentPage("shop"); },
                 },
                 {
@@ -1859,6 +1881,7 @@ export const Home: React.FC = () => {
                   from: "₹22,999",
                   dark: false,
                   icon: <Laptop className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/buy-laptop",
                   action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
                 },
                 {
@@ -1869,6 +1892,7 @@ export const Home: React.FC = () => {
                   from: "14,999",
                   dark: true,
                   icon: <Zap className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/buy-gaming-pc-durgapur",
                   action: () => { setSelectedCategory("Desktop"); setHeaderSearchQuery("gaming"); setCurrentPage("shop"); },
                 },
                 {
@@ -1879,6 +1903,7 @@ export const Home: React.FC = () => {
                   from: "11,499",
                   dark: false,
                   icon: <Cpu className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/contact",
                   action: () => setCurrentPage("contact"),
                 },
                 {
@@ -1889,6 +1914,7 @@ export const Home: React.FC = () => {
                   from: "₹7,999",
                   dark: false,
                   icon: <Monitor className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/shop",
                   action: () => { setHeaderSearchQuery("monitor"); setCurrentPage("shop"); },
                 },
                 {
@@ -1899,13 +1925,14 @@ export const Home: React.FC = () => {
                   from: "₹999",
                   dark: true,
                   icon: <MemoryStick className="w-6 h-6 md:w-8 md:h-8" />,
+                  href: "/shop",
                   action: () => { setSelectedCategory(null); setHeaderSearchQuery("components"); setCurrentPage("shop"); },
                 },
               ]).map((cat, i) => (
-                <div
+                <Link
                   key={i}
-                  onClick={cat.action}
-                  className={`card-hover cursor-pointer group relative overflow-hidden ${cat.dark ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200/60"} border p-4 md:p-8 rounded-2xl flex flex-col gap-2 md:gap-3`}
+                  to={cat.href}
+                  className={`card-hover group relative overflow-hidden ${cat.dark ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200/60"} border p-4 md:p-8 rounded-2xl flex flex-col gap-2 md:gap-3`}
                   style={{ minHeight: 140 }}
                 >
                   <div
@@ -1968,7 +1995,7 @@ export const Home: React.FC = () => {
                       <ArrowRight className="w-3 h-3 md:w-3.5 md:h-3.5" />
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -2004,19 +2031,12 @@ export const Home: React.FC = () => {
                 {ht.aboutSub}
               </p>
               <div className="flex gap-3 pt-1 flex-wrap">
-                <button
-                  onClick={() => setCurrentPage("about")}
-                  className="cursor-pointer text-white px-5 md:px-7 py-3 md:py-3.5 rounded-2xl font-black text-sm transition-all"
-                  style={{ background: ht.accent }}
-                >
+                <Link to="/about" className="cursor-pointer text-white px-5 md:px-7 py-3 md:py-3.5 rounded-2xl font-black text-sm transition-all" style={{ background: ht.accent }}>
                   Our Story →
-                </button>
-                <button
-                  onClick={() => setCurrentPage("branches")}
-                  className="cursor-pointer border border-gray-700 text-gray-300 hover:border-indigo-500 hover:text-white px-5 md:px-7 py-3 md:py-3.5 rounded-2xl font-black text-sm transition-all flex items-center gap-2"
-                >
+                </Link>
+                <Link to="/branches" className="cursor-pointer border border-gray-700 text-gray-300 hover:border-indigo-500 hover:text-white px-5 md:px-7 py-3 md:py-3.5 rounded-2xl font-black text-sm transition-all flex items-center gap-2">
                   <MapPin className="w-4 h-4" /> Find Store
-                </button>
+                </Link>
               </div>
             </div>
             {/* On mobile: compact 2x2 grid */}
@@ -2075,12 +2095,9 @@ export const Home: React.FC = () => {
                 Best Deals You Can't Miss
               </h3>
             </div>
-            <button
-              onClick={() => setCurrentPage("shop")}
-              className="cursor-pointer text-gray-900 font-black hidden md:flex items-center gap-2 hover:text-indigo-600 transition-colors"
-            >
+            <Link to="/buy-laptop" className="text-gray-900 font-black hidden md:flex items-center gap-2 hover:text-indigo-600 transition-colors">
               View All Deals <ArrowRight className="w-4 h-4" />
-            </button>
+            </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-10 stagger-children">
             {featured.length > 0
@@ -2170,7 +2187,7 @@ export const Home: React.FC = () => {
                     setSelectedCategory("Desktop");
                     setCurrentPage("shop");
                   }}
-                  className="card-hover cursor-pointer bg-white rounded-3xl md:rounded-[40px] border border-gray-100 shadow-sm hover:shadow-xl overflow-hidden"
+                  className="card-hover block cursor-pointer bg-white rounded-3xl md:rounded-[40px] border border-gray-100 shadow-sm hover:shadow-xl overflow-hidden"
                 >
                   <div
                     className="h-36 md:h-48 flex items-center justify-center"
@@ -2197,12 +2214,9 @@ export const Home: React.FC = () => {
               ))}
           </div>
           <div className="text-center mt-6">
-            <button
-              onClick={() => setCurrentPage("shop")}
-              className="md:hidden bg-indigo-600 text-white px-7 py-3 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-indigo-700 transition-all"
-            >
+            <Link to="/shop" className="md:hidden bg-indigo-600 text-white px-7 py-3 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-indigo-700 transition-all inline-block text-center">
               View All Deals
-            </button>
+            </Link>
           </div>
         </section>
 

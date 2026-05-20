@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import { BranchCarousel } from "./BranchCarousel";
 import { SECTION_ACCENT } from "@/lib/sectionTheme";
-
+import { Helmet } from 'react-helmet-async'
+import { useLocation } from "react-router-dom";
 export const Branches: React.FC = () => {
   const { branches, selectedStoreSection } = useStore();
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,9 +30,80 @@ export const Branches: React.FC = () => {
       b.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       b.address.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+  const location = useLocation()
+  const path = location.pathname.toLowerCase()
 
+  const repairMeta = {
+    '/computer-repair-durgapur': {
+      title: 'Computer Repair in Durgapur | Infofix Computers',
+      desc: 'Expert computer repair service in Durgapur — desktop, laptop, motherboard, screen & more. Walk-in at Benachity. Fast turnaround. Infofix Computers.',
+      h1: 'Computer Repair', h2: 'Durgapur',
+    },
+    '/laptop-repair-durgapur': {
+      title: 'Laptop Repair in Durgapur | Infofix Computers',
+      desc: 'Fast laptop repair in Durgapur. Screen, battery, keyboard, hinge, motherboard — all brands. Same-day service at Infofix Computers, Benachity.',
+      h1: 'Laptop Repair', h2: 'Durgapur',
+    },
+    '/laptop-repair-asansol': {
+      title: 'Laptop Repair in Asansol | Infofix Computers',
+      desc: 'Laptop repair service in Asansol. Dell, HP, Lenovo, Acer — all brands serviced. Quick turnaround at Infofix Computers.',
+      h1: 'Laptop Repair', h2: 'Asansol',
+    },
+  } as const
+
+  const currentRepair = repairMeta[path as keyof typeof repairMeta]
   return (
     <div className="pb-32 bg-white selection:bg-indigo-100 selection:text-indigo-900">
+      {currentRepair && (
+        <>
+          <Helmet>
+            <title>{currentRepair.title}</title>
+            <meta name="description" content={currentRepair.desc} />
+            <link rel="canonical" href={`https://infofixcomputers.com${location.pathname}`} />
+            <script type="application/ld+json">{JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "LocalBusiness",
+              "name": "Infofix Computers",
+              "url": "https://infofixcomputers.com",
+              "telephone": "+91-8293295257",
+              "description": currentRepair.desc,
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Benachity Near Bank of Baroda",
+                "addressLocality": "Durgapur",
+                "addressRegion": "West Bengal",
+                "postalCode": "713201",
+                "addressCountry": "IN"
+              },
+              "geo": { "@type": "GeoCoordinates", "latitude": 23.5204, "longitude": 87.3119 },
+              "openingHoursSpecification": [{
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+                "opens": "10:00", "closes": "20:00"
+              }],
+              "areaServed": [
+                { "@type": "City", "name": "Durgapur" },
+                { "@type": "City", "name": "Asansol" },
+                { "@type": "City", "name": "Ukhra" }
+              ]
+            })}</script>
+          </Helmet>
+          {/* Unique hero for repair pages */}
+          <section className="bg-white py-12 px-4 text-center border-b border-gray-100">
+            <h1 className="text-4xl font-black text-gray-900 mb-3">
+              {currentRepair.h1}{' '}
+              <span style={{ color: theme.accent }}>{currentRepair.h2}</span>
+            </h1>
+            <p className="text-gray-500 max-w-xl mx-auto font-medium">{currentRepair.desc}</p>
+            <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm font-bold">
+              <span className="bg-green-50 text-green-700 border border-green-200 px-4 py-2 rounded-full">✓ All Brands Serviced</span>
+              <span className="bg-blue-50 text-blue-700 border border-blue-200 px-4 py-2 rounded-full">✓ Fast Turnaround</span>
+              <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-full">✓ Walk-in Welcome</span>
+              <span className="bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2 rounded-full">✓ Genuine Parts</span>
+            </div>
+          </section>
+        </>
+      )}
       {/* Immersive Header Section */}
       <section className="relative min-h-[50vh] md:h-100 flex items-center justify-center overflow-hidden bg-gray-900 pt-10 md:pt-0">
         {" "}

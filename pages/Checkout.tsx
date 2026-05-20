@@ -3,6 +3,7 @@ import { ShieldCheck, CheckCircle, MapPin, Plus, Tag, X, Phone, Home as HomeIcon
 import { useStore } from "../context/StoreContext";
 import { supabase } from "../lib/supabaseClient";
 import { Address } from "../types";
+import { Link } from "react-router-dom";
 import { SECTION_ACCENT } from '@/lib/sectionTheme';
 type PaymentMethod = "UPI" | "Card" | "NetBanking" | "COD";
 
@@ -320,8 +321,8 @@ export const Checkout: React.FC = () => {
           <p className="text-indigo-700 text-sm">For help: <span className="font-bold">+91 8293295257</span></p>
         </div>
         <div className="flex flex-col sm:flex-row justify-center gap-3">
-          <button onClick={() => setCurrentPage("orders")} className="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition">Track My Order</button>
-          <button onClick={() => setCurrentPage("shop")} className="border border-gray-200 px-8 py-3 rounded-2xl font-bold hover:bg-gray-50 transition">Continue Shopping</button>
+          <Link to="/orders" className="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition">Track My Order</Link>
+          <Link to="/shop" className="border border-gray-200 px-8 py-3 rounded-2xl font-bold hover:bg-gray-50 transition">Continue Shopping</Link>
         </div>
       </div>
     );
@@ -431,13 +432,13 @@ export const Checkout: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    <button
-                      onClick={() => setCurrentPage("profile")}
+                    <Link
+                      to="/profile"
                       className="flex items-center gap-1.5 text-xs font-bold hover:underline"
                       style={{ color: theme.accent }}
                     >
                       <Plus className="w-3.5 h-3.5" /> Add / Change Address
-                    </button>
+                    </Link>
                     {!addressConfirmed && (
                       <p className="w-full flex items-center gap-1.5 text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-100 px-3 py-2 rounded-xl mt-1">
                         <span>⚠️</span> Tap <strong>"Deliver Here"</strong> to confirm your address before placing order.

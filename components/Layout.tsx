@@ -34,7 +34,7 @@ import { CouponDealsStrip } from "@/pages/CouponDealsStrip";
 import { supabase } from "@/lib/supabaseClient";
 import { GuestPromoBanner } from "@/pages/GuestPromoBanner";
 import { CareerPortal } from "@/pages/Careerportal";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 
 export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -114,7 +114,34 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     setHeaderSearchQuery(localSearch.trim());
     setCurrentPage("shop");
   };
-
+  const isNavActive = (linkId: CustomerPage): boolean => {
+    const path = location.pathname
+    if (linkId === 'home') return path === '/'
+    if (linkId === 'shop') return (
+      path === '/shop' ||
+      path.startsWith('/products/') ||
+      path.startsWith('/buy-') ||
+      (path.startsWith('/laptop') && !path.includes('repair')) ||
+      path.startsWith('/gaming') ||
+      path.startsWith('/refurbished') ||
+      path.startsWith('/custom') ||
+      path.startsWith('/wholesale') ||
+      path.startsWith('/computer-shop') ||
+      path.startsWith('/dell-') ||
+      path.startsWith('/hp-') ||
+      path.startsWith('/lenovo-')
+    )
+    if (linkId === 'branches') return (
+      path === '/branches' ||
+      path.includes('repair')
+    )
+    if (linkId === 'services') return path === '/services'
+    if (linkId === 'blog') return path.startsWith('/blog')
+    if (linkId === 'about') return path === '/about'
+    if (linkId === 'contact') return path === '/contact'
+    if (linkId === 'careers') return path === '/careers'
+    return path === `/${linkId}`
+  }
 
   const cartCount = cart.length;
   const userInitials = currentUser?.name
@@ -199,15 +226,13 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 { id: "about", label: "About" },
                 { id: "careers", label: "Careers" },
               ].map(({ id, label }) => (
-                <button
+                <Link
                   key={id}
-                  onClick={() => setCurrentPage(id as CustomerPage)}
-                  className="px-3 transition-colors duration-150"
-                  onMouseEnter={e => (e.currentTarget.style.color = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1')}
-                  onMouseLeave={e => (e.currentTarget.style.color = '')}
+                  to={`/${id}`}
+                  className="px-3 transition-colors duration-150 text-slate-500 hover:text-indigo-600"
                 >
                   {label}
-                </button>
+                </Link>
               ))}
             </div>
           </div>
@@ -226,7 +251,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               },
               {
                 id: 'Refurbished' as const,
-                label: 'Refurbished', sub: 'Certified Pre-owned',
+                label: 'Refurbished', sub: 'fied Pre-owned',
                 gradient: 'linear-gradient(135deg,#052e16,#065f46)',
                 iconStroke: '#6ee7b7', titleColor: '#d1fae5', subColor: '#6ee7b7', dotColor: '#34d399',
                 icon: <svg viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" strokeWidth="2.2" style={{ width: 16, height: 16 }}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>,
@@ -285,8 +310,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
         <div className="h-14 lg:h-16 flex items-center px-4 lg:px-20 bg-white gap-3 lg:gap-8 relative">
 
           {/* ── LOGO ── */}
-          <button
-            onClick={() => setCurrentPage("home")}
+          <Link
+            to="/"
             className="flex items-center justify-center shrink-0 absolute left-1/2 -translate-x-1/2 lg:relative lg:left-0 lg:translate-x-0 group"
           >
             <div className="flex flex-col leading-none text-center lg:text-left">
@@ -316,7 +341,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 style={{ background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1' }}
               ></span>
             </div>
-          </button>
+          </Link>
 
           {/* ── SEARCH (desktop) ── */}
           <div className="hidden lg:flex flex-1 max-w-2xl mx-auto">
@@ -348,14 +373,13 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               </button>
             </div>
           </div>
-
-          {/* Cart (mobile left, desktop right) */}
+          {/* Cart mobile */}
           <button
             onClick={() => setCurrentPage("cart")}
-            aria-label="View shopping cart"
             className="relative lg:hidden w-10 h-10 flex items-center justify-center rounded-xl text-slate-600 transition-all duration-150 group"
             onMouseEnter={e => { e.currentTarget.style.color = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'; e.currentTarget.style.background = (sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1') + '15'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = ''; e.currentTarget.style.background = ''; }}          >
+            onMouseLeave={e => { e.currentTarget.style.color = ''; e.currentTarget.style.background = ''; }}
+          >
             <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-150" />
             {cartCount > 0 && (
               <span
@@ -366,7 +390,6 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               </span>
             )}
           </button>
-
           {/* ── RIGHT ACTIONS ── */}
           <div className="flex items-center gap-1.5 lg:gap-3 ml-auto lg:ml-0">
             {/* Phone info (xl+) */}
@@ -487,11 +510,12 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             </div>
 
             {/* Cart */}
-            <button
-              onClick={() => setCurrentPage("cart")}
+            <Link
+              to="/cart"
               className="relative hidden lg:flex w-10 h-10 items-center justify-center rounded-xl text-slate-600 transition-all duration-150 group"
               onMouseEnter={e => { e.currentTarget.style.color = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'; e.currentTarget.style.background = (sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1') + '15'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = ''; e.currentTarget.style.background = ''; }}            >
+              onMouseLeave={e => { e.currentTarget.style.color = ''; e.currentTarget.style.background = ''; }}
+            >
               <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-150" />
               {cartCount > 0 && (
                 <span
@@ -501,7 +525,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                   {cartCount > 99 ? "99+" : cartCount}
                 </span>
               )}
-            </button>
+            </Link>
           </div>
           <button
             onClick={() => setIsMenuOpen(true)}
@@ -684,13 +708,12 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                     <button
                       onClick={() => setCurrentPage("shop")}
                       className={`relative px-3.5 h-full flex items-center gap-1 transition-colors duration-150`}
-                      onMouseEnter={e => { if (currentPage !== "shop") (e.currentTarget as HTMLElement).style.color = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'; }}
-                      onMouseLeave={e => { if (currentPage !== "shop") (e.currentTarget as HTMLElement).style.color = ''; }}
-                      style={{ color: currentPage === "shop" ? sectionTabs.find(t => t.id === selectedStoreSection)?.accent : undefined }}
+                      onMouseEnter={e => { if (!isNavActive("shop")) (e.currentTarget as HTMLElement).style.color = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'; }}
+                      onMouseLeave={e => { if (!isNavActive("shop")) (e.currentTarget as HTMLElement).style.color = ''; }}
+                      style={{ color: isNavActive("shop") ? sectionTabs.find(t => t.id === selectedStoreSection)?.accent : undefined }}
                     >
-                      {currentPage === "shop" && (
-                        <span
-                          className="absolute bottom-0 inset-x-2 h-0.5 rounded-full"
+                      {isNavActive("shop") && (
+                        <span className="absolute bottom-0 inset-x-2 h-0.5 rounded-full"
                           style={{ background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1' }}
                         />
                       )}
@@ -743,22 +766,22 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                     </div>
                   </div>
                 ) : (
-                  <button
+                  <Link
                     key={link.id}
-                    onClick={() => setCurrentPage(link.id)}
+                    to={link.id === 'home' ? '/' : `/${link.id}`}
                     className={`relative px-3.5 h-full flex items-center transition-colors duration-150 ${currentPage === link.id ? "" : ""}`}
                     onMouseEnter={e => { if (currentPage !== link.id) (e.currentTarget as HTMLElement).style.color = sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'; }}
                     onMouseLeave={e => { if (currentPage !== link.id) (e.currentTarget as HTMLElement).style.color = ''; }}
-                    style={{ color: currentPage === link.id ? sectionTabs.find(t => t.id === selectedStoreSection)?.accent : undefined }}
+                    style={{ color: isNavActive(link.id) ? sectionTabs.find(t => t.id === selectedStoreSection)?.accent : undefined }}
                   >
-                    {currentPage === link.id && (
+                    {isNavActive(link.id) && (
                       <span
                         className="absolute bottom-0 inset-x-2 h-0.5 rounded-full"
                         style={{ background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1' }}
                       />
                     )}
                     {link.label}
-                  </button>
+                  </Link>
                 )
               )}
             </nav>
@@ -842,26 +865,20 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               {mobileTab === "menu" ? (
                 <>
                   {navLinks.map((link) => (
-                    <button
+                    <Link
                       key={link.id}
-                      onClick={() => {
-                        setCurrentPage(link.id);
-                        setIsMenuOpen(false);
-                      }}
-                      className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${currentPage === link.id ? "text-white" : "text-slate-700 hover:bg-slate-50"}`}
+                      to={link.id === 'home' ? '/' : `/${link.id}`}
+                      onClick={() => setIsMenuOpen(false)}
+                      className={`block w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${isNavActive(link.id) ? "text-white" : "text-slate-700 hover:bg-slate-50"}`}
                       style={
                         currentPage === link.id
-                          ? {
-                            background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1',
-                            boxShadow: `0 4px 12px ${sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'}55`
-                          }
+                          ? { background: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1', boxShadow: `0 4px 12px ${sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'}55` }
                           : {}
                       }
                     >
                       {link.label}
-                    </button>
+                    </Link>
                   ))}
-
                   <div className="h-px bg-slate-100 my-2" />
 
                   {!currentUser ? (
@@ -1071,12 +1088,12 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               <ul className="space-y-2">
                 {items.map(({ label, page }) => (
                   <li key={label}>
-                    <button
-                      onClick={() => setCurrentPage(page as CustomerPage)}
-                      className="text-xs text-slate-500 hover:text-white transition-colors duration-150 cursor-pointer"
+                    <Link
+                      to={`/${page}`}
+                      className="text-xs text-slate-500 hover:text-white transition-colors duration-150"
                     >
                       {label}
-                    </button>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -1090,36 +1107,19 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <div className="w-5 h-px bg-slate-600" />
             <ul className="space-y-2 text-xs text-slate-500">
               <li>
-                <button
-                  onClick={() => setCurrentPage("policy")}
-                  className="hover:text-white transition-colors duration-150"
-                >
-                  Payments
-                </button>
+                <Link to="/policy" className="hover:text-white transition-colors duration-150">Payments</Link>
               </li>
               <li>
-                <button
-                  onClick={() => setCurrentPage("policy")}
-                  className="hover:text-white transition-colors duration-150"
-                >
-                  Returns
-                </button>
+                <Link to="/policy" className="hover:text-white transition-colors duration-150">Returns</Link>
+
               </li>
               <li>
-                <button
-                  onClick={() => setCurrentPage("policy")}
-                  className="hover:text-white transition-colors duration-150"
-                >
-                  FAQ
-                </button>
+                <Link to="/policy" className="hover:text-white transition-colors duration-150">FAQ</Link>
+
               </li>
               <li>
-                <button
-                  onClick={() => setCurrentPage("contact")}
-                  className="hover:text-white transition-colors duration-150"
-                >
-                  Raise Query
-                </button>
+                <Link to="/contact" className="hover:text-white transition-colors duration-150">Raise Query</Link>
+
               </li>
               <li className="flex items-center gap-1.5">
                 <InstallPWA />
@@ -1134,36 +1134,20 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <div className="w-5 h-px bg-slate-600" />
             <ul className="space-y-2 text-xs text-slate-500">
               <li>
-                <button
-                  onClick={() => setCurrentPage("policy")}
-                  className="hover:text-white transition-colors duration-150"
-                >
-                  Return Policy
-                </button>
+                <Link to="/policy" className="hover:text-white transition-colors duration-150">Return Policy</Link>
+
               </li>
               <li>
-                <button
-                  onClick={() => setCurrentPage("policy")}
-                  className="hover:text-white transition-colors duration-150"
-                >
-                  Terms of Use
-                </button>
+                <Link to="/policy" className="hover:text-white transition-colors duration-150">Terms of Use</Link>
+
               </li>
               <li>
-                <button
-                  onClick={() => setCurrentPage("policy")}
-                  className="hover:text-white transition-colors duration-150"
-                >
-                  Privacy
-                </button>
+                <Link to="/policy" className="hover:text-white transition-colors duration-150">Privacy</Link>
+
               </li>
               <li>
-                <button
-                  onClick={() => setCurrentPage("policy")}
-                  className="hover:text-white transition-colors duration-150"
-                >
-                  Shipping
-                </button>
+                <Link to="/policy" className="hover:text-white transition-colors duration-150">Shipping</Link>
+
               </li>
             </ul>
           </div>
@@ -1244,6 +1228,8 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <p className="text-xs text-slate-500">📞 8293295257</p>
           </div>
         </div>
+
+
 
         <div className="border-t border-slate-800 pt-8 pb-4">
           <div className="app-container flex flex-col lg:flex-row items-center justify-between gap-6">

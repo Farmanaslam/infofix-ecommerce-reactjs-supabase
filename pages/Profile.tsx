@@ -22,6 +22,7 @@ import {
 import { useStore } from "../context/StoreContext";
 import { supabase } from "../lib/supabaseClient";
 import { Customer, ProfileForm, AddressForm, RecentOrder } from "../types";
+import { Link } from "react-router-dom";
 import { SECTION_ACCENT } from "@/lib/sectionTheme";
 const emptyAddressForm: AddressForm = {
   address1: "",
@@ -873,13 +874,13 @@ export const Profile: React.FC = () => {
         <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100 border border-gray-100 p-10 mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-black">Recent Orders</h2>
-            <button
-              onClick={() => setCurrentPage("orders")}
-              className=" font-bold hover:underline cursor-pointer text-sm"
+            <Link
+              to="/orders"
+              className="font-bold hover:underline text-sm"
               style={{ color: theme.accent }}
             >
               View All
-            </button>
+            </Link>
           </div>
 
           {recentOrders.length === 0 ? (
@@ -891,15 +892,15 @@ export const Profile: React.FC = () => {
               <p className="text-gray-400 text-sm mt-1 mb-6">
                 Your order history will appear here once you make a purchase.
               </p>
-              <button
-                onClick={() => setCurrentPage("shop")}
+              <Link
+                to="/shop"
                 className="px-6 py-3  text-white rounded-2xl font-semibold transition cursor-pointer"
                 style={{ background: theme.accent }}
                 onMouseEnter={e => e.currentTarget.style.background = theme.accentHover}
                 onMouseLeave={e => e.currentTarget.style.background = theme.accent}
               >
                 Start Shopping
-              </button>
+              </Link>
             </div>
           ) : (
             <div className="space-y-4">
@@ -942,13 +943,13 @@ export const Profile: React.FC = () => {
                     <p className="font-black text-sm whitespace-nowrap" style={{ color: theme.accent }}>
                       ₹{order.total_amount.toLocaleString()}
                     </p>
-                    <button
-                      onClick={() => setCurrentPage("orders")}
+                    <Link
+                      to="/orders"
                       className="text-xs font-bold hover:underline shrink-0"
                       style={{ color: theme.accent }}
                     >
                       Details →
-                    </button>
+                    </Link>
                   </div>
                 </div>
               ))}

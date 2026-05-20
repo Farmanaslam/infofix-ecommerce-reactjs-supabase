@@ -14,10 +14,20 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = event.request.url;
 
-  // Skip OAuth redirects — let browser handle them natively
-  if (url.includes("access_token") || url.includes("localhost:3000")||
-    url.includes("yt-proxy") ) {
+  // Skip OAuth redirects and special cases
+  if (
+    url.includes("access_token") ||
+    url.includes("localhost:3000") ||
+    url.includes("yt-proxy")
+  ) {
     return;
+  }
+
+  // Skip ALL external origins — only intercept same-origin requests
+  // This fixes CORS errors for Supabase, YouTube, allorigins, etc.
+  const requestOrigin = new URL(url).origin;
+  if (requestOrigin !== self.location.origin) {
+    return; // Let browser handle external requests natively
   }
 
   event.respondWith(fetch(event.request));

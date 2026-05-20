@@ -3,7 +3,7 @@ import { Mail, ArrowLeft, Send } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useStore } from "../context/StoreContext";
 import { SECTION_ACCENT } from "@/lib/sectionTheme";
-
+import { Link } from "react-router-dom";
 export const ForgotPassword: React.FC = () => {
     const { setCurrentPage, selectedStoreSection } = useStore();
     const theme = SECTION_ACCENT[selectedStoreSection];
@@ -42,15 +42,15 @@ export const ForgotPassword: React.FC = () => {
                             Password reset link sent to <span className="font-bold" style={{ color: theme.accent }}>{email}</span>.
                             Check inbox (and spam folder).
                         </p>
-                        <button
-                            onClick={() => setCurrentPage("login")}
+                        <Link
+                            to="/login"
                             className="w-full text-white py-4 rounded-2xl font-bold transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3"
                             style={{ background: theme.accent }}
                             onMouseEnter={e => e.currentTarget.style.background = theme.accentHover}
                             onMouseLeave={e => e.currentTarget.style.background = theme.accent}
                         >
                             <ArrowLeft className="w-5 h-5" /> Back to Login
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -114,13 +114,12 @@ export const ForgotPassword: React.FC = () => {
                                 {loading ? "Sending..." : "Send Reset Link"} <Send className="w-5 h-5" />
                             </button>
 
-                            <button
-                                type="button"
-                                onClick={() => setCurrentPage("login")}
+                            <Link
+                                to="/login"
                                 className="w-full text-gray-500 hover:text-gray-700 font-semibold flex items-center justify-center gap-2 transition-colors"
                             >
                                 <ArrowLeft className="w-4 h-4" /> Back to Login
-                            </button>
+                            </Link>
                         </form>
                     </div>
                 </div>

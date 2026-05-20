@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useStore } from "../context/StoreContext";
-
+import { Link } from "react-router-dom";
 export const ResetPassword: React.FC = () => {
   const { setCurrentPage } = useStore();
   const [password, setPassword] = useState("");
@@ -64,12 +64,12 @@ export const ResetPassword: React.FC = () => {
             </div>
             <h2 className="text-3xl font-black text-gray-900 tracking-tighter">Password Updated!</h2>
             <p className="text-gray-500 font-medium">Login now with new password.</p>
-            <button
-              onClick={() => setCurrentPage("login")}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-bold transition-all shadow-xl shadow-indigo-100"
+            <Link
+              to="/login"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-bold transition-all shadow-xl shadow-indigo-100 block text-center"
             >
               Go to Login
-            </button>
+            </Link>
           </div>
         </div>
       </div>
