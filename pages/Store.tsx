@@ -1145,11 +1145,14 @@ export const Store: React.FC = () => {
 
   const prevSectionRef = useRef(selectedStoreSection);
   useEffect(() => {
+    if (prevSectionRef.current === selectedStoreSection) return;
     prevSectionRef.current = selectedStoreSection;
     setSelectedProduct(null);
     sessionStorage.removeItem("selectedProduct");
-    setSelectedCategory("All");
-    setSelectedSubcategory("");
+    if (!ctxCategory) {
+      setSelectedCategory("All");
+      setSelectedSubcategory("");
+    }
     setSearchQuery("");
     setHeroSearch("");
   }, [selectedStoreSection]);
@@ -1173,10 +1176,15 @@ export const Store: React.FC = () => {
     }, 50);
   };
   useEffect(() => {
+    if (!shopNavKey) return;
     setSelectedProduct(null);
     sessionStorage.removeItem("selectedProduct");
     setSearchQuery("");
     setHeroSearch("");
+    if (!ctxCategory) {
+      setSelectedCategory("All");
+      setSelectedSubcategory("");
+    }
   }, [shopNavKey]);
 
 

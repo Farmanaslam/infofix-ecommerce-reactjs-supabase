@@ -53,6 +53,8 @@ const VideoCard: React.FC<{
   onClick: () => void;
 }> = ({ post, videoId, theme, onClick }) => {
   const [hovered, setHovered] = useState(false);
+  const [muted, setMuted] = useState(true);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cat = categoryStyle[post.category];
 
@@ -62,6 +64,18 @@ const VideoCard: React.FC<{
   const handleMouseLeave = () => {
     if (hoverTimer.current) clearTimeout(hoverTimer.current);
     setHovered(false);
+    setMuted(true); // reset mute on leave
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newMuted = !muted;
+    setMuted(newMuted);
+    // postMessage to YouTube iframe
+    iframeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: "command", func: newMuted ? "mute" : "unMute", args: [] }),
+      "*"
+    );
   };
 
   return (
@@ -73,13 +87,26 @@ const VideoCard: React.FC<{
     >
       <div className="aspect-video overflow-hidden relative bg-black">
         {hovered ? (
-          // Muted autoplay preview on hover
-          <iframe
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0`}
-            className="w-full h-full"
-            allow="autoplay"
-            title={post.title}
-          />
+          <div className="relative w-full h-full">
+            <iframe
+              ref={iframeRef}
+              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&enablejsapi=1`}
+              className="w-full h-full"
+              allow="autoplay"
+              title={post.title}
+            />
+            {/* Sound icon — bottom right, z-index over iframe, icon only */}
+            <button
+              onClick={toggleMute}
+              className="absolute bottom-2 right-2 z-10 w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-sm flex items-center justify-center transition-all duration-200"
+              title={muted ? "Unmute" : "Mute"}
+            >
+              {muted
+                ? <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" /></svg>
+                : <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /></svg>
+              }
+            </button>
+          </div>
         ) : (
           <>
             <img
@@ -90,13 +117,11 @@ const VideoCard: React.FC<{
               height={360}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            {/* Play button overlay */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-14 h-14 rounded-full bg-red-600 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
                 <Play className="w-6 h-6 text-white fill-white ml-1" />
               </div>
             </div>
-            {/* YouTube badge */}
             <div className="absolute top-3 right-3 bg-black/70 rounded-lg px-2 py-1 flex items-center gap-1">
               <Youtube className="w-3.5 h-3.5 text-red-500" />
               <span className="text-white text-xs font-bold">Video</span>
