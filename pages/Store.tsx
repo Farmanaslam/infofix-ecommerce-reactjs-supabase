@@ -777,6 +777,12 @@ export const Store: React.FC = () => {
     // Navigate to SEO URL — /products/hp-laptop-15s-8gb-512gb-ssd
     navigate(`/products/${toSlug(enriched.name)}-${enriched.id}`)
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    window.gtag?.('event', 'view_item', {
+      currency: 'INR',
+      value: product.price,
+      items: [{ item_id: product.id, item_name: product.name, item_category: product.category, price: product.price }]
+    });
   };
   const handleBuyNow = (product: Product) => {
     if (!currentUser) {

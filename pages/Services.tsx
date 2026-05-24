@@ -305,7 +305,7 @@ export const Services: React.FC = () => {
         </div>
       </div>
 
-      <div className="app-container mt-24 space-y-28">
+      <div className="app-container mt-10 md:mt-24 space-y-16 md:space-y-28">
         {/* ── 3 MAIN SERVICES ── */}
         <section className="space-y-10">
           <div className="text-center space-y-3">
@@ -337,15 +337,19 @@ export const Services: React.FC = () => {
                     }}
                   />
                 )}
-                <div className="relative z-10 p-8 md:p-10 flex flex-col h-full gap-6">
-                  <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                    style={{ background: svc.color + "18" }}
-                  >
-                    <svc.icon
-                      className="w-7 h-7"
-                      style={{ color: svc.color }}
-                    />
+                <div className="relative z-10 p-6 md:p-10 flex flex-col h-full gap-4 md:gap-6">
+                  <div className="flex md:block justify-center md:justify-start">
+                    <div
+                      className="relative w-16 h-16 md:w-14 md:h-14 rounded-2xl flex items-center justify-center shadow-lg"
+                      style={{
+                        background: `linear-gradient(135deg, ${svc.color}22, ${svc.color}44)`,
+                        border: `1.5px solid ${svc.color}33`,
+                        boxShadow: `0 8px 24px ${svc.color}22`,
+                      }}
+                    >
+                      <svc.icon className="w-7 h-7" style={{ color: svc.color }} />
+                      <div className="absolute inset-0 rounded-2xl" style={{ background: `radial-gradient(circle at 30% 30%, ${svc.color}30, transparent 70%)` }} />
+                    </div>
                   </div>
 
                   <div>
@@ -392,118 +396,90 @@ export const Services: React.FC = () => {
           </div>
         </section>
 
-        {/* ── CUSTOM BUILD TIERS ── */}
-        <section className="bg-gray-50 rounded-[40px] p-10 md:p-16 space-y-10">
-          <div className="text-center space-y-3">
+        {/* ── HOW IT WORKS ── */}
+        <section className="relative rounded-[40px] overflow-hidden bg-gray-50 p-6 md:p-16 space-y-8 md:space-y-10">
+
+          {/* subtle grid bg */}
+          <div className="absolute inset-0 opacity-30" style={{
+            backgroundImage: `linear-gradient(${theme.accent}18 1px,transparent 1px),linear-gradient(90deg,${theme.accent}18 1px,transparent 1px)`,
+            backgroundSize: "36px 36px",
+          }} />
+
+          <div className="relative text-center space-y-3">
             <p className="text-xs font-black uppercase tracking-[0.2em]" style={{ color: theme.accent }}>
-              Custom PC Builds
+              Simple Process
             </p>
             <h2 className="text-4xl font-black text-gray-900 tracking-tight">
-              Pick Your Tier
+              How Infofix Works
             </h2>
             <p className="text-gray-500 font-medium max-w-xl mx-auto">
-              Every tier is assembled and tested by our in-house team. Need
-              something specific? We'll build exactly what you need.
+              From browsing to doorstep — or walk in and walk out same day.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 items-center">
-            {buildTiers.map((tier, i) => (
-              <div
-                key={i}
-                onClick={() => setCurrentPage("contact")}
-                className={`card-hover cursor-pointer relative rounded-3xl p-8 flex flex-col gap-5 transition-all ${tier.featured
-                  ? "bg-gray-900 border-2 shadow-2xl shadow-indigo-500/20 md:-mt-6"
-                  : "bg-white border border-gray-200 "
-                  }`}
-                style={{
-                  borderColor: tier.featured ? tier.color : undefined,
-                }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = `${theme.accent}33`; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; }}
-              >
-                {tier.featured && (
-                  <div
-                    className="absolute -top-4 left-1/2 -translate-x-1/2 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full whitespace-nowrap shadow-lg"
-                    style={{ background: tier.color }}
-                  >
-                    ★ Most Popular
-                  </div>
-                )}
+          {/* Steps */}
+          <div className="relative grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {/* connector line desktop */}
+            <div className="hidden md:block absolute top-10 left-[12.5%] right-[12.5%] h-px" style={{ background: `linear-gradient(90deg, ${theme.accent}40, ${theme.accent}80, ${theme.accent}40)` }} />
 
+            {[
+              { step: "01", icon: "🔍", title: "Browse or Visit", desc: "Explore online or walk into any of our 5 stores. See hardware live before you buy." },
+              { step: "02", icon: "💬", title: "Expert Advice", desc: "Tell us your budget & use-case. Our team recommends the perfect machine — no upselling." },
+              { step: "03", icon: "🔧", title: "Built & Tested", desc: "Every desktop assembled in-house. Every device quality-checked before it leaves." },
+              { step: "04", icon: "🚀", title: "Delivered & Backed", desc: "Same-day pickup or pan-India delivery. 1-year warranty + after-sales support included." },
+            ].map((s, i) => (
+              <div key={i} className="relative flex flex-col items-center text-center gap-4 group">
+                {/* number circle */}
+                <div className="relative w-14 h-14 md:w-20 md:h-20 rounded-full flex items-center justify-center text-xl md:text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300 z-10"
+                  style={{ background: `linear-gradient(135deg, ${theme.accent}22, ${theme.accent}44)`, border: `2px solid ${theme.accent}55` }}>
+                  {s.icon}
+                  <span className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black text-white"
+                    style={{ background: theme.accent }}>
+                    {s.step}
+                  </span>
+                </div>
                 <div>
-                  <div
-                    className="text-xs font-black uppercase tracking-widest mb-1"
-                    style={{ color: tier.color }}
-                  >
-                    {tier.tier}
-                  </div>
-                  <div
-                    className={`font-black text-lg leading-tight ${tier.featured ? "text-white" : "text-gray-900"}`}
-                  >
-                    {tier.use}
-                  </div>
+                  <h3 className="font-black text-gray-900 text-sm md:text-lg mb-1">{s.title}</h3>
+                  <p className="text-gray-500 text-sm font-medium leading-relaxed">{s.desc}</p>
                 </div>
-
-                <div className="flex items-baseline gap-2">
-                  <span
-                    className={`text-3xl font-black tracking-tight ${tier.featured ? "text-white" : "text-gray-900"}`}
-                  >
-                    {tier.price}
-                  </span>
-                  <span
-                    className={`text-sm line-through font-medium ${tier.featured ? "text-gray-500" : "text-gray-400"}`}
-                  >
-                    {tier.old}
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  {tier.specs.map((spec, j) => (
-                    <div key={j} className="flex items-center gap-2">
-                      <CheckCircle2
-                        className="w-4 h-4 shrink-0"
-                        style={{ color: tier.color }}
-                      />
-                      <span
-                        className={`text-sm font-semibold ${tier.featured ? "text-gray-300" : "text-gray-600"}`}
-                      >
-                        {spec}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  className={`w-full py-3 rounded-2xl font-black text-sm uppercase tracking-wider transition-all ${tier.featured
-                    ? "text-white hover:opacity-90"
-                    : "bg-gray-900 text-white"
-                    }`}
-                  style={tier.featured ? { background: tier.color } : {}}
-                  onMouseEnter={e => e.currentTarget.style.background = theme.accent}
-                  onMouseLeave={e => e.currentTarget.style.background = '#111827'}
-                >
-                  Build This Config →
-                </button>
               </div>
             ))}
           </div>
 
-          <p className="text-center text-sm text-gray-400 font-medium">
-            Need a different configuration?{" "}
-            <Link
-              to="/contact"
-              className="font-black hover:underline"
-              style={{ color: theme.accent }}
-            >
-              Tell us what you need →
-            </Link>
-          </p>
+          {/* Brand logos strip */}
+          <div className="relative pt-6 border-t border-gray-200 space-y-4">
+            <p className="text-center text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+              Brands We Stock & Service
+            </p>
+            <div className="flex flex-wrap justify-center gap-3 md:gap-4">
+              {[
+                { name: "Dell", color: "#007DB8" },
+                { name: "HP", color: "#0096D6" },
+                { name: "Lenovo", color: "#E2231A" },
+                { name: "Asus", color: "#00539B" },
+                { name: "Acer", color: "#83B81A" },
+                { name: "MSI", color: "#E4002B" },
+                { name: "Intel", color: "#0071C5" },
+                { name: "AMD", color: "#ED1C24" },
+                { name: "NVIDIA", color: "#76B900" },
+              ].map((brand, i) => (
+                <div key={i}
+                  className="card-hover px-5 py-2.5 rounded-2xl bg-white border border-gray-100 shadow-sm flex items-center gap-2 group"
+                  style={{ transition: "all 0.3s" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = brand.color + "55"; e.currentTarget.style.boxShadow = `0 8px 24px ${brand.color}18`; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#f3f4f6'; e.currentTarget.style.boxShadow = ''; }}
+                >
+                  <div className="w-2 h-2 rounded-full" style={{ background: brand.color }} />
+                  <span className="text-sm font-black text-gray-700">{brand.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </section>
 
         {/* ── SUPPORT SERVICES ── */}
-        <section className="space-y-10">
-          <div className="text-center space-y-3">
+        <section className="space-y-6 md:space-y-10">
+          <div className="text-center space-y-2 md:space-y-3">
             <p className="text-xs font-black" style={{ color: theme.accent }}>
               After-Sales & Support
             </p>
@@ -516,27 +492,34 @@ export const Services: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+
             {supportServices.map((svc, i) => (
               <div
                 key={i}
                 onClick={() => setCurrentPage("contact")}
-                className="card-hover cursor-pointer group p-8 bg-white border border-gray-100 rounded-3xl hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300"
+                className="card-hover cursor-pointer group p-5 md:p-8 bg-white border border-gray-100 rounded-3xl hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300"
               >
-                <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 transition-all group-hover:scale-110"
-                  style={{ background: svc.color + "15" }}
-                >
-                  <svc.icon className="w-6 h-6" style={{ color: svc.color }} />
+                <div className="flex md:block justify-center md:justify-start mb-5">
+                  <div
+                    className="relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110 group-hover:rotate-3 shadow-md"
+                    style={{
+                      background: `linear-gradient(135deg, ${svc.color}18, ${svc.color}35)`,
+                      border: `1.5px solid ${svc.color}25`,
+                      boxShadow: `0 6px 20px ${svc.color}20`,
+                    }}
+                  >
+                    <svc.icon className="w-6 h-6" style={{ color: svc.color }} />
+                    <div className="absolute top-1 right-1 w-2 h-2 rounded-full opacity-60" style={{ background: svc.color }} />
+                  </div>
                 </div>
-                <h3 className="font-black text-gray-900 text-lg mb-2">
-                  {svc.title}
-                </h3>
-                <p className="text-gray-500 text-sm font-medium leading-relaxed mb-4">
+                <h3 className="font-black text-gray-900 text-lg mb-2 text-center md:text-left" />
+                <p className="text-gray-500 text-sm font-medium leading-relaxed mb-4 text-center md:text-left">
+
                   {svc.desc}
                 </p>
-                <div
-                  className="flex items-center gap-1 text-xs font-black group-hover:gap-2 transition-all"
+                <div className="flex items-center justify-center md:justify-start gap-1 text-xs font-black group-hover:gap-2 transition-all"
+
                   style={{ color: svc.color }}
                 >
                   Enquire Now <ChevronRight className="w-3.5 h-3.5" />
@@ -567,8 +550,8 @@ export const Services: React.FC = () => {
             }}
           />
 
-          <div className="relative z-10 p-12 md:p-16 text-center space-y-6">
-            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+          <div className="relative z-10 p-8 md:p-16 text-center space-y-4 md:space-y-6">
+            <h2 className="text-2xl md:text-4xl font-black text-white tracking-tight">
               Trusted by 50,000+ Customers.
               <br />
               <span style={{ color: theme.accent }}>

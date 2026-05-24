@@ -840,7 +840,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         ];
       });
       showCartToast(product);
-
+      window.gtag?.('event', 'add_to_cart', {
+        currency: 'INR',
+        value: product.price * addQty,
+        items: [{ item_id: String(product.id), item_name: product.name, item_category: product.category, price: product.price, quantity: addQty }]
+      });
       // Persist guest cart to localStorage for merge after login
       if (!currentUser?.id) {
         try {
