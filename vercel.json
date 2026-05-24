@@ -1,6 +1,6 @@
 {
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
-  "buildCommand": null,
+  "buildCommand": "vite build && node scripts/generate-sitemap.mjs",
   "outputDirectory": "dist",
   "installCommand": null
 }
