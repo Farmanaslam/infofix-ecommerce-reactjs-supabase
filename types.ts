@@ -163,6 +163,7 @@ export interface Customer {
   order_count?: number;
   total_spent?: number;
   updated_at?: string;
+  status?: string;
 }
 
 export interface AddressForm {
@@ -267,7 +268,7 @@ export interface EditForm {
   state: string;
   pincode: string;
   notes: string;
-  tags: string;
+  status: string;
 }
 export type AppNotification = {
   id: string;

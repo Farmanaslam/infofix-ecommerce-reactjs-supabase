@@ -28,11 +28,11 @@ async function generateDescriptions(
   videoTitle?: string
 ): Promise<{ en: string; hinglish: string }> {
 
-  // Clean timestamps & line breaks before sending
   const cleanTranscript = transcript
-    .replace(/\d+:\d+(?::\d+)?\s*/g, "")   // remove timestamps
-    .replace(/\n+/g, " ")                    // flatten to one line
-    .replace(/\s{2,}/g, " ")                 // collapse spaces
+    .replace(/\[\[?\d+:\d+(?::\d+)?\]?\(https?:\/\/[^)]+\)\]/g, "") // [[01:17](url)]
+    .replace(/\[\d+:\d+(?::\d+)?\]/g, "")   // [01:17]
+    .replace(/\(\d+:\d+(?::\d+)?\)/g, "")   // (01:17)
+    .replace(/\s{2,}/g, " ")
     .trim();
 
   const callGroq = async (prompt: string) => {
@@ -44,7 +44,7 @@ async function generateDescriptions(
       },
       body: JSON.stringify({
         model: "llama-3.3-70b-versatile",
-        max_tokens: 1200,
+        max_tokens: 1500,
         messages: [{ role: "user", content: prompt }],
       }),
     });
@@ -55,35 +55,57 @@ async function generateDescriptions(
 
   const base = `${videoTitle ? `Video Title: "${videoTitle}"\n` : ""}Transcript:\n"""\n${cleanTranscript}\n"""`;
 
-  const enRaw = await callGroq(`You write SEO blog descriptions for Infofix Computers — a computer store in Durgapur, Asansol, Ukhra West Bengal, India that sells new and refurbished laptops, desktops, accessories, and custom-build PCs also through webiste and 5 physical stores..
+  const enRaw = await callGroq(`You write SEO blog content for Infofix Computers — a computer store in Durgapur, Asansol, Ukhra, West Bengal, India selling new & refurbished laptops, desktops, accessories, and custom-build PCs via infocomput.com and 5 physical stores.
 
 ${base}
 
-Write a 200-300 word SEO blog post excerpt in fluent English based ONLY on what was spoken in the transcript above. Follow these rules:
-- Paragraph 1 (3-4 sentences): What products, offers, specs, or highlights are shown/discussed. Include all key prices, brands, processor names, RAM, storage, warranty details mentioned.
-- Paragraph 2 (2-3 sentences): What makes Infofix Computers the right place to buy — use only details spoken in the video (location, offers, free gifts, etc).
-- Final sentence: Natural CTA mentioning infocomput.com or visiting the Infofix showroom.
-- Do NOT invent details not in the transcript. Do NOT use phrases like "In this video". Write as a blog author, not a video summarizer.
-- Tone: Helpful, knowledgeable, trustworthy local tech advisor.
+Write a structured SEO blog excerpt based ONLY on facts in the transcript. Format it EXACTLY like this example structure:
 
-Return ONLY plain text. No markdown, no headers, no bullet points.`);
+Opening sentence (1-2 sentences): What this video covers — products, sale, occasion. SEO keywords: refurbished laptop Asansol, used laptop Durgapur, custom gaming PC West Bengal, second hand MacBook West Bengal etc. naturally included.
 
-  // wait 35s to avoid TPM limit
-  await new Promise(r => setTimeout(r, 35000));
+Then group all products/deals into sections with emoji headers. Each section has bullet points. Use these section headers only if relevant to the transcript:
+💻 Laptop & MacBook Deals
+🖥️ Desktop & Gaming PC Builds
+🧩 Components & Accessories
+🛡️ Warranty & Store Support
+📍 Location & Contact
 
-  const hinglishRaw = await callGroq(`You write Hinglish blog content for Infofix Computers — a computer store in Durgapur, West Bengal that sells new and refurbished laptops, desktops, accessories, and custom-build PCs.
+Each bullet point format:
+- Product Name: key detail — price ₹X,XXX [if mentioned]
+
+Rules:
+- Include EVERY price, brand, processor, RAM, storage, warranty mentioned in transcript
+- Do NOT invent any detail not in transcript
+- Do NOT use phrases like "In this video"
+- End with a CTA sentence mentioning infocomput.com or visiting the Infofix showroom
+- Plain text only. Use • for bullets. Emoji section headers only. No markdown bold/italic.`);
+
+  await new Promise(r => setTimeout(r, 10000));
+
+  const hinglishRaw = await callGroq(`You write Hinglish blog content for Infofix Computers — a computer store in Durgapur, Asansol, Ukhra, West Bengal.
 
 ${base}
 
-Write a 200-250 word blog excerpt in Hinglish using ROMAN SCRIPT ONLY (absolutely no Devanagari/Hindi Unicode characters). Rules:
-- Natural mix of Hindi and English words in Roman script, like: "yaar", "ekdum sahi deal hai", "bilkul brand new condition mein", "price sun ke hairan ho jaoge", "aaj hi visit karo".
-- Casual, friendly tone — like a local Durgapur friend explaining a good deal.
-- Paragraph 1: Cover all key products, prices, specs, and offers mentioned in the transcript.
-- Paragraph 2: Why Infofix is worth visiting — only facts from the transcript.
-- Final sentence: CTA — mention infocomput.com or visiting the showroom.
-- Do NOT invent details. Do NOT use Devanagari script at all.
+Write a structured Hinglish blog excerpt in ROMAN SCRIPT ONLY (zero Devanagari/Hindi Unicode characters). Format EXACTLY like this:
 
-Return ONLY plain text. No markdown, no headers, no bullet points.`);
+Opening sentence (1-2 sentences) in Hinglish: casual, friendly — like a local Durgapur friend hyping a great deal. E.g. "Yaar, Infofix Computers mein ek dum mast sale chal rahi hai..."
+
+Then same emoji section groups as English, bullet points in Hinglish Roman:
+💻 Laptop & MacBook Deals
+🖥️ Desktop & Gaming PC Builds
+🧩 Components & Accessories
+🛡️ Warranty & Store Support
+📍 Location & Contact
+
+Each bullet:
+- Product Name: Hinglish detail — price ₹X,XXX [if mentioned]
+
+Rules:
+- Natural Hinglish mix: "ekdum sahi deal", "price sun ke hairan ho jaoge", "bilkul brand new condition mein", "aaj hi visit karo"
+- Include ALL prices, specs, warranty from transcript
+- Do NOT invent details. STRICTLY no Devanagari script anywhere.
+- End with CTA mentioning infocomput.com or showroom visit
+- Plain text. Use • for bullets. Emoji headers only.`);
 
   return { en: enRaw.trim(), hinglish: hinglishRaw.trim() };
 }
