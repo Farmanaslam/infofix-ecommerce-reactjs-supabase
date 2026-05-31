@@ -245,8 +245,18 @@ export const Cart: React.FC = () => {
 
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-sm md:text-base text-gray-900 leading-snug line-clamp-2">{item.name}</h3>
+                        {(item as any).selectedColor && (
+                          <div className="flex items-center gap-1.5 mt-0.5 mb-0.5">
+                            {(item as any).selectedColorHex && (
+                              <div className="w-3 h-3 rounded-full border border-gray-200 shrink-0"
+                                style={{ background: (item as any).selectedColorHex }} />
+                            )}
+                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-wide">
+                              {(item as any).selectedColor}
+                            </span>
+                          </div>
+                        )}
                         <p className="text-xs text-gray-400 mt-0.5">₹{item.price.toLocaleString("en-IN")} per unit</p>
-
                         {moq > 1 && (
                           <span className="inline-block mt-1 text-[10px] font-black text-amber-600 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full">
                             Min order: {moq} units

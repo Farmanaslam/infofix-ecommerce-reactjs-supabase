@@ -14,7 +14,7 @@ export const LotteryTooltip: React.FC<LotteryTooltipProps> = ({
     const [dismissed, setDismissed] = useState(false);
     const [current, setCurrent] = useState(0);
     const [timeLeft, setTimeLeft] = useState("");
-    const [entryCount, setEntryCount] = useState(5244);
+    const [entryCount, setEntryCount] = useState(2010);
     const lottery = lotteries[current];
     const GOAL = 10000;
     const ref = useRef<HTMLDivElement>(null);
@@ -69,7 +69,7 @@ export const LotteryTooltip: React.FC<LotteryTooltipProps> = ({
                 .from("lottery_entries")
                 .select("id", { count: "exact", head: true })
                 .eq("lottery_id", lottery.id);
-            setEntryCount(5245 + (count ?? 0));
+            setEntryCount(2010 + (count ?? 0));
         };
         fetchCount();
         const t = setInterval(fetchCount, 30000);

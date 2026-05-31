@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { ProductCouponBadge, ProductCouponInline } from "./ProductCouponBade";
 import { Helmet } from 'react-helmet-async'
 import { Link } from "react-router-dom";
+
 interface ProductDetailsProps {
   product: Product;
   onBack: () => void;
@@ -19,6 +20,12 @@ interface ProductDetailsProps {
 interface Review {
   id: string; name: string; stars: number; title: string;
   text: string; date: string; verified: boolean; helpful: number;
+}
+interface ProductColor {
+  name: string;
+  hex: string;
+  stock: number;
+  images?: string[];
 }
 
 function normaliseSpecs(specs: unknown): { key: string; value: string }[] {
@@ -149,13 +156,143 @@ const AddReviewForm: React.FC<{ productId: string; onSubmit: (r: Review) => void
   );
 };
 
+// ── Premium Color Picker ────────────────────────────────────────────────────
+const ColorPicker: React.FC<{
+  colors: ProductColor[];
+  selectedIdx: number;
+  onChange: (idx: number) => void;
+  accent: string;
+}> = ({ colors, selectedIdx, onChange, accent }) => {
+  const selected = colors[selectedIdx];
+  const inStock = selected.stock > 0;
+  const isLow = selected.stock > 0 && selected.stock <= 5;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+          Color
+        </label>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-black text-gray-900">{selected.name}</span>
+          {inStock ? (
+            isLow ? (
+              <span className="text-[9px] font-black uppercase tracking-wide text-orange-600 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full">
+                Only {selected.stock} left
+              </span>
+            ) : (
+              <span className="text-[9px] font-black uppercase tracking-wide text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
+                In Stock
+              </span>
+            )
+          ) : (
+            <span className="text-[9px] font-black uppercase tracking-wide text-red-500 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full">
+              Out of Stock
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 flex-wrap">
+        {colors.map((color, idx) => {
+          const isSelected = idx === selectedIdx;
+          const isAvailable = color.stock > 0;
+
+          return (
+            <button
+              key={idx}
+              onClick={() => onChange(idx)}
+              title={`${color.name}${!isAvailable ? " — Out of Stock" : ""}`}
+              className="relative group/color transition-all duration-200"
+              style={{ outline: 'none' }}
+            >
+              {/* Outer ring when selected */}
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200"
+                style={isSelected
+                  ? { boxShadow: `0 0 0 2.5px white, 0 0 0 4.5px ${accent}`, transform: 'scale(1.12)' }
+                  : { boxShadow: '0 0 0 1.5px #e5e7eb' }
+                }
+              >
+                {/* Color dot */}
+                <div
+                  className="w-7 h-7 rounded-full relative overflow-hidden transition-all duration-200"
+                  style={{
+                    background: color.hex,
+                    filter: !isAvailable ? 'grayscale(0.5) brightness(1.1)' : 'none',
+                  }}
+                >
+                  {/* Strikethrough diagonal for out-of-stock */}
+                  {!isAvailable && (
+                    <div
+                      className="absolute inset-0 flex items-center justify-center"
+                      style={{
+                        background: 'linear-gradient(135deg, transparent 42%, rgba(255,255,255,0.85) 45%, rgba(255,255,255,0.85) 55%, transparent 58%)',
+                      }}
+                    />
+                  )}
+                  {/* Check icon when selected */}
+                  {isSelected && isAvailable && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Check
+                        className="w-3.5 h-3.5 drop-shadow"
+                        strokeWidth={3}
+                        style={{
+                          color: isLight(color.hex) ? '#111827' : '#ffffff',
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Tooltip */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-gray-900 text-white text-[10px] font-bold rounded-lg whitespace-nowrap opacity-0 group-hover/color:opacity-100 transition-opacity duration-150 pointer-events-none z-20 shadow-xl">
+                {color.name}
+                {!isAvailable && <span className="text-red-300 ml-1">· Out of stock</span>}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Subtle color name row with all colors listed */}
+      <div className="flex flex-wrap gap-x-4 gap-y-1">
+        {colors.map((color, idx) => (
+          <button
+            key={idx}
+            onClick={() => onChange(idx)}
+            className={`text-[11px] font-semibold transition-colors duration-150 ${idx === selectedIdx ? 'font-black' : 'text-gray-400 hover:text-gray-600'}`}
+            style={idx === selectedIdx ? { color: accent } : {}}
+          >
+            {color.name}
+            {color.stock === 0 && (
+              <span className="ml-1 text-[9px] text-red-400 font-semibold">(OOS)</span>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/** Determine if hex color is light (for contrast on check icon) */
+function isLight(hex: string): boolean {
+  const h = hex.replace('#', '');
+  if (h.length < 6) return true;
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 160;
+}
+
 export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack, onNavigateToCart, accent = '#6366f1' }) => {
   const { addToCart, currentUser, setCurrentPage, setPendingRedirectAfterLogin } = useStore();
   const storageKey = `liked_product_${product.id}`;
   const countKey = `likes_count_${product.id}`;
   const [liked, setLiked] = useState(() => { try { return localStorage.getItem(storageKey) === "1"; } catch { return false; } });
   const [likes, setLikes] = useState(() => { try { const s = localStorage.getItem(countKey); return s ? Number(s) : product.likesCount; } catch { return product.likesCount; } });
-  const [qty, setQty] = useState(product.min_order_quantity ?? 1);
   const [activeImg, setActiveImg] = useState(0);
   const [imgError, setImgError] = useState(false);
   const [pincode, setPincode] = useState("");
@@ -165,25 +302,67 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [showImageViewer, setShowImageViewer] = useState(false);
+
+  // ── Color state ──────────────────────────────────────────────────────────
+  const [colors, setColors] = useState<ProductColor[]>([]);
+  const [selectedColorIdx, setSelectedColorIdx] = useState(0);
+
   const ctaRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [showFixedCta, setShowFixedCta] = useState(false);
+
+  // Fetch colors from Supabase
   useEffect(() => {
-    const fetchReviews = async () => {
-      setReviewsLoading(true);
-      if (supabase) {
-        const { data, error } = await supabase.from("reviews").select("*").eq("product_id", Number(product.id)).order("created_at", { ascending: false });
-        if (!error && data && data.length > 0) {
-          setReviews(data.map((r: any) => ({ id: String(r.id), name: r.reviewer ?? "Customer", stars: r.rating ?? 5, title: "", text: r.body ?? "", date: new Date(r.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }), verified: true, helpful: 0 })));
-          setReviewsLoading(false); return;
+    const fetchColors = async () => {
+      if (!supabase) return;
+      const { data } = await supabase
+        .from("products")
+        .select("colors")
+        .eq("id", Number(product.id))
+        .maybeSingle();
+      if (data?.colors) {
+        let parsed: ProductColor[] = [];
+        if (typeof data.colors === "string") {
+          try { parsed = JSON.parse(data.colors); } catch { }
+        } else if (Array.isArray(data.colors)) {
+          parsed = data.colors as ProductColor[];
+        }
+        if (parsed.length > 0) {
+          setColors(parsed);
+          // Default to first in-stock color
+          const firstInStock = parsed.findIndex(c => c.stock > 0);
+          setSelectedColorIdx(firstInStock >= 0 ? firstInStock : 0);
         }
       }
-      try { setReviews(JSON.parse(localStorage.getItem(`reviews_${product.id}`) ?? "[]")); } catch { setReviews([]); }
-      setReviewsLoading(false);
     };
-    fetchReviews();
+    fetchColors();
   }, [product.id]);
 
+  // Derive gallery images: use color images if available, else product images
+  const baseImages: string[] = Array.isArray(product.images) && product.images.length > 0
+    ? product.images
+    : [product.image];
+
+  const galleryImages: string[] = (() => {
+    if (colors.length > 0) {
+      const colorImgs = colors[selectedColorIdx]?.images;
+      if (colorImgs && colorImgs.length > 0) return colorImgs;
+    }
+    return baseImages;
+  })();
+
+  // Reset active image when color changes
+  useEffect(() => {
+    setActiveImg(0);
+    setImgError(false);
+  }, [selectedColorIdx]);
+
+  // Derive stock considering selected color
+  const effectiveStock = colors.length > 0
+    ? (colors[selectedColorIdx]?.stock ?? 0)
+    : product.stock;
+
+  const [qty, setQty] = useState(product.min_order_quantity ?? 1);
   const [rawSpecs, setRawSpecs] = useState<{ key: string; value: string }[]>([]);
   const [moq, setMoq] = useState(product.min_order_quantity ?? 1);
 
@@ -207,15 +386,39 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
     fetchSpecs();
   }, [product.id]);
 
-  const galleryImages: string[] = Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.image];
+  useEffect(() => {
+    const fetchReviews = async () => {
+      setReviewsLoading(true);
+      if (supabase) {
+        const { data, error } = await supabase.from("reviews").select("*").eq("product_id", Number(product.id)).order("created_at", { ascending: false });
+        if (!error && data && data.length > 0) {
+          setReviews(data.map((r: any) => ({ id: String(r.id), name: r.reviewer ?? "Customer", stars: r.rating ?? 5, title: "", text: r.body ?? "", date: new Date(r.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }), verified: true, helpful: 0 })));
+          setReviewsLoading(false); return;
+        }
+      }
+      try { setReviews(JSON.parse(localStorage.getItem(`reviews_${product.id}`) ?? "[]")); } catch { setReviews([]); }
+      setReviewsLoading(false);
+    };
+    fetchReviews();
+  }, [product.id]);
+
   const specEntries = rawSpecs.length > 0 ? rawSpecs : normaliseSpecs(product.specs);
   const savings = product.retailPrice ? product.retailPrice - product.price : 0;
-  const isLow = product.stock > 0 && product.stock < 10;
-  const isVeryLow = product.stock > 0 && product.stock <= 5;
-  const isOut = product.stock === 0;
-  const maxQty = product.stock;
+  const isLow = effectiveStock > 0 && effectiveStock < 10;
+  const isVeryLow = effectiveStock > 0 && effectiveStock <= 5;
+  const isOut = effectiveStock === 0;
+  const maxQty = effectiveStock;
   const avgRating = reviews.length ? reviews.reduce((s, r) => s + r.stars, 0) / reviews.length : product.rating;
   const ratingDist = [5, 4, 3, 2, 1].map((s) => ({ star: s, count: reviews.filter((r) => r.stars === s).length, pct: reviews.length ? Math.round((reviews.filter((r) => r.stars === s).length / reviews.length) * 100) : 0 }));
+
+  // Reset qty when color changes (in case maxQty changes)
+  useEffect(() => {
+    if (colors.length > 0) {
+      const newMax = colors[selectedColorIdx]?.stock ?? 0;
+      if (qty > newMax && newMax > 0) setQty(moq);
+      else if (newMax === 0) setQty(moq);
+    }
+  }, [selectedColorIdx]);
 
   useEffect(() => {
     const el = ctaRef.current;
@@ -231,18 +434,48 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isOut]);
+
   const handleAddToCart = () => {
-    addToCart({ ...product, min_order_quantity: moq } as any, qty);
+    const selectedColorData = colors.length > 0 ? colors[selectedColorIdx] : null;
+    const colorImage = selectedColorData?.images?.[0];
+    addToCart({
+      ...product,
+      // Override image with selected color's first image
+      image: colorImage || product.image,
+      min_order_quantity: moq,
+      // Pass color info via extra fields
+      selectedColor: selectedColorData?.name || undefined,
+      selectedColorHex: selectedColorData?.hex || undefined,
+      selectedColorImage: colorImage || undefined,
+    } as any, qty);
   };
   const handleBuyNow = () => {
     if (!currentUser) {
-      sessionStorage.setItem("pendingBuyNowProduct", JSON.stringify({ ...product, min_order_quantity: moq }));
-      setPendingRedirectAfterLogin("checkout"); // need this from context
+      const selectedColorData = colors.length > 0 ? colors[selectedColorIdx] : null;
+      const colorImage = selectedColorData?.images?.[0];
+      sessionStorage.setItem("pendingBuyNowProduct", JSON.stringify({
+        ...product,
+        image: colorImage || product.image,
+        min_order_quantity: moq,
+        selectedColor: selectedColorData?.name || undefined,
+        selectedColorHex: selectedColorData?.hex || undefined,
+        selectedColorImage: colorImage || undefined,
+      }));
+      setPendingRedirectAfterLogin("checkout");
       setCurrentPage("login");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    addToCart({ ...product, min_order_quantity: moq } as any, qty);
+    const selectedColorData = colors.length > 0 ? colors[selectedColorIdx] : null;
+    const colorImage = selectedColorData?.images?.[0];
+    addToCart({
+      ...product,
+      image: colorImage || product.image,
+      min_order_quantity: moq,
+      selectedColor: selectedColorData?.name || undefined,
+      selectedColorHex: selectedColorData?.hex || undefined,
+      selectedColorImage: colorImage || undefined,
+    } as any, qty);
     setCurrentPage("checkout");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -267,11 +500,11 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
     }, 900);
   };
   const stockUrgencyLabel = () => {
-    if (product.stock === 1) return "Only 1 left in stock – order soon!";
-    if (product.stock === 2) return "Only 2 left in stock – order soon!";
-    if (product.stock === 3) return "Only 3 left in stock – order soon!";
-    if (product.stock === 4) return "Only 4 left in stock – order soon!";
-    if (product.stock === 5) return "Only 5 left in stock – order soon!";
+    if (effectiveStock === 1) return "Only 1 left in stock – order soon!";
+    if (effectiveStock === 2) return "Only 2 left in stock – order soon!";
+    if (effectiveStock === 3) return "Only 3 left in stock – order soon!";
+    if (effectiveStock === 4) return "Only 4 left in stock – order soon!";
+    if (effectiveStock === 5) return "Only 5 left in stock – order soon!";
     return null;
   };
   const isWholesale = moq > 1;
@@ -286,12 +519,14 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
       .replace(/-+/g, '-')
       .slice(0, 80)
   }
+
   return (
     <>
       <Helmet>
         <title>{product.name} | Infofix Computers</title>
         <meta name="description" content={product.description?.slice(0, 160) || `Buy ${product.name} at best price. ${product.brand} | Infofix Computers`} />
-        <link rel="canonical" href={`https://infofixcomputers.com/products/${toSlug(product.name)}-${product.id}`} />        <script type="application/ld+json">{JSON.stringify({
+        <link rel="canonical" href={`https://infofixcomputers.com/products/${toSlug(product.name)}-${product.id}`} />
+        <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Product",
           "name": product.name,
@@ -303,7 +538,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
             "@type": "Offer",
             "price": product.price,
             "priceCurrency": "INR",
-            "availability": product.stock > 0
+            "availability": effectiveStock > 0
               ? "https://schema.org/InStock"
               : "https://schema.org/OutOfStock",
             "url": `https://infofixcomputers.com/products/${toSlug(product.name)}-${product.id}`,
@@ -342,6 +577,8 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
         .pd-right-scroll::-webkit-scrollbar{width:3px}
         .pd-right-scroll::-webkit-scrollbar-track{background:transparent}
         .pd-right-scroll::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:99px}
+        @keyframes colorPop{0%{transform:scale(0.8)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+        .color-pop{animation:colorPop 0.25s ease both}
       `}</style>
 
       <div className="min-h-screen bg-white pb-6">
@@ -358,10 +595,9 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
         </div>
 
         <div className="app-container mt-4">
-          {/* KEY LAYOUT: lg:items-start so both cols align top, not stretch */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16 lg:items-start">
 
-            {/* LEFT: Gallery — sticky on desktop, normal flow on mobile */}
+            {/* LEFT: Gallery */}
             <div className="pd-fade lg:sticky lg:top-6" style={{ animationDelay: "0ms" }}>
               <div
                 className="relative aspect-square rounded-[36px] overflow-hidden bg-linear-to-br from-gray-50 to-gray-100 shadow-[0_24px_60px_-10px_rgba(99,102,241,0.2)]"
@@ -371,24 +607,26 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                   if (Math.abs(diff) > 40) { if (diff > 0) setActiveImg((i) => Math.min(i + 1, galleryImages.length - 1)); else setActiveImg((i) => Math.max(i - 1, 0)); }
                 }}
               >
-                <img key={activeImg} src={imgError ? "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=800&q=80" : galleryImages[activeImg] || product.image} alt={product.name} onError={() => setImgError(true)} onClick={() => setShowImageViewer(true)} className="cursor-zoom-in w-full h-full object-cover" style={{ animation: "imgFade 0.35s ease both" }} />
+                <img key={`${selectedColorIdx}-${activeImg}`} src={imgError ? "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=800&q=80" : galleryImages[activeImg] || product.image} alt={product.name} onError={() => setImgError(true)} onClick={() => setShowImageViewer(true)} className="cursor-zoom-in w-full h-full object-cover" style={{ animation: "imgFade 0.35s ease both" }} />
                 <div className="absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-black/25 to-transparent pointer-events-none" />
+
+                {/* Out of stock overlay on image */}
+                {isOut && (
+                  <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center pointer-events-none">
+                    <div className="bg-white/90 border border-gray-200 rounded-2xl px-6 py-3 shadow-lg">
+                      <p className="font-black text-gray-700 text-sm uppercase tracking-widest">
+                        {colors.length > 0 ? `${colors[selectedColorIdx]?.name} – Out of Stock` : 'Out of Stock'}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {galleryImages.length > 1 && (
                   <>
-                    <button
-                      onClick={() => setActiveImg((i) => Math.max(i - 1, 0))}
-                      disabled={activeImg === 0}
-                      aria-label="Previous image"
-                      className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-md flex items-center justify-center shadow-xl disabled:opacity-0 hover:bg-white hover:scale-105 transition-all duration-200"
-                    >
+                    <button onClick={() => setActiveImg((i) => Math.max(i - 1, 0))} disabled={activeImg === 0} aria-label="Previous image" className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-md flex items-center justify-center shadow-xl disabled:opacity-0 hover:bg-white hover:scale-105 transition-all duration-200">
                       <ChevronLeft className="w-5 h-5 text-gray-800" />
                     </button>
-                    <button
-                      onClick={() => setActiveImg((i) => Math.min(i + 1, galleryImages.length - 1))}
-                      disabled={activeImg === galleryImages.length - 1}
-                      aria-label="Next image"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-md flex items-center justify-center shadow-xl disabled:opacity-0 hover:bg-white hover:scale-105 transition-all duration-200"
-                    >
+                    <button onClick={() => setActiveImg((i) => Math.min(i + 1, galleryImages.length - 1))} disabled={activeImg === galleryImages.length - 1} aria-label="Next image" className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-md flex items-center justify-center shadow-xl disabled:opacity-0 hover:bg-white hover:scale-105 transition-all duration-200">
                       <ChevronRight className="w-5 h-5 text-gray-800" />
                     </button>
                   </>
@@ -396,34 +634,25 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                 {galleryImages.length > 1 && (
                   <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex gap-1.5">
                     {galleryImages.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setActiveImg(i)}
-                        aria-label={`Go to image ${i + 1} of ${galleryImages.length}`}
-                        aria-current={i === activeImg ? "true" : undefined}
-                        className={`rounded-full transition-all duration-300 ${i === activeImg ? "w-6 h-2 bg-white" : "w-2 h-2 bg-white/50 hover:bg-white/80"}`}
-                      />
+                      <button key={i} onClick={() => setActiveImg(i)} aria-label={`Go to image ${i + 1} of ${galleryImages.length}`} aria-current={i === activeImg ? "true" : undefined}
+                        className={`rounded-full transition-all duration-300 ${i === activeImg ? "w-6 h-2 bg-white" : "w-2 h-2 bg-white/50 hover:bg-white/80"}`} />
                     ))}
                   </div>
                 )}
-                <button
-                  onClick={handleLike}
-                  aria-label={liked ? "Unlike this product" : "Like this product"}
-                  aria-pressed={liked}
-                  className={`absolute top-5 right-20 z-10 w-11 h-11 rounded-2xl flex items-center justify-center backdrop-blur-md border shadow-lg transition-all duration-200 ${liked ? "bg-red-500 border-red-400 text-white scale-110" : "bg-white/90 border-white/60 text-gray-500 hover:bg-red-50 hover:text-red-500"}`}
-                >
+                <button onClick={handleLike} aria-label={liked ? "Unlike this product" : "Like this product"} aria-pressed={liked}
+                  className={`absolute top-5 right-20 z-10 w-11 h-11 rounded-2xl flex items-center justify-center backdrop-blur-md border shadow-lg transition-all duration-200 ${liked ? "bg-red-500 border-red-400 text-white scale-110" : "bg-white/90 border-white/60 text-gray-500 hover:bg-red-50 hover:text-red-500"}`}>
                   <Heart className={`w-5 h-5 ${liked ? "fill-current" : ""}`} />
                 </button>
                 <button onClick={() => navigator.share?.({ title: product.name, url: window.location.href })} className="absolute top-5 right-5 z-10 w-11 h-11 rounded-2xl flex items-center justify-center bg-white/90 backdrop-blur-md border border-white/60 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 shadow-lg transition-all duration-200"><Share2 className="w-4 h-4" /></button>
               </div>
+
+              {/* Thumbnails */}
               {galleryImages.length > 1 && (
                 <div className="flex gap-3 mt-4 overflow-x-auto scrollbar-hide p-2 px-1">
                   {galleryImages.map((img, i) => (
                     <button key={i} onClick={() => setActiveImg(i)} className={`relative shrink-0 w-18 h-18 rounded-2xl overflow-hidden transition-all duration-200 ${activeImg === i ? "" : "ring-1 ring-gray-200 opacity-60 hover:opacity-100 hover:ring-gray-300 hover:scale-[1.03]"}`}
-                      style={activeImg === i ? { outline: `2.5px solid ${accent}`, outlineOffset: '2px', boxShadow: `0 4px 12px ${accent}44` } : {}}
-                    >
+                      style={activeImg === i ? { outline: `2.5px solid ${accent}`, outlineOffset: '2px', boxShadow: `0 4px 12px ${accent}44` } : {}}>
                       <img src={img} alt={`${product.name} - view ${i + 1}`} className="w-full h-full object-cover" />
-
                       {activeImg === i && <div className="absolute inset-0 bg-indigo-600/8 pointer-events-none" />}
                     </button>
                   ))}
@@ -434,31 +663,21 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                 <div className="mt-3 flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
                   <span className="text-amber-500 shrink-0 mt-0.5 text-base">⚠️</span>
                   <p className="text-[11px] text-amber-700 font-semibold leading-relaxed">
-                    <span className="font-black">Images are for reference only.</span> Actual product appearance, may vary from what's shown. All units are inspected and tested before dispatch.
+                    <span className="font-black">Images are for reference only.</span> Actual product appearance may vary. All units are inspected and tested before dispatch.
                   </p>
                 </div>
               )}
             </div>
 
-            {/*
-              RIGHT col — desktop: fixed height with flex-col so sticky CTA
-              Mobile: normal flow, no height constraint, CTA inline
-            */}
+            {/* RIGHT col */}
             <div className="flex flex-col lg:h-[calc(100vh-96px)] lg:sticky lg:top-6">
 
-              {/* Scrollable content */}
               <div className="flex flex-col gap-5 lg:flex-1 lg:overflow-y-auto lg:pb-2 pd-right-scroll">
 
                 {/* Breadcrumb */}
                 <div className="pd-fade flex items-center gap-2 flex-wrap" style={{ animationDelay: "60ms" }}>
-                  <Link
-                    to={`/shop`}
-                    onClick={() => { }}
-                    className="text-[10px] font-black uppercase tracking-[0.2em] hover:underline"
-                    style={{ color: accent }}
-                  >
-                    {product.category}
-                  </Link>                  {product.subcategory && <><span className="text-gray-300">›</span><span className="text-[10px] text-gray-400 font-semibold">{product.subcategory}</span></>}
+                  <Link to={`/shop`} onClick={() => { }} className="text-[10px] font-black uppercase tracking-[0.2em] hover:underline" style={{ color: accent }}>{product.category}</Link>
+                  {product.subcategory && <><span className="text-gray-300">›</span><span className="text-[10px] text-gray-400 font-semibold">{product.subcategory}</span></>}
                   {product.brand && <span className="ml-auto text-[10px] font-black text-gray-500 uppercase tracking-widest bg-gray-100 px-2.5 py-1 rounded-xl">{product.brand}</span>}
                 </div>
 
@@ -496,8 +715,20 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                     <ProductCouponInline productId={product.id} productPrice={product.price} variant="details" />
                   </div>
                   {isVeryLow && !isOut && <div className="flex items-center gap-1.5 mt-2 text-red-600 font-bold text-sm"><AlertTriangle className="w-4 h-4 shrink-0" />{stockUrgencyLabel()}</div>}
-                  {isLow && !isVeryLow && !isOut && <div className="flex items-center gap-1.5 mt-2 text-orange-500 font-bold text-xs"><Zap className="w-3.5 h-3.5" /> Only {product.stock} left — order soon!</div>}
+                  {isLow && !isVeryLow && !isOut && <div className="flex items-center gap-1.5 mt-2 text-orange-500 font-bold text-xs"><Zap className="w-3.5 h-3.5" /> Only {effectiveStock} left — order soon!</div>}
                 </div>
+
+                {/* ── COLOR PICKER (only when colors exist) ── */}
+                {colors.length > 0 && (
+                  <div className="pd-fade bg-gray-50/80 border border-gray-100 rounded-3xl p-5" style={{ animationDelay: "145ms" }}>
+                    <ColorPicker
+                      colors={colors}
+                      selectedIdx={selectedColorIdx}
+                      onChange={setSelectedColorIdx}
+                      accent={accent}
+                    />
+                  </div>
+                )}
 
                 {/* Description */}
                 {product.description && (
@@ -513,7 +744,8 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                     <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-3">Key Specifications</p>
                     <div className="rounded-2xl border border-gray-100 overflow-hidden bg-gray-50/60">
                       {specEntries.map((spec, i) => (
-                        <div key={i} className={`flex items-start gap-3 px-4 py-3 transition-colors ${i !== specEntries.length - 1 ? "border-b border-gray-100" : ""}`} onMouseEnter={e => e.currentTarget.style.background = `${accent}0a`}
+                        <div key={i} className={`flex items-start gap-3 px-4 py-3 transition-colors ${i !== specEntries.length - 1 ? "border-b border-gray-100" : ""}`}
+                          onMouseEnter={e => e.currentTarget.style.background = `${accent}0a`}
                           onMouseLeave={e => e.currentTarget.style.background = ''}>
                           <span className="w-36 shrink-0 text-[11px] font-black text-gray-400 uppercase tracking-wide leading-snug pt-0.5">{spec.key || "—"}</span>
                           <span className="text-gray-200 shrink-0 mt-0.5">·</span>
@@ -537,37 +769,28 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                 <div className="overflow-visible">
                   <ProductCouponBadge productId={product.id} />
                 </div>
+
                 {/* Qty */}
                 {!isOut && (
                   <div className="pd-fade" style={{ animationDelay: "220ms" }}>
                     <div className="flex items-center gap-4">
                       <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Qty</span>
                       <div className="flex items-center bg-gray-100 rounded-2xl overflow-hidden">
-                        <button
-                          onClick={() => setQty((q) => Math.max(moq, q - step))}
-                          disabled={qty <= moq}
-                          className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-200 disabled:opacity-30 transition-colors"
-                        >
+                        <button onClick={() => setQty((q) => Math.max(moq, q - step))} disabled={qty <= moq} className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-200 disabled:opacity-30 transition-colors">
                           <Minus className="w-3.5 h-3.5" />
                         </button>
                         <span className="w-12 text-center font-black text-gray-900 text-sm">{qty}</span>
-                        <button
-                          onClick={() => setQty((q) => Math.min(maxQty, q + step))}
-                          disabled={qty >= maxQty || (isWholesale && qty + step > maxQty)}
-                          className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-200 disabled:opacity-30 transition-colors"
-                        >
+                        <button onClick={() => setQty((q) => Math.min(maxQty, q + step))} disabled={qty >= maxQty || (isWholesale && qty + step > maxQty)} className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-200 disabled:opacity-30 transition-colors">
                           <Plus className="w-3.5 h-3.5" />
                         </button>
                         {moq > 1 && <span className="text-[11px] text-amber-600 font-black bg-amber-50 border border-amber-100 px-2.5 py-1 rounded-lg">Min {moq}</span>}
                       </div>
-                      {(product.stock < 20 || isWholesale) && (
-                        <span className="text-[11px] text-gray-400 font-semibold">{product.stock} in stock</span>
+                      {(effectiveStock < 20 || isWholesale) && (
+                        <span className="text-[11px] text-gray-400 font-semibold">{effectiveStock} in stock</span>
                       )}
                     </div>
                   </div>
                 )}
-
-
 
                 {/* Delivery */}
                 {!isOut && (
@@ -582,7 +805,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                           </div>
                         </div>
                         {isVeryLow && <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-2xl px-4 py-2.5"><AlertTriangle className="w-4 h-4 text-red-500 shrink-0" /><p className="text-xs font-black text-red-600">{stockUrgencyLabel()}</p></div>}
-                        {isLow && !isVeryLow && <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-2xl px-4 py-2.5"><Zap className="w-4 h-4 text-orange-500 shrink-0" /><p className="text-xs font-black text-orange-600">Only {product.stock} left in stock – order soon!</p></div>}
+                        {isLow && !isVeryLow && <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-2xl px-4 py-2.5"><Zap className="w-4 h-4 text-orange-500 shrink-0" /><p className="text-xs font-black text-orange-600">Only {effectiveStock} left in stock – order soon!</p></div>}
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -602,7 +825,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                           </div>
                         </div>
                         {isVeryLow && <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-2xl px-4 py-2.5"><AlertTriangle className="w-4 h-4 text-red-500 shrink-0" /><p className="text-xs font-black text-red-600">{stockUrgencyLabel()}</p></div>}
-                        {isLow && !isVeryLow && <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-2xl px-4 py-2.5"><Zap className="w-4 h-4 text-orange-500 shrink-0" /><p className="text-xs font-black text-orange-600">Only {product.stock} left in stock – order soon!</p></div>}
+                        {isLow && !isVeryLow && <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-2xl px-4 py-2.5"><Zap className="w-4 h-4 text-orange-500 shrink-0" /><p className="text-xs font-black text-orange-600">Only {effectiveStock} left in stock – order soon!</p></div>}
                       </div>
                     )}
                   </div>
@@ -624,7 +847,8 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                 </div>
 
               </div>{/* end scrollable */}
-              {/* Mobile inline CTA anchor — shows when scrolled to actual position */}
+
+              {/* Mobile inline CTA */}
               {!isOut && (
                 <div ref={ctaRef} className="lg:hidden flex gap-3 pt-6">
                   <button onClick={handleBuyNow}
@@ -639,27 +863,31 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
                 </div>
               )}
               {isOut && <div ref={ctaRef} />}
-              {/* Desktop sticky CTA — hidden on mobile */}
+
+              {/* Desktop sticky CTA */}
               {!isOut ? (
                 <div className="hidden lg:flex gap-3 shrink-0 pt-3 pb-1 bg-white border-t border-gray-100 shadow-[0_-6px_20px_-4px_rgba(0,0,0,0.07)]">
-                  <button onClick={handleBuyNow} className="flex-1 flex items-center justify-center gap-2 active:scale-[0.98] text-white py-4 rounded-2xl font-black text-sm uppercase tracking-[0.12em] shadow-xl  transition-all duration-200 group/b"
+                  <button onClick={handleBuyNow} className="flex-1 flex items-center justify-center gap-2 active:scale-[0.98] text-white py-4 rounded-2xl font-black text-sm uppercase tracking-[0.12em] shadow-xl transition-all duration-200 group/b"
                     onMouseEnter={e => e.currentTarget.style.background = accent + 'dd'}
                     onMouseLeave={e => e.currentTarget.style.background = accent}
                     style={{ background: accent, boxShadow: `0 8px 24px ${accent}55` }}
                   >Buy Now <ArrowRight className="w-4 h-4 group-hover/b:translate-x-0.5 transition-transform" /></button>
-                  <button onClick={handleAddToCart} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-sm uppercase tracking-[0.12em] border-2 border-gray-200 text-gray-900  active:scale-[0.98] transition-all duration-200"
+                  <button onClick={handleAddToCart} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-sm uppercase tracking-[0.12em] border-2 border-gray-200 text-gray-900 active:scale-[0.98] transition-all duration-200"
                     onMouseEnter={e => { e.currentTarget.style.borderColor = accent; e.currentTarget.style.background = accent + '12'; e.currentTarget.style.color = accent; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.background = ''; e.currentTarget.style.color = '#111827'; }}><ShoppingBag className="w-4 h-4" /> Add to Cart</button>
                 </div>
               ) : (
                 <div className="hidden lg:block shrink-0 pt-3 pb-1 border-t border-gray-100">
-                  <button disabled className="w-full py-4 rounded-2xl bg-gray-100 text-gray-400 font-black text-sm uppercase tracking-widest cursor-not-allowed">Out of Stock</button>
+                  <button disabled className="w-full py-4 rounded-2xl bg-gray-100 text-gray-400 font-black text-sm uppercase tracking-widest cursor-not-allowed">
+                    {colors.length > 0 ? `${colors[selectedColorIdx]?.name} – Out of Stock` : 'Out of Stock'}
+                  </button>
                 </div>
               )}
 
             </div>{/* end right col */}
           </div>
-          {/* Mobile FIXED bottom CTA — only when actual buttons off-screen */}
+
+          {/* Mobile FIXED bottom CTA */}
           {!isOut && showFixedCta && (
             <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-100 px-4 py-3 safe-area-pb"
               style={{ boxShadow: `0 -8px 32px -4px ${accent}26` }}>
@@ -677,18 +905,18 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
             </div>
           )}
 
-          {/* Out of stock — always fixed on mobile */}
           {isOut && (
             <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-100 px-4 py-3"
               style={{ boxShadow: "0 -8px 32px -4px rgba(0,0,0,0.08)" }}>
               <button disabled className="w-full py-3.5 rounded-2xl bg-gray-100 text-gray-400 font-black text-sm uppercase tracking-widest cursor-not-allowed">
-                Out of Stock
+                {colors.length > 0 ? `${colors[selectedColorIdx]?.name} – Out of Stock` : 'Out of Stock'}
               </button>
             </div>
           )}
 
           <div ref={bottomRef} />
-          {/* Reviews — unchanged */}
+
+          {/* Reviews */}
           <div className="mt-8 lg:mt-20 pt-8 lg:pt-12 border-t border-gray-100">
             <div className="flex items-center justify-between mb-8">
               <div><h2 className="text-2xl font-black text-gray-900 tracking-tight">Customer Reviews</h2><p className="text-sm text-gray-400 font-semibold mt-0.5">{reviews.length} verified reviews</p></div>
@@ -718,7 +946,9 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
       </div>
 
       {showImageViewer && (
-        <div className="fixed inset-0 z-99999 bg-black/90 backdrop-blur-md flex items-center justify-center" onTouchStart={(e) => { (e.currentTarget as any)._x = e.touches[0].clientX; }} onTouchEnd={(e) => { const diff = ((e.currentTarget as any)._x ?? 0) - e.changedTouches[0].clientX; if (Math.abs(diff) > 40) { if (diff > 0) setActiveImg((i) => Math.min(i + 1, galleryImages.length - 1)); else setActiveImg((i) => Math.max(i - 1, 0)); } }}>
+        <div className="fixed inset-0 z-99999 bg-black/90 backdrop-blur-md flex items-center justify-center"
+          onTouchStart={(e) => { (e.currentTarget as any)._x = e.touches[0].clientX; }}
+          onTouchEnd={(e) => { const diff = ((e.currentTarget as any)._x ?? 0) - e.changedTouches[0].clientX; if (Math.abs(diff) > 40) { if (diff > 0) setActiveImg((i) => Math.min(i + 1, galleryImages.length - 1)); else setActiveImg((i) => Math.max(i - 1, 0)); } }}>
           <button onClick={() => setShowImageViewer(false)} className="absolute top-5 right-5 text-white bg-white/10 hover:bg-white/20 p-2 rounded-xl"><X className="w-6 h-6" /></button>
           {galleryImages.length > 1 && <button onClick={() => setActiveImg((i) => Math.max(i - 1, 0))} className="absolute left-5 text-white bg-white/10 hover:bg-white/20 p-3 rounded-xl"><ChevronLeft className="w-6 h-6" /></button>}
           <img src={galleryImages[activeImg]} alt={`${product.name} - full view`} className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-2xl" />

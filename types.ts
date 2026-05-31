@@ -192,6 +192,9 @@ export interface CartItem {
   category: string;
   quantity: number;
   min_order_quantity?: number;
+  selectedColor?: string;
+  selectedColorHex?: string;
+  selectedColorImage?: string;
 }
 
 export interface OrderItem {

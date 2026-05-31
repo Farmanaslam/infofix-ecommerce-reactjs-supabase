@@ -8,6 +8,8 @@
     "sitemap": "node scripts/generate-sitemap.mjs",
     "snap": "react-snap",
     "build": "vite build && npm run sitemap && npm run snap",
+    "test": "vitest",
+    "test:run": "vitest run",
     "preview": "vite preview"
   },
   "reactSnap": {

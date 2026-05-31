@@ -785,7 +785,7 @@ const LotteryHeroCard: React.FC<{
   lotteries: any[];
 }> = ({ onClick, isMobile, lotteries }) => {
   const GOAL = 10000; // target entries to fill bar
-  const BASE = 5245;
+  const BASE = 2010;
   const [count, setCount] = React.useState(BASE);
   const [localEntries, setLocalEntries] = React.useState(0);
   const progress = Math.min(Math.round(((count % GOAL) / GOAL) * 100), 99);

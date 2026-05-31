@@ -47,7 +47,7 @@ const MobileLotteryBanner: React.FC<{
   activeLotteries: any[];
 }> = ({ onClick, activeLotteries }) => {
   const GOAL = 10000;
-  const BASE = 5245;
+  const BASE = 2010;
   const [count, setCount] = React.useState(BASE);
   const spotsLeft = GOAL - (count % GOAL);
   const progress = Math.min(Math.round(((count % GOAL) / GOAL) * 100), 99);

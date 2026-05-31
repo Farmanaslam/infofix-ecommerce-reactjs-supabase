@@ -514,6 +514,17 @@ export const Checkout: React.FC = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-sm text-gray-900 line-clamp-1">{item.name}</p>
+                      {(item as any).selectedColor && (
+                        <div className="flex items-center gap-1 mt-0.5">
+                          {(item as any).selectedColorHex && (
+                            <div className="w-2.5 h-2.5 rounded-full border border-gray-200 shrink-0"
+                              style={{ background: (item as any).selectedColorHex }} />
+                          )}
+                          <span className="text-[9px] font-black text-gray-400 uppercase tracking-wide">
+                            {(item as any).selectedColor}
+                          </span>
+                        </div>
+                      )}
                       <p className="text-xs text-gray-400">Qty: {item.quantity}</p>
                     </div>
                     <p className="font-black text-indigo-600 text-sm shrink-0">₹{(item.price * item.quantity).toLocaleString("en-IN")}</p>

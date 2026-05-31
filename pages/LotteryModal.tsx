@@ -30,7 +30,7 @@ export const LotteryModal: React.FC<LotteryModalProps> = ({
     const [screenshotPreviews, setScreenshotPreviews] = useState<string[]>([]);
     const [uploadProgress, setUploadProgress] = useState(false);
     const fileRef = useRef<HTMLInputElement>(null);
-    const [entryCount, setEntryCount] = useState(5244);
+    const [entryCount, setEntryCount] = useState(2010);
     const GOAL = 10000;
     const [form, setForm] = useState({
         name: prefillName,
@@ -90,7 +90,7 @@ export const LotteryModal: React.FC<LotteryModalProps> = ({
                 .from("lottery_entries")
                 .select("id", { count: "exact", head: true })
                 .eq("lottery_id", lottery.id);
-            setEntryCount(5245 + (count ?? 0));
+            setEntryCount(2010 + (count ?? 0));
         };
         fetchCount();
         const t = setInterval(fetchCount, 30000);
@@ -181,7 +181,7 @@ export const LotteryModal: React.FC<LotteryModalProps> = ({
             .from("lottery_entries")
             .select("id", { count: "exact", head: true })
             .eq("lottery_id", lottery.id);
-        setEntryCount(5245 + (newC ?? 0));
+        setEntryCount(2010 + (newC ?? 0));
     };
 
     if (!isOpen) return null;

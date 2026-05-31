@@ -16,199 +16,35 @@ import { ProductCard } from "./Product";
 import { ProductDetails } from "./ProductDetails";
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { normalizeTerm, expandTerms, inferCategoryFromQuery } from '@/lib/searchUtils'
+
 const PER_PAGE = 12;
 const IS_SB = !!supabase;
-
-// ─── Search aliases ────────────────────────────────────────────────────────────
-
-const SEARCH_ALIASES: Record<string, string[]> = {
-  // Processors
-  processor: [
-    "processor",
-    "processors",
-    "cpu",
-    "intel",
-    "amd",
-    "ryzen",
-    "core i",
-  ],
-  processors: [
-    "processor",
-    "processors",
-    "cpu",
-    "intel",
-    "amd",
-    "ryzen",
-    "core i",
-  ],
-  cpu: ["processor", "processors", "cpu", "core"],
-  cpus: ["processor", "processors", "cpu", "core"],
-
-  // Peripherals
-  peripherals: [
-    "peripherals",
-    "peripheral",
-    "keyboard",
-    "mouse",
-    "headset",
-    "webcam",
-    "speaker",
-  ],
-  peripheral: ["peripherals", "peripheral"],
-
-  // CCTV / Camera
-  cctv: ["cctv", "camera", "surveillance", "security camera", "dvr", "nvr"],
-  camera: ["cctv", "camera", "surveillance"],
-  cameras: ["cctv", "camera", "cameras", "surveillance"],
-  surveillance: ["cctv", "camera", "surveillance"],
-
-  // RAM / Memory
-  ram: ["ram", "memory", "ddr", "dimm", "sodimm"],
-  memory: ["ram", "memory", "ddr"],
-
-  // GPU / Graphics
-  gpu: ["gpu", "graphics card", "graphics", "nvidia", "radeon", "rtx", "gtx"],
-  gpus: ["gpu", "graphics card", "graphics", "nvidia", "radeon", "rtx", "gtx"],
-  graphics: ["graphics card", "gpu", "nvidia", "radeon"],
-
-  // Laptop / Notebooks — FIX: added "laptops" plural
-  laptop: ["laptop", "laptops", "notebook", "notebooks", "ultrabook"],
-  laptops: ["laptop", "laptops", "notebook", "notebooks", "ultrabook"],
-  notebook: ["laptop", "laptops", "notebook", "notebooks"],
-  notebooks: ["laptop", "laptops", "notebook", "notebooks"],
-
-  // Desktop — FIX: added "desktops" plural
-  desktop: ["desktop", "desktops", "pc", "tower", "workstation"],
-  desktops: ["desktop", "desktops", "pc", "tower", "workstation"],
-  pc: ["desktop", "desktops", "pc", "tower", "workstation"],
-  pcs: ["desktop", "desktops", "pc", "tower", "workstation"],
-
-  // Monitor / Display
-  monitor: ["monitor", "monitors", "display", "screen", "led"],
-  monitors: ["monitor", "monitors", "display", "screen"],
-  display: ["monitor", "monitors", "display", "screen"],
-  screen: ["monitor", "monitors", "screen", "display"],
-
-  // SSD / Storage
-  ssd: ["ssd", "solid state", "nvme", "storage"],
-  storage: ["ssd", "hdd", "hard disk", "storage", "nvme"],
-
-  // Custom PC
-  "custom pc": ["custom pc", "custom", "build", "gaming pc"],
-  custom: ["custom pc", "custom", "build"],
-  // Accessories
-  accessories: [
-    "accessories",
-    "accessory",
-    "ram",
-    "motherboard",
-    "monitor",
-    "keyboard",
-    "mouse",
-    "cpu",
-  ],
-  motherboard: ["motherboard", "motherboards", "mobo", "mainboard"],
-  motherboards: ["motherboard", "motherboards", "mobo", "mainboard"],
-  keyboard: ["keyboard", "keyboards", "mechanical keyboard"],
-  keyboards: ["keyboard", "keyboards"],
-  mouse: ["mouse", "mice", "gaming mouse"],
-  mice: ["mouse", "mice"],
-};
-function normalizeTerm(term: string): string {
-  if (SEARCH_ALIASES[term]) return term;
-  if (term.endsWith("es") && SEARCH_ALIASES[term.slice(0, -2)])
-    return term.slice(0, -2);
-  if (term.endsWith("s") && SEARCH_ALIASES[term.slice(0, -1)])
-    return term.slice(0, -1);
-  return term;
-}
-
-function expandTerms(terms: string[]): string[] {
-  const expanded = new Set<string>();
-  for (const term of terms) {
-    expanded.add(term);
-    // FIX 2: normalize before looking up aliases
-    const normalized = normalizeTerm(term);
-    expanded.add(normalized);
-    const aliases = SEARCH_ALIASES[normalized] ?? SEARCH_ALIASES[term];
-    if (aliases) aliases.forEach((a) => expanded.add(a));
-  }
-  return [...expanded];
-}
-
-const CATEGORY_KEYWORDS: Record<string, string> = {
-  laptop: "Laptop",
-  laptops: "Laptop",
-  notebook: "Laptop",
-  notebooks: "Laptop",
-  desktop: "Desktop",
-  desktops: "Desktop",
-  "desktop pc": "Desktop",
-  "custom pc": "Custom PC",
-  "custom pcs": "Custom PC",
-  "gaming pc": "Custom PC",
-  accessories: "Accessories",
-  keyboard: "Accessories",
-  mouse: "Accessories",
-  headphones: "Accessories",
-  hub: "Accessories",
-  stand: "Accessories",
-  router: "Accessories",
-};
-
-// AFTER
-// Maps specific subcategory keywords → { category, subcategory }
-const SUBCATEGORY_KEYWORDS: Record<
-  string,
-  { category: string; subcategory: string }
-> = {
-  keyboard: { category: "Accessories", subcategory: "Keyboard" },
-  keyboards: { category: "Accessories", subcategory: "Keyboard" },
-  mouse: { category: "Accessories", subcategory: "Mouse" },
-  mice: { category: "Accessories", subcategory: "Mouse" },
-  headphones: { category: "Accessories", subcategory: "Headphones" },
-  headphone: { category: "Accessories", subcategory: "Headphones" },
-  hub: { category: "Accessories", subcategory: "Hub" },
-  stand: { category: "Accessories", subcategory: "Stand" },
-  "wifi adapter": { category: "Accessories", subcategory: "WIFI Adapter" },
-  "wifi adapters": { category: "Accessories", subcategory: "WIFI Adapter" },
-  router: { category: "Accessories", subcategory: "Router" },
-  routers: { category: "Accessories", subcategory: "Router" },
-  gaming: { category: "Laptop", subcategory: "Gaming" },
-  "gaming laptop": { category: "Laptop", subcategory: "Gaming" },
-  "gaming laptops": { category: "Laptop", subcategory: "Gaming" },
-  "business laptop": { category: "Laptop", subcategory: "Business" },
-  "student laptop": { category: "Laptop", subcategory: "Student" },
-  refurbished: { category: "Laptop", subcategory: "Refurbished" },
-  "refurbished laptop": { category: "Laptop", subcategory: "Refurbished" },
-  "refurbished laptops": { category: "Laptop", subcategory: "Refurbished" },
-};
-
-function inferCategoryFromQuery(
-  query: string,
-): { category: string; subcategory: string } | null {
-  const q = query.trim().toLowerCase();
-
-  if (SUBCATEGORY_KEYWORDS[q]) return SUBCATEGORY_KEYWORDS[q];
-  for (const [keyword, result] of Object.entries(SUBCATEGORY_KEYWORDS)) {
-    if (q === keyword || q.startsWith(keyword + " ")) return result;
-  }
-  if (CATEGORY_KEYWORDS[q])
-    return { category: CATEGORY_KEYWORDS[q], subcategory: "" };
-  for (const [keyword, cat] of Object.entries(CATEGORY_KEYWORDS)) {
-    if (q === keyword || q.startsWith(keyword + " "))
-      return { category: cat, subcategory: "" };
-  }
-
-  return null;
-}
 
 // ─── Mappers ───────────────────────────────────────────────────────────────────
 function fromSupabase(row: any): Product {
   const disc = row.discount_percent ?? 0;
-  const imageUrl =
+
+  // ── Resolve primary image from colors if available ──
+  let primaryImage =
     row.image_url ??
     "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=600&q=80";
+
+  let parsedColors: any[] = [];
+  if (row.colors) {
+    try {
+      parsedColors = typeof row.colors === "string"
+        ? JSON.parse(row.colors)
+        : Array.isArray(row.colors) ? row.colors : [];
+    } catch { }
+  }
+  // Use first in-stock color's first image (or first color if all OOS)
+  const firstColor = parsedColors.find(c => c.stock > 0) ?? parsedColors[0];
+  if (firstColor?.images?.length > 0) {
+    primaryImage = firstColor.images[0];
+  }
+
+  const imageUrl = primaryImage;
   return {
     id: String(row.id),
     name: row.name ?? "",
@@ -841,7 +677,7 @@ export const Store: React.FC = () => {
           let q = supabase
             .from("products")
             .select(
-              `id, name, description, image_url, images,
+              `id, name, description, image_url, images,colors,
                retail_price,min_order_quantity,  discount_percent, discounted_price,
                stock_quantity, condition, brand, specs,
                rating_avg, rating_count, reviews_count, likes_count, created_at,
@@ -1199,7 +1035,7 @@ export const Store: React.FC = () => {
     const fetchAndOpen = async () => {
       const { data } = await supabase
         .from("products")
-        .select(`id, name, description, image_url, images,
+        .select(`id, name, description, image_url, images,colors,
         retail_price, discount_percent, discounted_price, min_order_quantity,
         stock_quantity, condition, brand, specs,
         rating_avg, rating_count, reviews_count, likes_count,

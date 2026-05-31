@@ -814,29 +814,33 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   const addToCart = useCallback(
-    async (product: Product, qty?: number) => {
+    async (product: Product & { selectedColor?: string; selectedColorHex?: string; selectedColorImage?: string }, qty?: number) => {
       const moq = product.min_order_quantity ?? 1;
       const addQty = qty ?? moq;
+      // Composite key: productId + color variant
+      const colorKey = product.selectedColor || '';
+      const cartKey = colorKey ? `${product.id}__${colorKey}` : String(product.id);
 
       setCart((prev) => {
-        const existing = prev.find((item) => item.id === String(product.id));
+        const existing = prev.find((item) => item.id === cartKey);
         if (existing) {
-          // If already in cart, increment by addQty (never below MOQ)
           const newQty = Math.max(existing.quantity + addQty, moq);
           return prev.map((item) =>
-            item.id === String(product.id)
-              ? { ...item, quantity: newQty, min_order_quantity: moq }
-              : item,
+            item.id === cartKey ? { ...item, quantity: newQty } : item
           );
         }
         return [
           ...prev,
           {
             ...(product as any),
-            id: String(product.id),
-            product_id: String(product.id),
+            id: cartKey,
+            product_id: String(product.id),  // real DB id for order
             quantity: addQty,
             min_order_quantity: moq,
+            image: product.selectedColorImage || product.image,
+            selectedColor: product.selectedColor,
+            selectedColorHex: product.selectedColorHex,
+            selectedColorImage: product.selectedColorImage,
           },
         ];
       });
@@ -875,7 +879,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
           await supabase.from("cart_items").insert({
             user_id: currentUser.id,
             product_id: String(product.id),
-            name: product.name,
+            name: product.selectedColor ? `${product.name} — ${product.selectedColor}` : product.name,
             price: product.price,
             image: product.image ?? "",
             category: product.category ?? "",

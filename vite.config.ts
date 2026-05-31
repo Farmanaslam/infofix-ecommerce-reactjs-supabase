@@ -51,9 +51,11 @@ export default defineConfig(({ mode }) => {
     },
     test: {
       globals: true,
-      environment: 'jsdom',
-      setupFiles: ['./src/test-setup.ts'],
+      environment: 'node',
+      setupFiles: ['/test-setup.ts'],
       css: false,
+     
+      include: ['tests/utils/searchLogic.test.ts'],
     }
   }
 
