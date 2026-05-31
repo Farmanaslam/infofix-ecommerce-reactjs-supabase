@@ -166,10 +166,13 @@ export const LotteryModal: React.FC<LotteryModalProps> = ({
         }); setSubmitting(false);
 
         if (err) {
+            // AFTER
             if (err.code === "23505") {
-                setError("You've already entered this lottery with this email.");
-            } else {
-                setError("Something went wrong. Please try again.");
+                if (err.message?.includes("whatsapp")) {
+                    setError("This WhatsApp number already has an entry. One entry per person.");
+                } else {
+                    setError("You've already entered this lottery with this email.");
+                }
             }
             return;
         }

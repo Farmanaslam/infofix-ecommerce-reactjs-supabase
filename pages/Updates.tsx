@@ -265,7 +265,11 @@ export const Updates: React.FC = () => {
                 "@type": "Organization",
                 "name": "Infofix Computers",
                 "logo": { "@type": "ImageObject", "url": "https://infofixcomputers.com/icons/logo.png" }
-              }
+              },
+              "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": `https://infofixcomputers.com/blog/${toSlug(selectedPost.title)}`
+              },
             } : {
               "@context": "https://schema.org",
               "@type": "Article",
