@@ -1,587 +1,479 @@
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useStore } from "@/context/StoreContext";
 import {
-  Monitor,
-  Laptop,
-  Cpu,
-  Wrench,
-  TrendingUp,
-  ShieldCheck,
-  MemoryStick,
-  ArrowRight,
-  CheckCircle2,
-  ChevronRight,
-  MapPin,
-  Phone,
-  Zap,
-  HardDrive,
-  RefreshCw,
+  Monitor, Laptop, Cpu, Wrench, ShieldCheck,
+  MemoryStick, ArrowRight, CheckCircle2, ChevronRight,
+  MapPin, Phone, Zap, HardDrive, RefreshCw, Star,
+  MessageCircle, Wifi, Camera,
+  Gamepad2, Briefcase, Database, ShieldAlert,
+  AlertCircle, ExternalLink,
 } from "lucide-react";
 import { SECTION_ACCENT } from "@/lib/sectionTheme";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
+
+function useInView(threshold = 0.15) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [vis, setVis] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVis(true); io.disconnect(); } }, { threshold });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return { ref, vis };
+}
+
+function Section({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const { ref, vis } = useInView();
+  return (
+    <div ref={ref} className={className} style={{
+      opacity: vis ? 1 : 0,
+      transform: vis ? "translateY(0)" : "translateY(36px)",
+      transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`,
+    }}>
+      {children}
+    </div>
+  );
+}
+
 export const Services: React.FC = () => {
   const { setCurrentPage, setSelectedCategory, selectedStoreSection } = useStore();
   const theme = SECTION_ACCENT[selectedStoreSection];
+  const acc = theme.accent;
 
   const mainServices = [
     {
-      icon: Monitor,
-      title: "Desktop PCs",
+      icon: Monitor, title: "Desktop PCs", emoji: "🖥️",
       tagline: "Assembled in-house. Built to last.",
-      color: "#6366f1",
-      dark: false,
-      points: [
-        "All configurations — i3 to i9, Ryzen 3 to Ryzen 9",
-        "Pre-assembled and fully tested before delivery",
-        "Office PCs, workstations, and gaming rigs in stock",
-        "Ready to take home same day from any branch",
-      ],
-      cta: "Browse Desktops",
-      action: () => setSelectedCategory("Desktop"),
+      points: ["All configs — i3 to i9, Ryzen 3–9", "Pre-assembled & fully tested", "Office, workstation & gaming rigs in stock", "Take home same-day from any branch"],
+      cta: "Browse Desktops", href: "/buy-desktop-pc", action: () => setSelectedCategory("Desktop"), color: "#6366f1",
     },
     {
-      icon: Laptop,
-      title: "Laptops",
+      icon: Laptop, title: "Laptops", emoji: "💻",
       tagline: "Every brand. Every budget. In stock now.",
-      color: "#10b981",
-      dark: true,
-      points: [
-        "Student laptops from ₹22,999",
-        "Professional ultrabooks & workstations",
-        "Gaming laptops with dedicated GPU",
-        "Handpicked for performance and reliability",
-      ],
-      cta: "Browse Laptops",
-      action: () => setSelectedCategory("Laptop"),
+      points: ["Student laptops from ₹22,999", "Professional ultrabooks & workstations", "Gaming laptops with dedicated GPU", "Handpicked for performance & reliability"],
+      cta: "Browse Laptops", href: "/buy-laptop", action: () => setSelectedCategory("Laptop"), color: "#10b981",
     },
     {
-      icon: RefreshCw,
-      title: "Refurbished Laptops",
+      icon: RefreshCw, title: "Refurbished", emoji: "♻️",
       tagline: "Certified pre-owned. Infofix tested.",
-      color: "#ec4899",
-      dark: false,
-      points: [
-        "Grade A refurbished laptops from top brands",
-        "Every unit cleaned, tested & restored in-house",
-        "SSD upgraded for faster performance",
-        "6-month Infofix warranty on all refurb units",
-      ],
-      cta: "Browse Refurbished",
-      action: () => setSelectedCategory("Laptop"),
+      points: ["Grade-A units from top brands", "Cleaned, tested & restored in-house", "SSD upgraded for faster performance", "6-month Infofix warranty included"],
+      cta: "Browse Refurbished", href: "/buy-refurbished-laptop", action: () => setSelectedCategory("Laptop"), color: "#ec4899",
     },
   ];
 
-  const supportServices = [
-    {
-      icon: Wrench,
-      title: "Hardware Repairs",
-      desc: "Motherboard faults, display issues, power problems, overheating — diagnosed and fixed by certified technicians.",
-      color: "#6366f1",
-    },
-    {
-      icon: MemoryStick,
-      title: "RAM & SSD Upgrades",
-      desc: "Breathe new life into a slow machine. We source and install the right upgrade for your laptop or desktop.",
-      color: "#10b981",
-    },
-    {
-      icon: HardDrive,
-      title: "OS Install & Recovery",
-      desc: "Fresh Windows install, driver setup, data migration, and full system optimization. Fast turnaround.",
-      color: "#f59e0b",
-    },
-    {
-      icon: ShieldCheck,
-      title: "Warranty & Support",
-      desc: "All products come with genuine brand warranty and our support. From troubleshooting to replacements, we ensure quick assistance even after your purchase.",
-      color: "#ef4444",
-    },
-    {
-      icon: RefreshCw,
-      title: "Certified Refurbished Solutions",
-      desc: "From diagnostics to upgrades, we ensure every refurbished laptop and desktop meets high-quality standards. Enjoy cost-effective systems backed by our service support and reliability guarantee.",
-      color: "#ec4899",
-    },
-    {
-      icon: Zap,
-      title: "Performance Tuning",
-      desc: "Thermal repaste, fan cleaning, driver optimization, and BIOS updates to get peak performance from your machine.",
-      color: "#06b6d4",
-    },
+  const repairServices = [
+    { icon: Wrench, title: "Hardware Repair", desc: "Motherboard faults, display issues, power problems, overheating — diagnosed & fixed by certified technicians.", color: "#6366f1" },
+    { icon: MemoryStick, title: "RAM & SSD Upgrades", desc: "Breathe new life into a slow machine. We source & install the right upgrade for your laptop or desktop.", color: "#10b981" },
+    { icon: HardDrive, title: "OS Install & Recovery", desc: "Fresh Windows install, driver setup, data migration & full system optimization. Fast turnaround.", color: "#f59e0b" },
+    { icon: ShieldCheck, title: "Warranty & Support", desc: "All products carry genuine brand warranty. From troubleshooting to replacements — we ensure swift after-sale assistance.", color: "#ef4444" },
+    { icon: Wifi, title: "Networking & LAN", desc: "Router configuration, LAN setup, Wi-Fi troubleshooting & complete office network solutions.", color: "#06b6d4" },
+    { icon: Database, title: "Data Recovery", desc: "Retrieve lost files from crashed drives, formatted SSDs & corrupted storage. Quick & confidential.", color: "#8b5cf6" },
+    { icon: ShieldAlert, title: "Virus Removal", desc: "Complete malware, spyware & ransomware removal with proactive protection setup.", color: "#f43f5e" },
+    { icon: Zap, title: "Performance Tuning", desc: "Thermal repaste, fan cleaning, driver optimization & BIOS updates for peak performance.", color: "#f59e0b" },
+    { icon: Gamepad2, title: "Custom Gaming PCs", desc: "High-performance gaming builds configured to your exact budget and game requirements.", color: "#a855f7" },
+    { icon: Camera, title: "CCTV Installation", desc: "Security camera installation, DVR/NVR setup, remote viewing configuration & maintenance.", color: "#0ea5e9" },
+    { icon: Briefcase, title: "AMC Services", desc: "Annual maintenance contracts for businesses — scheduled servicing, priority support, hardware audits.", color: "#10b981" },
+    { icon: RefreshCw, title: "Certified Refurbished", desc: "Grade-A diagnostics, upgrades & restoration ensuring every refurb unit meets high-quality standards.", color: "#ec4899" },
   ];
-  const buildTiers = [
-    {
-      tier: "Essential",
-      use: "Study, Office & Daily Use",
-      price: "₹10,999",
-      old: "₹14,999",
-      color: "#6366f1",
-      specs: [
-        "Intel Core i3 3rd Gen",
-        "4GB RAM + 128GB SSD",
-        '19" Monitor + Full Setup',
-        "Keyboard, Mouse Included",
-      ],
-      ideal: "Students, Home Use, Basic Office",
-    },
-    {
-      tier: "Professional",
-      use: "Work, Multitasking & Business",
-      price: "₹24,999",
-      old: "₹33,999",
-      color: "#818cf8",
-      featured: true,
-      specs: [
-        "Intel Core i5 6th Gen",
-        "8GB DDR4 RAM",
-        "512GB SSD Storage",
-        '22" Monitor + Full Setup',
-      ],
-      ideal: "Office Work, Developers, Shops",
-    },
-    {
-      tier: "Performance",
-      use: "Gaming, Editing & High-End Work",
-      price: "₹86,799",
-      old: "₹1,02,999",
-      color: "#10b981",
-      specs: [
-        "Intel i5 14th Gen Processor",
-        "16GB RAM + 512GB NVMe SSD",
-        "RTX 3050 6GB Graphics",
-        '27" Monitor + RGB Setup',
-      ],
-      ideal: "Gamers, Creators, Professionals",
-    },
+
+  const stats = [
+    { val: "8+", label: "Years in Business", icon: "🏆" },
+    { val: "50K+", label: "Happy Customers", icon: "😊" },
+    { val: "5", label: "Stores in WB", icon: "📍" },
+    { val: "1 Yr", label: "Warranty Included", icon: "🛡️" },
   ];
+
+
+  const testimonials = [
+    { name: "Sourav M.", role: "Gamer", stars: 5, text: "Built my dream gaming PC here. Cable management is art! Runs 4K like butter." },
+    { name: "Ankit R.", role: "Business Owner", stars: 5, text: "Their AMC service saved my office network twice this month. Super fast response." },
+    { name: "Priya D.", role: "Student", stars: 5, text: "Thought I lost my thesis data. Infofix recovered everything in 24 hours. Lifesavers!" },
+    { name: "Rahul S.", role: "Developer", stars: 5, text: "Upgraded RAM & SSD on my old laptop — it feels brand new. Great value for money." },
+  ];
+
+  const brands = [
+    { name: "Dell", color: "#007DB8" }, { name: "HP", color: "#0096D6" }, { name: "Lenovo", color: "#E2231A" },
+    { name: "Asus", color: "#00539B" }, { name: "Acer", color: "#83B81A" }, { name: "MSI", color: "#E4002B" },
+    { name: "Intel", color: "#0071C5" }, { name: "AMD", color: "#ED1C24" }, { name: "NVIDIA", color: "#76B900" },
+  ];
+
   return (
-    <div className="pb-28">
+    <div className="overflow-x-hidden">
       <Helmet>
-        <title>
-          {selectedStoreSection === 'Refurbished'
-            ? 'Certified Refurbished Laptop Services Durgapur | Infofix Computers'
-            : selectedStoreSection === 'Wholesale'
-              ? 'Wholesale Computer Supply Services West Bengal | Infofix Computers'
-              : 'Laptop & Desktop Services in Durgapur | Custom PC Builds | Infofix Computers'}
-        </title>
-        <meta name="description" content={
-          selectedStoreSection === 'Refurbished'
-            ? 'Grade-A certified refurbished laptops in Durgapur. Professionally tested, SSD upgraded, 6-month warranty. Dell, HP, Lenovo ThinkPad from ₹11,999. Infofix Computers.'
-            : selectedStoreSection === 'Wholesale'
-              ? 'Wholesale laptop & desktop supply across West Bengal. Bulk pricing, GST invoice, dedicated B2B support. Infofix Computers Durgapur.'
-              : 'Buy laptops, desktop PCs & custom builds in Durgapur, Asansol & all India. Hardware repair, RAM/SSD upgrades, OS install. 1-year warranty. Infofix Computers.'
-        } />
-        <meta name="keywords" content="laptop repair durgapur, computer repair durgapur, custom pc build durgapur, desktop pc durgapur, laptop service asansol, refurbished laptop durgapur, ssd upgrade durgapur, gaming pc durgapur, computer services west bengal" />
+        <title>Laptop & Desktop Services in Durgapur | Custom PC Builds | Infofix Computers</title>
+        <meta name="description" content="New laptops, desktop PCs & custom builds in Durgapur, Asansol & all India. Hardware repair, RAM/SSD upgrades, OS install. 1-year warranty. Infofix Computers." />
         <link rel="canonical" href="https://infofixcomputers.com/services" />
-        <meta property="og:title" content="Computer & Laptop Services in Durgapur | Infofix Computers" />
-        <meta property="og:description" content="New PCs, custom builds, laptop repair, refurbished laptops & upgrades. 5 stores across West Bengal. 1-year warranty. Pan-India delivery." />
-        <meta property="og:image" content="https://infofixcomputers.com/icons/logo.png" />
-        <meta property="og:url" content="https://infofixcomputers.com/services" />
-        <meta property="og:type" content="website" />
-        <script type="application/ld+json">{JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Service",
-          "name": "Computer & Laptop Services — Infofix Computers",
-          "url": "https://infofixcomputers.com/services",
-          "description": "New laptops, desktop PCs, custom builds, hardware repair, RAM/SSD upgrades and certified refurbished devices. Serving Durgapur, Asansol, Ukhra & pan-India.",
-          "provider": {
-            "@type": "LocalBusiness",
-            "name": "Infofix Computers",
-            "@id": "https://infofixcomputers.com/#business",
-            "telephone": "+91-8293295257",
-            "address": {
-              "@type": "PostalAddress",
-              "streetAddress": "Benachity Near Bank of Baroda",
-              "addressLocality": "Durgapur",
-              "addressRegion": "West Bengal",
-              "postalCode": "713201",
-              "addressCountry": "IN"
-            }
-          },
-          "areaServed": [
-            { "@type": "City", "name": "Durgapur" },
-            { "@type": "City", "name": "Asansol" },
-            { "@type": "City", "name": "Ukhra" },
-            { "@type": "State", "name": "West Bengal" },
-            { "@type": "Country", "name": "India" }
-          ],
-          "hasOfferCatalog": {
-            "@type": "OfferCatalog",
-            "name": "Tech Services Catalog",
-            "itemListElement": [
-              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Laptop Repair Durgapur", "description": "Hardware faults, screen replacement, motherboard repair — fast turnaround at our Durgapur service centre." } },
-              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Custom PC Build Durgapur", "description": "Custom gaming and office PCs built to your specs and budget. Assembled and tested same day." } },
-              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Certified Refurbished Laptops Durgapur", "description": "Grade-A refurbished Dell, HP, Lenovo laptops. SSD upgraded, tested, 6-month warranty." } },
-              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "RAM & SSD Upgrade Durgapur", "description": "Speed up any laptop or desktop with RAM and SSD upgrades installed while you wait." } },
-              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "OS Install & Data Recovery Durgapur", "description": "Fresh Windows install, driver setup, data migration and full system optimization." } },
-              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Laptop Repair Asansol", "description": "Hardware and software laptop repairs at our Asansol service centre." } },
-              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Desktop PC Sales Durgapur", "description": "Pre-assembled and custom desktop PCs for home, office and gaming available across 5 stores." } }
-            ]
-          }
-        })}</script>
       </Helmet>
+
       <style>{`
-        @keyframes shimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
-        @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
-        .shimmer-text {
-          background: linear-gradient(90deg,#6366f1 0%,#818cf8 40%,#4f46e5 60%,#6366f1 100%);
+        /* Uses Inter — same as app (loaded globally in index.html) */
+        .svc-root { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+        @keyframes svc-shimmer-bg {
+          0%   { background-position: 200% center; }
+          100% { background-position: -200% center; }
+        }
+        @keyframes svc-float {
+          0%,100% { transform: translateY(0px); }
+          50%      { transform: translateY(-10px); }
+        }
+        @keyframes svc-pulse-ring {
+          0%   { transform: scale(1); opacity: 0.6; }
+          100% { transform: scale(1.7); opacity: 0; }
+        }
+        @keyframes svc-scan {
+          0%   { transform: translateY(-100%); }
+          100% { transform: translateY(500%); }
+        }
+        @keyframes svc-ticker {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+
+        .svc-shimmer-text {
+          background: linear-gradient(90deg, ${acc} 0%, #fff 40%, ${acc}cc 60%, ${acc} 100%);
           background-size: 200% auto;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-          animation: shimmer 3s linear infinite;
+          animation: svc-shimmer-bg 4s linear infinite;
         }
-        .pulse-dot { animation: pulseDot 2s ease infinite; }
-        .card-hover { transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1); }
-        .card-hover:hover { transform: translateY(-6px); }
+        .svc-ticker-wrap { overflow: hidden; white-space: nowrap; }
+        .svc-ticker-inner { display: inline-flex; animation: svc-ticker 28s linear infinite; }
+        .svc-card-lift {
+          transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), box-shadow 0.3s ease;
+        }
+        .svc-card-lift:hover { transform: translateY(-6px) scale(1.012); }
+        .svc-hero-grid {
+          background-image: linear-gradient(${acc}18 1px, transparent 1px), linear-gradient(90deg, ${acc}18 1px, transparent 1px);
+          background-size: 48px 48px;
+        }
+        .svc-scan-anim { animation: svc-scan 3s ease-in-out infinite; }
+        .svc-float-anim { animation: svc-float 5s ease-in-out infinite; }
+        .svc-pulse-dot {
+          position: relative;
+          display: inline-block;
+          width: 8px; height: 8px; border-radius: 50%;
+          background: ${acc};
+        }
+        .svc-pulse-dot::before {
+          content: ''; position: absolute; inset: -3px;
+          border-radius: 50%; border: 1.5px solid ${acc};
+          animation: svc-pulse-ring 1.8s ease-out infinite;
+        }
       `}</style>
 
-      {/* ── HERO ── */}
-      <div
-        className="relative flex items-center justify-center text-center overflow-hidden"
-        style={{ minHeight: 480, background: "#0a0a0f" }}
-      >
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              `linear-gradient(${theme.accent}14 1px,transparent 1px),linear-gradient(90deg,${theme.accent}14 1px,transparent 1px)`,
-            backgroundSize: "44px 44px",
-          }}
-        />
-        <div
-          className="absolute -top-32 left-1/2 -translate-x-1/2 w-175 h-100 rounded-full"
-          style={{
-            background:
-              `radial-gradient(ellipse, ${theme.accent}33 0%, transparent 70%)`,
-          }}
-        />
+      <div className="svc-root">
 
-        <div className="relative z-10 px-4 max-w-4xl py-24">
-          <div
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-8"
-            style={{ background: `${theme.accent}1f`, border: `1px solid ${theme.accent}40`, color: theme.accent }}
+        {/* ══ HERO ══ */}
+        <div className="relative overflow-hidden" style={{ background: "#07070d", minHeight: 600 }}>
+          <div className="absolute inset-0 svc-hero-grid opacity-50" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-175 h-96 rounded-full pointer-events-none"
+            style={{ background: `radial-gradient(ellipse, ${acc}28 0%, transparent 68%)`, filter: "blur(4px)" }} />
+          <div className="absolute inset-x-0 top-0 h-0.5 pointer-events-none svc-scan-anim"
+            style={{ background: `linear-gradient(90deg, transparent, ${acc}80, transparent)` }} />
 
-          >
-            <span className="w-1.5 h-1.5 rounded-full pulse-dot" style={{ background: theme.accent }} />
-            Laptops · Desktops · Custom Builds
-          </div>
-
-          <h1
-            className="font-black text-white leading-[1.05] tracking-tight mb-6"
-            style={{ fontSize: "clamp(30px, 6vw, 64px)" }}
-          >
-            The Right Machine.
-            <br />
-            <span style={{ color: theme.accent }}>Built for You.</span>
-          </h1>
-
-          <p
-            className="font-medium leading-relaxed max-w-2xl mx-auto"
-            style={{ fontSize: "clamp(15px, 2vw, 19px)", color: "#6b7280" }}
-          >
-            New laptops, assembled desktop PCs, and fully custom builds —
-            configured to your exact needs, tested in-house, and backed by a
-            1-year warranty. Walk in or order online across 5 locations.
-          </p>
-
-          <div className="flex flex-wrap gap-4 justify-center mt-10">
-            <Link
-              to="/shop"
-              className="flex items-center gap-2 px-7 py-3.5 rounded-2xl font-black text-sm text-white uppercase tracking-wider hover:opacity-90 transition-all"
-              style={{ background: theme.accent }}
-            >
-              Browse All Products <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              to="/contact"
-              className="flex items-center gap-2 px-7 py-3.5 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-white/10 transition-all"
-              style={{ border: "1px solid rgba(255,255,255,0.15)", color: "#9ca3af" }}
-            >
-              Custom Build Enquiry
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <div className="app-container mt-10 md:mt-24 space-y-16 md:space-y-28">
-        {/* ── 3 MAIN SERVICES ── */}
-        <section className="space-y-10">
-          <div className="text-center space-y-3">
-            <p className="text-xs font-black uppercase tracking-[0.2em]" style={{ color: theme.accent }}>
-              Core Offerings
-            </p>
-            <h2 className="text-4xl font-black text-gray-900 tracking-tight">
-              What We Specialize In
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {mainServices.map((svc, i) => (
-              <div
-                key={i}
-                className={`card-hover group relative rounded-4xl overflow-hidden border ${svc.dark
-                  ? "bg-gray-900 border-gray-800"
-                  : "bg-white border-gray-100 "
-                  } transition-all duration-300`}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = `${theme.accent}33`; e.currentTarget.style.boxShadow = `0 20px 40px ${theme.accent}18`; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#f3f4f6'; e.currentTarget.style.boxShadow = ''; }}
-              >
-                {svc.dark && (
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      background:
-                        "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(16,185,129,0.1) 0%, transparent 70%)",
-                    }}
-                  />
-                )}
-                <div className="relative z-10 p-6 md:p-10 flex flex-col h-full gap-4 md:gap-6">
-                  <div className="flex md:block justify-center md:justify-start">
-                    <div
-                      className="relative w-16 h-16 md:w-14 md:h-14 rounded-2xl flex items-center justify-center shadow-lg"
-                      style={{
-                        background: `linear-gradient(135deg, ${svc.color}22, ${svc.color}44)`,
-                        border: `1.5px solid ${svc.color}33`,
-                        boxShadow: `0 8px 24px ${svc.color}22`,
-                      }}
-                    >
-                      <svc.icon className="w-7 h-7" style={{ color: svc.color }} />
-                      <div className="absolute inset-0 rounded-2xl" style={{ background: `radial-gradient(circle at 30% 30%, ${svc.color}30, transparent 70%)` }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3
-                      className={`font-black text-2xl mb-1 ${svc.dark ? "text-white" : "text-gray-900"}`}
-                    >
-                      {svc.title}
-                    </h3>
-                    <p
-                      className="text-sm font-semibold"
-                      style={{ color: svc.color }}
-                    >
-                      {svc.tagline}
-                    </p>
-                  </div>
-
-                  <div className="space-y-2.5 flex-1">
-                    {svc.points.map((pt, j) => (
-                      <div key={j} className="flex items-start gap-2.5">
-                        <CheckCircle2
-                          className="w-4 h-4 shrink-0 mt-0.5"
-                          style={{ color: svc.color }}
-                        />
-                        <span
-                          className={`text-sm font-medium ${svc.dark ? "text-gray-300" : "text-gray-500"}`}
-                        >
-                          {pt}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <Link
-                    to={i === 0 ? "/buy-desktop-pc" : i === 1 ? "/buy-laptop" : "/buy-refurbished-laptop"}
-                    onClick={() => svc.action()}
-                    className="flex items-center gap-2 self-start text-sm font-black uppercase tracking-wider px-5 py-2.5 rounded-xl transition-all hover:opacity-90"
-                    style={{ background: svc.color + "18", color: svc.color }}
-                  >
-                    {svc.cta} <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
+          <div className="relative z-10 max-w-6xl mx-auto px-6 py-28 flex flex-col lg:flex-row items-center gap-16">
+            <div className="flex-1 space-y-7">
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest"
+                style={{ background: `${acc}1a`, border: `1px solid ${acc}40`, color: acc }}>
+                <span className="svc-pulse-dot" />
+                8 Years · 5 Stores · 50K+ Customers
               </div>
-            ))}
-          </div>
-        </section>
 
-        {/* ── HOW IT WORKS ── */}
-        <section className="relative rounded-[40px] overflow-hidden bg-gray-50 p-6 md:p-16 space-y-8 md:space-y-10">
+              <h1 className="font-extrabold text-white leading-tight tracking-tight"
+                style={{ fontSize: "clamp(36px, 6vw, 72px)" }}>
+                Your Tech.<br />
+                <span className="svc-shimmer-text">Our Expertise.</span>
+              </h1>
 
-          {/* subtle grid bg */}
-          <div className="absolute inset-0 opacity-30" style={{
-            backgroundImage: `linear-gradient(${theme.accent}18 1px,transparent 1px),linear-gradient(90deg,${theme.accent}18 1px,transparent 1px)`,
-            backgroundSize: "36px 36px",
-          }} />
+              <p className="text-slate-400 font-medium leading-relaxed max-w-lg"
+                style={{ fontSize: "clamp(15px, 1.8vw, 18px)" }}>
+                From student laptops to enterprise fleets, custom gaming rigs to certified refurbished devices — Infofix has been West Bengal's most trusted tech partner since 2016. Walk in or shop online.
+              </p>
 
-          <div className="relative text-center space-y-3">
-            <p className="text-xs font-black uppercase tracking-[0.2em]" style={{ color: theme.accent }}>
-              Simple Process
-            </p>
-            <h2 className="text-4xl font-black text-gray-900 tracking-tight">
-              How Infofix Works
-            </h2>
-            <p className="text-gray-500 font-medium max-w-xl mx-auto">
-              From browsing to doorstep — or walk in and walk out same day.
-            </p>
-          </div>
-
-          {/* Steps */}
-          <div className="relative grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {/* connector line desktop */}
-            <div className="hidden md:block absolute top-10 left-[12.5%] right-[12.5%] h-px" style={{ background: `linear-gradient(90deg, ${theme.accent}40, ${theme.accent}80, ${theme.accent}40)` }} />
-
-            {[
-              { step: "01", icon: "🔍", title: "Browse or Visit", desc: "Explore online or walk into any of our 5 stores. See hardware live before you buy." },
-              { step: "02", icon: "💬", title: "Expert Advice", desc: "Tell us your budget & use-case. Our team recommends the perfect machine — no upselling." },
-              { step: "03", icon: "🔧", title: "Built & Tested", desc: "Every desktop assembled in-house. Every device quality-checked before it leaves." },
-              { step: "04", icon: "🚀", title: "Delivered & Backed", desc: "Same-day pickup or pan-India delivery. 1-year warranty + after-sales support included." },
-            ].map((s, i) => (
-              <div key={i} className="relative flex flex-col items-center text-center gap-4 group">
-                {/* number circle */}
-                <div className="relative w-14 h-14 md:w-20 md:h-20 rounded-full flex items-center justify-center text-xl md:text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300 z-10"
-                  style={{ background: `linear-gradient(135deg, ${theme.accent}22, ${theme.accent}44)`, border: `2px solid ${theme.accent}55` }}>
-                  {s.icon}
-                  <span className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black text-white"
-                    style={{ background: theme.accent }}>
-                    {s.step}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="font-black text-gray-900 text-sm md:text-lg mb-1">{s.title}</h3>
-                  <p className="text-gray-500 text-sm font-medium leading-relaxed">{s.desc}</p>
-                </div>
+              <div className="flex flex-wrap gap-3 pt-2">
+                <Link to="/shop"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl font-bold text-sm text-white hover:opacity-90 active:scale-95 transition-all"
+                  style={{ background: `linear-gradient(135deg, ${acc}, ${acc}cc)`, boxShadow: `0 8px 32px ${acc}50` }}>
+                  Shop Now <ArrowRight className="w-4 h-4" />
+                </Link>
+                <a href="https://service.infofixcomputer.in" target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl font-bold text-sm transition-all hover:bg-white/10 active:scale-95"
+                  style={{ border: "1px solid rgba(255,255,255,0.15)", color: "#9ca3af" }}>
+                  <AlertCircle className="w-4 h-4" /> Raise a Complaint <ExternalLink className="w-3 h-3" />
+                </a>
               </div>
-            ))}
-          </div>
+            </div>
 
-          {/* Brand logos strip */}
-          <div className="relative pt-6 border-t border-gray-200 space-y-4">
-            <p className="text-center text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
-              Brands We Stock & Service
-            </p>
-            <div className="flex flex-wrap justify-center gap-3 md:gap-4">
-              {[
-                { name: "Dell", color: "#007DB8" },
-                { name: "HP", color: "#0096D6" },
-                { name: "Lenovo", color: "#E2231A" },
-                { name: "Asus", color: "#00539B" },
-                { name: "Acer", color: "#83B81A" },
-                { name: "MSI", color: "#E4002B" },
-                { name: "Intel", color: "#0071C5" },
-                { name: "AMD", color: "#ED1C24" },
-                { name: "NVIDIA", color: "#76B900" },
-              ].map((brand, i) => (
-                <div key={i}
-                  className="card-hover px-5 py-2.5 rounded-2xl bg-white border border-gray-100 shadow-sm flex items-center gap-2 group"
-                  style={{ transition: "all 0.3s" }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = brand.color + "55"; e.currentTarget.style.boxShadow = `0 8px 24px ${brand.color}18`; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#f3f4f6'; e.currentTarget.style.boxShadow = ''; }}
-                >
-                  <div className="w-2 h-2 rounded-full" style={{ background: brand.color }} />
-                  <span className="text-sm font-black text-gray-700">{brand.name}</span>
+            {/* stats mosaic */}
+            <div className="grid grid-cols-2 gap-4 shrink-0 svc-float-anim">
+              {stats.map((s, i) => (
+                <div key={i} className="rounded-3xl px-7 py-6 text-center"
+                  style={{
+                    background: i === 1 ? `linear-gradient(135deg, ${acc}22, ${acc}44)` : "rgba(255,255,255,0.04)",
+                    border: i === 1 ? `1.5px solid ${acc}55` : "1px solid rgba(255,255,255,0.08)",
+                    boxShadow: i === 1 ? `0 8px 32px ${acc}30` : "none",
+                  }}>
+                  <div className="text-3xl mb-1">{s.icon}</div>
+                  <div className="text-3xl font-extrabold text-white leading-none">{s.val}</div>
+                  <div className="text-xs font-semibold mt-1" style={{ color: i === 1 ? acc : "#6b7280" }}>{s.label}</div>
                 </div>
               ))}
             </div>
           </div>
-        </section>
+        </div>
 
-        {/* ── SUPPORT SERVICES ── */}
-        <section className="space-y-6 md:space-y-10">
-          <div className="text-center space-y-2 md:space-y-3">
-            <p className="text-xs font-black" style={{ color: theme.accent }}>
-              After-Sales & Support
-            </p>
-            <h2 className="text-4xl font-black text-gray-900 tracking-tight">
-              We've Got You Covered After Too
-            </h2>
-            <p className="text-gray-500 font-medium max-w-xl mx-auto">
-              Our relationship doesn't end at the sale. Walk into any branch for
-              repairs, upgrades, or warranty support.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-
-            {supportServices.map((svc, i) => (
-              <div
-                key={i}
-                onClick={() => setCurrentPage("contact")}
-                className="card-hover cursor-pointer group p-5 md:p-8 bg-white border border-gray-100 rounded-3xl hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300"
-              >
-                <div className="flex md:block justify-center md:justify-start mb-5">
-                  <div
-                    className="relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110 group-hover:rotate-3 shadow-md"
-                    style={{
-                      background: `linear-gradient(135deg, ${svc.color}18, ${svc.color}35)`,
-                      border: `1.5px solid ${svc.color}25`,
-                      boxShadow: `0 6px 20px ${svc.color}20`,
-                    }}
-                  >
-                    <svc.icon className="w-6 h-6" style={{ color: svc.color }} />
-                    <div className="absolute top-1 right-1 w-2 h-2 rounded-full opacity-60" style={{ background: svc.color }} />
-                  </div>
+        {/* ══ COMPLAINT BANNER ══ */}
+        <Section>
+          <div className="mx-4 lg:mx-20 my-8 rounded-4xl overflow-hidden relative"
+            style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)", border: `1.5px solid ${acc}33` }}>
+            <div className="absolute inset-0 opacity-20 svc-hero-grid" />
+            <div className="relative z-10 px-8 py-7 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+                  style={{ background: `${acc}22`, border: `1.5px solid ${acc}44` }}>
+                  <AlertCircle className="w-6 h-6" style={{ color: acc }} />
                 </div>
-                <h3 className="font-black text-gray-900 text-lg mb-2 text-center md:text-left" />
-                <p className="text-gray-500 text-sm font-medium leading-relaxed mb-4 text-center md:text-left">
-
-                  {svc.desc}
-                </p>
-                <div className="flex items-center justify-center md:justify-start gap-1 text-xs font-black group-hover:gap-2 transition-all"
-
-                  style={{ color: svc.color }}
-                >
-                  Enquire Now <ChevronRight className="w-3.5 h-3.5" />
+                <div>
+                  <p className="font-bold text-white text-lg">Have an issue? Raise a complaint instantly.</p>
+                  <p className="text-slate-400 text-sm">Our service portal tracks your complaint end-to-end. Get updates via WhatsApp & email.</p>
                 </div>
               </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── TRUST STRIP ── */}
-        <section
-          className="relative rounded-[40px] overflow-hidden"
-          style={{ background: "#0a0a0f", minHeight: 320 }}
-        >
-          <div
-            className="absolute inset-0 opacity-40"
-            style={{
-              backgroundImage:
-                `linear-gradient(${theme.accent}14 1px,transparent 1px),linear-gradient(90deg,${theme.accent}14 1px,transparent 1px)`,
-              backgroundSize: "36px 36px",
-            }}
-          />
-          <div
-            className="absolute -top-20 left-1/2 -translate-x-1/2 w-150 h-75 rounded-full"
-            style={{
-              background:
-                `radial-gradient(ellipse, ${theme.accent}29 0%, transparent 70%)`,
-            }}
-          />
-
-          <div className="relative z-10 p-8 md:p-16 text-center space-y-4 md:space-y-6">
-            <h2 className="text-2xl md:text-4xl font-black text-white tracking-tight">
-              Trusted by 50,000+ Customers.
-              <br />
-              <span style={{ color: theme.accent }}>
-                5 Stores. 8 Years Strong.
-              </span>
-            </h2>
-            <p className="text-gray-400 font-medium max-w-2xl mx-auto leading-relaxed">
-              From a student's first laptop to a company's full desktop fleet —
-              we've built, serviced, and supported thousands of machines across
-              West Bengal. Walk in. Talk to us. We'll find the right solution.
-            </p>
-
-            <div className="flex flex-wrap gap-4 justify-center pt-2">
-              <Link
-                to="/contact"
-                className="flex items-center gap-2 px-7 py-3.5 rounded-2xl font-black text-sm text-white uppercase tracking-wider hover:opacity-90 transition-all"
-                style={{ background: theme.accent }}
-              >
-                <Phone className="w-4 h-4" /> Contact Us
-              </Link>
-              <Link
-                to="/branches"
-                className="flex items-center gap-2 px-7 py-3.5 rounded-2xl font-black text-sm uppercase tracking-wider hover:bg-white/10 transition-all"
-                style={{ border: "1px solid rgba(255,255,255,0.15)", color: "#9ca3af" }}
-              >
-                <MapPin className="w-4 h-4" /> Find a Store
-              </Link>
+              <a href="https://service.infofixcomputer.in" target="_blank" rel="noreferrer"
+                className="shrink-0 inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl font-bold text-sm text-white transition-all hover:opacity-90 active:scale-95 whitespace-nowrap"
+                style={{ background: `linear-gradient(135deg, ${acc}, ${acc}bb)`, boxShadow: `0 6px 24px ${acc}44` }}>
+                Raise Complaint <ExternalLink className="w-4 h-4" />
+              </a>
             </div>
           </div>
-        </section>
+        </Section>
+
+        {/* ══ TICKER ══ */}
+        <div className="py-4 overflow-hidden border-y" style={{ borderColor: `${acc}22`, background: `${acc}08` }}>
+          <div className="svc-ticker-wrap">
+            <div className="svc-ticker-inner">
+              {[...Array(2)].map((_, ri) => (
+                <span key={ri} className="inline-flex items-center">
+                  {["Laptop Repair", "Custom PC Builds", "SSD Upgrades", "OS Install", "Data Recovery", "Virus Removal", "CCTV Setup", "Gaming PCs", "Certified Refurbished", "AMC Services", "Pan-India Delivery", "1-Year Warranty"].map((t, i) => (
+                    <span key={i} className="inline-flex items-center gap-5 px-6">
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t}</span>
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: acc }} />
+                    </span>
+                  ))}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 lg:px-8 space-y-28 py-24">
+
+          {/* ══ CORE OFFERINGS ══ */}
+          <Section>
+            <div className="text-center mb-14 space-y-3">
+              <p className="text-xs font-black uppercase tracking-widest" style={{ color: acc }}>What We Specialize In</p>
+              <h2 className="font-extrabold text-gray-900 tracking-tight" style={{ fontSize: "clamp(28px, 4vw, 48px)" }}>Core Offerings</h2>
+              <p className="text-gray-500 max-w-xl mx-auto text-sm">Every machine sold, assembled, and supported under one roof.</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {mainServices.map((svc, i) => (
+                <div key={i} className="svc-card-lift group relative rounded-4xl overflow-hidden border bg-white"
+                  style={{ borderColor: `${svc.color}22`, boxShadow: `0 4px 24px ${svc.color}10` }}>
+                  <div className="h-1.5 w-full" style={{ background: `linear-gradient(90deg, ${svc.color}, ${svc.color}55)` }} />
+                  <div className="p-8 flex flex-col gap-5 h-full">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
+                        style={{ background: `${svc.color}12`, border: `1.5px solid ${svc.color}25` }}>
+                        {svc.emoji}
+                      </div>
+                      <div>
+                        <h3 className="font-extrabold text-xl text-gray-900">{svc.title}</h3>
+                        <p className="text-xs font-semibold" style={{ color: svc.color }}>{svc.tagline}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2.5 flex-1">
+                      {svc.points.map((pt, j) => (
+                        <div key={j} className="flex items-start gap-2.5">
+                          <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" style={{ color: svc.color }} />
+                          <span className="text-sm text-gray-500 font-medium">{pt}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <Link to={svc.href} onClick={svc.action}
+                      className="inline-flex items-center gap-2 self-start text-sm font-bold px-5 py-2.5 rounded-xl transition-all hover:opacity-90 active:scale-95"
+                      style={{ background: `${svc.color}14`, color: svc.color }}>
+                      {svc.cta} <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          {/* ══ REPAIR SERVICES GRID ══ */}
+          <Section delay={100}>
+            <div className="text-center mb-14 space-y-3">
+              <p className="text-xs font-black uppercase tracking-widest" style={{ color: acc }}>After-Sales & Repairs</p>
+              <h2 className="font-extrabold text-gray-900 tracking-tight" style={{ fontSize: "clamp(28px, 4vw, 48px)" }}>Full Service Coverage</h2>
+              <p className="text-gray-500 max-w-xl mx-auto text-sm">Our relationship doesn't end at the sale. Walk into any branch for repairs, upgrades or warranty support.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {repairServices.map((svc, i) => (
+                <div key={i} className="svc-card-lift group relative p-6 bg-white border border-gray-100 rounded-3xl cursor-pointer"
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = `${svc.color}44`; (e.currentTarget as HTMLElement).style.boxShadow = `0 16px 40px ${svc.color}14`; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "#f3f4f6"; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}>
+                  <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 group-hover:rotate-3"
+                    style={{ background: `${svc.color}14`, border: `1.5px solid ${svc.color}22` }}>
+                    <svc.icon className="w-5 h-5" style={{ color: svc.color }} />
+                  </div>
+                  <h3 className="font-bold text-gray-900 text-sm mb-2">{svc.title}</h3>
+                  <p className="text-gray-400 text-xs leading-relaxed font-medium">{svc.desc}</p>
+                  <div className="mt-4 flex items-center gap-1 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ color: svc.color }}>
+                    Enquire <ChevronRight className="w-3 h-3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="text-center mt-10">
+              <a href="https://service.infofixcomputer.in" target="_blank" rel="noreferrer"
+                className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl font-bold text-white transition-all hover:opacity-90 active:scale-95"
+                style={{ background: `linear-gradient(135deg, ${acc}, ${acc}bb)`, boxShadow: `0 8px 32px ${acc}44` }}>
+                <AlertCircle className="w-5 h-5" /> Raise a Service Complaint <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
+          </Section>
+
+          {/* ══ HOW IT WORKS ══ */}
+          <Section delay={80}>
+            <div className="relative rounded-4xl overflow-hidden" style={{ background: "#07070d" }}>
+              <div className="absolute inset-0 svc-hero-grid opacity-40" />
+              <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-150 h-75 rounded-full pointer-events-none"
+                style={{ background: `radial-gradient(ellipse, ${acc}28 0%, transparent 70%)` }} />
+              <div className="relative z-10 px-8 py-16 md:px-16">
+                <div className="text-center mb-14 space-y-3">
+                  <p className="text-xs font-black uppercase tracking-widest" style={{ color: acc }}>Simple Process</p>
+                  <h2 className="font-extrabold text-white tracking-tight" style={{ fontSize: "clamp(26px, 4vw, 44px)" }}>How Infofix Works</h2>
+                  <p className="text-slate-400 max-w-lg mx-auto text-sm">From browsing to your doorstep — or walk in and walk out same day.</p>
+                </div>
+                <div className="relative grid grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="hidden lg:block absolute top-9 left-48 right-48 h-px"
+                    style={{ background: `linear-gradient(90deg, transparent, ${acc}60, ${acc}60, transparent)` }} />
+                  {[
+                    { step: "01", emoji: "🔍", title: "Browse or Visit", desc: "Explore online or walk into any of our 5 stores. See hardware live before you buy." },
+                    { step: "02", emoji: "💬", title: "Expert Advice", desc: "Tell us your budget & use-case. Our team recommends the perfect machine — no upselling." },
+                    { step: "03", emoji: "🔧", title: "Built & Tested", desc: "Every desktop assembled in-house. Every device quality-checked before it leaves." },
+                    { step: "04", emoji: "🚀", title: "Delivered & Backed", desc: "Same-day pickup or pan-India delivery. 1-year warranty + after-sales support included." },
+                  ].map((s, i) => (
+                    <div key={i} className="flex flex-col items-center text-center gap-4 group">
+                      <div className="relative z-10 w-16 h-16 rounded-full flex items-center justify-center text-2xl transition-transform group-hover:scale-110 duration-300"
+                        style={{ background: `${acc}22`, border: `2px solid ${acc}44` }}>
+                        {s.emoji}
+                        <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-9 font-extrabold text-white"
+                          style={{ background: acc, fontSize: 9 }}>{s.step}</span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white text-sm lg:text-base mb-1">{s.title}</h3>
+                        <p className="text-slate-400 text-xs font-medium leading-relaxed">{s.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* brands */}
+                <div className="mt-12 pt-10 border-t space-y-5" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+                  <p className="text-center text-xs font-bold uppercase tracking-widest text-slate-500">Brands We Stock & Service</p>
+                  <div className="flex flex-wrap justify-center gap-3">
+                    {brands.map((b, i) => (
+                      <div key={i} className="svc-card-lift flex items-center gap-2 px-5 py-2.5 rounded-2xl cursor-default"
+                        style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = `${b.color}55`; (e.currentTarget as HTMLElement).style.background = `${b.color}14`; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)"; (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)"; }}>
+                        <div className="w-2 h-2 rounded-full" style={{ background: b.color }} />
+                        <span className="text-sm font-bold text-white">{b.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Section>
+
+          {/* ══ TESTIMONIALS ══ */}
+          <Section delay={80}>
+            <div className="text-center mb-14 space-y-3">
+              <p className="text-xs font-black uppercase tracking-widest" style={{ color: acc }}>Social Proof</p>
+              <h2 className="font-extrabold text-gray-900 tracking-tight" style={{ fontSize: "clamp(28px, 4vw, 48px)" }}>What Customers Say</h2>
+              <div className="flex items-center justify-center gap-1 pt-1">
+                {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />)}
+                <span className="ml-2 text-sm font-bold text-gray-700">4.8 / 5 on Google</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {testimonials.map((t, i) => (
+                <div key={i} className="svc-card-lift bg-white border border-gray-100 rounded-3xl p-7 relative overflow-hidden group"
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = `${acc}33`; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "#f3f4f6"; }}>
+                  <div className="absolute top-0 left-0 w-full h-0.5 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"
+                    style={{ background: `linear-gradient(90deg, ${acc}, transparent)` }} />
+                  <div className="flex gap-0.5 mb-4">
+                    {[...Array(t.stars)].map((_, j) => <Star key={j} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />)}
+                  </div>
+                  <p className="text-sm text-gray-600 font-medium leading-relaxed mb-5">"{t.text}"</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white"
+                      style={{ background: `linear-gradient(135deg, ${acc}, ${acc}99)` }}>
+                      {t.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-gray-900">{t.name}</p>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          {/* ══ FINAL CTA ══ */}
+          <Section delay={60}>
+            <div className="relative rounded-4xl overflow-hidden text-center py-20 px-8" style={{ background: "#07070d" }}>
+              <div className="absolute inset-0 svc-hero-grid opacity-30" />
+              <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-150 h-75 rounded-full"
+                style={{ background: `radial-gradient(ellipse, ${acc}28 0%, transparent 70%)` }} />
+              <div className="relative z-10 space-y-6 max-w-3xl mx-auto">
+                <h2 className="font-extrabold text-white tracking-tight" style={{ fontSize: "clamp(26px, 4vw, 52px)" }}>
+                  Trusted by 50,000+ Customers.<br />
+                  <span style={{ color: acc }}>5 Stores. 8 Years Strong.</span>
+                </h2>
+                <p className="text-slate-400 max-w-2xl mx-auto leading-relaxed text-sm">
+                  From a student's first laptop to a company's full desktop fleet — we've built, serviced & supported thousands of machines across West Bengal. Walk in. Talk to us. We'll find the right solution.
+                </p>
+                <div className="flex flex-wrap gap-4 justify-center pt-2">
+                  <Link to="/contact"
+                    className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-sm text-white hover:opacity-90 active:scale-95 transition-all"
+                    style={{ background: `linear-gradient(135deg, ${acc}, ${acc}cc)`, boxShadow: `0 8px 32px ${acc}50` }}>
+                    <Phone className="w-4 h-4" /> Contact Us
+                  </Link>
+                  <Link to="/branches"
+                    className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-sm hover:bg-white/10 transition-all"
+                    style={{ border: "1px solid rgba(255,255,255,0.15)", color: "#9ca3af" }}>
+                    <MapPin className="w-4 h-4" /> Find a Store
+                  </Link>
+                  <a href="https://service.infofixcomputer.in" target="_blank" rel="noreferrer"
+                    className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-sm hover:bg-white/10 transition-all"
+                    style={{ border: "1px solid rgba(255,255,255,0.15)", color: "#9ca3af" }}>
+                    <AlertCircle className="w-4 h-4" /> Raise Complaint <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </Section>
+
+        </div>
       </div>
     </div>
   );

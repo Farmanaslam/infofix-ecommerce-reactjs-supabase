@@ -330,7 +330,7 @@ const JobCard: React.FC<{
                             <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {job.type}</span>
                             <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {job.location}</span>
                             <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {job.openings_count} opening{job.openings_count !== 1 ? "s" : ""}</span>
-                            {job.salary_range && <span className="flex items-center gap-1 text-indigo-600 font-bold"><DollarSign className="w-3 h-3" /> {job.salary_range}</span>}
+                            {job.salary_range && <span className="flex items-center gap-1 text-indigo-600 font-bold"><IndianRupee className="w-3 h-3" /> {job.salary_range}</span>}
                             <span className="text-slate-400">{daysAgo === 0 ? "Today" : `${daysAgo}d ago`}</span>
                         </div>
 

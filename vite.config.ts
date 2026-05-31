@@ -49,5 +49,12 @@ export default defineConfig(({ mode }) => {
       cssCodeSplit: true,
       sourcemap: false,
     },
-  };
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: ['./src/test-setup.ts'],
+      css: false,
+    }
+  }
+
 });

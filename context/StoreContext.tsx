@@ -49,6 +49,7 @@ export type AdminPage =
   | "Customers"
   | "Settings"
   | "Blogs"
+  | "Campaigns"
   | "Coupons"
   | "Careers";
 
@@ -986,6 +987,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       Coupons: '/admin/coupons',
       Careers: '/admin/careers',
       Settings: '/admin/settings',
+      Campaigns: '/admin/campaigns',
     };
     if (window.location.pathname !== map[page]) {
       navigate(map[page]);

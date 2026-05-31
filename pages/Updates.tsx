@@ -251,11 +251,21 @@ export const Updates: React.FC = () => {
               "@context": "https://schema.org",
               "@type": "VideoObject",
               "name": selectedPost.title,
-              "description": selectedPost.excerpt.slice(0, 160),
-              "thumbnailUrl": `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+              "description": selectedPost.excerpt.slice(0, 300),
+              "thumbnailUrl": [
+                `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+              ],
               "uploadDate": selectedPost.published_date,
+              "duration": "PT5M",
               "embedUrl": `https://www.youtube.com/embed/${videoId}`,
-              "publisher": { "@type": "Organization", "name": "Infofix Computers" }
+              "contentUrl": `https://www.youtube.com/watch?v=${videoId}`,
+              "url": `https://infofixcomputers.com/blog/${toSlug(selectedPost.title)}`,
+              "publisher": {
+                "@type": "Organization",
+                "name": "Infofix Computers",
+                "logo": { "@type": "ImageObject", "url": "https://infofixcomputers.com/icons/logo.png" }
+              }
             } : {
               "@context": "https://schema.org",
               "@type": "Article",
@@ -267,6 +277,16 @@ export const Updates: React.FC = () => {
               "datePublished": selectedPost.published_date,
             }
           )}</script>
+          <script type="application/ld+json">{JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://infofixcomputers.com" },
+              { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://infofixcomputers.com/blog" },
+              { "@type": "ListItem", "position": 3, "name": selectedPost.category, "item": `https://infofixcomputers.com/blog?cat=${selectedPost.category}` },
+              { "@type": "ListItem", "position": 4, "name": selectedPost.title }
+            ]
+          })}</script>
         </Helmet>
 
         <div className="max-w-4xl mx-auto px-4 pt-8 pb-4">

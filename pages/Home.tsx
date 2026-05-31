@@ -29,6 +29,9 @@ import { supabase } from "@/lib/supabaseClient";
 import { ProfileSetupModal } from "./ProfileSetupModal";
 import { Helmet } from "react-helmet-async";
 import { href, Link, useLocation } from "react-router-dom";
+import { LotteryModal } from "@/pages/LotteryModal";
+import { LotteryPickerModal } from "@/pages/LotteryPickerModal";
+import { Lottery } from "@/types";
 const HOME_THEMES = {
   Infofix: {
     accent: '#6366f1',
@@ -776,6 +779,283 @@ const HeroCarousel: React.FC<{ onShop: () => void; onContact: () => void; slides
   );
 };
 
+const LotteryHeroCard: React.FC<{
+  onClick: () => void;
+  isMobile: boolean;
+  lotteries: any[];
+}> = ({ onClick, isMobile, lotteries }) => {
+  const GOAL = 10000; // target entries to fill bar
+  const BASE = 5245;
+  const [count, setCount] = React.useState(BASE);
+  const [localEntries, setLocalEntries] = React.useState(0);
+  const progress = Math.min(Math.round(((count % GOAL) / GOAL) * 100), 99);
+  const spotsLeft = GOAL - (count % GOAL);
+
+  React.useEffect(() => {
+    const fetchCount = async () => {
+      const { count: c } = await supabase
+        .from("lottery_entries")
+        .select("*", { count: "exact", head: true });
+      if (c !== null) setCount(BASE + c);
+    };
+    fetchCount();
+    const t = setInterval(fetchCount, 30000); // refresh every 30s
+    return () => clearInterval(t);
+  }, []);
+
+  // Time left from first active lottery
+  const [timeStr, setTimeStr] = React.useState("");
+  React.useEffect(() => {
+    const lottery = lotteries[0];
+    if (!lottery?.ends_at) return;
+    const tick = () => {
+      const diff = new Date(lottery.ends_at).getTime() - Date.now();
+      if (diff <= 0) { setTimeStr("Ended"); return; }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      setTimeStr(`${d}d ${h}h left`);
+    };
+    tick();
+    const t = setInterval(tick, 60000);
+    return () => clearInterval(t);
+  }, [lotteries]);
+
+  // ── MOBILE ──
+  if (isMobile) return (
+    <button
+      onClick={onClick}
+      style={{
+        position: "relative", borderRadius: 14, overflow: "hidden",
+        display: "flex", flexDirection: "column", justifyContent: "space-between",
+        padding: 12, minHeight: 110, textAlign: "left",
+        background: "linear-gradient(145deg,#0f0c29 0%,#1a1060 60%,#1c1007 100%)",
+        border: "1.5px solid rgba(251,191,36,0.5)",
+        boxShadow: "0 0 16px rgba(251,191,36,0.18), 0 4px 12px rgba(0,0,0,0.4)",
+        cursor: "pointer", width: "100%",
+      }}
+    >
+      {/* shimmer */}
+      <span style={{
+        pointerEvents: "none", position: "absolute", inset: 0,
+        background: "linear-gradient(105deg,transparent 38%,rgba(255,255,255,0.07) 50%,transparent 62%)",
+        backgroundSize: "200% 100%", animation: "shimmer-sweep 2.5s ease-in-out infinite",
+      }} />
+      {/* top glow line */}
+      <span style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: 2,
+        background: "linear-gradient(90deg,transparent,#fbbf24,transparent)",
+      }} />
+
+      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", height: "100%", gap: 4 }}>
+        {/* badge */}
+        <span style={{
+          display: "inline-flex", alignItems: "center", gap: 3,
+          background: "#fbbf24", color: "#1e1b4b",
+          fontSize: 7, fontWeight: 900, padding: "2px 7px", borderRadius: 5,
+          textTransform: "uppercase", letterSpacing: "0.12em", width: "fit-content",
+        }}>🎰 Live</span>
+
+        <div style={{ color: "#fff", fontWeight: 900, fontSize: 11, lineHeight: 1.2 }}>Win Prizes</div>
+
+        {/* LIVE COUNTER */}
+        <div style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
+          <span style={{
+            color: "#fbbf24", fontWeight: 900, fontSize: 13,
+            fontVariantNumeric: "tabular-nums",
+          }}>{count.toLocaleString()}</span>
+          <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 8, fontWeight: 700 }}>entered</span>
+        </div>
+
+        {/* MINI PROGRESS BAR */}
+        <div style={{ marginTop: "auto", marginBottom: 4 }}>
+          <div style={{ height: 3, borderRadius: 99, background: "rgba(255,255,255,0.1)", overflow: "hidden" }}>
+            <div style={{
+              height: "100%", width: `${progress}%`, borderRadius: 99,
+              background: "linear-gradient(90deg,#f59e0b,#fbbf24)",
+              transition: "width 1.5s cubic-bezier(0.22,1,0.36,1)",
+              position: "relative",
+            }}>
+              <span style={{
+                position: "absolute", inset: 0, borderRadius: 99,
+                background: "linear-gradient(90deg,transparent 40%,rgba(255,255,255,0.4) 60%,transparent 80%)",
+                backgroundSize: "200% 100%", animation: "shimmer-sweep 1.8s linear infinite",
+              }} />
+            </div>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3 }}>
+            <span style={{ fontSize: 7, color: "rgba(251,191,36,0.75)", fontWeight: 800 }}>{progress}% this round</span>
+            {timeStr && <span style={{ fontSize: 7, color: "rgba(255,255,255,0.3)" }}>{timeStr}</span>}
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 3,
+          background: "#fbbf24", color: "#1e1b4b",
+          fontSize: 8, fontWeight: 900, padding: "5px 9px", borderRadius: 7,
+          textTransform: "uppercase", width: "fit-content",
+        }}>
+          Enter → <ArrowRight style={{ width: 8, height: 8 }} />
+        </div>
+      </div>
+    </button>
+  );
+
+  // ── DESKTOP ──
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        position: "relative", borderRadius: 18, overflow: "hidden",
+        display: "flex", flexDirection: "column",
+        background: "linear-gradient(145deg,#0f0c29 0%,#1a1060 50%,#1c1007 100%)",
+        border: "1.5px solid rgba(251,191,36,0.45)",
+        boxShadow: "0 0 28px rgba(251,191,36,0.15), 0 8px 24px rgba(0,0,0,0.5)",
+        cursor: "pointer", textAlign: "left", flex: 1, width: "100%",
+        transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
+      }}
+      onMouseEnter={e => (e.currentTarget.style.transform = "translateY(-6px) scale(1.02)")}
+      onMouseLeave={e => (e.currentTarget.style.transform = "")}
+    >
+      {/* shimmer sweep */}
+      <span style={{
+        pointerEvents: "none", position: "absolute", inset: 0,
+        background: "linear-gradient(105deg,transparent 38%,rgba(255,255,255,0.07) 50%,transparent 62%)",
+        backgroundSize: "200% 100%", animation: "shimmer-sweep 2.5s ease-in-out infinite",
+      }} />
+      {/* grid texture */}
+      <span style={{
+        pointerEvents: "none", position: "absolute", inset: 0, opacity: 0.04,
+        backgroundImage: "linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px)",
+        backgroundSize: "18px 18px",
+      }} />
+      {/* top glow line */}
+      <span style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: 2,
+        background: "linear-gradient(90deg,transparent,#a78bfa 30%,#fbbf24 60%,transparent)",
+      }} />
+
+      <div style={{ position: "relative", zIndex: 1, padding: 20, display: "flex", flexDirection: "column", height: "100%", gap: 12 }}>
+        {/* header row */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            background: "#fbbf24", color: "#1e1b4b",
+            fontSize: 9, fontWeight: 900, padding: "4px 10px", borderRadius: 8,
+            textTransform: "uppercase", letterSpacing: "0.12em",
+          }}>🎰 Live Now</span>
+          {/* live ring */}
+          <div style={{ position: "relative", width: 14, height: 14, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <span style={{
+              position: "absolute", inset: -3, borderRadius: "50%",
+              border: "2px solid rgba(251,191,36,0.7)",
+              animation: "liveRingPromo 1.8s ease-out infinite",
+            }} />
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#fbbf24", display: "block" }} />
+          </div>
+        </div>
+
+        {/* title */}
+        <div>
+          <div style={{ color: "#fff", fontWeight: 900, fontSize: 20, lineHeight: 1.1, letterSpacing: "-0.03em" }}>WIN</div>
+          <div style={{
+            background: "linear-gradient(90deg,#f59e0b,#fde68a,#f59e0b)",
+            backgroundSize: "200% auto",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            backgroundClip: "text", animation: "shimmer-sweep 2s linear infinite",
+            fontWeight: 900, fontSize: 20, lineHeight: 1.1, letterSpacing: "-0.03em",
+          }}>PRIZES</div>
+          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, fontWeight: 600, marginTop: 6, lineHeight: 1.5 }}>
+            Follow Instagram & YouTube → screenshot → free entry!
+          </p>
+        </div>
+
+        {/* social chips */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+          {[
+            { icon: "📸", label: "Instagram" },
+            { icon: "▶️", label: "YouTube" },
+          ].map(chip => (
+            <div key={chip.label} style={{
+              display: "flex", alignItems: "center", gap: 5, padding: "5px 9px",
+              borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+            }}>
+              <span style={{ fontSize: 10 }}>{chip.icon}</span>
+              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.6)", fontWeight: 700 }}>{chip.label}</span>
+            </div>
+          ))}
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)" }}>= free entry</span>
+        </div>
+
+        {/* ── LIVE COUNTER + PROGRESS BAR ── */}
+        <div style={{ marginTop: "auto" }}>
+          {/* counter row */}
+          <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 8 }}>
+            <span style={{
+              color: "#fbbf24", fontWeight: 900, fontSize: 19, lineHeight: 1,
+              fontVariantNumeric: "tabular-nums",
+              textShadow: "0 0 12px rgba(251,191,36,0.6)",
+            }}>{count.toLocaleString()}/10,000</span>
+            <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, fontWeight: 700 }}>people entered</span>
+          </div>
+
+          {/* progress bar */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+            <span style={{ fontSize: 10, color: "rgba(251,191,36,0.85)", fontWeight: 800 }}>
+              {progress}% of this round filled
+            </span>
+            <span style={{ fontSize: 10, color: "#f87171", fontWeight: 700 }}>
+              {spotsLeft} spots left!
+            </span>
+          </div>
+          <div style={{ height: 6, borderRadius: 99, background: "rgba(255,255,255,0.08)", overflow: "hidden", position: "relative" }}>
+            <div style={{
+              height: "100%", width: `${progress}%`, borderRadius: 99,
+              background: "linear-gradient(90deg,#f59e0b 0%,#fbbf24 60%,#fde68a 100%)",
+              boxShadow: "0 0 8px rgba(251,191,36,0.6)",
+              transition: "width 1.5s cubic-bezier(0.22,1,0.36,1)",
+              position: "relative",
+            }}>
+              <span style={{
+                position: "absolute", inset: 0, borderRadius: 99,
+                background: "linear-gradient(90deg,transparent 40%,rgba(255,255,255,0.3) 60%,transparent 80%)",
+                backgroundSize: "200% 100%", animation: "shimmer-sweep 1.8s linear infinite",
+              }} />
+            </div>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.25)" }}>this giveaway round</span>
+            {timeStr && (
+              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", display: "flex", alignItems: "center", gap: 3 }}>
+                ⏱ {timeStr}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* CTA btn */}
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          background: "#fbbf24", color: "#1e1b4b",
+          fontSize: 11, fontWeight: 900, padding: "8px 14px",
+          borderRadius: 12, textTransform: "uppercase", letterSpacing: "0.06em",
+          width: "fit-content", transition: "background 0.2s",
+        }}>
+          Enter Free → <ArrowRight style={{ width: 12, height: 12 }} />
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes liveRingPromo {
+          0% { transform:scale(1); opacity:0.8; }
+          100% { transform:scale(2.2); opacity:0; }
+        }
+      `}</style>
+    </button>
+  );
+};
+
+
 // ─────────────────────────────────────────────────────────
 // HOME PAGE
 // ─────────────────────────────────────────────────────────
@@ -921,7 +1201,10 @@ export const Home: React.FC = () => {
     years: 0,
   });
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [lotteryPickerOpen, setLotteryPickerOpen] = useState(false);
+  const [activeLotteries, setActiveLotteries] = useState<Lottery[]>([]);
+  const [selectedLottery, setSelectedLottery] = useState<Lottery | null>(null);
+  const [isLotteryOpen, setIsLotteryOpen] = useState(false); const [showProfileModal, setShowProfileModal] = useState(false);
   const profileCheckedRef = useRef(false);
   useEffect(() => {
     // Only run for logged-in customers
@@ -1037,7 +1320,30 @@ export const Home: React.FC = () => {
     }, duration / steps);
     return () => clearInterval(interval);
   }, [countersStarted]);
+  useEffect(() => {
+    const fetchAll = async () => {
+      const { data } = await supabase
+        .from("lotteries")
+        .select("*")
+        .eq("status", "active")
+        .or(`store_section.eq.${selectedStoreSection.toLowerCase()},store_section.eq.all`)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (data) setActiveLotteries(data as Lottery[]);
+    };
+    fetchAll();
+  }, [selectedStoreSection]);
 
+  const openLottery = () => {
+    if (activeLotteries.length === 1) {
+      setSelectedLottery(activeLotteries[0]);
+      setIsLotteryOpen(true);
+    } else if (activeLotteries.length > 1) {
+      setLotteryPickerOpen(true);
+    } else {
+      setIsLotteryOpen(true);
+    }
+  };
   const reviews = [
     {
       text: "Bought a full desktop setup for my office — best price I found anywhere in Durgapur. Machine runs perfectly after 8 months.",
@@ -1486,15 +1792,15 @@ export const Home: React.FC = () => {
               <div className="flex flex-col gap-3 hero-promo-stack">
                 {(selectedStoreSection === 'Refurbished' ? [
                   {
-                    badge: "Grade A", badgeBg: "bg-emerald-500",
-                    title: "CERTIFIED\nREFURB",
-                    sub: "Tested · SSD · Warranted",
-                    btnLabel: "Shop Refurb",
-                    btnBg: "bg-emerald-500", btnHover: "hover:bg-emerald-400",
-                    grad: "linear-gradient(135deg,#052e16 0%,#064e3b 100%)",
-                    border: "#047857",
-                    href: "/shop",
-                    action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); },
+                    badge: "🎰 Live Now", badgeBg: "bg-amber-500",
+                    title: "WIN\nA LAPTOP",
+                    sub: "Free refurb laptop giveaway — enter now!",
+                    btnLabel: "Enter Free →",
+                    btnBg: "bg-amber-400", btnHover: "hover:bg-amber-300",
+                    grad: "linear-gradient(135deg,#1c1007 0%,#2d1a0b 100%)",
+                    border: "#b45309",
+                    href: "#",
+                    isLottery: true,
                   },
                   {
                     badge: "Business", badgeBg: "bg-indigo-500",
@@ -1520,15 +1826,15 @@ export const Home: React.FC = () => {
                   },
                 ] : selectedStoreSection === 'Wholesale' ? [
                   {
-                    badge: "Bulk", badgeBg: "bg-pink-600",
-                    title: "DESKTOP\nBULK DEALS",
-                    sub: "Min 5 units · GST invoice",
-                    btnLabel: "Get Quote",
-                    btnBg: "bg-pink-600", btnHover: "hover:bg-pink-500",
-                    grad: "linear-gradient(135deg,#500724 0%,#831843 100%)",
-                    border: "#9f1239",
-                    href: "/contact",
-                    action: () => setCurrentPage("contact"),
+                    badge: "🎰 Live Now", badgeBg: "bg-amber-500",
+                    title: "WIN\nPRIZES",
+                    sub: "Enter free lottery — gaming gear, discounts & more!",
+                    btnLabel: "Enter Free →",
+                    btnBg: "bg-amber-400", btnHover: "hover:bg-amber-300",
+                    grad: "linear-gradient(135deg,#1c1007 0%,#2d1a0b 100%)",
+                    border: "#b45309",
+                    href: "#",
+                    isLottery: true,
                   },
                   {
                     badge: "B2B", badgeBg: "bg-violet-500",
@@ -1554,15 +1860,15 @@ export const Home: React.FC = () => {
                   },
                 ] : [
                   {
-                    badge: "Limited Time", badgeBg: "bg-red-500",
-                    title: "OFFER\nZONE",
-                    sub: "Up to 40% off on select devices",
-                    btnLabel: "Shop Now",
-                    btnBg: "bg-white text-indigo-700", btnHover: "hover:bg-indigo-50",
-                    grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)",
-                    border: "#3730a3",
-                    href: "/shop",
-                    action: () => setCurrentPage("shop"),
+                    badge: "🎰 Live Now", badgeBg: "bg-amber-500",
+                    title: "WIN\nPRIZES",
+                    sub: "Enter free lottery — gaming gear, discounts & more!",
+                    btnLabel: "Enter Free →",
+                    btnBg: "bg-amber-400", btnHover: "hover:bg-amber-300",
+                    grad: "linear-gradient(135deg,#1c1007 0%,#2d1a0b 100%)",
+                    border: "#b45309",
+                    href: "#",
+                    isLottery: true,
                   },
                   {
                     badge: "New Stock", badgeBg: "bg-emerald-500",
@@ -1586,30 +1892,40 @@ export const Home: React.FC = () => {
                     href: "/contact",
                     action: () => setCurrentPage("contact"),
                   },
-                ]).map((card, i) => (
-                  <Link
-                    key={i}
-                    to={card.href}
-                    className="group relative flex-1 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02]"
-                    style={{ background: card.grad, border: `1px solid ${card.border}` }}
-                  >
-                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.1) 1px,transparent 1px)", backgroundSize: "20px 20px" }} />
-                    <div className="relative z-10 p-5 h-full flex flex-col justify-between">
-                      <div>
-                        <span className={`inline-block ${card.badgeBg} text-white text-[10px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest mb-2`}>
-                          {card.badge}
+                ]).map((card, i) => {
+                  const inner = (
+                    <>
+                      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.1) 1px,transparent 1px)", backgroundSize: "20px 20px" }} />
+                      <div className="relative z-10 p-5 h-full flex flex-col justify-between">
+                        <div>
+                          <span className={`inline-block ${card.badgeBg} text-white text-[10px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest mb-2`}>
+                            {card.badge}
+                          </span>
+                          <h3 className="text-white font-black text-xl leading-tight whitespace-pre-line">{card.title}</h3>
+                          <p className="text-white/60 text-xs mt-1 font-medium">{card.sub}</p>
+                        </div>
+                        <span className={`mt-3 self-start ${card.btnBg} text-xs font-black px-4 py-1.5 rounded-xl uppercase tracking-wider ${card.btnHover} transition-colors flex items-center gap-1 ${(card as any).isLottery ? 'text-indigo-900' : ''}`}>
+                          {card.btnLabel} <ArrowRight className="w-3 h-3" />
                         </span>
-                        <h3 className="text-white font-black text-xl leading-tight whitespace-pre-line">
-                          {card.title}
-                        </h3>
-                        <p className="text-white/60 text-xs mt-1 font-medium">{card.sub}</p>
                       </div>
-                      <span className={`mt-3 self-start ${card.btnBg} text-xs font-black px-4 py-1.5 rounded-xl uppercase tracking-wider ${card.btnHover} transition-colors flex items-center gap-1`}>
-                        {card.btnLabel} <ArrowRight className="w-3 h-3" />
-                      </span>
-                    </div>
-                  </Link>
-                ))}
+                    </>
+                  );
+
+                  if ((card as any).isLottery) return (
+                    <LotteryHeroCard key={i} onClick={openLottery} isMobile={false} lotteries={activeLotteries} />
+                  );
+
+                  return (
+                    <Link
+                      key={i}
+                      to={card.href}
+                      className="group relative flex-1 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02]"
+                      style={{ background: card.grad, border: `1px solid ${card.border}` }}
+                    >
+                      {inner}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
 
@@ -1627,46 +1943,45 @@ export const Home: React.FC = () => {
               {/* Mobile promo — 3 horizontal compact cards */}
               <div className="grid grid-cols-3 gap-2 hero-mobile-promos">
                 {(selectedStoreSection === 'Refurbished' ? [
-                  { badge: "Grade A", badgeBg: "bg-emerald-500", title: "Certified Refurb", sub: "Tested · Warranted", btnLabel: "Shop", grad: "linear-gradient(135deg,#052e16 0%,#064e3b 100%)", border: "#047857", href: "/buy-refurbished-laptop", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
-                  { badge: "Business", badgeBg: "bg-indigo-500", title: "ThinkPad & HP", sub: "From ₹18,999", btnLabel: "View", grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)", border: "#3730a3", href: "/buy-refurbished-laptop", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
+                  { badge: "🎰 Win", badgeBg: "bg-amber-500", title: "Win Prizes", sub: "Free entry", btnLabel: "Enter", grad: "linear-gradient(135deg,#1c1007 0%,#2d1a0b 100%)", border: "#b45309", href: "#", isLottery: true }, { badge: "Business", badgeBg: "bg-indigo-500", title: "ThinkPad & HP", sub: "From ₹18,999", btnLabel: "View", grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)", border: "#3730a3", href: "/buy-refurbished-laptop", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
                   { badge: "Budget", badgeBg: "bg-pink-500", title: "Student Laptops", sub: "From ₹11,999", btnLabel: "Shop", grad: "linear-gradient(135deg,#500724 0%,#881337 100%)", border: "#9f1239", href: "/buy-refurbished-laptop", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
                 ] : selectedStoreSection === 'Wholesale' ? [
-                  { badge: "Bulk", badgeBg: "bg-pink-600", title: "Desktop Bulk", sub: "Min 5 units", btnLabel: "Quote", grad: "linear-gradient(135deg,#500724 0%,#831843 100%)", border: "#9f1239", href: "/contact", action: () => setCurrentPage("contact") },
-                  { badge: "B2B", badgeBg: "bg-violet-500", title: "Laptops Bulk", sub: "Volume price", btnLabel: "View", grad: "linear-gradient(135deg,#2e1065 0%,#4c1d95 100%)", border: "#6d28d9", href: "/shop", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
+                  { badge: "🎰 Win", badgeBg: "bg-amber-500", title: "Win Prizes", sub: "Free entry", btnLabel: "Enter", grad: "linear-gradient(135deg,#1c1007 0%,#2d1a0b 100%)", border: "#b45309", href: "#", isLottery: true }, { badge: "B2B", badgeBg: "bg-violet-500", title: "Laptops Bulk", sub: "Volume price", btnLabel: "View", grad: "linear-gradient(135deg,#2e1065 0%,#4c1d95 100%)", border: "#6d28d9", href: "/shop", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
                   { badge: "Trade", badgeBg: "bg-amber-500", title: "Accessories", sub: "500+ SKUs", btnLabel: "Browse", grad: "linear-gradient(135deg,#1c1007 0%,#2d1a00 100%)", border: "#b45309", href: "/shop", action: () => setCurrentPage("shop") },
                 ] : [
-                  { badge: "Sale", badgeBg: "bg-red-500", title: "Offer Zone", sub: "Up to 40% off", btnLabel: "Shop", grad: "linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)", border: "#3730a3", href: "/shop", action: () => setCurrentPage("shop") },
-                  { badge: "New", badgeBg: "bg-emerald-500", title: "Laptops", sub: "All budgets", btnLabel: "View", grad: "linear-gradient(135deg,#064e3b 0%,#065f46 100%)", border: "#047857", href: "/shop", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
+                  { badge: "🎰 Win", badgeBg: "bg-amber-500", title: "Win Prizes", sub: "Free entry", btnLabel: "Enter", grad: "linear-gradient(135deg,#1c1007 0%,#2d1a0b 100%)", border: "#b45309", href: "#", isLottery: true }, { badge: "New", badgeBg: "bg-emerald-500", title: "Laptops", sub: "All budgets", btnLabel: "View", grad: "linear-gradient(135deg,#064e3b 0%,#065f46 100%)", border: "#047857", href: "/shop", action: () => { setSelectedCategory("Laptop"); setCurrentPage("shop"); } },
                   { badge: "Custom", badgeBg: "bg-violet-500", title: "Custom PC", sub: "Your specs", btnLabel: "Build", grad: "linear-gradient(135deg,#2e1065 0%,#4c1d95 100%)", border: "#6d28d9", href: "/contact", action: () => setCurrentPage("contact") },
-                ]).map((card, i) => (
-                  <Link
-                    key={i}
-                    to={card.href}
-                    className="relative rounded-xl overflow-hidden flex flex-col justify-between p-3"
-                    style={{
-                      background: card.grad,
-                      border: `1px solid ${card.border}`,
-                      minHeight: 90,
-                    }}
-                  >
-                    <div>
-                      <span
-                        className={`inline-block ${card.badgeBg} text-white text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest mb-1.5`}
-                      >
-                        {card.badge}
+                ]).map((card, i) => {
+                  const mobileInner = (
+                    <>
+                      <div>
+                        <span className={`inline-block ${card.badgeBg} text-white text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest mb-1.5`}>
+                          {card.badge}
+                        </span>
+                        <h3 className="text-white font-black text-xs leading-tight">{card.title}</h3>
+                        <p className="text-white/60 text-[9px] mt-0.5 font-medium">{card.sub}</p>
+                      </div>
+                      <span className={`mt-2 self-start ${(card as any).isLottery ? 'bg-amber-400 text-indigo-900' : 'bg-white/15 text-white'} text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-wider flex items-center gap-0.5`}>
+                        {card.btnLabel} <ArrowRight className="w-2 h-2" />
                       </span>
-                      <h3 className="text-white font-black text-xs leading-tight">
-                        {card.title}
-                      </h3>
-                      <p className="text-white/60 text-[9px] mt-0.5 font-medium">
-                        {card.sub}
-                      </p>
-                    </div>
-                    <span className="mt-2 self-start bg-white/15 text-white text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-wider flex items-center gap-0.5">
-                      {card.btnLabel} <ArrowRight className="w-2 h-2" />
-                    </span>
-                  </Link>
-                ))}
+                    </>
+                  );
+
+                  if ((card as any).isLottery) return (
+                    <LotteryHeroCard key={i} onClick={openLottery} isMobile={true} lotteries={activeLotteries} />
+                  );
+
+                  return (
+                    <Link
+                      key={i}
+                      to={card.href}
+                      className="relative rounded-xl overflow-hidden flex flex-col justify-between p-3"
+                      style={{ background: card.grad, border: `1px solid ${card.border}`, minHeight: 90 }}
+                    >
+                      {mobileInner}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -2854,6 +3169,24 @@ export const Home: React.FC = () => {
           </div>
         </section>
       </div>
+      <LotteryPickerModal
+        isOpen={lotteryPickerOpen}
+        lotteries={activeLotteries}
+        onSelect={(l) => {
+          setLotteryPickerOpen(false);
+          setSelectedLottery(l);
+          setIsLotteryOpen(true);
+        }}
+        onClose={() => setLotteryPickerOpen(false)}
+      />
+      <LotteryModal
+        isOpen={isLotteryOpen}
+        onClose={() => { setIsLotteryOpen(false); setSelectedLottery(null); }}
+        storeSection={selectedStoreSection.toLowerCase()}
+        prefillName={currentUser?.name ?? ""}
+        prefillEmail={currentUser?.email ?? ""}
+        forcedLottery={selectedLottery}
+      />
     </>
   );
 };

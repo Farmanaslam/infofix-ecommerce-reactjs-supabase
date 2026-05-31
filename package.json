@@ -112,11 +112,12 @@
       "/buy-laptop-bengal",
       "/buy-laptop",
       "/buy-desktop-pc",
+      "/blog/budget-gaming-pc-vs-reality",
       "/blog/asansol-eid-sale-gaming-pc-14999-laptop-deals-live-durgapur-eid-mega-sale-cheape",
       "/blog/west-bengal-used-laptop-market-asansol-best-deals-dell-hp-macbook-under-6999",
+      "/blog/i-bought-a-second-hand-gaming-pc-for-50-less-worth-it-gaming-pc-market-in-durgap",
       "/blog/gaming-pc-under-10k-in-2026-second-hand-laptop-desktop-west-bengal",
       "/blog/only-25k-macbook",
-      "/blog/i-bought-a-second-hand-gaming-pc-for-50-less-worth-it-gaming-pc-market-in-durgap",
       "/blog/laptop-overheating-7-fixes-that-actually-work",
       "/blog/custom-pc-vs-branded-desktop-which-gives-more-value-in-india",
       "/blog/why-business-laptops-beat-consumer-laptops-for-students-and-professionals",
@@ -199,13 +200,18 @@
     "tailwindcss": "^4.2.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^22.14.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.0.0",
+    "jsdom": "^29.1.1",
     "react-snap": "^1.23.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
-    "vite-plugin-compression": "^0.5.1"
+    "vite-plugin-compression": "^0.5.1",
+    "vitest": "^4.1.7"
   }
 }

@@ -260,11 +260,10 @@ export const Settings: React.FC = () => {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id as any)}
-              className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl font-bold text-sm transition-all group ${
-                activeTab === item.id
+              className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl font-bold text-sm transition-all group ${activeTab === item.id
                   ? "bg-white text-indigo-600 shadow-sm border border-gray-200"
                   : "text-gray-400 hover:text-gray-600 hover:bg-gray-100/50"
-              }`}
+                }`}
             >
               <item.icon
                 className={`w-5 h-5 transition-transform ${activeTab === item.id ? "scale-110" : "group-hover:scale-110"}`}
@@ -513,15 +512,14 @@ export const Settings: React.FC = () => {
                     <div className="flex items-center gap-8">
                       <div className="text-right">
                         <span
-                          className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                            op.role === "MANAGER"
+                          className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${op.role === "MANAGER"
                               ? "bg-purple-100 text-purple-600"
                               : op.role === "INVENTORY"
                                 ? "bg-orange-100 text-orange-600"
                                 : op.role === "ADMIN"
                                   ? "bg-red-100 text-red-600"
                                   : "bg-blue-100 text-blue-600"
-                          }`}
+                            }`}
                         >
                           {op.role}
                         </span>

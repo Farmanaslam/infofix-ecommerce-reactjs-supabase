@@ -29,7 +29,7 @@ const AdminCoupons = lazy(() => import('./pages/Coupons').then(m => ({ default: 
 const CareerPortal = lazy(() => import('./pages/Careerportal').then(m => ({ default: m.CareerPortal })))
 const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings })))
 const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })))
-
+const Campaigns = lazy(() => import('./pages/Campaigns').then(m => ({ default: m.Campaigns })))
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
     <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
@@ -196,6 +196,7 @@ const Main: React.FC = () => {
       '/admin/orders': 'Orders',
       '/admin/customers': 'Customers',
       '/admin/blogs': 'Blogs',
+      '/admin/campaigns': 'Campaigns',
       '/admin/coupons': 'Coupons',
       '/admin/careers': 'Careers',
       '/admin/settings': 'Settings',
@@ -224,6 +225,7 @@ const Main: React.FC = () => {
             <Route path="/admin/customers" element={<Customers />} />
             <Route path="/admin/blogs" element={<ContentManager />} />
             <Route path="/admin/coupons" element={<AdminCoupons />} />
+            <Route path="/admin/campaigns" element={<Campaigns />} />
             <Route path="/admin/careers" element={<CareerPortal />} />
             <Route path="/admin/settings" element={<Settings />} />
             <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />

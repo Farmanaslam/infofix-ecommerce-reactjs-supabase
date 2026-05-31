@@ -25,7 +25,8 @@ import {
   MessageSquare,
   Download,
   Zap,
-  Tag
+  Tag,
+  ArrowRight
 } from "lucide-react";
 import { CATEGORIES, SUBCATEGORIES } from "../constants";
 import { NotificationPanel } from "@/pages/NotificationPanel";
@@ -35,6 +36,131 @@ import { supabase } from "@/lib/supabaseClient";
 import { GuestPromoBanner } from "@/pages/GuestPromoBanner";
 import { CareerPortal } from "@/pages/Careerportal";
 import { useLocation, Link } from "react-router-dom";
+import { LotteryTooltip } from "@/pages/LotteryTooltip";
+import { LotteryModal } from "@/pages/LotteryModal";
+import { LotteryPickerModal } from "@/pages/LotteryPickerModal";
+import { Lottery } from "@/types";
+
+
+const MobileLotteryBanner: React.FC<{
+  onClick: () => void;
+  activeLotteries: any[];
+}> = ({ onClick, activeLotteries }) => {
+  const GOAL = 10000;
+  const BASE = 5245;
+  const [count, setCount] = React.useState(BASE);
+  const spotsLeft = GOAL - (count % GOAL);
+  const progress = Math.min(Math.round(((count % GOAL) / GOAL) * 100), 99);
+  React.useEffect(() => {
+    const fetchCount = async () => {
+      const { count: c } = await supabase
+        .from("lottery_entries")
+        .select("*", { count: "exact", head: true });
+      if (c !== null) setCount(BASE + c);
+    };
+    fetchCount();
+    const t = setInterval(fetchCount, 30000);
+    return () => clearInterval(t);
+  }, []);
+
+  const [timeStr, setTimeStr] = React.useState("");
+  React.useEffect(() => {
+    const lot = activeLotteries[0];
+    if (!lot?.ends_at) return;
+    const tick = () => {
+      const diff = new Date(lot.ends_at).getTime() - Date.now();
+      if (diff <= 0) { setTimeStr("Ends soon"); return; }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      setTimeStr(`${d}d ${h}h`);
+    };
+    tick();
+    const t = setInterval(tick, 60000);
+    return () => clearInterval(t);
+  }, [activeLotteries]);
+
+  return (
+    <button
+      onClick={onClick}
+      className="w-full relative overflow-hidden rounded-2xl px-4 py-3"
+      style={{
+        background: "linear-gradient(135deg,#0f0c29 0%,#1a1060 50%,#24243e 100%)",
+        border: "1.5px solid rgba(251,191,36,0.4)",
+        boxShadow: "0 4px 20px rgba(99,102,241,0.3)",
+        display: "flex", flexDirection: "column", gap: 8,
+      }}
+    >
+      {/* shimmer overlay */}
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        background: "linear-gradient(105deg,transparent 38%,rgba(255,255,255,0.07) 50%,transparent 62%)",
+        backgroundSize: "200% 100%", animation: "shimmer-sweep 3s ease-in-out infinite",
+      }} />
+      {/* top glow */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: 2,
+        background: "linear-gradient(90deg,transparent,#a78bfa 30%,#fbbf24 60%,transparent)"
+      }} />
+
+      {/* row 1: icon + text + arrow */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, position: "relative", zIndex: 1 }}>
+        <div style={{ position: "relative", flexShrink: 0, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{
+            position: "absolute", inset: -3, borderRadius: "50%",
+            border: "2px solid rgba(251,191,36,0.7)",
+            animation: "liveRingLayout 1.8s ease-out infinite",
+          }} />
+          <span style={{ fontSize: 16 }}>🎰</span>
+        </div>
+        <div style={{ flex: 1, textAlign: "left" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ color: "#fff", fontWeight: 900, fontSize: 13 }}>Live Lottery — Win Prizes!</span>
+            <span style={{
+              fontSize: 8, fontWeight: 800, background: "rgba(251,191,36,0.2)",
+              color: "#fde68a", padding: "1px 6px", borderRadius: 99,
+              textTransform: "uppercase", letterSpacing: "0.1em",
+            }}>FREE</span>
+          </div>
+          {/* live counter */}
+          <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginTop: 2 }}>
+            <span style={{
+              color: "#fbbf24", fontWeight: 900, fontSize: 12, fontVariantNumeric: "tabular-nums",
+            }}>{count.toLocaleString()}/10,000</span>
+            <span style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, fontWeight: 700 }}>
+              people entered · {spotsLeft} spots left
+            </span>
+          </div>
+        </div>
+        <ArrowRight className="w-4 h-4 text-amber-400 shrink-0" />
+      </div>
+
+      {/* row 2: progress bar */}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <div style={{ height: 5, borderRadius: 99, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
+          <div style={{
+            height: "100%", width: `${progress}%`, borderRadius: 99,
+            background: "linear-gradient(90deg,#f59e0b,#fbbf24)",
+            boxShadow: "0 0 6px rgba(251,191,36,0.5)",
+            transition: "width 1.5s cubic-bezier(0.22,1,0.36,1)",
+            position: "relative",
+          }}>
+            <span style={{
+              position: "absolute", inset: 0, borderRadius: 99,
+              background: "linear-gradient(90deg,transparent 40%,rgba(255,255,255,0.35) 60%,transparent 80%)",
+              backgroundSize: "200% 100%", animation: "shimmer-sweep 1.8s linear infinite",
+            }} />
+          </div>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3 }}>
+          <span style={{ fontSize: 9, color: "rgba(251,191,36,0.65)", fontWeight: 700 }}>{progress}% this round claimed</span>
+          {timeStr && <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)" }}>⏱ {timeStr} left</span>}
+        </div>
+      </div>
+
+      <style>{`@keyframes liveRingLayout { 0%{transform:scale(1);opacity:0.8} 100%{transform:scale(2.2);opacity:0} }`}</style>
+    </button>
+  );
+};
 
 export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -49,8 +175,6 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     setHeaderSearchQuery,
     setSelectedCategory,
     setSelectedSubcategory,
-    isMessageModalOpen,
-    setIsMessageModalOpen,
     setSelectedProductId,
     selectedStoreSection,
     setSelectedStoreSection,
@@ -72,7 +196,10 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     string | null
   >(null);
   const [scrolled, setScrolled] = useState(false);
-
+  const [isLotteryOpen, setIsLotteryOpen] = useState(false);
+  const [lotteryPickerOpen, setLotteryPickerOpen] = useState(false);
+  const [activeLotteries, setActiveLotteries] = useState<Lottery[]>([]);
+  const [selectedLottery, setSelectedLottery] = useState<Lottery | null>(null);
   const location = useLocation()
   useEffect(() => {
     if (location.pathname.startsWith('/products/')) return
@@ -91,6 +218,29 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
     window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
   }, []);
+  useEffect(() => {
+    const fetchAll = async () => {
+      const { data } = await supabase
+        .from("lotteries")
+        .select("*")
+        .eq("status", "active")
+        .or(`store_section.eq.${selectedStoreSection.toLowerCase()},store_section.eq.all`)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (data) setActiveLotteries(data as Lottery[]);
+    };
+    fetchAll();
+  }, [selectedStoreSection]);
+  const openLottery = () => {
+    if (activeLotteries.length === 1) {
+      setSelectedLottery(activeLotteries[0]);
+      setIsLotteryOpen(true);
+    } else if (activeLotteries.length > 1) {
+      setLotteryPickerOpen(true);
+    } else {
+      setIsLotteryOpen(true);
+    }
+  };
 
   const navLinks: { label: string; id: CustomerPage }[] = [
     { label: "Home", id: "home" },
@@ -219,6 +369,11 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
                 Follow us
               </span>
             </div>
+            {/* Lottery — desktop utility bar */}
+            <LotteryTooltip
+              onOpenLottery={openLottery}
+              storeSection={selectedStoreSection.toLowerCase()}
+            />
             {/* links */}
             <div className="flex items-center text-[11px] font-semibold text-slate-500 divide-x divide-slate-200">
               {[
@@ -394,12 +549,12 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
           <div className="flex items-center gap-1.5 lg:gap-3 ml-auto lg:ml-0">
             {/* Phone info (xl+) */}
             <div className="hidden xl:flex flex-col text-xs leading-tight pr-4 mr-1 border-r border-slate-100">
-              <span className="font-bold text-slate-700">
+              <a href="tel:+918293295257" className="font-bold text-slate-700 hover:underline">
                 📞 <span style={{ color: sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1' }}>8293295257</span>
-              </span>
-              <span className="text-[10px]" style={{ color: (sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1') + '99' }}>
+              </a>
+              <a href="mailto:infofixcomputers1@gmail.com" className="text-[10px] hover:underline" style={{ color: (sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1') + '99' }}>
                 infofixcomputers1@gmail.com
-              </span>
+              </a>
             </div>
 
             {/* Account / Auth — desktop */}
@@ -864,6 +1019,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5">
               {mobileTab === "menu" ? (
                 <>
+
                   {navLinks.map((link) => (
                     <Link
                       key={link.id}
@@ -1048,14 +1204,23 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
         </div>
       </header>
       {currentPage === "home" && (
-        <CouponDealsStrip
-          storeSection={selectedStoreSection.toLowerCase()}
-          accent={sectionTabs.find(t => t.id === selectedStoreSection)?.accent}
-          onProductClick={(productId) => {
-            setPendingProductId(productId);
-            setCurrentPage("shop");
-          }}
-        />
+        <>
+          {/* Desktop: exclusive deals strip */}
+          <div className="hidden md:block">
+            <CouponDealsStrip
+              storeSection={selectedStoreSection.toLowerCase()}
+              accent={sectionTabs.find(t => t.id === selectedStoreSection)?.accent}
+              onProductClick={(productId) => {
+                setPendingProductId(productId);
+                setCurrentPage("shop");
+              }}
+            />
+          </div>
+          {/* Mobile: lottery banner instead */}
+          <div className="md:hidden px-3 pt-2 pb-1 bg-white">
+            <MobileLotteryBanner onClick={openLottery} activeLotteries={activeLotteries} />
+          </div>
+        </>
       )}
       {/* ═══════════════════════════════════════════
           MAIN CONTENT
@@ -1212,9 +1377,9 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
               Mail Us
             </h4>
             <div className="w-5 h-px bg-slate-600" />
-            <p className="text-xs text-slate-500 break-all">
+            <a href="mailto:infofixcomputers1@gmail.com" className="text-xs text-slate-500 break-all hover:text-white transition-colors duration-150">
               infofixcomputers1@gmail.com
-            </p>
+            </a>
           </div>
 
           <div className="space-y-4">
@@ -1225,8 +1390,7 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
             <p className="text-[11px] text-slate-500 leading-relaxed">
               Ananda Gopal Mukherjee Sarani Rd, Durgapur, WB 713213
             </p>
-            <p className="text-xs text-slate-500">📞 8293295257</p>
-          </div>
+            <a href="tel:+918293295257" className="text-xs text-slate-500 hover:text-white transition-colors duration-150">📞 8293295257</a>          </div>
         </div>
 
 
@@ -1279,129 +1443,57 @@ export const CustomerLayout: React.FC<{ children: React.ReactNode }> = ({
         </div>
       </footer>
 
-      {/* MESSAGE US FAB */}
-      <button
-        onClick={() => setIsMessageModalOpen(true)}
-        className="fixed bottom-6 right-6 z-60 text-white px-5 py-3 rounded-full hidden lg:flex items-center gap-2.5 transition-all duration-300 hover:scale-105 active:scale-95 animate-fab-pulse"
-        style={{
-          background: selectedStoreSection === 'Refurbished'
-            ? 'linear-gradient(135deg, #059669, #10b981)'
-            : selectedStoreSection === 'Wholesale'
-              ? 'linear-gradient(135deg, #db2777, #f472b6)'
-              : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-          boxShadow: `0 8px 30px ${sectionTabs.find(t => t.id === selectedStoreSection)?.accent ?? '#6366f1'}80`,
-        }}
-      >
-        <div className="relative">
-          <MessageSquare className="w-5 h-5 text-white" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white animate-pulse" />
-        </div>
-        <span className="font-bold text-sm tracking-tight">Message Us</span>
-      </button>
-
-      {/* MESSAGE MODAL */}
-      {isMessageModalOpen && (
-        <div className="fixed inset-0 z-70 flex items-center justify-center bg-slate-900/70 backdrop-blur-md p-4">
-          <div
-            className="bg-white w-full max-w-lg h-[88vh] rounded-3xl flex flex-col animate-modal-in"
-            style={{ boxShadow: "0 24px 80px rgba(15,23,42,0.4)" }}
-          >
-            <div className="p-6 border-b border-slate-100 relative">
-              <button
-                onClick={() => setIsMessageModalOpen(false)}
-                className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-rose-100 text-slate-400 hover:text-rose-500 transition-all duration-150"
-              >
-                <X className="w-4 h-4" />
-              </button>
-              <h2 className="text-xl font-black text-slate-900">
-                Contact Infofix Support
-              </h2>
-              <p className="text-sm text-slate-400 mt-1">
-                We usually reply within 24 hours.
-              </p>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6">
-              <form
-                action="https://formsubmit.co/infofixcomputers1@gmail.com"
-                method="POST"
-                className="space-y-4"
-              >
-                <input type="hidden" name="_captcha" value="false" />
-                <input
-                  type="hidden"
-                  name="_subject"
-                  value="New Query from Infofix Website"
-                />
-                {[
-                  {
-                    label: "Full Name",
-                    name: "name",
-                    type: "text",
-                    placeholder: "Your name",
-                    required: true,
-                  },
-                  {
-                    label: "Email",
-                    name: "email",
-                    type: "email",
-                    placeholder: "your@email.com",
-                    required: true,
-                  },
-                  {
-                    label: "Phone",
-                    name: "phone",
-                    type: "tel",
-                    placeholder: "Optional",
-                    required: false,
-                  },
-                  {
-                    label: "Subject",
-                    name: "subject",
-                    type: "text",
-                    placeholder: "Order / Product / Complaint / Other",
-                    required: true,
-                  },
-                ].map(({ label, name, type, placeholder, required }) => (
-                  <div key={name}>
-                    <label className="text-xs font-bold text-slate-600 mb-1 block">
-                      {label}
-                    </label>
-                    <input
-                      type={type}
-                      name={name}
-                      required={required}
-                      placeholder={placeholder}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-sm transition-all duration-150"
-                    />
-                  </div>
-                ))}
-                <div>
-                  <label className="text-xs font-bold text-slate-600 mb-1 block">
-                    Message
-                  </label>
-                  <textarea
-                    name="message"
-                    required
-                    rows={4}
-                    placeholder="Write your query here…"
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-sm resize-none transition-all duration-150"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full py-3 rounded-xl text-white font-bold transition-all duration-150 hover:opacity-90 active:scale-[0.98]"
-                  style={{
-                    background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-                    boxShadow: "0 4px 16px rgba(99,102,241,0.35)",
-                  }}
-                >
-                  Send Message
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
+      {/* WHATSAPP FAB — desktop */}
+      {!['shop', 'cart', 'checkout'].includes(currentPage) && (
+        <a
+          href="https://api.whatsapp.com/send?phone=918293295257&text=Hi%20Infofix!"
+          target="_blank"
+          rel="noreferrer"
+          className="fixed bottom-6 right-6 z-60 text-white px-5 py-3 rounded-full hidden lg:flex items-center gap-2.5 transition-all duration-300 hover:scale-105 active:scale-95 animate-fab-pulse"
+          style={{
+            background: 'linear-gradient(135deg, #25d366, #128c7e)',
+            boxShadow: '0 8px 30px rgba(37,211,102,0.55)',
+          }}
+        >
+          <span className="bi bi-whatsapp text-lg" />
+          <span className="font-bold text-sm tracking-tight">WhatsApp Us</span>
+        </a>
       )}
+
+      {/* WHATSAPP FAB — mobile */}
+      {!['shop', 'cart', 'checkout'].includes(currentPage) && (
+        <a
+          href="https://api.whatsapp.com/send?phone=918293295257&text=Hi%20Infofix!"
+          target="_blank"
+          rel="noreferrer"
+          className="fixed bottom-6 right-5 z-60 lg:hidden flex items-center justify-center w-14 h-14 rounded-full text-white transition-all duration-300 hover:scale-105 active:scale-95"
+          style={{
+            background: 'linear-gradient(135deg, #25d366, #128c7e)',
+            boxShadow: '0 6px 24px rgba(37,211,102,0.55)',
+          }}
+        >
+          <span className="bi bi-whatsapp text-2xl" />
+        </a>
+      )}
+
+      <LotteryPickerModal
+        isOpen={lotteryPickerOpen}
+        lotteries={activeLotteries}
+        onSelect={(l: Lottery) => {
+          setLotteryPickerOpen(false);
+          setSelectedLottery(l);
+          setIsLotteryOpen(true);
+        }}
+        onClose={() => setLotteryPickerOpen(false)}
+      />
+      <LotteryModal
+        isOpen={isLotteryOpen}
+        onClose={() => { setIsLotteryOpen(false); setSelectedLottery(null); }}
+        storeSection={selectedStoreSection.toLowerCase()}
+        prefillName={currentUser?.name ?? ""}
+        prefillEmail={currentUser?.email ?? ""}
+        forcedLottery={selectedLottery}
+      />
 
       <style>{`
         /* Search pill focus glow — Tailwind v4 compatible */
@@ -1467,11 +1559,8 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({
       role: ["MANAGER", "SUPPORT", "ADMIN"],
     },
     { name: "Customers", icon: Users, role: ["MANAGER", "SUPPORT", "ADMIN"] },
-    {
-      name: "Blogs",
-      icon: MessageSquare,
-      role: ["MANAGER", "INVENTORY", "ADMIN"],
-    },
+    { name: "Blogs", icon: MessageSquare, role: ["MANAGER", "INVENTORY", "ADMIN"] },
+    { name: "Campaigns", icon: Gift, role: ["MANAGER", "ADMIN"] },
     { name: "Coupons", icon: Tag, role: ["MANAGER", "ADMIN"] },
     { name: "Careers", icon: Briefcase, role: ["MANAGER", "ADMIN"] },
     { name: "Settings", icon: Settings, role: ["ADMIN"] },

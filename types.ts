@@ -323,3 +323,29 @@ export interface DealItem {
   model: string | null;
   brand: string | null;
 }
+export interface Lottery {
+  id: string;
+  name: string;
+  description: string;
+  prize: string;
+  status: "active" | "ended" | "draft";
+  store_section?: string;
+  ends_at: string | null;
+  winner_id?: string | null;
+  created_at: string;
+  entry_count?: number;
+}
+
+export interface Entry {
+  id: string;
+  name: string;
+  email: string;
+  whatsapp: string;
+  location: string;
+  created_at: string;
+  screenshot_url: string | null;
+}
+export interface LotteryTooltipProps {
+  onOpenLottery: () => void;
+  storeSection?: string;
+}
