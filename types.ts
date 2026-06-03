@@ -38,6 +38,12 @@ export interface Product {
   model: string;
   min_order_quantity?: number;
   stock_quantity?: number;
+  colors?: {
+    name: string;
+    hex: string;
+    stock: number;
+    images?: string[];
+  }[];
 }
 
 export interface Branch {
@@ -110,6 +116,12 @@ export interface DBProduct {
   subcategories?: { name: string; slug: string } | null;
   product_tags?: { tags: { id: number; name: string } }[];
   min_order_quantity?: number;
+  colors?: {
+    name: string;
+    hex: string;
+    stock: number;
+    images?: string[];
+  }[];
 }
 
 export interface DBProductFormState {

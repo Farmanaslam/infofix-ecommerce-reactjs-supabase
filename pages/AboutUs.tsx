@@ -543,13 +543,15 @@ export const AboutUs: React.FC = () => {
           </p>
 
           <div className="flex flex-wrap gap-4 justify-center">
-            <button
-              onClick={() => setIsMessageModalOpen(true)}
-              className="text-white px-8 py-3.5 rounded-xl font-semibold transition cursor-pointer"
+            <a
+              href="https://wa.me/918293295257"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white px-8 py-3.5 rounded-xl font-semibold transition cursor-pointer inline-block"
               style={{ background: theme.accent }}
             >
               Send Message
-            </button>
+            </a>
             <Link
               to="/branches"
               className="border border-gray-200 text-gray-700 hover:border-indigo-300 hover:text-indigo-600 px-8 py-3.5 rounded-xl font-semibold transition flex items-center gap-2"

@@ -164,7 +164,7 @@ export const ProductCard: React.FC<ProductProps> = ({
 
   return (
     <article
-      className="group relative flex flex-col cursor-pointer h-full"
+      className="group relative flex flex-col cursor-pointer h-full min-h-0"
       style={{
         opacity: revealed ? 1 : 0,
         transform: revealed
@@ -304,9 +304,9 @@ export const ProductCard: React.FC<ProductProps> = ({
       </div>
 
       {/* ── Info ── */}
-      <div className="flex flex-col flex-1 gap-1 md:gap-1.5 px-1 md:px-2 transition-transform duration-500 group-hover:translate-x-0.5">
+      <div className="flex flex-col flex-1 gap-1 md:gap-2 px-1 md:px-2 transition-transform duration-500 group-hover:translate-x-0.5">
         {/* Category + Rating */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between md:h-5.5">
           <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.15em] truncate max-w-[60%]" style={{ color: accent ?? '#6366f1' }}>
             {product.category}
             {product.subcategory && (
@@ -324,8 +324,7 @@ export const ProductCard: React.FC<ProductProps> = ({
         </div>
 
         {/* Product Name */}
-        <h3 className="font-bold text-[12px] md:text-[18px] text-gray-900 leading-tight line-clamp-2 md:min-h-12 transition-colors duration-200"
-          style={{ ['--tw-text-opacity' as any]: 1 }}
+        <h3 className="font-bold text-[12px] md:text-[18px] text-gray-900 leading-snug line-clamp-2 md:h-13 transition-colors duration-200"
           onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.color = accent ?? '#6366f1'; }}
           onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.color = ''; }}>
           {product.name}
@@ -333,28 +332,26 @@ export const ProductCard: React.FC<ProductProps> = ({
 
         {/* Model + Brand — desktop only */}
         {(product.model || product.brand) && (
-          <div className="hidden md:flex items-center gap-1.5 flex-wrap">
+          <div className="hidden md:flex items-center gap-1.5 h-4.5 overflow-hidden">
             {product.model && (
-              <span className="text-[11px] font-semibold text-gray-500 leading-none">
+              <span className="text-[11px] font-semibold text-gray-500 leading-none truncate max-w-[65%]">
                 {product.model}
               </span>
             )}
             {product.model && product.brand && (
-              <span className="text-gray-300 text-[10px]">·</span>
+              <span className="text-gray-300 text-[10px] shrink-0">·</span>
             )}
             {product.brand && (
-              <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider shrink-0">
                 {product.brand}
               </span>
             )}
           </div>
         )}
 
-        <div className="flex-1" />
-
         {/* Price */}
-        <div className="flex items-end justify-between ">
-          <div>
+        <div className="flex items-start justify-between gap-2 md:min-h-14">
+          <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-1.5 md:gap-2 flex-wrap">
               <span className="font-black text-[16px] md:text-[22px] text-gray-900 tracking-tight leading-none">
                 ₹{product.price.toLocaleString("en-IN")}
@@ -371,7 +368,7 @@ export const ProductCard: React.FC<ProductProps> = ({
               productPrice={product.price}
             />
           </div>
-          <div className="hidden md:block text-right">
+          <div className="hidden md:block text-right shrink-0">
             <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">
               {product.reviews} reviews
             </p>

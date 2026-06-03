@@ -176,6 +176,21 @@ export const LotteryModal: React.FC<LotteryModalProps> = ({
             }
             return;
         }
+        if (!err) {
+            // fire email — no await, don't block UI
+            supabase.functions.invoke("send-lottery-email", {
+                body: {
+                    name: form.name.trim(),
+                    email: form.email.trim().toLowerCase(),
+                    whatsapp: form.whatsapp.trim(),
+                    location: form.location.trim(),
+                    lottery_name: lottery.name,
+                    prize: lottery.prize,
+                    screenshot_urls: screenshotUrls,
+                },
+            });
+            setStep("success");
+        }
         setStep("success");
         const { count: newC } = await supabase
             .from("lottery_entries")

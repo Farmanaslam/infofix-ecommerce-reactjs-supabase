@@ -47,6 +47,18 @@ export const Login: React.FC = () => {
 
     if (customerProfile) {
       setCurrentUser({ id: user.id, name: customerProfile.full_name, email: customerProfile.email, role: "CUSTOMER", avatar: `https://i.pravatar.cc/150?u=${user.id}` });
+      await supabase.from("notifications").insert({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        type: "info",
+        title: "Customer Login",
+        message: `${customerProfile.full_name} (${customerProfile.email}) logged in.`,
+        user_id: user.id,
+        user_name: customerProfile.full_name,
+        user_role: "CUSTOMER",
+        read_by: [],
+        created_at: new Date().toISOString(),
+      });
+
       const redirect = pendingRedirectAfterLogin ?? "home";
       setPendingRedirectAfterLogin(null);
       setCurrentPage(redirect);
@@ -68,7 +80,17 @@ export const Login: React.FC = () => {
         role: staffProfile.role,
         avatar: staffProfile.avatar_url,
       });
-
+      await supabase.from("notifications").insert({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        type: "info",
+        title: "Staff Login",
+        message: `${staffProfile.full_name} (${staffProfile.role}) signed in to the portal.`,
+        user_id: user.id,
+        user_name: staffProfile.full_name,
+        user_role: staffProfile.role,
+        read_by: [],
+        created_at: new Date().toISOString(),
+      });
       setCurrentPage("home");
       return;
     }

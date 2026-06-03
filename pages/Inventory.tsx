@@ -133,7 +133,7 @@ const ColorImagePanel: React.FC<{
   const handleFile = async (file: File) => {
     if (!file.type.startsWith("image/")) { toast("Select image file", "error"); return; }
     if (file.size > 5 * 1024 * 1024) { toast("Max 5MB", "error"); return; }
-    if (color.images.length >= 5) { toast("Max 5 images per color", "error"); return; }
+    if (color?.images?.length >= 5) { toast("Max 5 images per color", "error"); return; }
     setUploading(true);
     try {
       if (supabase) {
@@ -160,7 +160,7 @@ const ColorImagePanel: React.FC<{
 
   const addUrl = (url: string) => {
     if (!url.startsWith("http")) return;
-    if (color.images.length >= 5) { toast("Max 5 images per color", "error"); return; }
+    if (color?.images?.length >= 5) { toast("Max 5 images per color", "error"); return; }
     onImagesChange(colorIdx, [...color.images, url]);
   };
 
@@ -171,12 +171,12 @@ const ColorImagePanel: React.FC<{
   return (
     <div className="mt-3 pl-4 border-l-2 border-gray-200 space-y-3">
       <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-        Images for {color.name} ({color.images.length}/5)
+        Images for {color?.name} ({color?.images?.length}/5)
       </p>
 
       {/* Image grid */}
       <div className="flex flex-wrap gap-2">
-        {color.images.map((url, imgIdx) => (
+        {color?.images?.map((url, imgIdx) => (
           <div key={imgIdx} className="relative w-16 h-16 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 group">
             <img src={url} alt="" className="w-full h-full object-cover" />
             <button
@@ -191,7 +191,7 @@ const ColorImagePanel: React.FC<{
             )}
           </div>
         ))}
-        {color.images.length < 5 && (
+        {color?.images?.length < 5 && (
           <div
             className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-indigo-400 transition-colors"
             onClick={() => fileRef.current?.click()}
@@ -323,7 +323,7 @@ const ColorsTab: React.FC<{
 
                 {/* Image count */}
                 <span className="text-[10px] text-gray-400 font-semibold shrink-0">
-                  {color.images.length} img{color.images.length !== 1 ? "s" : ""}
+                  {color?.images?.length} img{color?.images?.length !== 1 ? "s" : ""}
                 </span>
 
                 {/* Expand/collapse images */}

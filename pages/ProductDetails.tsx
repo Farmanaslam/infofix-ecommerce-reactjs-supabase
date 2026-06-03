@@ -193,28 +193,26 @@ const ColorPicker: React.FC<{
         </div>
       </div>
 
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex items-start gap-4 flex-wrap">
         {colors.map((color, idx) => {
           const isSelected = idx === selectedIdx;
           const isAvailable = color.stock > 0;
-
           return (
             <button
               key={idx}
               onClick={() => onChange(idx)}
               title={`${color.name}${!isAvailable ? " — Out of Stock" : ""}`}
-              className="relative group/color transition-all duration-200"
+              className="relative group/color flex flex-col items-center gap-1.5 transition-all duration-200 pt-1"
               style={{ outline: 'none' }}
             >
               {/* Outer ring when selected */}
               <div
-                className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200"
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 mb-1"
                 style={isSelected
                   ? { boxShadow: `0 0 0 2.5px white, 0 0 0 4.5px ${accent}`, transform: 'scale(1.12)' }
                   : { boxShadow: '0 0 0 1.5px #e5e7eb' }
                 }
               >
-                {/* Color dot */}
                 <div
                   className="w-7 h-7 rounded-full relative overflow-hidden transition-all duration-200"
                   style={{
@@ -222,7 +220,6 @@ const ColorPicker: React.FC<{
                     filter: !isAvailable ? 'grayscale(0.5) brightness(1.1)' : 'none',
                   }}
                 >
-                  {/* Strikethrough diagonal for out-of-stock */}
                   {!isAvailable && (
                     <div
                       className="absolute inset-0 flex items-center justify-center"
@@ -231,20 +228,26 @@ const ColorPicker: React.FC<{
                       }}
                     />
                   )}
-                  {/* Check icon when selected */}
                   {isSelected && isAvailable && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Check
                         className="w-3.5 h-3.5 drop-shadow"
                         strokeWidth={3}
-                        style={{
-                          color: isLight(color.hex) ? '#111827' : '#ffffff',
-                        }}
+                        style={{ color: isLight(color.hex) ? '#111827' : '#ffffff' }}
                       />
                     </div>
                   )}
                 </div>
               </div>
+
+              {/* Name below dot — centered */}
+              <span
+                className={`text-[10px] leading-none text-center transition-colors duration-150 ${isSelected ? 'font-black' : 'font-semibold text-gray-400'}`}
+                style={isSelected ? { color: accent } : {}}
+              >
+                {color.name}
+                {color.stock === 0 && <span className="block text-[8px] text-red-400 font-semibold mt-0.5">OOS</span>}
+              </span>
 
               {/* Tooltip */}
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-gray-900 text-white text-[10px] font-bold rounded-lg whitespace-nowrap opacity-0 group-hover/color:opacity-100 transition-opacity duration-150 pointer-events-none z-20 shadow-xl">
@@ -255,23 +258,6 @@ const ColorPicker: React.FC<{
             </button>
           );
         })}
-      </div>
-
-      {/* Subtle color name row with all colors listed */}
-      <div className="flex flex-wrap gap-x-4 gap-y-1">
-        {colors.map((color, idx) => (
-          <button
-            key={idx}
-            onClick={() => onChange(idx)}
-            className={`text-[11px] font-semibold transition-colors duration-150 ${idx === selectedIdx ? 'font-black' : 'text-gray-400 hover:text-gray-600'}`}
-            style={idx === selectedIdx ? { color: accent } : {}}
-          >
-            {color.name}
-            {color.stock === 0 && (
-              <span className="ml-1 text-[9px] text-red-400 font-semibold">(OOS)</span>
-            )}
-          </button>
-        ))}
       </div>
     </div>
   );
@@ -720,13 +706,12 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
 
                 {/* ── COLOR PICKER (only when colors exist) ── */}
                 {colors.length > 0 && (
-                  <div className="pd-fade bg-gray-50/80 border border-gray-100 rounded-3xl p-5" style={{ animationDelay: "145ms" }}>
-                    <ColorPicker
-                      colors={colors}
-                      selectedIdx={selectedColorIdx}
-                      onChange={setSelectedColorIdx}
-                      accent={accent}
-                    />
+                  <div className="pd-fade bg-gray-50/80 border border-gray-100 rounded-3xl p-4 md:p-5" style={{ animationDelay: "145ms" }}>                    <ColorPicker
+                    colors={colors}
+                    selectedIdx={selectedColorIdx}
+                    onChange={setSelectedColorIdx}
+                    accent={accent}
+                  />
                   </div>
                 )}
 

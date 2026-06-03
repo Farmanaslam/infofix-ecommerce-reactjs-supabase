@@ -384,24 +384,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
           : { ...n, read_by: [...n.read_by, user.id] },
       ),
     );
-    const { data } = await supabase.from("notifications").select("id, read_by");
-
-    if (data && data.length > 0) {
-      const unread = data.filter(
-        (n: { id: string; read_by: string[] }) =>
-          !Array.isArray(n.read_by) || !n.read_by.includes(user.id),
-      );
-      if (unread.length > 0) {
-        await Promise.all(
-          unread.map((n: { id: string; read_by: string[] }) =>
-            supabase
-              .from("notifications")
-              .update({ read_by: [...(n.read_by ?? []), user.id] })
-              .eq("id", n.id),
-          ),
-        );
-      }
-    }
+    await supabase.rpc('mark_notifications_read', { p_user_id: user.id });
   }, []);
 
   const clearNotifications = useCallback(async () => {
@@ -606,6 +589,17 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
               const items = await fetchCartFromSupabase(session.user.id);
               setCart(items);
               setCartLoading(false);
+              await supabase.from("notifications").insert({
+                id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                type: "info",
+                title: "Customer Login",
+                message: `${customerRow.full_name} (${customerRow.email ?? session.user.email}) logged in via Google.`,
+                user_id: session.user.id,
+                user_name: customerRow.full_name,
+                user_role: "CUSTOMER",
+                read_by: [],
+                created_at: new Date().toISOString(),
+              });
 
               setCurrentUserState({
                 id: session.user.id,
