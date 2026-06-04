@@ -1,7 +1,7 @@
 export const seoRoutes = [
   // ── Core ──
   ["/", "1.0", "daily"],
-  ["/shop", "0.9", "daily"],
+  ["/shop/", "0.9", "daily"],
   ["/about", "0.6", "monthly"],
   ["/contact", "0.7", "monthly"],
   ["/services", "0.7", "monthly"],

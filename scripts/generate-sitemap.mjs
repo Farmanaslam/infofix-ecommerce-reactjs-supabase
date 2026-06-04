@@ -14,8 +14,7 @@ function toSlug(title) {
     .replace(/[^a-z0-9\s-]/g, "")
     .trim()
     .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 80);
+    .replace(/-+/g, "-");
 }
 
 function extractVideoId(url) {
@@ -91,7 +90,7 @@ for (const p of products ?? []) {
     .trim()
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
-    .slice(0, 80);
+    .slice(0, 120);
   const lastmod = p.updated_at ? p.updated_at.split("T")[0] : "";
   xml += `  <url><loc>https://infofixcomputers.com/products/${slug}-${p.id}</loc><priority>0.7</priority><changefreq>weekly</changefreq>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}</url>\n`;
 }
@@ -108,8 +107,7 @@ const productSlugs = (products ?? []).map((p) => {
     .replace(/[^a-z0-9\s-]/g, "")
     .trim()
     .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 80);
+    .replace(/-+/g, "-");
   return `/products/${slug}-${p.id}`;
 });
 
@@ -124,5 +122,7 @@ pkg.reactSnap = pkg.reactSnap ?? {};
 pkg.reactSnap.include = allSnapUrls;
 writeFileSync("package.json", JSON.stringify(pkg, null, 2));
 
-console.log(`✅ ${articlePosts.length} articles + ${videoPosts.length} videos + ${products?.length ?? 0} products`);
+console.log(
+  `✅ ${articlePosts.length} articles + ${videoPosts.length} videos + ${products?.length ?? 0} products`,
+);
 console.log(`✅ reactSnap.include: ${allSnapUrls.length} URLs`);

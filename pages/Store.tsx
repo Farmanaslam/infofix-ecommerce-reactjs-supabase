@@ -308,7 +308,6 @@ function toSlug(name: string): string {
     .trim()
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
-    .slice(0, 80)
 }
 
 function getSeoHeading(pathname: string, searchQuery: string, selectedCategory: string, selectedSubcategory: string, section: string) {
