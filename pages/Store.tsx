@@ -610,7 +610,7 @@ export const Store: React.FC = () => {
     setSelectedProduct(enriched);
     sessionStorage.setItem("selectedProduct", JSON.stringify(enriched));
     // Navigate to SEO URL — /products/hp-laptop-15s-8gb-512gb-ssd
-    navigate(`/products/${toSlug(enriched.name)}-${enriched.id}`)
+    navigate(`/products/${toSlug(enriched.name)}-${enriched.id}/`)
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     window.gtag?.('event', 'view_item', {
@@ -1045,7 +1045,7 @@ export const Store: React.FC = () => {
         const product = fromSupabase(data);
         sessionStorage.setItem("selectedProduct", JSON.stringify(product));
         setSelectedProduct(product);
-        navigate(`/products/${toSlug(product.name)}-${product.id}`);
+        navigate(`/products/${toSlug(product.name)}-${product.id}/`);
       }
       setPendingProductId(null);
     };

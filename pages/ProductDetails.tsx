@@ -503,7 +503,6 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onBack,
       .trim()
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
-      .slice(0, 80)
   }
 
   return (

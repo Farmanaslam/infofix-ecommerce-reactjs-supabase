@@ -58,15 +58,15 @@ for (const [path, priority, freq] of seoRoutes) {
 // Article blog posts
 for (const post of articlePosts) {
   const slug = toSlug(post.title);
-  xml += `  <url><loc>https://infofixcomputers.com/blog/${slug}</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>${post.published_date}</lastmod></url>\n`;
+ xml += `  <url><loc>https://infofixcomputers.com/blog/${slug}/</loc><priority>0.8</priority><changefreq>monthly</changefreq><lastmod>${post.published_date}</lastmod></url>\n`;
 }
 
 // Video blog posts
 for (const post of videoPosts) {
   const slug = toSlug(post.title);
   const videoId = extractVideoId(post.video_url);
-  xml += `  <url>
-    <loc>https://infofixcomputers.com/blog/${slug}</loc>
+ xml += `  <url>
+    <loc>https://infofixcomputers.com/blog/${slug}/</loc>
     <priority>0.8</priority>
     <changefreq>monthly</changefreq>
     <lastmod>${post.published_date}</lastmod>
@@ -92,14 +92,14 @@ for (const p of products ?? []) {
     .replace(/-+/g, "-")
     .slice(0, 120);
   const lastmod = p.updated_at ? p.updated_at.split("T")[0] : "";
-  xml += `  <url><loc>https://infofixcomputers.com/products/${slug}-${p.id}</loc><priority>0.7</priority><changefreq>weekly</changefreq>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}</url>\n`;
+ xml += `  <url><loc>https://infofixcomputers.com/products/${slug}-${p.id}/</loc><priority>0.7</priority><changefreq>weekly</changefreq>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}</url>\n`;
 }
 
 xml += `</urlset>`;
 writeFileSync("public/sitemap.xml", xml);
 
 // Update package.json reactSnap.include
-const blogSlugs = (posts ?? []).map((p) => `/blog/${toSlug(p.title)}`);
+const blogSlugs = (posts ?? []).map((p) => `/blog/${toSlug(p.title)}/`);
 const productSlugs = (products ?? []).map((p) => {
   const slug = p.name
     .toLowerCase()
@@ -108,7 +108,7 @@ const productSlugs = (products ?? []).map((p) => {
     .trim()
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
-  return `/products/${slug}-${p.id}`;
+ return `/products/${slug}-${p.id}/`;
 });
 
 const allSnapUrls = [
