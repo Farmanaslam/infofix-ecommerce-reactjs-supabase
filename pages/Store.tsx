@@ -504,6 +504,12 @@ export const Store: React.FC = () => {
     },
   } as const;
 
+  const STORE_CATEGORIES: Record<string, string[]> = {
+    Infofix: ["All", "Laptop", "Desktop", "Custom PC", "Accessories"],
+    Refurbished: ["All", "Laptop", "Desktop"],
+    Wholesale: ["All", "Laptop", "Desktop", "Accessories"],
+  };
+
   const theme = SECTION_THEMES[selectedStoreSection];
 
   // ── Navigation state ──────────────────────────────────────────────────────
@@ -750,24 +756,23 @@ export const Store: React.FC = () => {
           }
 
           if (effectiveSearchQuery) {
-            const terms = effectiveSearchQuery
-              .trim()
-              .toLowerCase()
-              .split(/\s+/)
-              .filter(Boolean);
+            const terms = effectiveSearchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean)
+            const allConditions: string[] = []
+
             for (const term of terms) {
-              const aliases = expandTerms([term]);
-              const conditions = aliases
-                .flatMap((alias) => [
+              const aliases = expandTerms([term])
+              aliases.forEach(alias => {
+                allConditions.push(
                   `name.ilike.%${alias}%`,
                   `description.ilike.%${alias}%`,
                   `brand.ilike.%${alias}%`,
                   `model.ilike.%${alias}%`,
-                  `specs->>0.ilike.%${alias}%`,
-                ])
-                .join(",");
-              q = q.or(conditions);
+                  `search_text.ilike.%${alias}%`,
+                )
+              })
             }
+
+            if (allConditions.length) q = q.or(allConditions.join(','))
           }
 
           if (minPrice) q = q.gte("discounted_price", Number(minPrice));
@@ -1363,7 +1368,7 @@ export const Store: React.FC = () => {
         >
           <div className="flex flex-col gap-4 max-w-7xl mx-auto">
             <div className="flex flex-wrap items-center gap-2 w-full">
-              {["All", "Laptop", "Desktop", "Custom PC", "Accessories"].map(
+              {STORE_CATEGORIES[selectedStoreSection].map(
                 (cat) => (
                   <button
                     key={cat}
@@ -1414,7 +1419,7 @@ export const Store: React.FC = () => {
             {/* Subcategory pills — shown when Accessories is selected */}
             {selectedCategory === "Accessories" && (
               <div className="flex flex-wrap items-center gap-2 w-full mt-1">
-                {["Keyboard", "Mouse", "Headphones", "Hub", "Stand", "WIFI Adapter", "Router"].map((sub) => (
+                {["Keyboard", "Mouse", "Headphones", "Hub", "Stand", "WIFI Adapter", "Router", "Cartridge"].map((sub) => (
                   <button
                     key={sub}
                     onClick={() =>

@@ -259,456 +259,143 @@ const SpecIcon: React.FC<{ type: string; color: string }> = ({
   );
 };
 
-const HeroCarousel: React.FC<{ onShop: () => void; onContact: () => void; slides: typeof heroSlides }> = ({
-  onShop,
-  onContact,
-  slides,
-}) => {
-  const [current, setCurrent] = useState(0);
-  const [animating, setAnimating] = useState(false);
-  const slide = slides[current];
-  const goTo = useCallback(
-    (idx: number) => {
-      if (animating || idx === current) return;
-      setAnimating(true);
-      setTimeout(() => {
-        setCurrent(idx);
-        setAnimating(false);
-      }, 220);
-    },
-    [animating, current],
-  );
+const HeroCarousel: React.FC<{ onShop: () => void; onContact: () => void; slides: typeof heroSlides; onLotteryClick?: () => void }>
+  = ({
+    onShop,
+    onContact,
+    slides,
+    onLotteryClick,
+  }) => {
+    const [current, setCurrent] = useState(0);
+    const [animating, setAnimating] = useState(false);
+    const slide = slides[current];
+    const goTo = useCallback(
+      (idx: number) => {
+        if (animating || idx === current) return;
+        setAnimating(true);
+        setTimeout(() => {
+          setCurrent(idx);
+          setAnimating(false);
+        }, 220);
+      },
+      [animating, current],
+    );
 
-  useEffect(() => {
-    const t = setInterval(() => goTo((current + 1) % slides.length), 3000);
-    return () => clearInterval(t);
-  }, [current, goTo]);
+    useEffect(() => {
+      const t = setInterval(() => goTo((current + 1) % slides.length), 3000);
+      return () => clearInterval(t);
+    }, [current, goTo]);
 
-  return (
-    <div
-      className="w-full rounded-2xl overflow-hidden bg-[#0a0a0f] flex flex-col "
-      style={{ minHeight: "clamp(320px, 75vw, 420px)" }}
-    >
+    return (
       <div
-        style={{
-          height: 2,
-          background: `linear-gradient(90deg,${slide.accentColor},#818cf8,${slide.accentColor})`,
-          transition: "background 0.4s",
-        }}
-      />
-      <div className="flex flex-col flex-1">
-        {/* MOBILE ONLY — compact single column */}
+        className="w-full rounded-2xl overflow-hidden bg-[#0a0a0f] flex flex-col "
+        style={{ minHeight: "clamp(320px, 75vw, 420px)" }}
+      >
         <div
-          className="flex flex-col md:hidden flex-1 p-5"
-          style={{ transition: "opacity 0.22s", opacity: animating ? 0 : 1 }}
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <span
-              className="w-2 h-2 rounded-full shrink-0"
-              style={{
-                background: slide.accentColor,
-                boxShadow: `0 0 6px ${slide.accentColor}`,
-                animation: "pulseDot 2s ease infinite",
-              }}
-            />
-            <span
-              className="text-[9px] font-black uppercase tracking-[0.18em]"
-              style={{ color: slide.accentColor }}
-            >
-              {slide.eyebrow}
-            </span>
-          </div>
-
-          <h1
-            className="font-black leading-[1.05] tracking-tight text-white mb-2"
-            style={{ fontSize: "clamp(22px, 6vw, 30px)" }}
-          >
-            {slide.headline}{" "}
-            <span style={{ color: slide.accentColor }}>{slide.accent}</span>
-          </h1>
-
-          <div className="flex items-baseline gap-2 mb-3">
-            <span
-              className="text-[10px] font-semibold"
-              style={{ color: "#6b7280" }}
-            >
-              From
-            </span>
-            <span
-              className="font-black text-white"
-              style={{ fontSize: 22, letterSpacing: "-0.04em" }}
-            >
-              {slide.price}
-            </span>
-            <span className="text-xs line-through" style={{ color: "#374151" }}>
-              {slide.oldPrice}
-            </span>
-          </div>
-
-          <div className="flex flex-wrap gap-1.5 mb-4">
-            {slide.specs.map((spec, i) => (
-              <span
-                key={i}
-                className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-lg"
-                style={{
-                  background: "#1a1a2e",
-                  border: "1px solid #2d2d4e",
-                  color: slide.accentColor,
-                }}
-              >
-                <SpecIcon type={spec.icon} color={slide.accentColor} />{" "}
-                {spec.label}
-              </span>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2 mb-4">
-            <Link
-              to="/shop"
-              className="text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl flex-1 text-center"
-              style={{ background: slide.accentColor }}
-            >
-              Shop Now
-            </Link>
-            <Link
-              to="/contact"
-              className="text-[10px] font-semibold px-4 py-2.5 rounded-xl text-center"
-              style={{
-                background: "transparent",
-                border: "1px solid #2d2d4e",
-                color: "#9ca3af",
-              }}
-            >
-              Custom →
-            </Link>
-          </div>
-
-          {/* Dots */}
-          <div className="flex gap-2">
-            {slides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => goTo(i)}
-                style={{
-                  height: 4,
-                  width: i === current ? 18 : 4,
-                  borderRadius: 3,
-                  background: i === current ? slide.accentColor : "#374151",
-                  border: "none",
-                  cursor: "pointer",
-                  transition: "all 0.3s",
-                  padding: 0,
-                }}
-              />
-            ))}
-          </div>
-        </div>
-        <div className="hidden md:grid md:grid-cols-2 flex-1">
-          {/* LEFT */}
+          style={{
+            height: 2,
+            background: `linear-gradient(90deg,${slide.accentColor},#818cf8,${slide.accentColor})`,
+            transition: "background 0.4s",
+          }}
+        />
+        <div className="flex flex-col flex-1">
+          {/* MOBILE ONLY — compact single column */}
           <div
-            className="flex flex-col justify-between p-7 lg:p-10"
+            className="flex flex-col md:hidden flex-1 p-5"
             style={{ transition: "opacity 0.22s", opacity: animating ? 0 : 1 }}
           >
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <span
-                  className="w-2 h-2 rounded-full shrink-0"
-                  style={{
-                    background: slide.accentColor,
-                    boxShadow: `0 0 6px ${slide.accentColor}`,
-                    animation: "pulseDot 2s ease infinite",
-                  }}
-                />
-                <span
-                  className="text-[10px] font-black uppercase tracking-[0.18em]"
-                  style={{ color: slide.accentColor }}
-                >
-                  {slide.eyebrow}
-                </span>
-              </div>
-              <h1
-                className="font-black leading-[1.05] tracking-tight text-white mb-3"
-                style={{ fontSize: "clamp(26px,3.5vw,42px)" }}
-              >
-                {slide.headline}
-                <br />
-                <span style={{ color: slide.accentColor }}>{slide.accent}</span>
-              </h1>
-              <p
-                className="text-sm font-medium leading-relaxed mb-5 max-w-xs"
-                style={{ color: "#6b7280" }}
-              >
-                {slide.sub}
-              </p>
-              <div className="flex items-baseline gap-3 mb-5">
-                <span
-                  className="text-xs font-semibold"
-                  style={{ color: "#6b7280" }}
-                >
-                  Starting from
-                </span>
-                <span
-                  className="font-black text-white"
-                  style={{ fontSize: 26, letterSpacing: "-0.04em" }}
-                >
-                  {slide.price}
-                </span>
-                <span
-                  className="text-sm line-through"
-                  style={{ color: "#374151" }}
-                >
-                  {slide.oldPrice}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-2 mb-7">
-                {slide.specs.map((spec, i) => (
-                  <span
-                    key={i}
-                    className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg"
-                    style={{
-                      background: "#1a1a2e",
-                      border: "1px solid #2d2d4e",
-                      color: slide.accentColor,
-                    }}
-                  >
-                    <SpecIcon type={spec.icon} color={slide.accentColor} />{" "}
-                    {spec.label}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <Link
-                to="/shop"
-                className="text-white text-xs font-black uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all hover:opacity-90"
-                style={{ background: slide.accentColor }}
-              >
-                Shop Now
-              </Link>
-              <Link
-                to="/contact"
-                className="text-sm font-semibold px-5 py-3 rounded-xl transition-all"
+            <div className="flex items-center gap-2 mb-2">
+              <span
+                className="w-2 h-2 rounded-full shrink-0"
                 style={{
-                  background: "transparent",
-                  border: "1px solid #2d2d4e",
-                  color: "#9ca3af",
-                }}
-              >
-                Custom Build →
-              </Link>
-            </div>
-          </div>
-          {/* RIGHT */}
-          <div
-            className="relative flex flex-col items-center justify-center py-6 px-4 overflow-hidden"
-            style={{ minHeight: 240 }}
-          >
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(ellipse 70% 70% at 60% 50%, #1e1b4b 0%, #0a0a0f 100%)",
-              }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage:
-                  "linear-gradient(rgba(99,102,241,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.06) 1px,transparent 1px)",
-                backgroundSize: "32px 32px",
-              }}
-            />
-            <div
-              className="relative z-10 mb-4"
-              style={{
-                width: "clamp(160px, 45vw, 220px)",
-                height: "clamp(120px, 32vw, 170px)",
-                transition: "opacity 0.22s",
-                opacity: animating ? 0 : 1,
-              }}
-            >
-              <div
-                style={{
-                  width: 175,
-                  height: 120,
-                  background: "#111827",
-                  borderRadius: 10,
-                  border: "2px solid #374151",
-                  position: "absolute",
-                  top: 0,
-                  left: 14,
-                  overflow: "hidden",
-                  boxShadow: `0 0 36px ${slide.glowColor}`,
-                  transition: "box-shadow 0.4s",
-                }}
-              >
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    background: "#0d0d1a",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 5,
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 900,
-                      letterSpacing: "-0.05em",
-                      color: slide.accentColor,
-                      transition: "color 0.3s",
-                    }}
-                  >
-                    INFOFIX
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 7,
-                      color: "#4b5563",
-                      letterSpacing: "0.15em",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    {slide.productName}
-                  </div>
-                  <div style={{ display: "flex", gap: 3, marginTop: 6 }}>
-                    {[10, 18, 14, 20, 12].map((h, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          width: 3,
-                          height: h,
-                          borderRadius: 2,
-                          background: slide.accentColor,
-                          animation: `barAnim 1.2s ease ${i * 0.15}s infinite`,
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div
-                style={{
-                  width: 10,
-                  height: 14,
-                  background: "#374151",
-                  position: "absolute",
-                  bottom: 24,
-                  left: 99,
+                  background: slide.accentColor,
+                  boxShadow: `0 0 6px ${slide.accentColor}`,
+                  animation: "pulseDot 2s ease infinite",
                 }}
               />
-              <div
-                style={{
-                  width: 50,
-                  height: 5,
-                  background: "#374151",
-                  borderRadius: 3,
-                  position: "absolute",
-                  bottom: 20,
-                  left: 79,
-                }}
-              />
-              <div
-                style={{
-                  width: 38,
-                  height: 90,
-                  background: "#1f2937",
-                  borderRadius: 8,
-                  border: "1.5px solid #374151",
-                  position: "absolute",
-                  bottom: 20,
-                  right: 0,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  padding: "8px 5px",
-                  gap: 5,
-                }}
-              >
-                <div
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    background: slide.accentColor,
-                    boxShadow: `0 0 8px ${slide.accentColor}`,
-                    transition: "background 0.3s",
-                  }}
-                />
-                <div
-                  style={{
-                    width: 22,
-                    height: 3,
-                    background: "#374151",
-                    borderRadius: 2,
-                  }}
-                />
-                <div
-                  style={{
-                    width: 22,
-                    height: 3,
-                    background: "#374151",
-                    borderRadius: 2,
-                  }}
-                />
-              </div>
-            </div>
-            <div
-              className="relative z-10 flex items-center gap-3 rounded-xl px-4 py-3 w-full"
-              style={{
-                maxWidth: 270,
-                background: "#111827",
-                border: "1px solid #1f2937",
-                transition: "opacity 0.22s",
-                opacity: animating ? 0 : 1,
-              }}
-            >
-              <div
-                className="flex items-center justify-center rounded-lg shrink-0"
-                style={{ width: 32, height: 32, background: "#1e1b4b" }}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke={slide.accentColor}
-                  strokeWidth="1.8"
-                >
-                  <rect x="2" y="3" width="13" height="11" rx="2" />
-                  <path d="M16 8h4a2 2 0 012 2v7a2 2 0 01-2 2H8a2 2 0 01-2-2v-3" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-bold text-white truncate">
-                  {slide.productName}
-                </div>
-                <div
-                  className="text-[10px] truncate"
-                  style={{ color: "#6b7280" }}
-                >
-                  {slide.productSpec}
-                </div>
-              </div>
-              <div
-                className="text-sm font-black shrink-0"
+              <span
+                className="text-[9px] font-black uppercase tracking-[0.18em]"
                 style={{ color: slide.accentColor }}
               >
-                {slide.price}
-              </div>
+                {slide.eyebrow}
+              </span>
             </div>
-            <div className="flex gap-2 mt-4 relative z-10">
+
+            <h1
+              className="font-black leading-[1.05] tracking-tight text-white mb-2"
+              style={{ fontSize: "clamp(22px, 6vw, 30px)" }}
+            >
+              {slide.headline}{" "}
+              <span style={{ color: slide.accentColor }}>{slide.accent}</span>
+            </h1>
+
+            <div className="flex items-baseline gap-2 mb-3">
+              <span
+                className="text-[10px] font-semibold"
+                style={{ color: "#6b7280" }}
+              >
+                From
+              </span>
+              <span
+                className="font-black text-white"
+                style={{ fontSize: 22, letterSpacing: "-0.04em" }}
+              >
+                {slide.price}
+              </span>
+              <span className="text-xs line-through" style={{ color: "#374151" }}>
+                {slide.oldPrice}
+              </span>
+            </div>
+
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              {slide.specs.map((spec, i) => (
+                <span
+                  key={i}
+                  className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-lg"
+                  style={{
+                    background: "#1a1a2e",
+                    border: "1px solid #2d2d4e",
+                    color: slide.accentColor,
+                  }}
+                >
+                  <SpecIcon type={spec.icon} color={slide.accentColor} />{" "}
+                  {spec.label}
+                </span>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 mb-4">
+              {(slide as any).isLotterySlide ? (
+                <button
+                  onClick={onLotteryClick}
+                  className="text-indigo-900 text-xs font-black uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all hover:opacity-90"
+                  style={{ background: '#fbbf24' }}
+                >
+                  🎰 Enter Free Now
+                </button>
+              ) : (
+                <>
+                  <Link to="/shop" className="text-white text-xs font-black uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all hover:opacity-90"
+                    style={{ background: slide.accentColor }}>
+                    Shop Now
+                  </Link>
+                  <Link to="/contact" className="text-sm font-semibold px-5 py-3 rounded-xl transition-all"
+                    style={{ background: "transparent", border: "1px solid #2d2d4e", color: "#9ca3af" }}>
+                    Custom Build →
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* Dots */}
+            <div className="flex gap-2">
               {slides.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => goTo(i)}
                   style={{
-                    height: 5,
-                    width: i === current ? 20 : 5,
+                    height: 4,
+                    width: i === current ? 18 : 4,
                     borderRadius: 3,
                     background: i === current ? slide.accentColor : "#374151",
                     border: "none",
@@ -720,64 +407,383 @@ const HeroCarousel: React.FC<{ onShop: () => void; onContact: () => void; slides
               ))}
             </div>
           </div>
-        </div>
-      </div>
-      {/* Ticker */}
-      <div
-        style={{
-          background: "#111827",
-          borderTop: "1px solid #1f2937",
-          padding: "9px 0",
-          overflow: "hidden",
-          flexShrink: 0,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            width: "max-content",
-            animation: "ticker 24s linear infinite",
-          }}
-        >
-          {[...Array(2)].flatMap((_, ri) =>
-            [
-              { h: "FREE", t: "Same-day city delivery" },
-              { h: "1 Year", t: "Hardware warranty included" },
-              { h: "Custom", t: "PC & laptop builds" },
-              { h: "Expert", t: "In-house technicians" },
-              { h: "COD", t: "Available in India" },
-              { h: "5 Stores", t: "Walk in anytime" },
-            ].map((item, i) => (
+          <div className="hidden md:grid md:grid-cols-2 flex-1">
+            {/* LEFT */}
+            <div
+              className="flex flex-col justify-between p-7 lg:p-10"
+              style={{ transition: "opacity 0.22s", opacity: animating ? 0 : 1 }}
+            >
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{
+                      background: slide.accentColor,
+                      boxShadow: `0 0 6px ${slide.accentColor}`,
+                      animation: "pulseDot 2s ease infinite",
+                    }}
+                  />
+                  <span
+                    className="text-[10px] font-black uppercase tracking-[0.18em]"
+                    style={{ color: slide.accentColor }}
+                  >
+                    {slide.eyebrow}
+                  </span>
+                </div>
+                <h1
+                  className="font-black leading-[1.05] tracking-tight text-white mb-3"
+                  style={{ fontSize: "clamp(26px,3.5vw,42px)" }}
+                >
+                  {slide.headline}
+                  <br />
+                  <span style={{ color: slide.accentColor }}>{slide.accent}</span>
+                </h1>
+                <p
+                  className="text-sm font-medium leading-relaxed mb-5 max-w-xs"
+                  style={{ color: "#6b7280" }}
+                >
+                  {slide.sub}
+                </p>
+                <div className="flex items-baseline gap-3 mb-5">
+                  <span
+                    className="text-xs font-semibold"
+                    style={{ color: "#6b7280" }}
+                  >
+                    Starting from
+                  </span>
+                  <span
+                    className="font-black text-white"
+                    style={{ fontSize: 26, letterSpacing: "-0.04em" }}
+                  >
+                    {slide.price}
+                  </span>
+                  <span
+                    className="text-sm line-through"
+                    style={{ color: "#374151" }}
+                  >
+                    {slide.oldPrice}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-7">
+                  {slide.specs.map((spec, i) => (
+                    <span
+                      key={i}
+                      className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg"
+                      style={{
+                        background: "#1a1a2e",
+                        border: "1px solid #2d2d4e",
+                        color: slide.accentColor,
+                      }}
+                    >
+                      <SpecIcon type={spec.icon} color={slide.accentColor} />{" "}
+                      {spec.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center gap-3 flex-wrap">
+                {(slide as any).isLotterySlide ? (
+                  <button
+                    onClick={onLotteryClick}
+                    className="text-indigo-900 text-xs font-black uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all hover:opacity-90"
+                    style={{ background: '#fbbf24' }}
+                  >
+                    🎰 Enter Free Now
+                  </button>
+                ) : (
+                  <>
+                    <Link to="/shop" className="text-white text-xs font-black uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all hover:opacity-90"
+                      style={{ background: slide.accentColor }}>
+                      Shop Now
+                    </Link>
+                    <Link to="/contact" className="text-sm font-semibold px-5 py-3 rounded-xl transition-all"
+                      style={{ background: "transparent", border: "1px solid #2d2d4e", color: "#9ca3af" }}>
+                      Custom Build →
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+            {/* RIGHT */}
+            <div
+              className="relative flex flex-col items-center justify-center py-6 px-4 overflow-hidden"
+              style={{ minHeight: 240 }}
+            >
               <div
-                key={`${ri}-${i}`}
+                className="absolute inset-0"
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "0 28px",
-                  fontSize: 11,
-                  color: "#6b7280",
-                  whiteSpace: "nowrap",
-                  borderRight: "1px solid #1f2937",
+                  background:
+                    "radial-gradient(ellipse 70% 70% at 60% 50%, #1e1b4b 0%, #0a0a0f 100%)",
+                }}
+              />
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(rgba(99,102,241,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.06) 1px,transparent 1px)",
+                  backgroundSize: "32px 32px",
+                }}
+              />
+              <div
+                className="relative z-10 mb-4"
+                style={{
+                  width: "clamp(160px, 45vw, 220px)",
+                  height: "clamp(120px, 32vw, 170px)",
+                  transition: "opacity 0.22s",
+                  opacity: animating ? 0 : 1,
                 }}
               >
-                <span style={{ color: "#818cf8", fontWeight: 700 }}>
-                  {item.h}
-                </span>{" "}
-                {item.t}
+                <div
+                  style={{
+                    width: 175,
+                    height: 120,
+                    background: "#111827",
+                    borderRadius: 10,
+                    border: "2px solid #374151",
+                    position: "absolute",
+                    top: 0,
+                    left: 14,
+                    overflow: "hidden",
+                    boxShadow: `0 0 36px ${slide.glowColor}`,
+                    transition: "box-shadow 0.4s",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      background: "#0d0d1a",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 5,
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 20,
+                        fontWeight: 900,
+                        letterSpacing: "-0.05em",
+                        color: slide.accentColor,
+                        transition: "color 0.3s",
+                      }}
+                    >
+                      INFOFIX
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 7,
+                        color: "#4b5563",
+                        letterSpacing: "0.15em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {slide.productName}
+                    </div>
+                    <div style={{ display: "flex", gap: 3, marginTop: 6 }}>
+                      {[10, 18, 14, 20, 12].map((h, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            width: 3,
+                            height: h,
+                            borderRadius: 2,
+                            background: slide.accentColor,
+                            animation: `barAnim 1.2s ease ${i * 0.15}s infinite`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    width: 10,
+                    height: 14,
+                    background: "#374151",
+                    position: "absolute",
+                    bottom: 24,
+                    left: 99,
+                  }}
+                />
+                <div
+                  style={{
+                    width: 50,
+                    height: 5,
+                    background: "#374151",
+                    borderRadius: 3,
+                    position: "absolute",
+                    bottom: 20,
+                    left: 79,
+                  }}
+                />
+                <div
+                  style={{
+                    width: 38,
+                    height: 90,
+                    background: "#1f2937",
+                    borderRadius: 8,
+                    border: "1.5px solid #374151",
+                    position: "absolute",
+                    bottom: 20,
+                    right: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    padding: "8px 5px",
+                    gap: 5,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      background: slide.accentColor,
+                      boxShadow: `0 0 8px ${slide.accentColor}`,
+                      transition: "background 0.3s",
+                    }}
+                  />
+                  <div
+                    style={{
+                      width: 22,
+                      height: 3,
+                      background: "#374151",
+                      borderRadius: 2,
+                    }}
+                  />
+                  <div
+                    style={{
+                      width: 22,
+                      height: 3,
+                      background: "#374151",
+                      borderRadius: 2,
+                    }}
+                  />
+                </div>
               </div>
-            )),
-          )}
+              <div
+                className="relative z-10 flex items-center gap-3 rounded-xl px-4 py-3 w-full"
+                style={{
+                  maxWidth: 270,
+                  background: "#111827",
+                  border: "1px solid #1f2937",
+                  transition: "opacity 0.22s",
+                  opacity: animating ? 0 : 1,
+                }}
+              >
+                <div
+                  className="flex items-center justify-center rounded-lg shrink-0"
+                  style={{ width: 32, height: 32, background: "#1e1b4b" }}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke={slide.accentColor}
+                    strokeWidth="1.8"
+                  >
+                    <rect x="2" y="3" width="13" height="11" rx="2" />
+                    <path d="M16 8h4a2 2 0 012 2v7a2 2 0 01-2 2H8a2 2 0 01-2-2v-3" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-white truncate">
+                    {slide.productName}
+                  </div>
+                  <div
+                    className="text-[10px] truncate"
+                    style={{ color: "#6b7280" }}
+                  >
+                    {slide.productSpec}
+                  </div>
+                </div>
+                <div
+                  className="text-sm font-black shrink-0"
+                  style={{ color: slide.accentColor }}
+                >
+                  {slide.price}
+                </div>
+              </div>
+              <div className="flex gap-2 mt-4 relative z-10">
+                {slides.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => goTo(i)}
+                    style={{
+                      height: 5,
+                      width: i === current ? 20 : 5,
+                      borderRadius: 3,
+                      background: i === current ? slide.accentColor : "#374151",
+                      border: "none",
+                      cursor: "pointer",
+                      transition: "all 0.3s",
+                      padding: 0,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <style>{`
+        {/* Ticker */}
+        <div
+          style={{
+            background: "#111827",
+            borderTop: "1px solid #1f2937",
+            padding: "9px 0",
+            overflow: "hidden",
+            flexShrink: 0,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              width: "max-content",
+              animation: "ticker 24s linear infinite",
+            }}
+          >
+            {[...Array(2)].flatMap((_, ri) =>
+              [
+                { h: "FREE", t: "Same-day city delivery" },
+                { h: "1 Year", t: "Hardware warranty included" },
+                { h: "Custom", t: "PC & laptop builds" },
+                { h: "Expert", t: "In-house technicians" },
+                { h: "COD", t: "Available in India" },
+                { h: "5 Stores", t: "Walk in anytime" },
+              ].map((item, i) => (
+                <div
+                  key={`${ri}-${i}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "0 28px",
+                    fontSize: 11,
+                    color: "#6b7280",
+                    whiteSpace: "nowrap",
+                    borderRight: "1px solid #1f2937",
+                  }}
+                >
+                  <span style={{ color: "#818cf8", fontWeight: 700 }}>
+                    {item.h}
+                  </span>{" "}
+                  {item.t}
+                </div>
+              )),
+            )}
+          </div>
+        </div>
+        <style>{`
         @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
         @keyframes barAnim { 0%,100%{opacity:0.3} 50%{opacity:1} }
         @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
       `}</style>
-    </div>
-  );
-};
+      </div>
+    );
+  };
 
 const LotteryHeroCard: React.FC<{
   onClick: () => void;
@@ -1187,7 +1193,32 @@ export const Home: React.FC = () => {
     ],
   };
 
-  const activeSlides = heroSlidesBySection[selectedStoreSection];
+
+  const [activeLotteries, setActiveLotteries] = useState<Lottery[]>([]);
+  const lotterySlide = activeLotteries.length > 0 ? {
+    eyebrow: "🎰 Live Giveaway",
+    headline: "Win",
+    accent: "Free Prizes",
+    accentColor: "#fbbf24",
+    glowColor: "rgba(251,191,36,0.22)",
+    sub: "Follow us on Instagram & YouTube, screenshot, and enter free! Join " + (2010 + (activeLotteries[0]?.entry_count ?? 0)).toLocaleString() + "+ people already in.",
+    price: "FREE",
+    oldPrice: "",
+    specs: [
+      { label: "Follow Instagram", icon: "cpu" },
+      { label: "Follow YouTube", icon: "memory" },
+      { label: "Screenshot & Submit", icon: "storage" },
+      { label: "6-Month Warranty Prize", icon: "os" },
+    ],
+    productName: activeLotteries[0]?.name ?? "Live Lottery",
+    productSpec: "Free Entry · Win Now",
+    isLotterySlide: true,
+  } : null;
+
+  const activeSlides = [
+    ...(lotterySlide ? [lotterySlide] : []),
+    ...heroSlidesBySection[selectedStoreSection],
+  ];
   const [featured, setFeatured] = useState<any[]>([]);
   const [currentReview, setCurrentReview] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -1202,7 +1233,6 @@ export const Home: React.FC = () => {
   });
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [lotteryPickerOpen, setLotteryPickerOpen] = useState(false);
-  const [activeLotteries, setActiveLotteries] = useState<Lottery[]>([]);
   const [selectedLottery, setSelectedLottery] = useState<Lottery | null>(null);
   const [isLotteryOpen, setIsLotteryOpen] = useState(false); const [showProfileModal, setShowProfileModal] = useState(false);
   const profileCheckedRef = useRef(false);
@@ -1335,13 +1365,12 @@ export const Home: React.FC = () => {
   }, [selectedStoreSection]);
 
   const openLottery = () => {
+    if (activeLotteries.length === 0) return;
     if (activeLotteries.length === 1) {
       setSelectedLottery(activeLotteries[0]);
       setIsLotteryOpen(true);
-    } else if (activeLotteries.length > 1) {
-      setLotteryPickerOpen(true);
     } else {
-      setIsLotteryOpen(true);
+      setLotteryPickerOpen(true);
     }
   };
   const reviews = [
@@ -1788,6 +1817,7 @@ export const Home: React.FC = () => {
                 }}
                 onContact={() => setCurrentPage("contact")}
                 slides={activeSlides}
+                onLotteryClick={openLottery}
               />
               <div className="flex flex-col gap-3 hero-promo-stack">
                 {(selectedStoreSection === 'Refurbished' ? [
@@ -1911,9 +1941,12 @@ export const Home: React.FC = () => {
                     </>
                   );
 
-                  if ((card as any).isLottery) return (
-                    <LotteryHeroCard key={i} onClick={openLottery} isMobile={false} lotteries={activeLotteries} />
-                  );
+                  if ((card as any).isLottery) {
+                    if (activeLotteries.length === 0) return null;
+                    return (
+                      <LotteryHeroCard key={i} onClick={openLottery} isMobile={false} lotteries={activeLotteries} />
+                    );
+                  }
 
                   return (
                     <Link
@@ -1939,6 +1972,7 @@ export const Home: React.FC = () => {
                 }}
                 onContact={() => setCurrentPage("contact")}
                 slides={activeSlides}
+                onLotteryClick={openLottery}
               />
               {/* Mobile promo — 3 horizontal compact cards */}
               <div className="grid grid-cols-3 gap-2 hero-mobile-promos">
@@ -1967,9 +2001,12 @@ export const Home: React.FC = () => {
                     </>
                   );
 
-                  if ((card as any).isLottery) return (
-                    <LotteryHeroCard key={i} onClick={openLottery} isMobile={true} lotteries={activeLotteries} />
-                  );
+                  if ((card as any).isLottery) {
+                    if (activeLotteries.length === 0) return null;
+                    return (
+                      <LotteryHeroCard key={i} onClick={openLottery} isMobile={true} lotteries={activeLotteries} />
+                    );
+                  }
 
                   return (
                     <Link

@@ -46,7 +46,38 @@ describe('expandTerms', () => {
         const result = expandTerms(['laptop'])
         expect(result).toContain('ultrabook')
     })
+    it('normalizes "macbook" to alias key', () => {
+        expect(normalizeTerm('macbook')).toBe('macbook') // needs alias entry
+    })
 
+    it('expands "macbook" to include "apple"', () => {
+        const result = expandTerms(['macbook'])
+        expect(result).toContain('apple')
+    })
+
+    it('expands "macbook" to include "laptop"', () => {
+        const result = expandTerms(['macbook'])
+        expect(result).toContain('laptop')
+    })
+    it('expands "macbook" to include "macbook pro"', () => {
+        const result = expandTerms(['macbook'])
+        expect(result).toContain('macbook pro')
+    })
+
+    it('expands "macbook" to include "macbook air"', () => {
+        const result = expandTerms(['macbook'])
+        expect(result).toContain('macbook air')
+    })
+
+    it('infers Laptop from "macbook"', () => {
+        const result = inferCategoryFromQuery('macbook')
+        expect(result).toEqual({ category: 'Laptop', subcategory: '' })
+    })
+
+    it('infers Laptop from "apple laptop"', () => {
+        const result = inferCategoryFromQuery('apple laptop')
+        expect(result).toEqual({ category: 'Laptop', subcategory: '' })
+    })
     it('expands "gpu" to include "nvidia"', () => {
 
         const result = expandTerms(['gpu'])
@@ -72,6 +103,46 @@ describe('expandTerms', () => {
         const result = expandTerms(['laptop', 'gpu'])
         expect(result).toContain('notebook')   // from laptop
         expect(result).toContain('nvidia')     // from gpu
+    })
+    it('expands "stand" to include "laptop stand"', () => {
+        expect(expandTerms(['stand'])).toContain('laptop stand')
+    })
+
+    it('expands "hub" to include "usb hub"', () => {
+        expect(expandTerms(['hub'])).toContain('usb hub')
+    })
+
+    it('expands "cartridge" to include "toner"', () => {
+        expect(expandTerms(['cartridge'])).toContain('toner')
+    })
+
+    it('expands "router" to include "wifi router"', () => {
+        expect(expandTerms(['router'])).toContain('wifi router')
+    })
+
+    // Add to inferCategoryFromQuery describe block:
+    it('infers Stand subcategory from "stand"', () => {
+        expect(inferCategoryFromQuery('stand')).toEqual({ category: 'Accessories', subcategory: 'Stand' })
+    })
+
+    it('infers Hub subcategory from "usb hub"', () => {
+        expect(inferCategoryFromQuery('usb hub')).toEqual({ category: 'Accessories', subcategory: 'Hub' })
+    })
+
+    it('infers Cartridge from "ink cartridge"', () => {
+        expect(inferCategoryFromQuery('ink cartridge')).toEqual({ category: 'Accessories', subcategory: 'Cartridge' })
+    })
+
+    it('infers Cartridge from "toner"', () => {
+        expect(inferCategoryFromQuery('toner')).toEqual({ category: 'Accessories', subcategory: 'Cartridge' })
+    })
+
+    it('infers WIFI Adapter from "dongle"', () => {
+        expect(inferCategoryFromQuery('dongle')).toEqual({ category: 'Accessories', subcategory: 'WIFI Adapter' })
+    })
+
+    it('infers Router from "wifi router"', () => {
+        expect(inferCategoryFromQuery('wifi router')).toEqual({ category: 'Accessories', subcategory: 'Router' })
     })
 
     it('returns array with no duplicates (Set removes them)', () => {
