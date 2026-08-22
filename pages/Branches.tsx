@@ -10,10 +10,16 @@ import {
   ExternalLink,
   Sparkles,
   Map as MapIcon,
+  Share2,
+  MessageCircle,
+  Facebook,
+  Twitter,
+  Copy,
 } from "lucide-react";
+import { FaWhatsapp } from 'react-icons/fa';
 import { BranchCarousel } from "./BranchCarousel";
 import { SECTION_ACCENT } from "@/lib/sectionTheme";
-import { Helmet } from 'react-helmet-async'
+import { Helmet } from "react-helmet-async";
 import { useLocation } from "react-router-dom";
 export const Branches: React.FC = () => {
   const { branches, selectedStoreSection } = useStore();
@@ -30,28 +36,70 @@ export const Branches: React.FC = () => {
       b.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       b.address.toLowerCase().includes(searchTerm.toLowerCase()),
   );
-  const location = useLocation()
-  const path = location.pathname.toLowerCase()
+
+  const [shareOpenId, setShareOpenId] = useState<string | number | null>(null);
+
+  const buildShareText = (branch: any) =>
+    `Visit Infofix Computers - ${branch.title}\n${branch.address}\nContact: ${branch.phone}\nHours: ${branch.hours} (${branch.days})`;
+   const isMobileDevice = () =>
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  const handleShare = async (branch: any) => {
+    const fullText = `${buildShareText(branch)}\n${branch.mapsUrl}`;
+    if (isMobileDevice() && navigator.share) {
+      try {
+        await navigator.share({ text: fullText });
+        return;
+      } catch {}
+    }
+    setShareOpenId(branch.id);
+  };
+  const copyBranch = async (branch: any) => {
+    await navigator.clipboard.writeText(
+      `${buildShareText(branch)}\n${branch.mapsUrl}`,
+    );
+    alert("Copied! Paste anywhere.");
+    setShareOpenId(null);
+  };
+
+  const shareVia = (platform: string, branch: any) => {
+    const text = encodeURIComponent(buildShareText(branch));
+    const url = encodeURIComponent(branch.mapsUrl || window.location.href);
+    const links: Record<string, string> = {
+      whatsapp: `https://wa.me/?text=${text}%20${url}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`,
+      twitter: `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
+      telegram: `https://t.me/share/url?url=${url}&text=${text}`,
+    };
+    window.open(links[platform], "_blank", "width=600,height=500");
+    setShareOpenId(null);
+  };
+
+  const location = useLocation();
+  const path = location.pathname.toLowerCase();
 
   const repairMeta = {
-    '/computer-repair-durgapur': {
-      title: 'Computer Repair in Durgapur | Infofix Computers',
-      desc: 'Expert computer repair service in Durgapur — desktop, laptop, motherboard, screen & more. Walk-in at Benachity. Fast turnaround. Infofix Computers.',
-      h1: 'Computer Repair', h2: 'Durgapur',
+    "/computer-repair-durgapur": {
+      title: "Computer Repair in Durgapur | Infofix Computers",
+      desc: "Expert computer repair service in Durgapur — desktop, laptop, motherboard, screen & more. Walk-in at Benachity. Fast turnaround. Infofix Computers.",
+      h1: "Computer Repair",
+      h2: "Durgapur",
     },
-    '/laptop-repair-durgapur': {
-      title: 'Laptop Repair in Durgapur | Infofix Computers',
-      desc: 'Fast laptop repair in Durgapur. Screen, battery, keyboard, hinge, motherboard — all brands. Same-day service at Infofix Computers, Benachity.',
-      h1: 'Laptop Repair', h2: 'Durgapur',
+    "/laptop-repair-durgapur": {
+      title: "Laptop Repair in Durgapur | Infofix Computers",
+      desc: "Fast laptop repair in Durgapur. Screen, battery, keyboard, hinge, motherboard — all brands. Same-day service at Infofix Computers, Benachity.",
+      h1: "Laptop Repair",
+      h2: "Durgapur",
     },
-    '/laptop-repair-asansol': {
-      title: 'Laptop Repair in Asansol | Infofix Computers',
-      desc: 'Laptop repair service in Asansol. Dell, HP, Lenovo, Acer — all brands serviced. Quick turnaround at Infofix Computers.',
-      h1: 'Laptop Repair', h2: 'Asansol',
+    "/laptop-repair-asansol": {
+      title: "Laptop Repair in Asansol | Infofix Computers",
+      desc: "Laptop repair service in Asansol. Dell, HP, Lenovo, Acer — all brands serviced. Quick turnaround at Infofix Computers.",
+      h1: "Laptop Repair",
+      h2: "Asansol",
     },
-  } as const
+  } as const;
 
-  const currentRepair = repairMeta[path as keyof typeof repairMeta]
+  const currentRepair = repairMeta[path as keyof typeof repairMeta];
   return (
     <div className="pb-32 bg-white selection:bg-indigo-100 selection:text-indigo-900">
       {currentRepair && (
@@ -59,47 +107,76 @@ export const Branches: React.FC = () => {
           <Helmet>
             <title>{currentRepair.title}</title>
             <meta name="description" content={currentRepair.desc} />
-            <link rel="canonical" href={`https://infofixcomputers.com${location.pathname}`} />
-            <script type="application/ld+json">{JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "LocalBusiness",
-              "name": "Infofix Computers",
-              "url": "https://infofixcomputers.com",
-              "telephone": "+91-8293295257",
-              "description": currentRepair.desc,
-              "address": {
-                "@type": "PostalAddress",
-                "streetAddress": "Benachity Near Bank of Baroda",
-                "addressLocality": "Durgapur",
-                "addressRegion": "West Bengal",
-                "postalCode": "713201",
-                "addressCountry": "IN"
-              },
-              "geo": { "@type": "GeoCoordinates", "latitude": 23.5204, "longitude": 87.3119 },
-              "openingHoursSpecification": [{
-                "@type": "OpeningHoursSpecification",
-                "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-                "opens": "10:00", "closes": "20:00"
-              }],
-              "areaServed": [
-                { "@type": "City", "name": "Durgapur" },
-                { "@type": "City", "name": "Asansol" },
-                { "@type": "City", "name": "Ukhra" }
-              ]
-            })}</script>
+            <link
+              rel="canonical"
+              href={`https://infofixcomputers.com${location.pathname}`}
+            />
+            <script type="application/ld+json">
+              {JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "LocalBusiness",
+                name: "Infofix Computers",
+                url: "https://infofixcomputers.com",
+                telephone: "+91-8293295257",
+                description: currentRepair.desc,
+                address: {
+                  "@type": "PostalAddress",
+                  streetAddress: "Benachity Near Bank of Baroda",
+                  addressLocality: "Durgapur",
+                  addressRegion: "West Bengal",
+                  postalCode: "713201",
+                  addressCountry: "IN",
+                },
+                geo: {
+                  "@type": "GeoCoordinates",
+                  latitude: 23.5204,
+                  longitude: 87.3119,
+                },
+                openingHoursSpecification: [
+                  {
+                    "@type": "OpeningHoursSpecification",
+                    dayOfWeek: [
+                      "Monday",
+                      "Tuesday",
+                      "Wednesday",
+                      "Thursday",
+                      "Friday",
+                      "Saturday",
+                    ],
+                    opens: "10:00",
+                    closes: "20:00",
+                  },
+                ],
+                areaServed: [
+                  { "@type": "City", name: "Durgapur" },
+                  { "@type": "City", name: "Asansol" },
+                  { "@type": "City", name: "Ukhra" },
+                ],
+              })}
+            </script>
           </Helmet>
           {/* Unique hero for repair pages */}
           <section className="bg-white py-12 px-4 text-center border-b border-gray-100">
             <h1 className="text-4xl font-black text-gray-900 mb-3">
-              {currentRepair.h1}{' '}
+              {currentRepair.h1}{" "}
               <span style={{ color: theme.accent }}>{currentRepair.h2}</span>
             </h1>
-            <p className="text-gray-500 max-w-xl mx-auto font-medium">{currentRepair.desc}</p>
+            <p className="text-gray-500 max-w-xl mx-auto font-medium">
+              {currentRepair.desc}
+            </p>
             <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm font-bold">
-              <span className="bg-green-50 text-green-700 border border-green-200 px-4 py-2 rounded-full">✓ All Brands Serviced</span>
-              <span className="bg-blue-50 text-blue-700 border border-blue-200 px-4 py-2 rounded-full">✓ Fast Turnaround</span>
-              <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-full">✓ Walk-in Welcome</span>
-              <span className="bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2 rounded-full">✓ Genuine Parts</span>
+              <span className="bg-green-50 text-green-700 border border-green-200 px-4 py-2 rounded-full">
+                ✓ All Brands Serviced
+              </span>
+              <span className="bg-blue-50 text-blue-700 border border-blue-200 px-4 py-2 rounded-full">
+                ✓ Fast Turnaround
+              </span>
+              <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-full">
+                ✓ Walk-in Welcome
+              </span>
+              <span className="bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2 rounded-full">
+                ✓ Genuine Parts
+              </span>
             </div>
           </section>
         </>
@@ -121,8 +198,8 @@ export const Branches: React.FC = () => {
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 w-full text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-full text-white text-[10px] font-black uppercase tracking-widest backdrop-blur-md animate-fade-in-up">
-            <MapIcon style={{ width: 10, height: 10, color: theme.accent }} /> Infofix Store
-            Network
+            <MapIcon style={{ width: 10, height: 10, color: theme.accent }} />{" "}
+            Infofix Store Network
           </div>
           <h1
             className="text-5xl md:text-7xl font-black text-white tracking-tighter animate-fade-in-up"
@@ -137,7 +214,10 @@ export const Branches: React.FC = () => {
             Visit Infofix Computers at any of our branches for product
             purchases, repairs, upgrades, and expert technical support.
           </p>
-          <p className=" text-sm font-semibold tracking-wide" style={{ color: theme.accent }}>
+          <p
+            className=" text-sm font-semibold tracking-wide"
+            style={{ color: theme.accent }}
+          >
             Trusted service. Genuine products. Local presence.
           </p>
           {/* Floating Search Bar */}
@@ -147,7 +227,10 @@ export const Branches: React.FC = () => {
           >
             <div className="absolute inset-0 bg-indigo-500/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full"></div>
             <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center p-2 shadow-2xl">
-              <Search className="ml-4 w-5 h-5" style={{ color: theme.accent }} />
+              <Search
+                className="ml-4 w-5 h-5"
+                style={{ color: theme.accent }}
+              />
               <input
                 type="text"
                 placeholder="Search city or branch name..."
@@ -169,7 +252,6 @@ export const Branches: React.FC = () => {
       <div className="app-container pt-6 relative z-20">
         {/* Store Overview Section */}
         <div className="text-center max-w-3xl mx-auto mb-8 md:mb-16 mt-4 md:mt-0">
-
           <h2 className="text-3xl font-black text-gray-900 mb-4">
             Find an Infofix Computers Store Near You
           </h2>
@@ -200,11 +282,15 @@ export const Branches: React.FC = () => {
                   />
                   {/* Keep city badge + title overlay */}
                   <div className="absolute top-6 left-6 right-6 flex justify-between items-start z-10">
-                    <span className="backdrop-blur-md text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest"
-                      style={{ background: theme.accent + 'e6', border: `1px solid ${theme.accent}66` }}>
+                    <span
+                      className="backdrop-blur-md text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest"
+                      style={{
+                        background: theme.accent + "e6",
+                        border: `1px solid ${theme.accent}66`,
+                      }}
+                    >
                       {branch.city}
                     </span>
-
                   </div>
                   <div className="absolute bottom-8 left-8 right-8 z-10">
                     <h3 className="text-3xl font-black text-white tracking-tight drop-shadow-lg">
@@ -217,10 +303,23 @@ export const Branches: React.FC = () => {
                 <div className="p-10 space-y-8 flex-1 flex flex-col">
                   <div className="space-y-4">
                     <div className="flex items-start gap-4">
-                      <div className="p-2.5 rounded-xl transition-all duration-300"
-                        style={{ background: theme.accentLight, color: theme.accent }}
-                        onMouseEnter={e => { e.currentTarget.style.background = theme.accent; e.currentTarget.style.color = '#fff'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = theme.accentLight; e.currentTarget.style.color = theme.accent; }}>                        <MapPin className="w-5 h-5" />
+                      <div
+                        className="p-2.5 rounded-xl transition-all duration-300"
+                        style={{
+                          background: theme.accentLight,
+                          color: theme.accent,
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = theme.accent;
+                          e.currentTarget.style.color = "#fff";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = theme.accentLight;
+                          e.currentTarget.style.color = theme.accent;
+                        }}
+                      >
+                        {" "}
+                        <MapPin className="w-5 h-5" />
                       </div>
                       <p className="text-gray-600 font-medium leading-relaxed">
                         {branch.address}
@@ -229,8 +328,10 @@ export const Branches: React.FC = () => {
 
                     <div className="grid grid-cols-2 gap-6 pt-2">
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
-                          style={{ color: theme.accent }}>
+                        <div
+                          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
+                          style={{ color: theme.accent }}
+                        >
                           <Clock className="w-3 h-3" /> Availability
                         </div>
                         <p className="text-sm font-bold text-gray-900">
@@ -241,7 +342,10 @@ export const Branches: React.FC = () => {
                         </p>
                       </div>
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest" style={{ color: theme.accent }}>
+                        <div
+                          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
+                          style={{ color: theme.accent }}
+                        >
                           <Phone className="w-3 h-3" /> Phone
                         </div>
                         <p className="text-sm font-bold text-gray-900">
@@ -267,16 +371,58 @@ export const Branches: React.FC = () => {
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex gap-4 pt-4 mt-auto">
+                  <div className="flex gap-4 pt-4 mt-auto relative">
                     <a
                       href={branch.mapsUrl}
                       target="_blank"
                       rel="noreferrer"
                       className="flex-1 bg-gray-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-xl shadow-gray-200 active:scale-[0.98]"
-                      onMouseEnter={e => (e.currentTarget.style.background = theme.accent)}
-                      onMouseLeave={e => (e.currentTarget.style.background = '#111827')}                    >
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background = theme.accent)
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "#111827")
+                      }
+                    >
                       <ExternalLink className="w-4 h-4" /> View Map
                     </a>
+
+                    <button
+                      onClick={() => handleShare(branch)}
+                      className="px-6 bg-indigo-50 rounded-2xl hover:bg-indigo-100 transition-all active:scale-[0.98] border border-indigo-100"
+                      style={{ color: theme.accent }}
+                    >
+                      <Share2 className="w-5 h-5" />
+                    </button>
+
+                                       {shareOpenId === branch.id && (
+                      <div className="absolute bottom-full right-0 mb-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-3 z-50 flex gap-2">
+                        <button
+                          onClick={() => shareVia("whatsapp", branch)}
+                          className="p-3 bg-green-50 rounded-xl hover:bg-green-100"
+                        >
+                          <FaWhatsapp className="w-5 h-5 text-green-600" />
+                        </button>
+                        <button
+                          onClick={() => shareVia("facebook", branch)}
+                          className="p-3 bg-blue-50 rounded-xl hover:bg-blue-100"
+                        >
+                          <Facebook className="w-5 h-5 text-blue-600" />
+                        </button>
+                        <button
+                          onClick={() => shareVia("twitter", branch)}
+                          className="p-3 bg-sky-50 rounded-xl hover:bg-sky-100"
+                        >
+                          <Twitter className="w-5 h-5 text-sky-600" />
+                        </button>
+                        <button
+                          onClick={() => copyBranch(branch)}
+                          className="p-3 bg-gray-50 rounded-xl hover:bg-gray-100"
+                        >
+                          <Copy className="w-5 h-5 text-gray-600" />
+                        </button>
+                      </div>
+                    )}
                     <button
                       onClick={() =>
                         (window.location.href = `tel:${branch.phone}`)
@@ -318,7 +464,10 @@ export const Branches: React.FC = () => {
         <div className="relative bg-[#172337] rounded-[56px] p-16 md:p-32 overflow-hidden text-center text-white">
           <div className="absolute top-0 left-0 w-full h-full bg-linear-to-br from-indigo-600/20 to-transparent"></div>
           <div className="relative z-10 space-y-8 max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full  text-[10px] font-black uppercase tracking-widest backdrop-blur-md" style={{ color: theme.accent }}>
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full  text-[10px] font-black uppercase tracking-widest backdrop-blur-md"
+              style={{ color: theme.accent }}
+            >
               <Sparkles className="w-3 h-3" /> Store Assistance
             </div>
             <h2 className="text-4xl md:text-7xl font-black tracking-tighter leading-none">
